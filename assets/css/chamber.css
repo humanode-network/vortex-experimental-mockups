@@ -85,17 +85,30 @@
   font-size: 0.9rem;
 }
 
+.forum-panel {
+  grid-column: 1 / -1;
+}
+
 .forum-panel .forum-columns {
   display: grid;
   gap: 1rem;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 1.4fr;
+}
+
+.thread-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
 }
 
 .thread-card {
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.8rem;
-  margin-bottom: 0.8rem;
+  border-radius: 10px;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.85rem;
 }
 
 .chat-panel {
@@ -105,7 +118,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  height: 100%;
+  min-height: 320px;
 }
 
 .chat-log {
