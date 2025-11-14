@@ -3,18 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vortex Interface · Formation</title>
+    <title>Vortex · Formation</title>
     <link rel="stylesheet" href="assets/css/base.css" />
     <link rel="stylesheet" href="assets/css/layout.css" />
     <link rel="stylesheet" href="assets/css/formation.css" />
   </head>
-  <body class="mode-observer" data-page="formation">
-    <a class="skip-link" href="#workspace">Skip to content</a>
+  <body data-page="formation">
+    <a class="skip-link" href="#main">Skip to content</a>
 
 
     <div class="app-shell">
       <aside class="sidebar">
-        <div class="sidebar__brand">Vortex Interface</div>
+        <div>
+          <div class="sidebar__brand">Vortex</div>
+          <p class="sidebar__hint">Cognitocratic control stack</p>
+        </div>
         <nav class="sidebar__nav" aria-label="Primary">
           <a class="sidebar__link" href="human-nodes.html" data-nav-link="human-nodes"
             >Human nodes</a
@@ -38,86 +41,72 @@
         </nav>
       </aside>
 
-      <div class="workspace" id="workspace">
+      <main id="main" class="workspace">
         <header class="workspace__top">
           <div>
-            <p class="eyebrow">Vortex suite</p>
-            <h1 data-page-title>Formation</h1>
+            <p class="eyebrow">Formation</p>
+            <h1>Grant operations</h1>
+            <p class="page-lede">
+              Formation funds research, development, and social-good initiatives that have been accepted by Vortex. Each project tracks HMND allocations, milestones, and team slots per the Formation framework.
+            </p>
           </div>
           <div class="mode-indicators">
-            <span class="mode-chip" data-mode-label>View-only</span>
-            <span class="status-chip status-chip--observer" data-mode-pill>Observer</span>
+            <span class="mode-chip" data-mode-chip>Active Human node</span>
           </div>
         </header>
-        <div class="mode-banner mode-banner--observer" data-mode-banner role="status" hidden>
-          View-only mode — become an active Human node to participate.
-        </div>
 
-        <main class="app-page app-page--active">
-          <div class="grid-two">
-            <article>
-              <header>
-                <p class="eyebrow">Execution layer</p>
-                <h2>Formation pipeline</h2>
-                <p>Grants, agreements, and squads delivering Vortex mandates.</p>
-              </header>
-              <ol class="pipeline">
-                <li>
-                  <strong>Proposal intake</strong>
-                  <span>Tied to Vortex vote IDs</span>
-                </li>
-                <li>
-                  <strong>Budget assignment</strong>
-                  <span>2% fee stream adjustable via GC</span>
-                </li>
-                <li>
-                  <strong>Team assembly</strong>
-                  <span>Invite human nodes; escrow payouts</span>
-                </li>
-                <li>
-                  <strong>Delivery tracking</strong>
-                  <span>Milestones pinned on-chain</span>
-                </li>
-              </ol>
-              <div class="cta">
-                <button
-                  type="button"
-                  class="btn btn--primary btn--disabled"
-                  data-gated
-                  disabled
-                  aria-disabled="true"
-                >
-                  Launch Formation workspace
-                </button>
-              </div>
-            </article>
+        <section class="formation-metrics">
+          <article>
+            <p>Total funded HMND</p>
+            <strong data-metric-hmnd>—</strong>
+          </article>
+          <article>
+            <p>Active projects</p>
+            <strong data-metric-active>—</strong>
+          </article>
+          <article>
+            <p>Open team slots</p>
+            <strong data-metric-slots>—</strong>
+          </article>
+          <article>
+            <p>Milestones delivered</p>
+            <strong data-metric-milestones>—</strong>
+          </article>
+        </section>
 
-            <article class="panel">
-              <h3>Funding focus</h3>
-              <ul class="bullet-list">
-                <li>Research — cryptobiometrics, consensus, privacy primitives.</li>
-                <li>Development/Product — software + UX for Humanode stack.</li>
-                <li>Social Good & Community — education, outreach, advocacy.</li>
-              </ul>
-              <div class="budget-cards">
-                <article>
-                  <p class="eyebrow">Treasury</p>
-                  <h3>4.2M HMND</h3>
-                  <p>Allocated to Formation vault</p>
-                </article>
-                <article>
-                  <p class="eyebrow">Cycle burn</p>
-                  <h3>12%</h3>
-                  <p>Spent this era</p>
-                </article>
-                <article>
-                  <p class="eyebrow">Pending unlocks</p>
-                  <h3>8 squads</h3>
-                  <p>Awaiting milestone proof</p>
-                </article>
-              </div>
-            </article>
+        <section class="formation-controls">
+          <div class="chip-group" role="tablist">
+            <button class="chip chip--active" data-formation-filter="all">All</button>
+            <button class="chip" data-formation-filter="research">Research</button>
+            <button class="chip" data-formation-filter="development">Development &amp; Product</button>
+            <button class="chip" data-formation-filter="social">Social Good &amp; Community</button>
           </div>
+          <div class="legend">
+            <span class="stage-dot stage-dot--live"></span> Live
+            <span class="stage-dot stage-dot--upcoming"></span> Upcoming
+            <span class="stage-dot stage-dot--completed"></span> Completed
+          </div>
+        </section>
+
+        <section class="formation-search" role="search">
+          <label class="formation-search__label" for="formation-search-input">Search projects</label>
+          <div class="formation-search__field">
+            <input
+              id="formation-search-input"
+              type="search"
+              placeholder="Search by project, proposer, focus, stage…"
+              data-formation-search
+              autocomplete="off"
+            />
+            <button type="button" aria-label="Clear search" data-formation-search-clear hidden>
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+        </section>
+
+        <section class="formation-grid" data-formation-list aria-live="polite"></section>
         </main>
 
         <footer class="footer">
@@ -127,7 +116,7 @@
       </div>
     </div>
     <script defer src="assets/js/bootstrap.js"></script>
-    <script defer src="assets/js/chambers.js"></script>
+    <script defer src="assets/js/formation.js"></script>
 
   </body>
 </html>
