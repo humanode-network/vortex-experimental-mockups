@@ -1,0 +1,60 @@
+name: code
+
+on:
+  push:
+  schedule:
+    - cron: "0 20 * * 0"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  yarn:
+    strategy:
+      matrix:
+        mode:
+          - command: prettier:check
+            skip-build: true
+
+      fail-fast: false
+
+    name: ${{ matrix.mode.command }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: ./.github/actions/setup
+        with:
+          skip-yarn-build: ${{ matrix.mode.skip-build }}
+
+      - run: yarn ${{ matrix.mode.command }}
+
+  check-cache:
+    name: Cache integrity check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: ./.github/actions/setup
+        with:
+          skip-yarn-install: true
+          skip-yarn-build: true
+
+      - run: yarn install --immutable --check-cache
