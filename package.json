@@ -4,10 +4,15 @@
   "type": "module",
   "packageManager": "yarn@4.11.0",
   "scripts": {
+    "dev": "rsbuild dev",
+    "build": "rsbuild build",
+    "preview": "rsbuild preview",
     "prettier:check": "prettier --list-different .",
     "prettier:fix": "prettier --write ."
   },
   "devDependencies": {
+    "@rsbuild/core": "^1.6.6",
+    "@rsbuild/plugin-react": "^1.4.2",
     "prettier": "^3.6.2"
   }
 }
