@@ -22,8 +22,8 @@ runs:
 
     - run: yarn install --immutable
       shell: bash
-      if: "inputs.skip-yarn-install != true"
+      if: "inputs.skip-yarn-install != 'true'"
 
     - run: yarn build
       shell: bash
-      if: "inputs.skip-yarn-build != true"
+      if: "inputs.skip-yarn-build != 'true'"
