@@ -124,7 +124,9 @@
   color: inherit;
   text-align: left;
   cursor: pointer;
-  transition: border 0.2s, background 0.2s;
+  transition:
+    border 0.2s,
+    background 0.2s;
 }
 
 .search-result strong {

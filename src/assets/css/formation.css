@@ -55,7 +55,9 @@
   color: var(--text);
   font-size: 0.9rem;
   cursor: pointer;
-  transition: border 0.2s, background 0.2s;
+  transition:
+    border 0.2s,
+    background 0.2s;
 }
 
 .chip--active {

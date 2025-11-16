@@ -42,9 +42,10 @@
   const renderProposals = (stage) => {
     if (!proposalContainer) return;
     const items = proposals.filter((p) => p.stage === stage);
-    proposalContainer.innerHTML = items
-      .map(
-        (item) => `
+    proposalContainer.innerHTML =
+      items
+        .map(
+          (item) => `
         <article class="proposal-card">
           <div>
             <strong>${item.name}</strong>
@@ -54,9 +55,9 @@
             <span>${item.window}</span>
             <a href="#" class="chamber-link">Open</a>
           </footer>
-        </article>`
-      )
-      .join("") || "<p>No proposals in this stage.</p>";
+        </article>`,
+        )
+        .join("") || "<p>No proposals in this stage.</p>";
   };
 
   stageButtons.forEach((button) => {
@@ -75,17 +76,18 @@
   const renderGovernors = (query = "") => {
     if (!governorList) return;
     const filtered = governors.filter((name) =>
-      name.toLowerCase().includes(query.toLowerCase())
+      name.toLowerCase().includes(query.toLowerCase()),
     );
-    governorList.innerHTML = filtered
-      .map(
-        (name) => `
+    governorList.innerHTML =
+      filtered
+        .map(
+          (name) => `
         <li class="governor-item">
           <span>${name}</span>
           <a href="human-nodes.html#${name}" class="chamber-link">Profile</a>
-        </li>`
-      )
-      .join("") || "<li class=\"governor-item\">No governors found</li>";
+        </li>`,
+        )
+        .join("") || '<li class="governor-item">No governors found</li>';
   };
 
   governorSearch?.addEventListener("input", (event) => {

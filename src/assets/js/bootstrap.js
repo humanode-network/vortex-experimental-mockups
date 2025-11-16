@@ -55,13 +55,17 @@
 
   document.querySelectorAll("[data-open-modal]").forEach((button) => {
     button.addEventListener("click", () => {
-      const modal = document.querySelector(`[data-modal="${button.dataset.openModal}"]`);
+      const modal = document.querySelector(
+        `[data-modal="${button.dataset.openModal}"]`,
+      );
       modal?.setAttribute("aria-hidden", "false");
     });
   });
 
   document.querySelectorAll("[data-close-modal]").forEach((button) => {
-    button.addEventListener("click", () => closeModal(button.closest(".modal")));
+    button.addEventListener("click", () =>
+      closeModal(button.closest(".modal")),
+    );
   });
 
   modals.forEach((modal) => {

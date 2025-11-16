@@ -27,7 +27,8 @@
       category: "development",
       chamber: "Security & Infra",
       focus: "Sybil defense rollup",
-      summary: "Auxiliary rollup that publishes Humanode anti-Sybil heuristics for partner DAOs to subscribe to.",
+      summary:
+        "Auxiliary rollup that publishes Humanode anti-Sybil heuristics for partner DAOs to subscribe to.",
       hmndAllocated: 420000,
       team: { filled: 5, total: 7 },
       milestones: { delivered: 2, total: 4, next: "Era 413.24" },
@@ -43,7 +44,8 @@
       category: "research",
       chamber: "Economics",
       focus: "Dynamic treasury modeling",
-      summary: "Agent-based simulator that maps fee splits, validator incentives, and GC fee modulation.",
+      summary:
+        "Agent-based simulator that maps fee splits, validator incentives, and GC fee modulation.",
       hmndAllocated: 160000,
       team: { filled: 3, total: 5 },
       milestones: { delivered: 0, total: 3, next: "Era 414.03" },
@@ -59,7 +61,8 @@
       category: "research",
       chamber: "Research Loop",
       focus: "Proof-of-Genuine primitives",
-      summary: "Open lab validating heartbeat + EMG fusion for stronger Proof-of-Time attestations.",
+      summary:
+        "Open lab validating heartbeat + EMG fusion for stronger Proof-of-Time attestations.",
       hmndAllocated: 180000,
       team: { filled: 5, total: 6 },
       milestones: { delivered: 3, total: 5, next: "Era 413.14" },
@@ -75,7 +78,8 @@
       category: "social",
       chamber: "Social Impact",
       focus: "Human-node onboarding",
-      summary: "Regional workshops and biometric tune-ups to keep the human-node set quorum-ready.",
+      summary:
+        "Regional workshops and biometric tune-ups to keep the human-node set quorum-ready.",
       hmndAllocated: 60000,
       team: { filled: 6, total: 8 },
       milestones: { delivered: 1, total: 3, next: "Era 413.10" },
@@ -91,7 +95,8 @@
       category: "social",
       chamber: "Compliance",
       focus: "On-chain charter enforcement",
-      summary: "Automated quorum findings that trigger GC playbooks with verifiable attestations.",
+      summary:
+        "Automated quorum findings that trigger GC playbooks with verifiable attestations.",
       hmndAllocated: 90000,
       team: { filled: 4, total: 4 },
       milestones: { delivered: 3, total: 3, next: "Era 412.09" },
@@ -107,7 +112,8 @@
       category: "development",
       chamber: "Security & Infra",
       focus: "Validator defense",
-      summary: "Ready-to-run configs and fault drills to keep deterministic validator fleets online.",
+      summary:
+        "Ready-to-run configs and fault drills to keep deterministic validator fleets online.",
       hmndAllocated: 130000,
       team: { filled: 2, total: 6 },
       milestones: { delivered: 0, total: 4, next: "Era 413.30" },
@@ -162,7 +168,7 @@
         acc.milestones += project.milestones.delivered;
         return acc;
       },
-      { hmnd: 0, active: 0, slots: 0, milestones: 0 }
+      { hmnd: 0, active: 0, slots: 0, milestones: 0 },
     );
 
     if (metricHmnd) metricHmnd.textContent = formatHmnd(totals.hmnd);
@@ -173,8 +179,10 @@
 
   const getFilteredProjects = () =>
     projects.filter((project) => {
-      const matchesCategory = activeFilter === "all" || project.category === activeFilter;
-      const matchesSearch = !searchTerm || project.searchIndex.includes(searchTerm);
+      const matchesCategory =
+        activeFilter === "all" || project.category === activeFilter;
+      const matchesSearch =
+        !searchTerm || project.searchIndex.includes(searchTerm);
       return matchesCategory && matchesSearch;
     });
 
@@ -199,7 +207,9 @@
         {
           label: "Milestones",
           value: `${project.milestones.delivered} / ${project.milestones.total}`,
-          sub: project.milestones.next ? `Next: ${project.milestones.next}` : "No pending milestone",
+          sub: project.milestones.next
+            ? `Next: ${project.milestones.next}`
+            : "No pending milestone",
         },
         {
           label: project.extra.label,
@@ -216,7 +226,7 @@
             <strong>${stat.value}</strong>
             ${stat.sub ? `<small>${stat.sub}</small>` : ""}
           </li>
-        `
+        `,
         )
         .join("");
 
@@ -251,7 +261,10 @@
   const setActiveFilter = (value) => {
     activeFilter = value;
     filterButtons.forEach((button) =>
-      button.classList.toggle("chip--active", button.dataset.formationFilter === value)
+      button.classList.toggle(
+        "chip--active",
+        button.dataset.formationFilter === value,
+      ),
     );
     renderProjects();
   };

@@ -74,7 +74,10 @@
   border-radius: 12px;
   padding: 0.65rem 0.9rem;
   text-align: left;
-  transition: border 0.2s, color 0.2s, background 0.2s;
+  transition:
+    border 0.2s,
+    color 0.2s,
+    background 0.2s;
 }
 
 .sidebar__link--active {

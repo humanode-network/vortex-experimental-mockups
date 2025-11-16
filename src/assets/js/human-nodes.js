@@ -16,7 +16,8 @@
     searchPanel.classList.toggle("search-panel--open", open);
     searchBody.hidden = !open;
     searchToggle.setAttribute("aria-expanded", String(open));
-    if (searchLabel) searchLabel.textContent = open ? "Hide search" : "Open search";
+    if (searchLabel)
+      searchLabel.textContent = open ? "Hide search" : "Open search";
     if (searchHint) searchHint.textContent = open ? "Expanded" : "Collapsed";
   };
 
@@ -201,14 +202,62 @@
   };
 
   const searchResults = [
-    { id: "mozgiii", tier: "Citizen", chamber: "Protocol Engineering", focus: "PoT heavy", delegations: "41" },
-    { id: "victor", tier: "Consul", chamber: "Economics", focus: "PoD heavy", delegations: "53" },
-    { id: "dima", tier: "Legate", chamber: "Protocol Engineering", focus: "Node ops", delegations: "25" },
-    { id: "tony", tier: "Tribune", chamber: "Social", focus: "Community", delegations: "12" },
-    { id: "sesh", tier: "Citizen", chamber: "Research", focus: "PoG analytics", delegations: "47" },
-    { id: "peter", tier: "Consul", chamber: "Formation Logistics", focus: "Formation ops", delegations: "32" },
-    { id: "shannon", tier: "Legate", chamber: "Compliance", focus: "Governance", delegations: "22" },
-    { id: "sasha", tier: "Tribune", chamber: "Security", focus: "Sybil defense", delegations: "18" },
+    {
+      id: "mozgiii",
+      tier: "Citizen",
+      chamber: "Protocol Engineering",
+      focus: "PoT heavy",
+      delegations: "41",
+    },
+    {
+      id: "victor",
+      tier: "Consul",
+      chamber: "Economics",
+      focus: "PoD heavy",
+      delegations: "53",
+    },
+    {
+      id: "dima",
+      tier: "Legate",
+      chamber: "Protocol Engineering",
+      focus: "Node ops",
+      delegations: "25",
+    },
+    {
+      id: "tony",
+      tier: "Tribune",
+      chamber: "Social",
+      focus: "Community",
+      delegations: "12",
+    },
+    {
+      id: "sesh",
+      tier: "Citizen",
+      chamber: "Research",
+      focus: "PoG analytics",
+      delegations: "47",
+    },
+    {
+      id: "peter",
+      tier: "Consul",
+      chamber: "Formation Logistics",
+      focus: "Formation ops",
+      delegations: "32",
+    },
+    {
+      id: "shannon",
+      tier: "Legate",
+      chamber: "Compliance",
+      focus: "Governance",
+      delegations: "22",
+    },
+    {
+      id: "sasha",
+      tier: "Tribune",
+      chamber: "Security",
+      focus: "Sybil defense",
+      delegations: "18",
+    },
   ];
 
   const $ = (selector) => document.querySelector(selector);
@@ -248,10 +297,11 @@
               <li>${entry.focus}</li>
               <li>Delegations: ${entry.delegations}</li>
             </ul>
-          </button>`
+          </button>`,
       )
       .join("");
-    if (resultsCount) resultsCount.textContent = `${searchResults.length} Cognitocrats`;
+    if (resultsCount)
+      resultsCount.textContent = `${searchResults.length} Cognitocrats`;
   };
 
   const setField = (node, value) => {
@@ -262,13 +312,18 @@
   const syncResultButtons = () => {
     resultButtons = document.querySelectorAll("[data-profile-target]");
     resultButtons.forEach((button) => {
-      button.addEventListener("click", () => renderProfile(button.dataset.profileTarget));
+      button.addEventListener("click", () =>
+        renderProfile(button.dataset.profileTarget),
+      );
     });
   };
 
   const setActiveResult = (id) => {
     resultButtons.forEach((btn) => {
-      btn.classList.toggle("search-result--active", btn.dataset.profileTarget === id);
+      btn.classList.toggle(
+        "search-result--active",
+        btn.dataset.profileTarget === id,
+      );
     });
   };
 
