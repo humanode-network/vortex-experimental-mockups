@@ -20,6 +20,14 @@
       activeStreak: "21 eras",
       activeNow: "Yes",
       quorum: "97%",
+      potDuration: "34 epochs (~5.8 weeks)",
+      potStatus: "Active validator",
+      potGovernor: "22 epochs",
+      podProposals: "2",
+      podChambers: "Protocol · Social",
+      podProjects: "Monitoring Kit, Delegation UX",
+      pogDuration: "18 epochs",
+      pogStatus: "Yes",
     },
     mozgiii: {
       name: "Mozgiii",
@@ -39,6 +47,14 @@
       activeStreak: "34 eras",
       activeNow: "Yes",
       quorum: "99%",
+      potDuration: "41 epochs",
+      potStatus: "Validator",
+      potGovernor: "29 epochs",
+      podProposals: "6",
+      podChambers: "Protocol · Research",
+      podProjects: "Multimodal Biometrics, Treasury Simulator",
+      pogDuration: "29 epochs",
+      pogStatus: "Yes",
     },
     victor: {
       name: "Victor",
@@ -58,6 +74,14 @@
       activeStreak: "29 eras",
       activeNow: "Yes",
       quorum: "96%",
+      potDuration: "33 epochs",
+      potStatus: "Validator",
+      potGovernor: "25 epochs",
+      podProposals: "7",
+      podChambers: "Economics · Treasury",
+      podProjects: "Adaptive Fees",
+      pogDuration: "25 epochs",
+      pogStatus: "Yes",
     },
     dima: {
       name: "Dima",
@@ -77,6 +101,14 @@
       activeStreak: "23 eras",
       activeNow: "Yes",
       quorum: "93%",
+      potDuration: "28 epochs",
+      potStatus: "Validator",
+      potGovernor: "20 epochs",
+      podProposals: "3",
+      podChambers: "Protocol",
+      podProjects: "Monitoring Kit",
+      pogDuration: "20 epochs",
+      pogStatus: "Yes",
     },
     tony: {
       name: "Tony",
@@ -96,6 +128,14 @@
       activeStreak: "14 eras",
       activeNow: "Yes",
       quorum: "88%",
+      potDuration: "22 epochs",
+      potStatus: "Validator",
+      potGovernor: "14 epochs",
+      podProposals: "3",
+      podChambers: "Social · Education",
+      podProjects: "Mentorship Collective",
+      pogDuration: "14 epochs",
+      pogStatus: "Yes",
     },
     sesh: {
       name: "Sesh",
@@ -115,6 +155,14 @@
       activeStreak: "37 eras",
       activeNow: "Yes",
       quorum: "99%",
+      potDuration: "45 epochs",
+      potStatus: "Validator",
+      potGovernor: "33 epochs",
+      podProposals: "8",
+      podChambers: "Research · General",
+      podProjects: "Liveness Audits",
+      pogDuration: "33 epochs",
+      pogStatus: "Yes",
     },
     peter: {
       name: "Peter",
@@ -134,6 +182,14 @@
       activeStreak: "25 eras",
       activeNow: "Yes",
       quorum: "95%",
+      potDuration: "31 epochs",
+      potStatus: "Validator",
+      potGovernor: "24 epochs",
+      podProposals: "4",
+      podChambers: "Formation Logistics",
+      podProjects: "Treasury Simulator",
+      pogDuration: "24 epochs",
+      pogStatus: "Yes",
     },
     shannon: {
       name: "Shannon",
@@ -153,6 +209,14 @@
       activeStreak: "21 eras",
       activeNow: "Yes",
       quorum: "94%",
+      potDuration: "27 epochs",
+      potStatus: "Validator",
+      potGovernor: "19 epochs",
+      podProposals: "3",
+      podChambers: "Compliance",
+      podProjects: "Compliance Charter",
+      pogDuration: "19 epochs",
+      pogStatus: "Yes",
     },
     sasha: {
       name: "Sasha",
@@ -172,80 +236,76 @@
       activeStreak: "15 eras",
       activeNow: "Yes",
       quorum: "89%",
+      potDuration: "20 epochs",
+      potStatus: "Validator",
+      potGovernor: "13 epochs",
+      podProposals: "2",
+      podChambers: "Security",
+      podProjects: "Validator Hardening",
+      pogDuration: "13 epochs",
+      pogStatus: "Yes",
     },
   };
 
-  const searchResults = [
-    { id: "mozgiii", tier: "Citizen", chamber: "Protocol Engineering", focus: "PoT heavy", delegations: "41" },
-    { id: "victor", tier: "Consul", chamber: "Economics", focus: "PoD heavy", delegations: "53" },
-    { id: "dima", tier: "Legate", chamber: "Protocol Engineering", focus: "Node ops", delegations: "25" },
-    { id: "tony", tier: "Tribune", chamber: "Social", focus: "Community", delegations: "12" },
-    { id: "sesh", tier: "Citizen", chamber: "Research", focus: "PoG analytics", delegations: "47" },
-    { id: "peter", tier: "Consul", chamber: "Formation Logistics", focus: "Formation ops", delegations: "32" },
-    { id: "shannon", tier: "Legate", chamber: "Compliance", focus: "Governance", delegations: "22" },
-    { id: "sasha", tier: "Tribune", chamber: "Security", focus: "Sybil defense", delegations: "18" },
-  ];
+  const params = new URLSearchParams(window.location.search);
+  const targetId = params.get("id") || "self";
 
   const $ = (selector) => document.querySelector(selector);
-  const resultsContainer = document.querySelector("[data-results]");
-  const resultsCount = document.querySelector("[data-results-count]");
-  const resultsToggle = document.querySelector("[data-results-toggle]");
-
-  const renderResults = () => {
-    if (!resultsContainer) return;
-    resultsContainer.innerHTML = searchResults
-      .map((entry) => {
-        const data = profileData[entry.id];
-        const name = data?.name || entry.id;
-        const chamber = entry.chamber || data?.chambers || "Chamber";
-        return `
-          <button class="search-result" data-profile-target="${entry.id}">
-            <div class="search-result__head">
-              <div>
-                <strong>${name}</strong>
-                <span>${entry.tier} · ${chamber}</span>
-              </div>
-              <span class="metric-badge">ACM ${data?.cscore || "—"}</span>
-            </div>
-            <div class="search-result__meta">
-              <span>Focus: ${entry.focus}</span>
-              <span>Delegations: ${entry.delegations}</span>
-            </div>
-            <ul class="search-result__stats">
-              <li>C-score: ${data?.cscore || "—"}</li>
-              <li>M-score: ${data?.mscore || "—"}</li>
-              <li>Uptime: ${data?.nodeUptime || "—"}</li>
-              <li>Chambers: ${data?.chambers || chamber}</li>
-            </ul>
-          </button>`;
-      })
-      .join("");
-    if (resultsCount) resultsCount.textContent = `${searchResults.length} Cognitocrats`;
+  const fields = {
+    heading: $("[data-profile-name-heading]"),
+    name: $("[data-profile-name]"),
+    tier: $("[data-profile-tier]"),
+    status: $("[data-profile-status]"),
+    address: $("[data-profile-address]"),
+    faction: $("[data-profile-faction]"),
+    cscore: $("[data-profile-cscore]"),
+    mscore: $("[data-profile-mscore]"),
+    potDuration: $("[data-pot-duration]"),
+    potStatus: $("[data-pot-status]"),
+    potGovernor: $("[data-pot-governor]"),
+    podProposals: $("[data-pod-proposals]"),
+    podChambers: $("[data-pod-chambers]"),
+    podProjects: $("[data-pod-projects]"),
+    pogDuration: $("[data-pog-duration]"),
+    pogStatus: $("[data-pog-status]"),
   };
 
-  const goToProfile = (id = "self") => {
-    window.location.href = `human-node.html?id=${encodeURIComponent(id)}`;
+  const setField = (node, value) => {
+    if (node) node.textContent = value;
   };
 
-  let resultButtons = [];
-  const syncResultButtons = () => {
-    resultButtons = document.querySelectorAll("[data-profile-target]");
-    resultButtons.forEach((button) => {
-      button.addEventListener("click", () => goToProfile(button.dataset.profileTarget));
+  const renderProfile = (id) => {
+    const data = profileData[id] || profileData.self;
+    setField(fields.heading, data.name);
+    setField(fields.name, data.name);
+    setField(fields.tier, data.tier);
+    setField(fields.status, data.status);
+    setField(fields.address, data.address);
+    setField(fields.faction, data.faction);
+    setField(fields.cscore, data.cscore);
+    setField(fields.mscore, data.mscore);
+    setField(fields.potDuration, data.potDuration);
+    setField(fields.potStatus, data.potStatus);
+    setField(fields.potGovernor, data.potGovernor);
+    setField(fields.podProposals, data.podProposals);
+    setField(fields.podChambers, data.podChambers);
+    setField(fields.podProjects, data.podProjects);
+    setField(fields.pogDuration, data.pogDuration);
+    setField(fields.pogStatus, data.pogStatus);
+  };
+
+  const tabButtons = document.querySelectorAll(".profile-tab");
+  const tabPanels = document.querySelectorAll("[data-tabpanel]");
+
+  const activateTab = (target) => {
+    tabButtons.forEach((btn) => btn.classList.toggle("profile-tab--active", btn.dataset.tab === target));
+    tabPanels.forEach((panel) => {
+      panel.hidden = panel.dataset.tabpanel !== target;
     });
   };
 
-  const setActiveResult = (id) => {
-    resultButtons.forEach((btn) => {
-      btn.classList.toggle("search-result--active", btn.dataset.profileTarget === id);
-    });
-  };
+  tabButtons.forEach((tab) => tab.addEventListener("click", () => activateTab(tab.dataset.tab)));
 
-  renderResults();
-  syncResultButtons();
-
-  resultsToggle?.addEventListener("click", () => {
-    const listView = resultsContainer?.classList.toggle("search-results--listview");
-    resultsToggle.textContent = listView ? "Toggle card view" : "Toggle list view";
-  });
+  activateTab("pot");
+  renderProfile(targetId);
 })();

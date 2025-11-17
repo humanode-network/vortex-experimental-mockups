@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vortex · Human node</title>
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/layout.css" />
+    <link rel="stylesheet" href="assets/css/human-node.css" />
+  </head>
+  <body data-page="human-nodes">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar__brand">Vortex Interface</div>
+        <nav class="sidebar__nav" aria-label="Primary">
+          <a
+            class="sidebar__link sidebar__link--active"
+            href="human-nodes.html"
+            data-nav-link="human-nodes"
+            aria-current="page"
+            >Human nodes</a
+          >
+          <a class="sidebar__link" href="proposals.html" data-nav-link="proposals">Proposals</a>
+          <a class="sidebar__link" href="chambers.html" data-nav-link="chambers">Chambers</a>
+          <a class="sidebar__link" href="formation.html" data-nav-link="formation">Formation</a>
+          <a class="sidebar__link" href="invision.html" data-nav-link="invision">Invision</a>
+        </nav>
+      </aside>
+
+      <main id="main" class="workspace">
+        <header class="workspace__top">
+          <div>
+            <p class="eyebrow">Human node</p>
+            <h1 data-profile-name-heading>Profile</h1>
+          </div>
+          <div class="mode-indicators">
+            <span class="mode-chip" data-mode-chip>Active Human node</span>
+          </div>
+        </header>
+
+        <section class="profile-page">
+          <div class="profile-page__actions">
+            <a class="link-button" href="human-nodes.html">← Back to search</a>
+          </div>
+
+          <article class="profile-card">
+            <header>
+              <div class="profile-heading">
+                <h2 data-profile-name>Human node</h2>
+                <div class="profile-badges">
+                  <span class="tier-pill" data-profile-tier>—</span>
+                  <span class="status-chip status-chip--active" data-profile-status>Active</span>
+                </div>
+              </div>
+            </header>
+
+            <ul class="profile-meta">
+              <li>
+                <span>Public address</span>
+                <code data-profile-address>—</code>
+              </li>
+              <li>
+                <span>Faction(s)</span>
+                <strong data-profile-faction>—</strong>
+              </li>
+              <li>
+                <span>Cognitocratic score</span>
+                <strong data-profile-cscore>—</strong>
+              </li>
+              <li>
+                <span>Meritocratic score</span>
+                <strong data-profile-mscore>—</strong>
+              </li>
+            </ul>
+
+            <div class="profile-tabs">
+              <button type="button" class="profile-tab profile-tab--active" data-tab="pot">
+                Proof-of-Time
+              </button>
+              <button type="button" class="profile-tab" data-tab="pod">Proof-of-Devotion</button>
+              <button type="button" class="profile-tab" data-tab="pog">Proof-of-Governance</button>
+            </div>
+
+            <div class="profile-tabpanel" data-tabpanel="pot">
+              <ul>
+                <li>
+                  <span>Human node since</span>
+                  <strong data-pot-duration>—</strong>
+                </li>
+                <li>
+                  <span>Human node status</span>
+                  <strong data-pot-status>—</strong>
+                </li>
+                <li>
+                  <span>Governor since</span>
+                  <strong data-pot-governor>—</strong>
+                </li>
+              </ul>
+            </div>
+
+            <div class="profile-tabpanel" data-tabpanel="pod" hidden>
+              <ul>
+                <li>
+                  <span>Proposals accepted</span>
+                  <strong data-pod-proposals>—</strong>
+                </li>
+                <li>
+                  <span>Member chambers</span>
+                  <strong data-pod-chambers>—</strong>
+                </li>
+                <li>
+                  <span>Formation projects</span>
+                  <strong data-pod-projects>—</strong>
+                </li>
+              </ul>
+            </div>
+
+            <div class="profile-tabpanel" data-tabpanel="pog" hidden>
+              <ul>
+                <li>
+                  <span>Active governor duration</span>
+                  <strong data-pog-duration>—</strong>
+                </li>
+                <li>
+                  <span>Active governor now?</span>
+                  <strong data-pog-status>—</strong>
+                </li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="panel">
+            <header>
+              <h3>Governing highlights</h3>
+              <p>Recent activity from this Human node.</p>
+            </header>
+            <div class="panel-actions">
+              <button type="button" class="btn btn--ghost btn--small" data-open-modal="history">
+                Full history
+              </button>
+              <button type="button" class="btn btn--ghost btn--small" data-open-modal="statistics">
+                Statistics
+              </button>
+            </div>
+            <ul class="activity-list" data-profile-activity>
+              <li>Epoch 178 · Voted “Yes” on #883 fee split adjustment (GC)</li>
+              <li>Epoch 176 · Delegated to Sigrid during travel (Protocol SC)</li>
+              <li>Epoch 174 · Logged Formation milestone for node monitoring kit</li>
+              <li>Epoch 170 · Submitted mentorship playbook proposal #879</li>
+            </ul>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" data-modal="history" aria-hidden="true">
+      <div class="modal__panel" role="dialog" aria-modal="true" aria-label="Full history">
+        <header>
+          <h2>Full governing history</h2>
+          <button type="button" class="link-button" data-close-modal>&times;</button>
+        </header>
+        <div class="modal__body">
+          <p>Complete log of this governor’s actions across proposals, delegations, and Formation.</p>
+          <ul class="modal__list">
+            <li>Epoch 192 · Proposed GC motion on fee telemetry</li>
+            <li>Epoch 188 · Delegated quorum drill (Protocol SSC)</li>
+            <li>Epoch 184 · Led Formation squad “Node Health Kit”</li>
+            <li>Epoch 181 · Presented fee split adjustment #883</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" data-modal="statistics" aria-hidden="true">
+      <div class="modal__panel" role="dialog" aria-modal="true" aria-label="Statistics">
+        <header>
+          <h2>Governor statistics</h2>
+          <button type="button" class="link-button" data-close-modal>&times;</button>
+        </header>
+        <div class="modal__body modal__body--grid">
+          <article>
+            <p class="eyebrow">Invision score</p>
+            <strong>82/100</strong>
+            <p>Deterrence influence rating.</p>
+          </article>
+          <article>
+            <p class="eyebrow">Quorum participation</p>
+            <strong>91%</strong>
+            <p>Average over last 12 proposals.</p>
+          </article>
+          <article>
+            <p class="eyebrow">Delegation share</p>
+            <strong>3.4%</strong>
+            <p>Share of all delegated votes.</p>
+          </article>
+          <article>
+            <p class="eyebrow">Alert flag</p>
+            <strong>None</strong>
+            <p>No outstanding issues.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <script defer src="assets/js/bootstrap.js"></script>
+    <script defer src="assets/js/human-node.js"></script>
+  </body>
+</html>
