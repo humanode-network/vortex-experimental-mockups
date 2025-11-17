@@ -176,14 +176,62 @@
   };
 
   const searchResults = [
-    { id: "mozgiii", tier: "Citizen", chamber: "Protocol Engineering", focus: "PoT heavy", delegations: "41" },
-    { id: "victor", tier: "Consul", chamber: "Economics", focus: "PoD heavy", delegations: "53" },
-    { id: "dima", tier: "Legate", chamber: "Protocol Engineering", focus: "Node ops", delegations: "25" },
-    { id: "tony", tier: "Tribune", chamber: "Social", focus: "Community", delegations: "12" },
-    { id: "sesh", tier: "Citizen", chamber: "Research", focus: "PoG analytics", delegations: "47" },
-    { id: "peter", tier: "Consul", chamber: "Formation Logistics", focus: "Formation ops", delegations: "32" },
-    { id: "shannon", tier: "Legate", chamber: "Compliance", focus: "Governance", delegations: "22" },
-    { id: "sasha", tier: "Tribune", chamber: "Security", focus: "Sybil defense", delegations: "18" },
+    {
+      id: "mozgiii",
+      tier: "Citizen",
+      chamber: "Protocol Engineering",
+      focus: "PoT heavy",
+      delegations: "41",
+    },
+    {
+      id: "victor",
+      tier: "Consul",
+      chamber: "Economics",
+      focus: "PoD heavy",
+      delegations: "53",
+    },
+    {
+      id: "dima",
+      tier: "Legate",
+      chamber: "Protocol Engineering",
+      focus: "Node ops",
+      delegations: "25",
+    },
+    {
+      id: "tony",
+      tier: "Tribune",
+      chamber: "Social",
+      focus: "Community",
+      delegations: "12",
+    },
+    {
+      id: "sesh",
+      tier: "Citizen",
+      chamber: "Research",
+      focus: "PoG analytics",
+      delegations: "47",
+    },
+    {
+      id: "peter",
+      tier: "Consul",
+      chamber: "Formation Logistics",
+      focus: "Formation ops",
+      delegations: "32",
+    },
+    {
+      id: "shannon",
+      tier: "Legate",
+      chamber: "Compliance",
+      focus: "Governance",
+      delegations: "22",
+    },
+    {
+      id: "sasha",
+      tier: "Tribune",
+      chamber: "Security",
+      focus: "Sybil defense",
+      delegations: "18",
+    },
   ];
 
   const $ = (selector) => document.querySelector(selector);
@@ -220,7 +268,8 @@
           </button>`;
       })
       .join("");
-    if (resultsCount) resultsCount.textContent = `${searchResults.length} Cognitocrats`;
+    if (resultsCount)
+      resultsCount.textContent = `${searchResults.length} Cognitocrats`;
   };
 
   const goToProfile = (id = "self") => {
@@ -231,13 +280,18 @@
   const syncResultButtons = () => {
     resultButtons = document.querySelectorAll("[data-profile-target]");
     resultButtons.forEach((button) => {
-      button.addEventListener("click", () => goToProfile(button.dataset.profileTarget));
+      button.addEventListener("click", () =>
+        goToProfile(button.dataset.profileTarget),
+      );
     });
   };
 
   const setActiveResult = (id) => {
     resultButtons.forEach((btn) => {
-      btn.classList.toggle("search-result--active", btn.dataset.profileTarget === id);
+      btn.classList.toggle(
+        "search-result--active",
+        btn.dataset.profileTarget === id,
+      );
     });
   };
 
@@ -245,7 +299,11 @@
   syncResultButtons();
 
   resultsToggle?.addEventListener("click", () => {
-    const listView = resultsContainer?.classList.toggle("search-results--listview");
-    resultsToggle.textContent = listView ? "Toggle card view" : "Toggle list view";
+    const listView = resultsContainer?.classList.toggle(
+      "search-results--listview",
+    );
+    resultsToggle.textContent = listView
+      ? "Toggle card view"
+      : "Toggle list view";
   });
 })();

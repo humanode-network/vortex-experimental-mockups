@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -11,15 +11,23 @@
   <body data-page="formation">
     <a class="skip-link" href="#main">Skip to content</a>
 
-
     <div class="app-shell">
       <aside class="sidebar">
-        <div class="sidebar__brand"><span>Vortex</span><span class="sidebar__logo" aria-hidden="true"></span></div>
+        <div class="sidebar__brand">
+          <span>Vortex</span
+          ><span class="sidebar__logo" aria-hidden="true"></span>
+        </div>
         <nav class="sidebar__nav" aria-label="Primary">
-          <a class="sidebar__link" href="human-nodes.html" data-nav-link="human-nodes"
+          <a
+            class="sidebar__link"
+            href="human-nodes.html"
+            data-nav-link="human-nodes"
             >Human nodes</a
           >
-          <a class="sidebar__link" href="proposals.html" data-nav-link="proposals"
+          <a
+            class="sidebar__link"
+            href="proposals.html"
+            data-nav-link="proposals"
             >Proposals</a
           >
           <a class="sidebar__link" href="chambers.html" data-nav-link="chambers"
@@ -39,7 +47,6 @@
       </aside>
 
       <main id="main" class="workspace">
-
         <section class="formation-metrics">
           <article>
             <p>Total funded HMND</p>
@@ -61,10 +68,18 @@
 
         <section class="formation-controls">
           <div class="chip-group" role="tablist">
-            <button class="chip chip--active" data-formation-filter="all">All</button>
-            <button class="chip" data-formation-filter="research">Research</button>
-            <button class="chip" data-formation-filter="development">Development &amp; Product</button>
-            <button class="chip" data-formation-filter="social">Social Good &amp; Community</button>
+            <button class="chip chip--active" data-formation-filter="all">
+              All
+            </button>
+            <button class="chip" data-formation-filter="research">
+              Research
+            </button>
+            <button class="chip" data-formation-filter="development">
+              Development &amp; Product
+            </button>
+            <button class="chip" data-formation-filter="social">
+              Social Good &amp; Community
+            </button>
           </div>
           <div class="legend">
             <span class="stage-dot stage-dot--live"></span> Live
@@ -74,7 +89,9 @@
         </section>
 
         <section class="formation-search" role="search">
-          <label class="formation-search__label" for="formation-search-input">Search projects</label>
+          <label class="formation-search__label" for="formation-search-input"
+            >Search projects</label
+          >
           <div class="formation-search__field">
             <input
               id="formation-search-input"
@@ -83,25 +100,45 @@
               data-formation-search
               autocomplete="off"
             />
-            <button type="button" aria-label="Clear search" data-formation-search-clear hidden>
-              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <button
+              type="button"
+              aria-label="Clear search"
+              data-formation-search-clear
+              hidden
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="M6 6l12 12M18 6L6 18"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
               </svg>
             </button>
           </div>
         </section>
 
-        <section class="formation-grid" data-formation-list aria-live="polite"></section>
-        </main>
+        <section
+          class="formation-grid"
+          data-formation-list
+          aria-live="polite"
+        ></section>
+      </main>
 
-        <footer class="footer">
-          <p>© Humanode · Vortex Interface mock</p>
-          <p>App layout for Human nodes, proposals, chambers, Formation, Invision.</p>
-        </footer>
-      </div>
+      <footer class="footer">
+        <p>© Humanode · Vortex Interface mock</p>
+        <p>
+          App layout for Human nodes, proposals, chambers, Formation, Invision.
+        </p>
+      </footer>
     </div>
+
     <script defer src="assets/js/bootstrap.js"></script>
     <script defer src="assets/js/formation.js"></script>
-
   </body>
 </html>

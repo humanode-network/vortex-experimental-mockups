@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -13,7 +13,10 @@
 
     <div class="app-shell">
       <aside class="sidebar">
-        <div class="sidebar__brand"><span>Vortex</span><span class="sidebar__logo" aria-hidden="true"></span></div>
+        <div class="sidebar__brand">
+          <span>Vortex</span
+          ><span class="sidebar__logo" aria-hidden="true"></span>
+        </div>
         <nav class="sidebar__nav" aria-label="Primary">
           <a
             class="sidebar__link sidebar__link--active"
@@ -22,15 +25,28 @@
             aria-current="page"
             >Human nodes</a
           >
-          <a class="sidebar__link" href="proposals.html" data-nav-link="proposals">Proposals</a>
-          <a class="sidebar__link" href="chambers.html" data-nav-link="chambers">Chambers</a>
-          <a class="sidebar__link" href="formation.html" data-nav-link="formation">Formation</a>
-          <a class="sidebar__link" href="invision.html" data-nav-link="invision">Invision</a>
+          <a
+            class="sidebar__link"
+            href="proposals.html"
+            data-nav-link="proposals"
+            >Proposals</a
+          >
+          <a class="sidebar__link" href="chambers.html" data-nav-link="chambers"
+            >Chambers</a
+          >
+          <a
+            class="sidebar__link"
+            href="formation.html"
+            data-nav-link="formation"
+            >Formation</a
+          >
+          <a class="sidebar__link" href="invision.html" data-nav-link="invision"
+            >Invision</a
+          >
         </nav>
       </aside>
 
       <div class="workspace" id="workspace">
-
         <main class="app-page app-page--active">
           <section class="nodes-searcher">
             <div class="search-bar">
@@ -41,8 +57,20 @@
               />
               <button type="button" aria-label="Search">
                 <svg width="18" height="18" viewBox="0 0 24 24">
-                  <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none" />
-                  <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <circle
+                    cx="11"
+                    cy="11"
+                    r="7"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    fill="none"
+                  />
+                  <path
+                    d="M20 20l-3.5-3.5"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
                 </svg>
               </button>
             </div>
@@ -52,7 +80,11 @@
                 <div class="results-header">
                   <div class="results-topline">
                     <p class="eyebrow">Results</p>
-                    <button type="button" class="results-toggle" data-results-toggle>
+                    <button
+                      type="button"
+                      class="results-toggle"
+                      data-results-toggle
+                    >
                       Toggle list view
                     </button>
                   </div>
@@ -68,7 +100,10 @@
                     </label>
                   </div>
                 </div>
-                <div class="search-results search-results--cards" data-results></div>
+                <div
+                  class="search-results search-results--cards"
+                  data-results
+                ></div>
               </div>
 
               <aside class="nodes-searcher__filters">
@@ -107,12 +142,22 @@
 
                     <label class="input-field">
                       <span>C-score ≥</span>
-                      <input type="number" min="0" value="150" aria-label="Minimum cognitocratic score" />
+                      <input
+                        type="number"
+                        min="0"
+                        value="150"
+                        aria-label="Minimum cognitocratic score"
+                      />
                     </label>
 
                     <label class="input-field">
                       <span>M-score ≥</span>
-                      <input type="number" min="0" value="80" aria-label="Minimum meritocratic score" />
+                      <input
+                        type="number"
+                        min="0"
+                        value="80"
+                        aria-label="Minimum meritocratic score"
+                      />
                     </label>
                   </div>
 
@@ -138,20 +183,33 @@
 
         <footer class="footer">
           <p>© Humanode · Vortex Interface mock</p>
-          <p>App layout for Human nodes, proposals, chambers, Formation, Invision.</p>
+          <p>
+            App layout for Human nodes, proposals, chambers, Formation,
+            Invision.
+          </p>
         </footer>
       </div>
     </div>
 
     <!-- Modals -->
     <div class="modal" data-modal="history" aria-hidden="true">
-      <div class="modal__panel" role="dialog" aria-modal="true" aria-label="Full history">
+      <div
+        class="modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Full history"
+      >
         <header>
           <h2>Full governing history</h2>
-          <button type="button" class="link-button" data-close-modal>&times;</button>
+          <button type="button" class="link-button" data-close-modal>
+            &times;
+          </button>
         </header>
         <div class="modal__body">
-          <p>Complete log of this governor’s actions across proposals, delegations, and Formation.</p>
+          <p>
+            Complete log of this governor’s actions across proposals,
+            delegations, and Formation.
+          </p>
           <ul class="modal__list">
             <li>Epoch 192 · Proposed GC motion on fee telemetry</li>
             <li>Epoch 188 · Delegated quorum drill (Protocol SSC)</li>
@@ -163,10 +221,17 @@
     </div>
 
     <div class="modal" data-modal="statistics" aria-hidden="true">
-      <div class="modal__panel" role="dialog" aria-modal="true" aria-label="Statistics">
+      <div
+        class="modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Statistics"
+      >
         <header>
           <h2>Governor statistics</h2>
-          <button type="button" class="link-button" data-close-modal>&times;</button>
+          <button type="button" class="link-button" data-close-modal>
+            &times;
+          </button>
         </header>
         <div class="modal__body modal__body--grid">
           <article>
@@ -193,7 +258,6 @@
       </div>
     </div>
     <script defer src="assets/js/bootstrap.js"></script>
-<script defer src="assets/js/human-nodes.js"></script>
-
+    <script defer src="assets/js/human-nodes.js"></script>
   </body>
 </html>

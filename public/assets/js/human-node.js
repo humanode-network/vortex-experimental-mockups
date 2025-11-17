@@ -298,13 +298,17 @@
   const tabPanels = document.querySelectorAll("[data-tabpanel]");
 
   const activateTab = (target) => {
-    tabButtons.forEach((btn) => btn.classList.toggle("profile-tab--active", btn.dataset.tab === target));
+    tabButtons.forEach((btn) =>
+      btn.classList.toggle("profile-tab--active", btn.dataset.tab === target),
+    );
     tabPanels.forEach((panel) => {
       panel.hidden = panel.dataset.tabpanel !== target;
     });
   };
 
-  tabButtons.forEach((tab) => tab.addEventListener("click", () => activateTab(tab.dataset.tab)));
+  tabButtons.forEach((tab) =>
+    tab.addEventListener("click", () => activateTab(tab.dataset.tab)),
+  );
 
   activateTab("pot");
   renderProfile(targetId);

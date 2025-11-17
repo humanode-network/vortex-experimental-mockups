@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -22,10 +22,24 @@
             aria-current="page"
             >Human nodes</a
           >
-          <a class="sidebar__link" href="proposals.html" data-nav-link="proposals">Proposals</a>
-          <a class="sidebar__link" href="chambers.html" data-nav-link="chambers">Chambers</a>
-          <a class="sidebar__link" href="formation.html" data-nav-link="formation">Formation</a>
-          <a class="sidebar__link" href="invision.html" data-nav-link="invision">Invision</a>
+          <a
+            class="sidebar__link"
+            href="proposals.html"
+            data-nav-link="proposals"
+            >Proposals</a
+          >
+          <a class="sidebar__link" href="chambers.html" data-nav-link="chambers"
+            >Chambers</a
+          >
+          <a
+            class="sidebar__link"
+            href="formation.html"
+            data-nav-link="formation"
+            >Formation</a
+          >
+          <a class="sidebar__link" href="invision.html" data-nav-link="invision"
+            >Invision</a
+          >
         </nav>
       </aside>
 
@@ -51,7 +65,11 @@
                 <h2 data-profile-name>Human node</h2>
                 <div class="profile-badges">
                   <span class="tier-pill" data-profile-tier>—</span>
-                  <span class="status-chip status-chip--active" data-profile-status>Active</span>
+                  <span
+                    class="status-chip status-chip--active"
+                    data-profile-status
+                    >Active</span
+                  >
                 </div>
               </div>
             </header>
@@ -76,11 +94,19 @@
             </ul>
 
             <div class="profile-tabs">
-              <button type="button" class="profile-tab profile-tab--active" data-tab="pot">
+              <button
+                type="button"
+                class="profile-tab profile-tab--active"
+                data-tab="pot"
+              >
                 Proof-of-Time
               </button>
-              <button type="button" class="profile-tab" data-tab="pod">Proof-of-Devotion</button>
-              <button type="button" class="profile-tab" data-tab="pog">Proof-of-Governance</button>
+              <button type="button" class="profile-tab" data-tab="pod">
+                Proof-of-Devotion
+              </button>
+              <button type="button" class="profile-tab" data-tab="pog">
+                Proof-of-Governance
+              </button>
             </div>
 
             <div class="profile-tabpanel" data-tabpanel="pot">
@@ -137,17 +163,29 @@
               <p>Recent activity from this Human node.</p>
             </header>
             <div class="panel-actions">
-              <button type="button" class="btn btn--ghost btn--small" data-open-modal="history">
+              <button
+                type="button"
+                class="btn btn--ghost btn--small"
+                data-open-modal="history"
+              >
                 Full history
               </button>
-              <button type="button" class="btn btn--ghost btn--small" data-open-modal="statistics">
+              <button
+                type="button"
+                class="btn btn--ghost btn--small"
+                data-open-modal="statistics"
+              >
                 Statistics
               </button>
             </div>
             <ul class="activity-list" data-profile-activity>
               <li>Epoch 178 · Voted “Yes” on #883 fee split adjustment (GC)</li>
-              <li>Epoch 176 · Delegated to Sigrid during travel (Protocol SC)</li>
-              <li>Epoch 174 · Logged Formation milestone for node monitoring kit</li>
+              <li>
+                Epoch 176 · Delegated to Sigrid during travel (Protocol SC)
+              </li>
+              <li>
+                Epoch 174 · Logged Formation milestone for node monitoring kit
+              </li>
               <li>Epoch 170 · Submitted mentorship playbook proposal #879</li>
             </ul>
           </article>
@@ -157,13 +195,23 @@
 
     <!-- Modals -->
     <div class="modal" data-modal="history" aria-hidden="true">
-      <div class="modal__panel" role="dialog" aria-modal="true" aria-label="Full history">
+      <div
+        class="modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Full history"
+      >
         <header>
           <h2>Full governing history</h2>
-          <button type="button" class="link-button" data-close-modal>&times;</button>
+          <button type="button" class="link-button" data-close-modal>
+            &times;
+          </button>
         </header>
         <div class="modal__body">
-          <p>Complete log of this governor’s actions across proposals, delegations, and Formation.</p>
+          <p>
+            Complete log of this governor’s actions across proposals,
+            delegations, and Formation.
+          </p>
           <ul class="modal__list">
             <li>Epoch 192 · Proposed GC motion on fee telemetry</li>
             <li>Epoch 188 · Delegated quorum drill (Protocol SSC)</li>
@@ -175,10 +223,17 @@
     </div>
 
     <div class="modal" data-modal="statistics" aria-hidden="true">
-      <div class="modal__panel" role="dialog" aria-modal="true" aria-label="Statistics">
+      <div
+        class="modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Statistics"
+      >
         <header>
           <h2>Governor statistics</h2>
-          <button type="button" class="link-button" data-close-modal>&times;</button>
+          <button type="button" class="link-button" data-close-modal>
+            &times;
+          </button>
         </header>
         <div class="modal__body modal__body--grid">
           <article>

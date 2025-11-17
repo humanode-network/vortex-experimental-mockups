@@ -1,9 +1,9 @@
 :root {
   color-scheme: light;
-  --bg: #f2f5ff;          /* page background */
-  --bg-accent: #e8efff;   /* navbar */
-  --panel: #f9fbff;       /* main containers */
-  --panel-alt: #f2f7ff;   /* lighter surfaces/cards */
+  --bg: #f2f5ff; /* page background */
+  --bg-accent: #e8efff; /* navbar */
+  --panel: #f9fbff; /* main containers */
+  --panel-alt: #f2f7ff; /* lighter surfaces/cards */
   --text: #111827;
   --muted: #5d6475;
   --primary: #4f6ad7;
@@ -11,8 +11,18 @@
   --accent: #5bc2b5;
   --primary-dim: rgba(79, 106, 215, 0.22);
   --border: rgba(17, 24, 39, 0.12);
-  --card-grad: linear-gradient(135deg, rgba(79, 106, 215, 0.08), rgba(139, 180, 255, 0.08));
-  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --card-grad: linear-gradient(
+    135deg,
+    rgba(79, 106, 215, 0.08),
+    rgba(139, 180, 255, 0.08)
+  );
+  font-family:
+    "Inter",
+    "Segoe UI",
+    -apple-system,
+    BlinkMacSystemFont,
+    system-ui,
+    sans-serif;
 }
 
 *,
@@ -112,7 +122,10 @@ h3 {
   border-radius: 999px;
   font-weight: 600;
   border: 1px solid transparent;
-  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    opacity 0.2s;
 }
 
 .btn--primary {
