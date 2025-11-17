@@ -1,0 +1,16 @@
+:root {
+  color-scheme: dark;
+}
+
+@import url("./human-nodes.css");
+
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.profile-page__actions {
+  display: flex;
+  justify-content: flex-end;
+}
