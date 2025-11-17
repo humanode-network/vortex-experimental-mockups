@@ -1,13 +1,10 @@
-:root {
-  color-scheme: dark;
-}
-
 .filter-drawer {
   border: 1px solid var(--border);
   border-radius: 18px;
   margin-bottom: 1.5rem;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.01);
+  background: var(--panel-alt);
+  box-shadow: 0 8px 22px rgba(18, 21, 28, 0.06);
 }
 
 .filter-drawer__toggle {
@@ -75,7 +72,7 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 0.6rem 0.8rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--panel);
   color: var(--text);
 }
 
@@ -88,7 +85,7 @@
   display: flex;
   border: 1px solid var(--border);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--panel);
 }
 
 .search-field input {
@@ -117,7 +114,7 @@
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 0.35rem 0.9rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--panel-alt);
   color: var(--text);
   font-size: 0.85rem;
   cursor: pointer;
@@ -142,8 +139,9 @@
 .proposal-item {
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.01);
+  background: var(--panel);
   overflow: hidden;
+  box-shadow: 0 8px 22px rgba(18, 21, 28, 0.06);
 }
 
 .proposal-summary {
@@ -227,6 +225,7 @@
   padding: 0.35rem 0.9rem;
   font-size: 0.85rem;
   border: 1px solid transparent;
+  background: var(--panel-alt);
 }
 
 .status-badge--pool {
@@ -252,6 +251,7 @@
 .proposal-details {
   border-top: 1px solid var(--border);
   padding: 1rem 1.25rem 1.25rem;
+  background: var(--panel-alt);
 }
 
 .proposal-details p {
@@ -270,7 +270,7 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 0.85rem;
-  background: rgba(255, 255, 255, 0.01);
+  background: var(--panel);
 }
 
 .stage-data h3 {

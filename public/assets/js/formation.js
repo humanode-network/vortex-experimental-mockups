@@ -249,7 +249,7 @@
             Proposer
             <a href="human-nodes.html#${project.proposer.id}">${project.proposer.name}</a>
           </p>
-          <a class="formation-card__link" href="${project.link}">
+          <a class="btn btn--small btn--primary formation-card__link" href="${project.link}">
             Open project →
           </a>
         </div>

@@ -13,72 +13,28 @@
 
     <div class="app-shell">
       <aside class="sidebar">
-        <div>
-          <div class="sidebar__brand">Vortex</div>
-          <p class="sidebar__hint">Cognitocratic control stack</p>
-        </div>
-        <nav class="sidebar__nav">
-          <a
-            class="sidebar__link"
-            data-nav-link="human-nodes"
-            href="human-nodes.html"
-            >Human nodes</a
-          >
-          <a class="sidebar__link" data-nav-link="chambers" href="chambers.html"
-            >Chambers</a
-          >
-          <a
-            class="sidebar__link sidebar__link--active"
-            data-nav-link="proposals"
-            aria-current="page"
-            href="proposals.html"
-          >
+        <div class="sidebar__brand"><span>Vortex</span><span class="sidebar__logo" aria-hidden="true"></span></div>
+        <nav class="sidebar__nav" aria-label="Primary">
+          <a class="sidebar__link" data-nav-link="human-nodes" href="human-nodes.html">Human nodes</a>
+          <a class="sidebar__link sidebar__link--active" data-nav-link="proposals" aria-current="page" href="proposals.html">
             Proposals
           </a>
-          <a
-            class="sidebar__link"
-            data-nav-link="formation"
-            href="formation.html"
-            >Formation</a
-          >
-          <a class="sidebar__link" data-nav-link="invision" href="invision.html"
-            >Invision</a
-          >
+          <a class="sidebar__link" data-nav-link="chambers" href="chambers.html">Chambers</a>
+          <a class="sidebar__link" data-nav-link="formation" href="formation.html">Formation</a>
+          <a class="sidebar__link" data-nav-link="invision" href="invision.html">Invision</a>
         </nav>
-        <footer class="footer">
-          <span>Era 412 · Epoch 61 / 168</span>
-        </footer>
       </aside>
 
       <main id="main" class="workspace">
-        <header class="workspace__top">
-          <div>
-            <h1>Proposals</h1>
-          </div>
-          <div class="mode-indicators">
-            <div class="mode-chip" data-mode-chip>Active Human node</div>
-          </div>
-        </header>
 
         <section class="filter-drawer" data-filter-drawer>
-          <button
-            class="filter-drawer__toggle"
-            data-filter-toggle
-            aria-expanded="false"
-          >
+          <button class="filter-drawer__toggle" data-filter-toggle aria-expanded="false">
             <div>
               <strong>Filters &amp; search</strong>
-              <span class="filter-drawer__hint" data-filter-hint
-                >Collapsed</span
-              >
+              <span class="filter-drawer__hint" data-filter-hint>Collapsed</span>
             </div>
             <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M6 9l6 6 6-6"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              />
+              <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" />
             </svg>
           </button>
 
@@ -87,27 +43,11 @@
               <label class="input-field input-field--full">
                 Keyword search
                 <div class="search-field">
-                  <input
-                    type="search"
-                    placeholder="Proposal, hash, proposer…"
-                    data-proposal-search
-                  />
+                  <input type="search" placeholder="Proposal, hash, proposer…" data-proposal-search />
                   <button aria-label="Search">
                     <svg width="18" height="18" viewBox="0 0 24 24">
-                      <circle
-                        cx="11"
-                        cy="11"
-                        r="7"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        fill="none"
-                      />
-                      <path
-                        d="M20 20l-3.5-3.5"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                      />
+                      <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none" />
+                      <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                     </svg>
                   </button>
                 </div>
@@ -192,11 +132,7 @@
             data-proposal
             data-proposal-keywords="orbital mesh sequencer upgrade protocol engineering legate proposal pool drafting delegations 28 redundancy latency"
           >
-            <button
-              class="proposal-summary"
-              data-proposal-toggle
-              aria-expanded="false"
-            >
+            <button class="proposal-summary" data-proposal-toggle aria-expanded="false">
               <div>
                 <p class="proposal-meta">Protocol Engineering · Legate tier</p>
                 <strong>Orbital Mesh Sequencer Upgrade</strong>
@@ -204,26 +140,15 @@
               <div class="summary-meta">
                 <span class="stage-chip stage-chip--pool">Proposal pool</span>
                 <span class="summary-pill">Protocol Engineering chamber</span>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M6 9l6 6 6-6"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  />
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" />
                 </svg>
               </div>
             </button>
             <div class="proposal-details" data-proposal-details hidden>
               <p>
-                Introduce redundant biometric sequencer nodes to lower latency
-                inside human-node verification flow and enable inter-era
-                checkpoints.
+                Introduce redundant biometric sequencer nodes to lower latency inside human-node verification flow and enable
+                inter-era checkpoints.
               </p>
               <div class="stage-data">
                 <article>
@@ -247,13 +172,9 @@
                 <li><strong>Budget ask:</strong> 210k HMND</li>
                 <li><strong>Formation impact:</strong> High</li>
               </ul>
-              <a class="proposer-link" href="human-nodes.html#Mozgiii"
-                >Proposer: Mozgiii</a
-              >
+              <a class="proposer-link" href="human-nodes.html#Mozgiii">Proposer: Mozgiii</a>
               <div class="card-actions">
-                <a class="btn btn--small btn--primary" href="#"
-                  >Open proposal</a
-                >
+                <a class="btn btn--small btn--primary" href="#">Open proposal</a>
                 <button class="btn btn--small btn--ghost">Watch</button>
               </div>
             </div>
@@ -264,11 +185,7 @@
             data-proposal
             data-proposal-keywords="adaptive fee shaping economics treasury consul chamber vote dynamic fees formation split delegations 51"
           >
-            <button
-              class="proposal-summary"
-              data-proposal-toggle
-              aria-expanded="false"
-            >
+            <button class="proposal-summary" data-proposal-toggle aria-expanded="false">
               <div>
                 <p class="proposal-meta">Economics &amp; Treasury · Consul</p>
                 <strong>Adaptive Fee Shaping</strong>
@@ -276,25 +193,15 @@
               <div class="summary-meta">
                 <span class="stage-chip stage-chip--vote">Chamber vote</span>
                 <span class="summary-pill">Economics chamber</span>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M6 9l6 6 6-6"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  />
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" />
                 </svg>
               </div>
             </button>
             <div class="proposal-details" data-proposal-details hidden>
               <p>
-                Dynamic fee split that feeds Formation, treasury, and biometric
-                maintenance based on network stress and quorum activity.
+                Dynamic fee split that feeds Formation, treasury, and biometric maintenance based on network stress and quorum
+                activity.
               </p>
               <div class="stage-data">
                 <article>
@@ -318,13 +225,9 @@
                 <li><strong>Votes casted:</strong> 51</li>
                 <li><strong>Proof mix:</strong> PoT 30% · PoD 50% · PoG 20%</li>
               </ul>
-              <a class="proposer-link" href="human-nodes.html#Victor"
-                >Proposer: Victor</a
-              >
+              <a class="proposer-link" href="human-nodes.html#Victor">Proposer: Victor</a>
               <div class="card-actions">
-                <a class="btn btn--small btn--primary" href="#"
-                  >Open proposal</a
-                >
+                <a class="btn btn--small btn--primary" href="#">Open proposal</a>
                 <button class="btn btn--small btn--ghost">Add to agenda</button>
               </div>
             </div>
@@ -335,11 +238,7 @@
             data-proposal
             data-proposal-keywords="sybilguard l2 mirror security infra legate formation build milestone rollup anti sybil bridge"
           >
-            <button
-              class="proposal-summary"
-              data-proposal-toggle
-              aria-expanded="false"
-            >
+            <button class="proposal-summary" data-proposal-toggle aria-expanded="false">
               <div>
                 <p class="proposal-meta">Security &amp; Infra · Legate</p>
                 <strong>SybilGuard L2 Mirror</strong>
@@ -347,25 +246,15 @@
               <div class="summary-meta">
                 <span class="stage-chip stage-chip--build">Formation</span>
                 <span class="summary-pill">Milestone 2 / 4</span>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M6 9l6 6 6-6"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  />
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" />
                 </svg>
               </div>
             </button>
             <div class="proposal-details" data-proposal-details hidden>
               <p>
-                Mirror anti-Sybil heuristics onto an auxiliary rollup so partner
-                DAOs can consume attestations via trust minimised bridges.
+                Mirror anti-Sybil heuristics onto an auxiliary rollup so partner DAOs can consume attestations via trust
+                minimised bridges.
               </p>
               <div class="stage-data">
                 <article>
@@ -388,13 +277,9 @@
                 <li><strong>Lead chamber:</strong> Security &amp; Infra</li>
                 <li><strong>Next check-in:</strong> Epoch 186</li>
               </ul>
-              <a class="proposer-link" href="human-nodes.html#Sesh"
-                >Proposer: Sesh</a
-              >
+              <a class="proposer-link" href="human-nodes.html#Sesh">Proposer: Sesh</a>
               <div class="card-actions">
-                <a class="btn btn--small btn--primary" href="#"
-                  >View milestone</a
-                >
+                <a class="btn btn--small btn--primary" href="#">View milestone</a>
                 <button class="btn btn--small btn--ghost">Ping team</button>
               </div>
             </div>
@@ -405,11 +290,7 @@
             data-proposal
             data-proposal-keywords="formation talent mesh onboarding education chamber pool nominations"
           >
-            <button
-              class="proposal-summary"
-              data-proposal-toggle
-              aria-expanded="false"
-            >
+            <button class="proposal-summary" data-proposal-toggle aria-expanded="false">
               <div>
                 <p class="proposal-meta">Formation Guild · Tribune tier</p>
                 <strong>Mesh Talent Onboarding Fund</strong>
@@ -417,25 +298,15 @@
               <div class="summary-meta">
                 <span class="stage-chip stage-chip--pool">Proposal pool</span>
                 <span class="summary-pill">Formation committee</span>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M6 9l6 6 6-6"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  />
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" />
                 </svg>
               </div>
             </button>
             <div class="proposal-details" data-proposal-details hidden>
               <p>
-                Create a rolling grant for onboarding biometric researchers and
-                UX engineers into the Mesh program with rapid stipends.
+                Create a rolling grant for onboarding biometric researchers and UX engineers into the Mesh program with rapid
+                stipends.
               </p>
               <div class="stage-data">
                 <article>
@@ -458,13 +329,9 @@
                 <li><strong>Requested budget:</strong> 95k HMND</li>
                 <li><strong>Impact area:</strong> Talent &amp; education</li>
               </ul>
-              <a class="proposer-link" href="human-nodes.html#Tony"
-                >Proposer: Tony</a
-              >
+              <a class="proposer-link" href="human-nodes.html#Tony">Proposer: Tony</a>
               <div class="card-actions">
-                <a class="btn btn--small btn--primary" href="#"
-                  >Open proposal</a
-                >
+                <a class="btn btn--small btn--primary" href="#">Open proposal</a>
                 <button class="btn btn--small btn--ghost">Watch</button>
               </div>
             </div>
@@ -475,11 +342,7 @@
             data-proposal
             data-proposal-keywords="liveness sentinel chamber security quorum vote"
           >
-            <button
-              class="proposal-summary"
-              data-proposal-toggle
-              aria-expanded="false"
-            >
+            <button class="proposal-summary" data-proposal-toggle aria-expanded="false">
               <div>
                 <p class="proposal-meta">Security · Legate</p>
                 <strong>Liveness Sentinel Retrofit</strong>
@@ -487,25 +350,15 @@
               <div class="summary-meta">
                 <span class="stage-chip stage-chip--vote">Chamber vote</span>
                 <span class="summary-pill">Security chamber</span>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M6 9l6 6 6-6"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  />
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" />
                 </svg>
               </div>
             </button>
             <div class="proposal-details" data-proposal-details hidden>
               <p>
-                Retrofit legacy sentinel nodes with the new liveness circuit
-                breaker to prevent cascading biometric outages across shards.
+                Retrofit legacy sentinel nodes with the new liveness circuit breaker to prevent cascading biometric outages across
+                shards.
               </p>
               <div class="stage-data">
                 <article>
@@ -528,13 +381,9 @@
                 <li><strong>Equipment budget:</strong> 60k HMND</li>
                 <li><strong>Rollout scope:</strong> 42 sentinel nodes</li>
               </ul>
-              <a class="proposer-link" href="human-nodes.html#Shannon"
-                >Proposer: Shannon</a
-              >
+              <a class="proposer-link" href="human-nodes.html#Shannon">Proposer: Shannon</a>
               <div class="card-actions">
-                <a class="btn btn--small btn--primary" href="#"
-                  >Open proposal</a
-                >
+                <a class="btn btn--small btn--primary" href="#">Open proposal</a>
                 <button class="btn btn--small btn--ghost">Track vote</button>
               </div>
             </div>
@@ -545,11 +394,7 @@
             data-proposal
             data-proposal-keywords="delegation transparency ledger constitutional citizen refused privacy zk snark observers"
           >
-            <button
-              class="proposal-summary"
-              data-proposal-toggle
-              aria-expanded="false"
-            >
+            <button class="proposal-summary" data-proposal-toggle aria-expanded="false">
               <div>
                 <p class="proposal-meta">Constitutional · Citizen</p>
                 <strong>Delegation Transparency Ledger</strong>
@@ -557,25 +402,14 @@
               <div class="summary-meta">
                 <span class="stage-chip stage-chip--archived">Archived</span>
                 <span class="summary-pill">Cycle 407</span>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M6 9l6 6 6-6"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  />
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" />
                 </svg>
               </div>
             </button>
             <div class="proposal-details" data-proposal-details hidden>
               <p>
-                Immutable public feed of delegation shifts and vote reroutes
-                with zk-SNARK concealed identities for observers.
+                Immutable public feed of delegation shifts and vote reroutes with zk-SNARK concealed identities for observers.
               </p>
               <div class="stage-data">
                 <article>
@@ -595,28 +429,18 @@
                 </article>
               </div>
               <ul class="proposal-stats">
-                <li>
-                  <strong>Rejection reason:</strong> Privacy load unresolved
-                </li>
+                <li><strong>Rejection reason:</strong> Privacy load unresolved</li>
                 <li><strong>Author tier:</strong> Citizen</li>
               </ul>
-              <a class="proposer-link" href="human-nodes.html#Sasha"
-                >Proposer: Sasha</a
-              >
+              <a class="proposer-link" href="human-nodes.html#Sasha">Proposer: Sasha</a>
               <div class="card-actions">
-                <a class="btn btn--small btn--primary" href="#"
-                  >Open proposal</a
-                >
-                <button class="btn btn--small btn--ghost">
-                  View audit notes
-                </button>
+                <a class="btn btn--small btn--primary" href="#">Open proposal</a>
+                <button class="btn btn--small btn--ghost">View audit notes</button>
               </div>
             </div>
           </article>
 
-          <p class="proposal-empty" data-proposal-empty hidden>
-            No proposals match the current search.
-          </p>
+          <p class="proposal-empty" data-proposal-empty hidden>No proposals match the current search.</p>
         </section>
       </main>
     </div>

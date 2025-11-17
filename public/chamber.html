@@ -13,53 +13,17 @@
 
     <div class="app-shell">
       <aside class="sidebar">
-        <div>
-          <div class="sidebar__brand">Vortex</div>
-          <p class="sidebar__hint">Cognitocratic control stack</p>
-        </div>
-        <nav class="sidebar__nav">
-          <a
-            class="sidebar__link"
-            data-nav-link="human-nodes"
-            href="human-nodes.html"
-            >Human nodes</a
-          >
-          <a
-            class="sidebar__link"
-            data-nav-link="proposals"
-            href="proposals.html"
-            >Proposals</a
-          >
-          <a class="sidebar__link" data-nav-link="chambers" href="chambers.html"
-            >Chambers</a
-          >
-          <a
-            class="sidebar__link"
-            data-nav-link="formation"
-            href="formation.html"
-            >Formation</a
-          >
-          <a class="sidebar__link" data-nav-link="invision" href="invision.html"
-            >Invision</a
-          >
+        <div class="sidebar__brand"><span>Vortex</span><span class="sidebar__logo" aria-hidden="true"></span></div>
+        <nav class="sidebar__nav" aria-label="Primary">
+          <a class="sidebar__link" data-nav-link="human-nodes" href="human-nodes.html">Human nodes</a>
+          <a class="sidebar__link" data-nav-link="proposals" href="proposals.html">Proposals</a>
+          <a class="sidebar__link sidebar__link--active" data-nav-link="chambers" aria-current="page" href="chambers.html">Chambers</a>
+          <a class="sidebar__link" data-nav-link="formation" href="formation.html">Formation</a>
+          <a class="sidebar__link" data-nav-link="invision" href="invision.html">Invision</a>
         </nav>
-        <footer class="footer">
-          <span>Era 412 · Epoch 61 / 168</span>
-        </footer>
       </aside>
 
       <main id="main" class="workspace">
-        <header class="workspace__top">
-          <div>
-            <h1 data-chamber-title>Protocol Engineering</h1>
-            <p class="chamber-meta" data-chamber-meta>
-              Multiplier ×1.5 · 64 governors · MCM 5,480 · LCM 6,850
-            </p>
-          </div>
-          <div class="mode-indicators">
-            <div class="mode-chip" data-mode-chip>Active Human node</div>
-          </div>
-        </header>
 
         <section class="chamber-detail-grid">
           <article class="panel">
@@ -69,9 +33,7 @@
                 <h2>Proposal status</h2>
               </div>
               <div class="tab-switch" role="tablist">
-                <button class="chip chip--active" data-stage-filter="upcoming">
-                  Upcoming
-                </button>
+                <button class="chip chip--active" data-stage-filter="upcoming">Upcoming</button>
                 <button class="chip" data-stage-filter="live">Live</button>
                 <button class="chip" data-stage-filter="ended">Ended</button>
               </div>
@@ -90,11 +52,7 @@
               <span class="roster-count" data-governor-count>64</span>
             </header>
             <div class="governor-search">
-              <input
-                type="search"
-                placeholder="Search governors"
-                data-governor-search
-              />
+              <input type="search" placeholder="Search governors" data-governor-search />
             </div>
             <ul class="governor-list" data-governor-list>
               <!-- JS injects list -->
@@ -107,9 +65,7 @@
                 <p class="eyebrow">Chamber forum</p>
                 <h2>Threads &amp; chat</h2>
               </div>
-              <button class="btn btn--small btn--ghost" data-start-thread>
-                New thread
-              </button>
+              <button class="btn btn--small btn--ghost" data-start-thread>New thread</button>
             </header>
             <div class="forum-columns">
               <div class="thread-list" data-thread-list>
@@ -129,23 +85,13 @@
               <div class="chat-panel">
                 <header>Chamber chat</header>
                 <div class="chat-log" data-chat-log>
-                  <p>
-                    <strong>Mozgiii:</strong> Milestone 2 patch deployed, please
-                    verify.
-                  </p>
-                  <p>
-                    <strong>Victor:</strong> Treasury hook live, watching KPIs.
-                  </p>
-                  <p>
-                    <strong>Sesh:</strong> Need 2 reviewers for the new
-                    biometrics spec.
-                  </p>
+                  <p><strong>Mozgiii:</strong> Milestone 2 patch deployed, please verify.</p>
+                  <p><strong>Victor:</strong> Treasury hook live, watching KPIs.</p>
+                  <p><strong>Sesh:</strong> Need 2 reviewers for the new biometrics spec.</p>
                 </div>
                 <form class="chat-form">
                   <input type="text" placeholder="Send a message" />
-                  <button type="submit" class="btn btn--primary btn--small">
-                    Send
-                  </button>
+                  <button type="submit" class="btn btn--primary btn--small">Send</button>
                 </form>
               </div>
             </div>
