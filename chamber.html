@@ -13,32 +13,17 @@
 
     <div class="app-shell">
       <aside class="sidebar">
-        <div>
-          <div class="sidebar__brand">Vortex</div>
-          <p class="sidebar__hint">Cognitocratic control stack</p>
-        </div>
-        <nav class="sidebar__nav">
+        <div class="sidebar__brand"><span>Vortex</span><span class="sidebar__logo" aria-hidden="true"></span></div>
+        <nav class="sidebar__nav" aria-label="Primary">
           <a class="sidebar__link" data-nav-link="human-nodes" href="human-nodes.html">Human nodes</a>
           <a class="sidebar__link" data-nav-link="proposals" href="proposals.html">Proposals</a>
-          <a class="sidebar__link" data-nav-link="chambers" href="chambers.html">Chambers</a>
+          <a class="sidebar__link sidebar__link--active" data-nav-link="chambers" aria-current="page" href="chambers.html">Chambers</a>
           <a class="sidebar__link" data-nav-link="formation" href="formation.html">Formation</a>
           <a class="sidebar__link" data-nav-link="invision" href="invision.html">Invision</a>
         </nav>
-        <footer class="footer">
-          <span>Era 412 · Epoch 61 / 168</span>
-        </footer>
       </aside>
 
       <main id="main" class="workspace">
-        <header class="workspace__top">
-          <div>
-            <h1 data-chamber-title>Protocol Engineering</h1>
-            <p class="chamber-meta" data-chamber-meta>Multiplier ×1.5 · 64 governors · MCM 5,480 · LCM 6,850</p>
-          </div>
-          <div class="mode-indicators">
-            <div class="mode-chip" data-mode-chip>Active Human node</div>
-          </div>
-        </header>
 
         <section class="chamber-detail-grid">
           <article class="panel">
