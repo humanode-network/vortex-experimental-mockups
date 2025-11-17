@@ -9,14 +9,14 @@ const AppShell: React.FC<React.PropsWithChildren> = ({ children }) => {
         <a
           className="sidebar__link"
           data-nav-link="human-nodes"
-          href="human-nodes.html"
+          href="/human-nodes"
         >
           Human nodes
         </a>
         <a
           className="sidebar__link"
           data-nav-link="proposals"
-          href="proposals.html"
+          href="/proposals"
         >
           Proposals
         </a>
@@ -24,22 +24,18 @@ const AppShell: React.FC<React.PropsWithChildren> = ({ children }) => {
           className="sidebar__link sidebar__link--active"
           data-nav-link="chambers"
           aria-current="page"
-          href="chambers.html"
+          href="/chambers"
         >
           Chambers
         </a>
         <a
           className="sidebar__link"
           data-nav-link="formation"
-          href="formation.html"
+          href="/formation"
         >
           Formation
         </a>
-        <a
-          className="sidebar__link"
-          data-nav-link="invision"
-          href="invision.html"
-        >
+        <a className="sidebar__link" data-nav-link="invision" href="/invision">
           Invision
         </a>
       </nav>
