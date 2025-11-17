@@ -1,5 +1,12 @@
+import AppRoutes from "./AppRoutes";
+import { BrowserRouter } from "react-router";
+
 const App: React.FC = () => {
-  return <>hello world</>;
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  );
 };
 
 export default App;
