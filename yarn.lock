@@ -1295,6 +1295,7 @@ __metadata:
     "@rsbuild/plugin-react": "npm:^1.4.2"
     "@types/react": "npm:^19.2.5"
     "@types/react-dom": "npm:^19.2.3"
+    clsx: "npm:^2.1.1"
     prettier: "npm:^3.6.2"
     react: "npm:^19.2.0"
     react-dom: "npm:^19.2.0"
