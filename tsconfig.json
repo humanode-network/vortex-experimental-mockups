@@ -23,7 +23,13 @@
     "noUnusedParameters": true,
 
     /* monorepo */
-    "composite": true
+    "composite": true,
+
+    /* shadcn */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src", "tests"]
 }
