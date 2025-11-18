@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
-import Grid from "@mui/material/GridLegacy";
+import Grid from "@mui/material/PigmentGrid";
 import {
   Box,
   Button,
@@ -9,6 +9,7 @@ import {
   CardContent,
   Chip,
   FormControl,
+  FormControlLabel,
   InputAdornment,
   InputLabel,
   MenuItem,
@@ -19,6 +20,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
+import Switch from "@mui/material/Switch";
 
 type Node = {
   id: string;
@@ -27,15 +29,15 @@ type Node = {
   chamber: string;
   tier: string;
   acm: number;
-  c: number;
-  m: number;
+  mm: number;
+  formationCapable?: boolean;
   tags: string[];
 };
 
 const sampleNodes: Node[] = [
-  { id: "Mozgiii", name: "Mozgiii", role: "Legate · Protocol Engineering", chamber: "protocol", tier: "legate", acm: 182, c: 164, m: 92, tags: ["Protocol", "Security", "Research"] },
-  { id: "Raamara", name: "Raamara", role: "Consul · Economics", chamber: "economics", tier: "consul", acm: 168, c: 150, m: 80, tags: ["Treasury", "Formation", "Community"] },
-  { id: "Nyx", name: "Nyx", role: "Ecclesiast · Security", chamber: "security", tier: "ecclesiast", acm: 155, c: 140, m: 78, tags: ["Security", "Infra", "Audits"] },
+  { id: "Mozgiii", name: "Mozgiii", role: "Legate · Protocol Engineering", chamber: "protocol", tier: "legate", acm: 182, mm: 92, formationCapable: true, tags: ["protocol", "security", "research"] },
+  { id: "Raamara", name: "Raamara", role: "Consul · Economics", chamber: "economics", tier: "consul", acm: 168, mm: 80, formationCapable: true, tags: ["treasury", "formation", "community"] },
+  { id: "Nyx", name: "Nyx", role: "Ecclesiast · Security", chamber: "security", tier: "ecclesiast", acm: 155, mm: 78, formationCapable: false, tags: ["security", "infra", "audits"] },
 ];
 
 const HumanNodes: React.FC = () => {
@@ -44,6 +46,10 @@ const HumanNodes: React.FC = () => {
   const [view, setView] = useState<"cards" | "list">("cards");
   const [tierFilter, setTierFilter] = useState("any");
   const [chamberFilter, setChamberFilter] = useState("all");
+  const [tagFilter, setTagFilter] = useState("any");
+  const [formationOnly, setFormationOnly] = useState(false);
+  const [acmMin, setAcmMin] = useState(0);
+  const [mmMin, setMmMin] = useState(0);
 
   const filtered = useMemo(() => {
     const term = search.toLowerCase();
@@ -55,7 +61,10 @@ const HumanNodes: React.FC = () => {
           node.tags.some((t) => t.toLowerCase().includes(term));
         const matchesTier = tierFilter === "any" || node.tier === tierFilter;
         const matchesChamber = chamberFilter === "all" || node.chamber === chamberFilter;
-        return matchesTerm && matchesTier && matchesChamber;
+        const matchesTag = tagFilter === "any" || node.tags.some((t) => t.toLowerCase() === tagFilter);
+        const matchesFormation = !formationOnly || node.formationCapable;
+        const matchesScores = node.acm >= acmMin && node.mm >= mmMin;
+        return matchesTerm && matchesTier && matchesChamber && matchesTag && matchesFormation && matchesScores;
       })
       .sort((a, b) => {
         if (sortBy === "acm-desc") return b.acm - a.acm;
@@ -64,44 +73,40 @@ const HumanNodes: React.FC = () => {
         const order = ["nominee", "ecclesiast", "legate", "consul", "citizen"];
         return order.indexOf(a.tier) - order.indexOf(b.tier);
       });
-  }, [search, sortBy, tierFilter, chamberFilter]);
+  }, [search, sortBy, tierFilter, chamberFilter, tagFilter, formationOnly, acmMin, mmMin]);
 
   return (
     <Box className="app-page" display="flex" flexDirection="column" gap={2}>
-      <Grid container spacing={2} alignItems="center">
-        <Grid item xs={12} md={8}>
-          <TextField
-            fullWidth
-            placeholder="Search Human nodes by handle, address, chamber, or focus…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Button variant="outlined" size="small">
-                    Search
-                  </Button>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Grid>
-        <Grid item xs={12} md={4} display="flex" justifyContent={{ xs: "flex-start", md: "flex-end" }}>
-          <ToggleButtonGroup value={view} exclusive size="small" onChange={(_, val) => val && setView(val)}>
-            <ToggleButton value="cards">Cards</ToggleButton>
-            <ToggleButton value="list">List</ToggleButton>
-          </ToggleButtonGroup>
-        </Grid>
-      </Grid>
+      <TextField
+        fullWidth
+        placeholder="Search Human nodes by handle, address, chamber, or focus…"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <Button variant="outlined" size="small">
+                Search
+              </Button>
+            </InputAdornment>
+          ),
+        }}
+      />
 
-      <Grid container spacing={2} alignItems="stretch">
-        <Grid item xs={12} md={8} display="flex">
+      <Grid container spacing={2} sx={{ alignItems: "stretch" }}>
+        <Grid size={{ xs: 12, md: 8 }} sx={{ display: "flex" }}>
           <Card sx={{ width: "100%" }}>
             <CardContent>
-              <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", sm: "center" }} mb={1} spacing={1}>
-                <Typography className="eyebrow" component="p">
-                  Results ({filtered.length})
-                </Typography>
+              <Typography className="eyebrow" component="p" mb={1.5}>
+                Results ({filtered.length})
+              </Typography>
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={1.5}
+                alignItems={{ xs: "flex-start", sm: "center" }}
+                justifyContent="space-between"
+                mb={2}
+              >
                 <FormControl size="small" sx={{ minWidth: 180 }}>
                   <InputLabel>Sort by</InputLabel>
                   <Select value={sortBy} label="Sort by" onChange={(e) => setSortBy(e.target.value as typeof sortBy)}>
@@ -111,24 +116,34 @@ const HumanNodes: React.FC = () => {
                     <MenuItem value="name">Name</MenuItem>
                   </Select>
                 </FormControl>
+                <Box display="flex" justifyContent="flex-end" width={{ xs: "100%", sm: "auto" }}>
+                  <ToggleButtonGroup
+                    value={view}
+                    exclusive
+                    size="small"
+                    onChange={(_, val) => val && setView(val)}
+                  >
+                    <ToggleButton value="cards">Cards</ToggleButton>
+                    <ToggleButton value="list">List</ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
               </Stack>
 
               <Stack spacing={2}>
                 {filtered.map((node) => (
                   <Card key={node.id} variant="outlined">
                     <CardContent sx={{ pb: 0 }}>
-                      <Grid container spacing={1} alignItems={view === "list" ? "center" : "flex-start"}>
-                        <Grid item xs={12} md={view === "list" ? 6 : 12}>
+                      <Grid container spacing={1} sx={{ alignItems: view === "list" ? "center" : "flex-start" }}>
+                        <Grid size={{ xs: 12, md: view === "list" ? 6 : 12 }}>
                           <Typography variant="h6">{node.name}</Typography>
                           <Typography variant="body2" color="text.secondary">
                             {node.role}
                           </Typography>
                         </Grid>
-                        <Grid item xs={12} md={view === "list" ? 6 : 12}>
+                        <Grid size={{ xs: 12, md: view === "list" ? 6 : 12 }}>
                           <Stack direction="row" spacing={1} flexWrap="wrap">
                             <Chip label={`ACM: ${node.acm}`} variant="outlined" />
-                            <Chip label={`C: ${node.c}`} variant="outlined" />
-                            <Chip label={`M: ${node.m}`} variant="outlined" />
+                            <Chip label={`MM: ${node.mm}`} variant="outlined" />
                           </Stack>
                         </Grid>
                       </Grid>
@@ -150,7 +165,7 @@ const HumanNodes: React.FC = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={4} display="flex">
+        <Grid size={{ xs: 12, md: 4 }} sx={{ display: "flex" }}>
           <Card sx={{ width: "100%" }}>
             <CardContent>
               <Typography className="eyebrow" component="p">
@@ -158,8 +173,8 @@ const HumanNodes: React.FC = () => {
               </Typography>
               <Typography variant="h6">Refine directory</Typography>
 
-              <Grid container spacing={2} mt={1}>
-                <Grid item xs={12}>
+              <Grid container spacing={2} sx={{ mt: 1 }}>
+                <Grid size={12}>
                   <FormControl fullWidth>
                     <InputLabel>Tier</InputLabel>
                     <Select value={tierFilter} label="Tier" onChange={(e) => setTierFilter(e.target.value)}>
@@ -172,7 +187,7 @@ const HumanNodes: React.FC = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <FormControl fullWidth>
                     <InputLabel>Chamber</InputLabel>
                     <Select value={chamberFilter} label="Chamber" onChange={(e) => setChamberFilter(e.target.value)}>
@@ -186,6 +201,46 @@ const HumanNodes: React.FC = () => {
                       <MenuItem value="security">Security & Infra</MenuItem>
                     </Select>
                   </FormControl>
+                </Grid>
+                <Grid size={12}>
+                  <FormControl fullWidth>
+                    <InputLabel>Specialty tag</InputLabel>
+                    <Select value={tagFilter} label="Specialty tag" onChange={(e) => setTagFilter(e.target.value)}>
+                      <MenuItem value="any">Any</MenuItem>
+                      <MenuItem value="protocol">Protocol</MenuItem>
+                      <MenuItem value="security">Security</MenuItem>
+                      <MenuItem value="research">Research</MenuItem>
+                      <MenuItem value="economics">Treasury / Economics</MenuItem>
+                      <MenuItem value="formation">Formation</MenuItem>
+                      <MenuItem value="social">Social / Community</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid size={12}>
+                  <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                    <TextField
+                      label="ACM ≥"
+                      type="number"
+                      value={acmMin}
+                      onChange={(e) => setAcmMin(Number(e.target.value) || 0)}
+                      fullWidth
+                      inputProps={{ min: 0 }}
+                    />
+                    <TextField
+                      label="MM ≥"
+                      type="number"
+                      value={mmMin}
+                      onChange={(e) => setMmMin(Number(e.target.value) || 0)}
+                      fullWidth
+                      inputProps={{ min: 0 }}
+                    />
+                  </Stack>
+                </Grid>
+                <Grid size={12}>
+                  <FormControlLabel
+                    control={<Switch checked={formationOnly} onChange={(e) => setFormationOnly(e.target.checked)} />}
+                    label="Formation-capable only"
+                  />
                 </Grid>
               </Grid>
 

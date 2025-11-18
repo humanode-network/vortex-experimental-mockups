@@ -18,8 +18,7 @@ const HumanNode: React.FC = () => {
             <Typography variant="h6">Summary</Typography>
             <Stack direction="row" spacing={2} mt={1} flexWrap="wrap">
               <Chip label="ACM: —" variant="outlined" />
-              <Chip label="C-score: —" variant="outlined" />
-              <Chip label="M-score: —" variant="outlined" />
+              <Chip label="MM: —" variant="outlined" />
             </Stack>
             <Typography variant="body2" color="text.secondary" mt={1.5}>
               Add bio, chamber affiliations, and last activity here.
