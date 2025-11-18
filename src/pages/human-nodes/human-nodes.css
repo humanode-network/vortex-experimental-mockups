@@ -136,7 +136,10 @@
   color: inherit;
   text-align: left;
   cursor: pointer;
-  transition: border 0.2s, background 0.2s, box-shadow 0.2s;
+  transition:
+    border 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
   display: grid;
   grid-template-rows: auto auto 1fr;
   gap: 0.55rem;

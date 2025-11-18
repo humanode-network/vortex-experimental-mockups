@@ -12,8 +12,20 @@ const HumanNodes: React.FC = () => {
           />
           <button type="button" aria-label="Search">
             <svg width="18" height="18" viewBox="0 0 24 24">
-              <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" fill="none" />
-              <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <circle
+                cx="11"
+                cy="11"
+                r="7"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+              />
+              <path
+                d="M20 20l-3.5-3.5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
         </div>
@@ -23,7 +35,9 @@ const HumanNodes: React.FC = () => {
             <div className="results-header">
               <div className="results-topline">
                 <p className="eyebrow">Results</p>
-                <button type="button" className="results-toggle">Toggle list view</button>
+                <button type="button" className="results-toggle">
+                  Toggle list view
+                </button>
               </div>
               <div className="results-actions">
                 <label className="sort-control">
@@ -111,28 +125,56 @@ const HumanNodes: React.FC = () => {
 
                 <label className="input-field">
                   <span>C-score ≥</span>
-                  <input type="number" min="0" defaultValue="150" aria-label="Minimum cognitocratic score" />
+                  <input
+                    type="number"
+                    min="0"
+                    defaultValue="150"
+                    aria-label="Minimum cognitocratic score"
+                  />
                 </label>
 
                 <label className="input-field">
                   <span>M-score ≥</span>
-                  <input type="number" min="0" defaultValue="80" aria-label="Minimum meritocratic score" />
+                  <input
+                    type="number"
+                    min="0"
+                    defaultValue="80"
+                    aria-label="Minimum meritocratic score"
+                  />
                 </label>
               </div>
 
               <div className="filter-chips">
-                <button className="chip" type="button">Protocol</button>
-                <button className="chip" type="button">Security</button>
-                <button className="chip" type="button">Economics</button>
-                <button className="chip" type="button">Social</button>
-                <button className="chip" type="button">Formation</button>
-                <button className="chip" type="button">Research</button>
-                <button className="chip" type="button">High quorum</button>
+                <button className="chip" type="button">
+                  Protocol
+                </button>
+                <button className="chip" type="button">
+                  Security
+                </button>
+                <button className="chip" type="button">
+                  Economics
+                </button>
+                <button className="chip" type="button">
+                  Social
+                </button>
+                <button className="chip" type="button">
+                  Formation
+                </button>
+                <button className="chip" type="button">
+                  Research
+                </button>
+                <button className="chip" type="button">
+                  High quorum
+                </button>
               </div>
 
               <div className="filters-actions">
-                <button className="btn btn--ghost btn--small" type="button">Reset</button>
-                <button className="btn btn--primary btn--small" type="button">Apply</button>
+                <button className="btn btn--ghost btn--small" type="button">
+                  Reset
+                </button>
+                <button className="btn btn--primary btn--small" type="button">
+                  Apply
+                </button>
               </div>
             </div>
           </aside>
