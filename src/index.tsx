@@ -2,7 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./app/App";
 
-import "./index.css";
+import "./styles/global.css";
+import "./styles/base.css";
 
 const rootEl = document.getElementById("root");
 if (rootEl === null) {
