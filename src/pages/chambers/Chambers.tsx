@@ -10,13 +10,19 @@ const Chambers: React.FC = () => {
       <section className="chambers-grid">
         <article className="chamber-card">
           <h3>Protocol Engineering</h3>
-          <p className="chamber-meta">Core protocol, network stability, clients.</p>
+          <p className="chamber-meta">
+            Core protocol, network stability, clients.
+          </p>
           <p className="chamber-summary">
-            Oversees upgrades to validator stack, biometric verification flow, and consensus tuning.
+            Oversees upgrades to validator stack, biometric verification flow,
+            and consensus tuning.
           </p>
           <div className="chamber-footer">
             <span className="chamber-meta">Lead: Mozgiii</span>
-            <Link className="btn btn--small btn--primary chamber-link" to="/chambers/protocol-engineering">
+            <Link
+              className="btn btn--small btn--primary chamber-link"
+              to="/chambers/protocol-engineering"
+            >
               Open chamber
             </Link>
           </div>
@@ -24,13 +30,19 @@ const Chambers: React.FC = () => {
 
         <article className="chamber-card">
           <h3>Economics & Treasury</h3>
-          <p className="chamber-meta">Token economics, fees, program budgets.</p>
+          <p className="chamber-meta">
+            Token economics, fees, program budgets.
+          </p>
           <p className="chamber-summary">
-            Shapes fee policy, treasury distributions, and incentive design across programs.
+            Shapes fee policy, treasury distributions, and incentive design
+            across programs.
           </p>
           <div className="chamber-footer">
             <span className="chamber-meta">Lead: Raamara</span>
-            <Link className="btn btn--small btn--primary chamber-link" to="/chambers/economics">
+            <Link
+              className="btn btn--small btn--primary chamber-link"
+              to="/chambers/economics"
+            >
               Open chamber
             </Link>
           </div>
@@ -40,11 +52,15 @@ const Chambers: React.FC = () => {
           <h3>Security & Infra</h3>
           <p className="chamber-meta">Audits, monitoring, deterrence.</p>
           <p className="chamber-summary">
-            Handles preventative controls, incident drills, and operational security posture.
+            Handles preventative controls, incident drills, and operational
+            security posture.
           </p>
           <div className="chamber-footer">
             <span className="chamber-meta">Lead: TBD</span>
-            <Link className="btn btn--small btn--primary chamber-link" to="/chambers/security">
+            <Link
+              className="btn btn--small btn--primary chamber-link"
+              to="/chambers/security"
+            >
               Open chamber
             </Link>
           </div>

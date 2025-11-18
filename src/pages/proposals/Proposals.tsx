@@ -51,7 +51,9 @@ const Proposals: React.FC = () => {
         <article className="proposal-item">
           <div className="proposal-head">
             <div>
-              <p className="proposal-meta">Protocol Engineering · Legate tier</p>
+              <p className="proposal-meta">
+                Protocol Engineering · Legate tier
+              </p>
               <h3 className="proposal-title">Orbital Mesh Sequencer Upgrade</h3>
             </div>
             <div className="proposal-tags">
@@ -60,8 +62,9 @@ const Proposals: React.FC = () => {
             </div>
           </div>
           <p className="proposal-summary">
-            Introduce redundant biometric sequencer nodes to lower latency inside human-node verification flow and
-            enable inter-era checkpoints.
+            Introduce redundant biometric sequencer nodes to lower latency
+            inside human-node verification flow and enable inter-era
+            checkpoints.
           </p>
           <div className="card-actions">
             <button className="btn btn--small btn--primary" type="button">
@@ -85,8 +88,8 @@ const Proposals: React.FC = () => {
             </div>
           </div>
           <p className="proposal-summary">
-            Tune transaction fees dynamically based on network load to improve determinism for quorum settlement while
-            protecting user experience.
+            Tune transaction fees dynamically based on network load to improve
+            determinism for quorum settlement while protecting user experience.
           </p>
           <div className="card-actions">
             <button className="btn btn--small btn--primary" type="button">
