@@ -1,4 +1,6 @@
-const AppShell: React.FC<React.PropsWithChildren> = ({ children }) => {
+import "./AppSidebar.css";
+
+const AppSidebar: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
     <aside className="sidebar">
       <div className="sidebar__brand">
@@ -48,4 +50,4 @@ const AppShell: React.FC<React.PropsWithChildren> = ({ children }) => {
   );
 };
 
-export default AppShell;
+export default AppSidebar;

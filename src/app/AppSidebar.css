@@ -1,0 +1,60 @@
+.sidebar {
+  background: var(--bg-accent);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem 1.5rem;
+}
+
+.sidebar__brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-size: 1.25rem;
+  color: var(--text);
+  padding: 0.65rem 0.9rem;
+  border-radius: 12px;
+  width: 100%;
+}
+
+.sidebar__logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: url("../assets/humanode_logo_128px_animated.gif") center/cover
+    no-repeat;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  order: 2;
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar__link {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  border-radius: 12px;
+  padding: 0.65rem 0.9rem;
+  text-align: left;
+  transition:
+    border 0.2s,
+    color 0.2s,
+    background 0.2s;
+}
+
+.sidebar__link--active {
+  color: var(--primary);
+  border-color: var(--primary-dim);
+  background: rgba(95, 139, 255, 0.08);
+}

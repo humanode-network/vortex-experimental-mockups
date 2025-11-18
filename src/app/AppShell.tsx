@@ -1,4 +1,6 @@
-import Sidebar from "./Sidebar";
+import AppSidebar from "./AppSidebar";
+
+import "./AppShell.css";
 
 const AppShell: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
@@ -8,7 +10,7 @@ const AppShell: React.FC<React.PropsWithChildren> = ({ children }) => {
       </a>
 
       <div className="app-shell">
-        <Sidebar />
+        <AppSidebar />
 
         <main id="main" className="workspace">
           {children}
