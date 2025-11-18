@@ -1,4 +1,8 @@
+import { NavLink } from "react-router";
 import "./AppSidebar.css";
+
+const navClass = ({ isActive }: { isActive: boolean }) =>
+  `sidebar__link${isActive ? " sidebar__link--active" : ""}`;
 
 const AppSidebar: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
@@ -8,41 +12,30 @@ const AppSidebar: React.FC<React.PropsWithChildren> = ({ children }) => {
         <span className="sidebar__logo" aria-hidden="true"></span>
       </div>
       <nav className="sidebar__nav" aria-label="Primary">
-        <a className="sidebar__link" data-nav-link="human-nodes" href="/page1">
-          Page 1 (route demo)
-        </a>
-        <a
-          className="sidebar__link"
-          data-nav-link="human-nodes"
-          href="/human-nodes"
-        >
+        <NavLink className={navClass} to="/profile">
+          Profile
+        </NavLink>
+        <NavLink className={navClass} to="/factions">
+          Factions
+        </NavLink>
+        <NavLink className={navClass} to="/human-nodes">
           Human nodes
-        </a>
-        <a
-          className="sidebar__link"
-          data-nav-link="proposals"
-          href="/proposals"
-        >
+        </NavLink>
+        <NavLink className={navClass} to="/proposals">
           Proposals
-        </a>
-        <a
-          className="sidebar__link sidebar__link--active"
-          data-nav-link="chambers"
-          aria-current="page"
-          href="/chambers"
-        >
+        </NavLink>
+        <NavLink className={navClass} to="/chambers">
           Chambers
-        </a>
-        <a
-          className="sidebar__link"
-          data-nav-link="formation"
-          href="/formation"
-        >
+        </NavLink>
+        <NavLink className={navClass} to="/formation">
           Formation
-        </a>
-        <a className="sidebar__link" data-nav-link="invision" href="/invision">
+        </NavLink>
+        <NavLink className={navClass} to="/invision">
           Invision
-        </a>
+        </NavLink>
+        <NavLink className={navClass} to="/settings">
+          Settings
+        </NavLink>
       </nav>
 
       {children}

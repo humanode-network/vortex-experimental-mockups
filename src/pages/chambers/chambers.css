@@ -1,0 +1,49 @@
+.chambers-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.chambers-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.chamber-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--panel);
+  padding: 1.2rem;
+  display: grid;
+  gap: 0.6rem;
+  box-shadow: 0 8px 22px rgba(18, 21, 28, 0.06);
+}
+
+.chamber-card h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.chamber-meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.chamber-summary {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.chamber-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chamber-link {
+  text-decoration: none;
+}

@@ -1,0 +1,28 @@
+.invision-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.invision-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.invision-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--panel);
+  padding: 1.2rem;
+  box-shadow: 0 8px 20px rgba(18, 21, 28, 0.05);
+}
+
+.invision-card h3 {
+  margin: 0 0 0.3rem;
+}
+
+.invision-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
