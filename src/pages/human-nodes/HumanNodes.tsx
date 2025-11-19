@@ -73,15 +73,15 @@ const HumanNodes: React.FC = () => {
 
   return (
     <div className="app-page human-nodes-page">
-      <div className="w-full rounded-2xl border border-border bg-(--panel) p-3 shadow-sm">
+      <div className="w-full rounded-2xl border border-border bg-panel p-3 shadow-sm">
         <div className="human-nodes-toolbar">
           <Input
             placeholder="Search Human nodes by handle, address, chamber, or focus…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-11"
+            className="human-nodes-search-input"
           />
-          <Button variant="outline" size="md">
+          <Button variant="outline" size="md" className="human-nodes-search-button">
             Search
           </Button>
         </div>
@@ -95,9 +95,16 @@ const HumanNodes: React.FC = () => {
             </CardHeader>
             <CardContent className="pt-0 space-y-3">
               <div className="human-nodes-toolbar">
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                  <Label>Sort by</Label>
-                  <Select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}>
+                <div className="human-nodes-sort">
+                  <Label htmlFor="sort" className="human-nodes-sort-label">
+                    Sort by
+                  </Label>
+                  <Select
+                    id="sort"
+                    className="human-nodes-sort-select"
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                  >
                     <option value="acm-desc">ACM (desc)</option>
                     <option value="acm-asc">ACM (asc)</option>
                     <option value="tier">Tier</option>
@@ -105,6 +112,7 @@ const HumanNodes: React.FC = () => {
                   </Select>
                 </div>
                 <Tabs
+                  className="human-nodes-view-tabs"
                   value={view}
                   onValueChange={(val) => setView(val as "cards" | "list")}
                   options={[
@@ -114,50 +122,61 @@ const HumanNodes: React.FC = () => {
                 />
               </div>
 
-              <div className="space-y-3">
-                {filtered.map((node) =>
-                  view === "cards" ? (
-                    <Card key={node.id} className="border-border">
-                      <CardContent className="pt-4 space-y-3">
-                        <div>
-                          <h3 className="text-lg font-semibold">{node.name}</h3>
-                          <p className="text-sm text-muted">{node.role}</p>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge>ACM: {node.acm}</Badge>
-                          <Badge>MM: {node.mm}</Badge>
-                          <Badge>Tier: {node.tier}</Badge>
-                          <Badge variant={node.active ? "default" : "muted"}>
-                            {node.active ? "Active governor" : "Not active"}
-                          </Badge>
-                        </div>
-                        <div className="human-node-meta">
-                          <p className="text-sm text-(--text)">Main chamber: {node.chamber}</p>
-                          <p className="text-sm text-(--text)">
-                            Formation member: {node.formationCapable ? "Yes" : "No"}
-                          </p>
-                          <p className="text-sm text-(--text)">
-                            Main formation project: {node.formationProject ?? "—"}
-                          </p>
-                          <p className="text-sm text-(--text)">
-                            Status: {node.active ? "Active" : "Not active"}
-                          </p>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {node.tags.map((tag) => (
-                            <Badge key={tag} variant="outline">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </CardContent>
-                      <CardFooter className="pt-0 justify-end gap-2">
-                        <Button asChild size="sm">
-                          <Link to={`/human-nodes/${node.id}`}>Open profile</Link>
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  ) : (
+              {view === "cards" ? (
+                <div className="human-nodes-card-grid">
+                  {filtered.map((node) => {
+                    const sinceDates: Record<string, string> = {
+                      Mozgiii: "11.06.2021",
+                      Raamara: "01.11.2024",
+                      Nyx: "13.01.2022",
+                      Nana: "07.09.2023",
+                      Victor: "02.03.2024",
+                      Tony: "23.12.2024",
+                      Dima: "21.05.2022",
+                      Shannon: "21.06.2024",
+                    };
+                    const tileItems = [
+                      { label: "ACM", value: node.acm.toString() },
+                      { label: "MM", value: node.mm.toString() },
+                      { label: "Tier", value: node.tier.charAt(0).toUpperCase() + node.tier.slice(1) },
+                      { label: "Governor", value: node.active ? "Active" : "Not active" },
+                      { label: "Human node", value: node.active ? "Active" : "Inactive" },
+                      { label: "Main chamber", value: node.chamber },
+                      { label: "Formation member", value: node.formationCapable ? "Yes" : "No" },
+                      { label: "Formation project", value: node.formationProject ?? "—" },
+                      {
+                        label: "Human node since",
+                        value: sinceDates[node.id as keyof typeof sinceDates] ?? "01.01.2021",
+                      },
+                    ];
+                    return (
+                      <Card key={node.id} className="border-border human-node-card">
+                        <CardContent className="human-node-card__content pt-4">
+                          <div>
+                            <h3 className="text-lg font-semibold">{node.name}</h3>
+                            <p className="text-sm text-muted">{node.role}</p>
+                          </div>
+                          <div className="human-node-card__tiles">
+                            {tileItems.map((item) => (
+                              <div key={item.label} className="human-node-card__tile">
+                                <span className="human-node-card__tile-label">{item.label}</span>
+                                <span className="human-node-card__tile-value">{item.value}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                        <CardFooter className="pt-0 justify-end gap-2 human-node-card__footer">
+                          <Button asChild size="sm">
+                            <Link to={`/human-nodes/${node.id}`}>Open profile</Link>
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="human-nodes-list">
+                  {filtered.map((node) => (
                     <Card key={node.id} className="border-border">
                       <CardContent className="pt-4 pb-3">
                         <div className="human-node-row">
@@ -182,9 +201,9 @@ const HumanNodes: React.FC = () => {
                         </div>
                       </CardContent>
                     </Card>
-                  ),
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
