@@ -33,8 +33,8 @@ type Node = {
 
 const sampleNodes: Node[] = [
   {
-    id: "Mozgiii",
-    name: "Mozgiii",
+    id: "JohnDoe",
+    name: "JohnDoe",
     role: "Legate · Protocol Engineering",
     chamber: "protocol",
     tier: "legate",
@@ -359,7 +359,7 @@ const HumanNodes: React.FC = () => {
                 <div className="human-nodes-card-grid">
                   {filtered.map((node) => {
                     const sinceDates: Record<string, string> = {
-                      Mozgiii: "11.06.2021",
+                      JohnDoe: "11.06.2021",
                       Raamara: "01.11.2024",
                       Nyx: "13.01.2022",
                       Nana: "07.09.2023",

@@ -59,7 +59,7 @@ const proposals: ChamberProposal[] = [
     meta: "Legate · Protocol Engineering",
     summary:
       "Enable redundant biometric sequencers to lower failover time and unlock epoch double commits.",
-    lead: "Mozgiii",
+    lead: "JohnDoe",
     nextStep: "Awaiting quorum scheduling",
     timing: "Scheduled · 02d 14h",
     stage: "upcoming",
@@ -89,7 +89,7 @@ const proposals: ChamberProposal[] = [
 ];
 
 const governors: Governor[] = [
-  { id: "mozgiii", name: "Mozgiii", tier: "Legate", focus: "Protocol" },
+  { id: "johndoe", name: "JohnDoe", tier: "Legate", focus: "Protocol" },
   { id: "victor", name: "Victor", tier: "Consul", focus: "Economics" },
   { id: "sesh", name: "Sesh", tier: "Legate", focus: "Security" },
   { id: "nyx", name: "Nyx", tier: "Ecclesiast", focus: "Infra" },
@@ -101,7 +101,7 @@ const threads: Thread[] = [
   {
     id: "thread-1",
     title: "Sequencer redundancy rollout",
-    author: "Mozgiii",
+    author: "JohnDoe",
     replies: 4,
     updated: "1h ago",
   },
@@ -124,7 +124,7 @@ const threads: Thread[] = [
 const chatLog: ChatMessage[] = [
   {
     id: "chat-1",
-    author: "Mozgiii",
+    author: "JohnDoe",
     message: "Milestone 2 patch deployed, please verify.",
   },
   {

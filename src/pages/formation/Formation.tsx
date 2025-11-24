@@ -52,7 +52,7 @@ const projects: FormationProject[] = [
     id: "node-health-kit",
     title: "Node Health Kit",
     focus: "Formation Logistics · Tooling",
-    proposer: "Mozgiii",
+    proposer: "JohnDoe",
     summary:
       "Tooling bundle to automate node diagnostics and recovery workflows for operators.",
     category: "development",

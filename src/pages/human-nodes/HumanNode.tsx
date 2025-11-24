@@ -253,7 +253,7 @@ const HumanNode: React.FC = () => {
             </CardHeader>
             <CardContent className="text-sm text-muted">
               <p>
-                Mozgiii currently leads several operator-focused squads and acts
+                JohnDoe currently leads several operator-focused squads and acts
                 as a liaison for the Governance Council. Recent work focused on
                 telemetry for biometric proofs, redundancy inside the mesh
                 sequencer, and readiness drills for upcoming upgrades.

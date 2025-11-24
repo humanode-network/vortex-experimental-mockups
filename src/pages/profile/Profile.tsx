@@ -143,7 +143,7 @@ const Profile: React.FC = () => {
   const [activeProof, setActiveProof] = useState<
     "" | "time" | "devotion" | "governance"
   >("");
-  const name = "Mozgiii";
+  const name = "JohnDoe";
   const governorActive = true;
   const humanNodeActive = true;
 
