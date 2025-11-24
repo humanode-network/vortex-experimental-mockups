@@ -305,7 +305,7 @@ const Profile: React.FC = () => {
                 ))}
               </div>
               <div className="space-y-3 text-center">
-                <div className="bg-panel inline-flex rounded-full border border-border p-1">
+                <div className="inline-flex rounded-full border border-border bg-panel p-1">
                   {(
                     [
                       { key: "time", label: "PoT" },
@@ -314,6 +314,13 @@ const Profile: React.FC = () => {
                     ] as const
                   ).map((option) => {
                     const isActive = activeProof === option.key;
+                    const style = isActive
+                      ? {
+                          backgroundColor: "var(--primary)",
+                          color: "#fff",
+                          boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                        }
+                      : { color: "var(--text)", backgroundColor: "transparent" };
                     return (
                       <button
                         key={option.key}
@@ -323,11 +330,8 @@ const Profile: React.FC = () => {
                             prev === option.key ? "" : option.key,
                           )
                         }
-                        className={`min-w-20 rounded-full px-3 py-1.5 text-sm font-medium transition ${
-                          isActive
-                            ? "bg-primary text-white shadow"
-                            : "text-text hover:bg-panel-alt"
-                        }`}
+                        className="min-w-20 rounded-full px-3 py-1.5 text-sm font-semibold transition hover:bg-panel-alt"
+                        style={style}
                       >
                         {option.label}
                       </button>

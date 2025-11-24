@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 const heroStats = [
   { label: "ACM score", value: "182" },
@@ -354,6 +355,16 @@ const HumanNode: React.FC = () => {
                     ] as const
                   ).map((option) => {
                     const isActive = activeProof === option.key;
+                    const style = isActive
+                      ? {
+                          backgroundColor: "var(--primary)",
+                          color: "#fff",
+                          boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                        }
+                      : {
+                          color: "var(--text)",
+                          backgroundColor: "transparent",
+                        };
                     return (
                       <button
                         key={option.key}
@@ -363,11 +374,8 @@ const HumanNode: React.FC = () => {
                             prev === option.key ? "" : option.key,
                           )
                         }
-                        className={`min-w-20 rounded-full px-3 py-1.5 text-sm font-medium transition ${
-                          isActive
-                            ? "bg-primary text-white shadow"
-                            : "text-text hover:bg-panel-alt"
-                        }`}
+                        className="hover:bg-panel-alt min-w-20 rounded-full px-3 py-1.5 text-sm font-semibold transition"
+                        style={style}
                       >
                         {option.label}
                       </button>

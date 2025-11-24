@@ -153,20 +153,20 @@ const Formation: React.FC = () => {
           aria-label="Formation filters"
         >
           {categoryOptions.map((category) => (
-            <button
+            <Button
               key={category.value}
               type="button"
               role="tab"
+              size="sm"
               aria-selected={activeCategory === category.value}
+              variant={
+                activeCategory === category.value ? "primary" : "outline"
+              }
+              className="rounded-full px-4"
               onClick={() => setActiveCategory(category.value)}
-              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
-                activeCategory === category.value
-                  ? "bg-primary text-white shadow"
-                  : "bg-panel-alt border border-border text-(--text) hover:border-[color:var(--primary-dim)]"
-              }`}
             >
               {category.label}
-            </button>
+            </Button>
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-4 text-sm text-muted">

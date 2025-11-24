@@ -196,20 +196,18 @@ const Chamber: React.FC = () => {
               aria-label="Proposal stages"
             >
               {proposalStageOptions.map((option) => (
-                <button
+                <Button
                   key={option.value}
                   type="button"
                   role="tab"
+                  size="sm"
                   aria-selected={stageFilter === option.value}
+                  variant={stageFilter === option.value ? "primary" : "outline"}
+                  className="rounded-full px-4"
                   onClick={() => setStageFilter(option.value)}
-                  className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
-                    stageFilter === option.value
-                      ? "bg-primary text-white shadow"
-                      : "bg-panel-alt border border-border text-(--text) hover:border-[color:var(--primary-dim)]"
-                  }`}
                 >
                   {option.label}
-                </button>
+                </Button>
               ))}
             </div>
           </CardHeader>
