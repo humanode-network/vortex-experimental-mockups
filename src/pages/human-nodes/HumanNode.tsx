@@ -42,58 +42,141 @@ const proofSections = {
 };
 
 const governanceActions = [
-  { title: "Reddit brand proposal", action: "Upvoted", context: "Marketing proposal pool", detail: "Flagged key talking points for community roll-out and nudged pool momentum." },
-  { title: "Update runtime proposal", action: "Casted vote", context: "Protocol chamber", detail: "Left implementation notes on validator staggered restarts." },
-  { title: "The Smurf project", action: "Left project", context: "Formation", detail: "Transitioned responsibilities to Nana after hand-off retro." },
-  { title: "Fee telemetry upgrade #225", action: "Authored proposal", context: "Protocol chamber", detail: "Outlined dual-path telemetry for biometric proofs and mesh fees." },
-  { title: "Treasury split adjustment #883", action: "Presented motion", context: "Economic chamber", detail: "Arbitrated between Formation and Treasury subcommittees." },
-  { title: "Protocol SSC quorum drill", action: "Coordinated drill", context: "Protocol chamber", detail: "Simulated night shift quorum loss and documented timings." },
-  { title: "Mesh sequencer redundancy", action: "Reviewed implementation", context: "Formation", detail: "Signed off on milestone 3 safety checklist for redundant sequencers." },
-  { title: "Budget oversight motion", action: "Co-authored memo", context: "Governance proposal pool", detail: "Drafted memo summarizing risk thresholds for fiscal year." },
-  { title: "Telemetry SDK handoff", action: "Mentored team", context: "Faction task force", detail: "Recorded screencasts for SDK setup and alert configuration." },
-  { title: "Chamber audit sync", action: "Hosted session", context: "Security chamber", detail: "Walked through previous incidents and matched to audit trails." },
-  { title: "Formation handover 12", action: "Signed off", context: "Formation", detail: "Validated milestone artifacts and updated ops board." },
-  { title: "Governor onboarding brief", action: "Led workshop", context: "Protocol chamber", detail: "Gave quickstart checklist for new governors joining mesh topics." },
-  { title: "Network health retro", action: "Published report", context: "Protocol council", detail: "Shared dashboard snapshots and postmortem experiments." },
-  { title: "Mesh redundancy QA", action: "Completed review", context: "Formation logistics", detail: "Filed follow-ups for two flaky sensors before sign-off." },
-  { title: "Deterrence sim drill", action: "Activated standby", context: "Security & infra", detail: "Ran pager playbook and escalated to infra for acknowledgement." },
+  {
+    title: "Reddit brand proposal",
+    action: "Upvoted",
+    context: "Marketing proposal pool",
+    detail:
+      "Flagged key talking points for community roll-out and nudged pool momentum.",
+  },
+  {
+    title: "Update runtime proposal",
+    action: "Casted vote",
+    context: "Protocol chamber",
+    detail: "Left implementation notes on validator staggered restarts.",
+  },
+  {
+    title: "The Smurf project",
+    action: "Left project",
+    context: "Formation",
+    detail: "Transitioned responsibilities to Nana after hand-off retro.",
+  },
+  {
+    title: "Fee telemetry upgrade #225",
+    action: "Authored proposal",
+    context: "Protocol chamber",
+    detail: "Outlined dual-path telemetry for biometric proofs and mesh fees.",
+  },
+  {
+    title: "Treasury split adjustment #883",
+    action: "Presented motion",
+    context: "Economic chamber",
+    detail: "Arbitrated between Formation and Treasury subcommittees.",
+  },
+  {
+    title: "Protocol SSC quorum drill",
+    action: "Coordinated drill",
+    context: "Protocol chamber",
+    detail: "Simulated night shift quorum loss and documented timings.",
+  },
+  {
+    title: "Mesh sequencer redundancy",
+    action: "Reviewed implementation",
+    context: "Formation",
+    detail:
+      "Signed off on milestone 3 safety checklist for redundant sequencers.",
+  },
+  {
+    title: "Budget oversight motion",
+    action: "Co-authored memo",
+    context: "Governance proposal pool",
+    detail: "Drafted memo summarizing risk thresholds for fiscal year.",
+  },
+  {
+    title: "Telemetry SDK handoff",
+    action: "Mentored team",
+    context: "Faction task force",
+    detail: "Recorded screencasts for SDK setup and alert configuration.",
+  },
+  {
+    title: "Chamber audit sync",
+    action: "Hosted session",
+    context: "Security chamber",
+    detail: "Walked through previous incidents and matched to audit trails.",
+  },
+  {
+    title: "Formation handover 12",
+    action: "Signed off",
+    context: "Formation",
+    detail: "Validated milestone artifacts and updated ops board.",
+  },
+  {
+    title: "Governor onboarding brief",
+    action: "Led workshop",
+    context: "Protocol chamber",
+    detail: "Gave quickstart checklist for new governors joining mesh topics.",
+  },
+  {
+    title: "Network health retro",
+    action: "Published report",
+    context: "Protocol council",
+    detail: "Shared dashboard snapshots and postmortem experiments.",
+  },
+  {
+    title: "Mesh redundancy QA",
+    action: "Completed review",
+    context: "Formation logistics",
+    detail: "Filed follow-ups for two flaky sensors before sign-off.",
+  },
+  {
+    title: "Deterrence sim drill",
+    action: "Activated standby",
+    context: "Security & infra",
+    detail: "Ran pager playbook and escalated to infra for acknowledgement.",
+  },
 ];
 
 const projects = [
   {
     title: "Node Health Kit",
     status: "Formation Logistics · Live",
-    summary: "Automation bundle for validator diagnostics, recovery, and escalation workflows for operators.",
+    summary:
+      "Automation bundle for validator diagnostics, recovery, and escalation workflows for operators.",
     chips: ["Budget: 80k HMND", "Milestones: 6 / 9", "Team slots: 2 open"],
   },
   {
     title: "Identity Risk Lab",
     status: "Research · Upcoming",
-    summary: "Threat modeling track focused on biometric verification attacks and countermeasures.",
+    summary:
+      "Threat modeling track focused on biometric verification attacks and countermeasures.",
     chips: ["Budget: 45k HMND", "Milestones: 0 / 5", "Team slots: 3 open"],
   },
   {
     title: "Mesh Telemetry Board",
     status: "Formation Logistics · Live",
-    summary: "Realtime visualization board for mesh telemetry anomalies and biometric lag spikes.",
+    summary:
+      "Realtime visualization board for mesh telemetry anomalies and biometric lag spikes.",
     chips: ["Budget: 52k HMND", "Milestones: 3 / 5", "Team slots: 1 open"],
   },
   {
     title: "Guardian Mentorship Cohort",
     status: "Social Impact · Live",
-    summary: "Mentorship rotation pairing experienced governors with nominating cohort.",
+    summary:
+      "Mentorship rotation pairing experienced governors with nominating cohort.",
     chips: ["Budget: 36k HMND", "Milestones: 4 / 6", "Team slots: 0 open"],
   },
   {
     title: "Formation Guild Ops Stack",
     status: "Formation Logistics · Upcoming",
-    summary: "Comprehensive ops, payroll, and reporting stack for Formation guild leads.",
+    summary:
+      "Comprehensive ops, payroll, and reporting stack for Formation guild leads.",
     chips: ["Budget: 90k HMND", "Milestones: 1 / 8", "Team slots: 4 open"],
   },
   {
     title: "Governor Sync Relay",
     status: "Research · Completed",
-    summary: "Async sync relay specifications for cross-faction governor collaboration.",
+    summary:
+      "Async sync relay specifications for cross-faction governor collaboration.",
     chips: ["Budget: 28k HMND", "Milestones: 5 / 5", "Team slots: 0 open"],
   },
 ];
@@ -105,33 +188,43 @@ const history = [
 
 const HumanNode: React.FC = () => {
   const { id } = useParams();
-  const [activeProof, setActiveProof] = useState<"" | "time" | "devotion" | "governance">("");
+  const [activeProof, setActiveProof] = useState<
+    "" | "time" | "devotion" | "governance"
+  >("");
   const name = id ?? "Unknown";
   const governorActive = true;
   const humanNodeActive = true;
 
   return (
-    <div className="app-page flex flex-col gap-6">
-      <section className="rounded-2xl border border-border bg-panel p-6">
+    <div  className="app-page flex flex-col gap-6">
+      <section className="bg-panel rounded-2xl border border-border p-6">
         <div className="grid items-center gap-6 lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <div className="flex justify-center lg:justify-start">
-            <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-border bg-panel-alt text-lg font-semibold text-muted shadow-inner">
+            <div className="bg-panel-alt flex h-28 w-28 items-center justify-center rounded-full border-4 border-border text-lg font-semibold text-muted shadow-inner">
               {name.substring(0, 2).toUpperCase()}
             </div>
           </div>
           <div className="flex flex-col items-center text-center">
-            <h1 className="text-3xl font-semibold text-text">{name}</h1>
+            <h1 className="text-text text-3xl font-semibold">{name}</h1>
           </div>
           <div className="flex flex-col items-center gap-2 text-sm lg:items-end">
-            <div className="inline-flex w-48 items-center justify-between rounded-full border border-border bg-panel-alt px-4 py-2">
-              <span className="text-xs uppercase tracking-wide text-muted">Governor</span>
-              <span className={`font-semibold ${governorActive ? "text-primary" : "text-muted"}`}>
+            <div className="bg-panel-alt inline-flex w-48 items-center justify-between rounded-full border border-border px-4 py-2">
+              <span className="text-xs tracking-wide text-muted uppercase">
+                Governor
+              </span>
+              <span
+                className={`font-semibold ${governorActive ? "text-primary" : "text-muted"}`}
+              >
                 {governorActive ? "Active" : "Not active"}
               </span>
             </div>
-            <div className="inline-flex w-48 items-center justify-between rounded-full border border-border bg-panel-alt px-4 py-2">
-              <span className="text-xs uppercase tracking-wide text-muted">Human node</span>
-              <span className={`font-semibold ${humanNodeActive ? "text-primary" : "text-muted"}`}>
+            <div className="bg-panel-alt inline-flex w-48 items-center justify-between rounded-full border border-border px-4 py-2">
+              <span className="text-xs tracking-wide text-muted uppercase">
+                Human node
+              </span>
+              <span
+                className={`font-semibold ${humanNodeActive ? "text-primary" : "text-muted"}`}
+              >
                 {humanNodeActive ? "Active" : "Not active"}
               </span>
             </div>
@@ -143,8 +236,10 @@ const HumanNode: React.FC = () => {
         {heroStats.map((stat) => (
           <Card key={stat.label} className="h-full text-center">
             <CardContent className="space-y-1 p-4 text-center">
-              <p className="text-xs uppercase tracking-wide text-muted">{stat.label}</p>
-              <p className="text-2xl font-semibold text-text">{stat.value}</p>
+              <p className="text-xs tracking-wide text-muted uppercase">
+                {stat.label}
+              </p>
+              <p className="text-text text-2xl font-semibold">{stat.value}</p>
             </CardContent>
           </Card>
         ))}
@@ -158,8 +253,10 @@ const HumanNode: React.FC = () => {
             </CardHeader>
             <CardContent className="text-sm text-muted">
               <p>
-                Mozgiii currently leads several operator-focused squads and acts as a liaison for the Governance Council. Recent work focused on
-                telemetry for biometric proofs, redundancy inside the mesh sequencer, and readiness drills for upcoming upgrades.
+                Mozgiii currently leads several operator-focused squads and acts
+                as a liaison for the Governance Council. Recent work focused on
+                telemetry for biometric proofs, redundancy inside the mesh
+                sequencer, and readiness drills for upcoming upgrades.
               </p>
             </CardContent>
           </Card>
@@ -172,12 +269,18 @@ const HumanNode: React.FC = () => {
               <div className="grid max-h-72 grid-cols-1 gap-3 overflow-y-scroll pr-2 sm:grid-cols-2 xl:grid-cols-3">
                 {governanceActions.map((action) => (
                   <div key={action.title} className="group relative">
-                    <div className="rounded-xl border border-border bg-panel-alt px-3 py-3 text-center space-y-1">
-                      <p className="text-sm font-semibold text-text line-clamp-1">{action.title}</p>
-                      <p className="text-xs uppercase tracking-wide text-primary line-clamp-1">{action.action}</p>
-                      <p className="text-xs text-muted line-clamp-1">{action.context}</p>
+                    <div className="bg-panel-alt space-y-1 rounded-xl border border-border px-3 py-3 text-center">
+                      <p className="text-text line-clamp-1 text-sm font-semibold">
+                        {action.title}
+                      </p>
+                      <p className="line-clamp-1 text-xs tracking-wide text-primary uppercase">
+                        {action.action}
+                      </p>
+                      <p className="line-clamp-1 text-xs text-muted">
+                        {action.context}
+                      </p>
                     </div>
-                    <div className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-64 -translate-x-1/2 rounded-xl border border-border bg-[color:var(--panel)] p-3 text-left text-xs text-text opacity-0 shadow-lg transition group-hover:opacity-100">
+                    <div className="text-text pointer-events-none absolute top-full left-1/2 z-10 mt-2 w-64 -translate-x-1/2 rounded-xl border border-border bg-[color:var(--panel)] p-3 text-left text-xs opacity-0 shadow-lg transition group-hover:opacity-100">
                       <p className="font-semibold">{action.title}</p>
                       <p className="text-muted">{action.context}</p>
                       <p className="mt-1 leading-snug">{action.detail}</p>
@@ -192,12 +295,19 @@ const HumanNode: React.FC = () => {
             <CardHeader className="pb-2">
               <CardTitle>Formation projects</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 max-h-96 overflow-y-auto pr-1">
+            <CardContent className="max-h-96 space-y-4 overflow-y-auto pr-1">
               {projects.map((project) => (
-                <div key={project.title} className="rounded-xl border border-border px-4 py-3">
+                <div
+                  key={project.title}
+                  className="rounded-xl border border-border px-4 py-3"
+                >
                   <div className="flex flex-col gap-1">
-                    <p className="text-sm font-semibold text-text">{project.title}</p>
-                    <p className="text-xs uppercase tracking-wide text-muted">{project.status}</p>
+                    <p className="text-text text-sm font-semibold">
+                      {project.title}
+                    </p>
+                    <p className="text-xs tracking-wide text-muted uppercase">
+                      {project.status}
+                    </p>
                   </div>
                   <p className="text-sm text-muted">{project.summary}</p>
                   <div className="flex flex-wrap gap-2 pt-2">
@@ -221,14 +331,21 @@ const HumanNode: React.FC = () => {
             <CardContent className="space-y-4">
               <div className="grid gap-3 text-center sm:grid-cols-2">
                 {quickDetails.map((detail) => (
-                  <div key={detail.label} className="flex h-20 flex-col items-center justify-between rounded-xl border border-border px-3 py-3 text-center">
-                    <p className="text-xs uppercase tracking-wide text-muted text-center">{detail.label}</p>
-                    <p className="text-base font-semibold text-text text-center">{detail.value}</p>
+                  <div
+                    key={detail.label}
+                    className="flex h-20 flex-col items-center justify-between rounded-xl border border-border px-3 py-3 text-center"
+                  >
+                    <p className="text-center text-xs tracking-wide text-muted uppercase">
+                      {detail.label}
+                    </p>
+                    <p className="text-text text-center text-base font-semibold">
+                      {detail.value}
+                    </p>
                   </div>
                 ))}
               </div>
               <div className="space-y-3 text-center">
-                <div className="inline-flex rounded-full border border-border bg-panel p-1">
+                <div className="bg-panel inline-flex rounded-full border border-border p-1">
                   {(
                     [
                       { key: "time", label: "PoT" },
@@ -241,9 +358,15 @@ const HumanNode: React.FC = () => {
                       <button
                         key={option.key}
                         type="button"
-                        onClick={() => setActiveProof((prev) => (prev === option.key ? "" : option.key))}
+                        onClick={() =>
+                          setActiveProof((prev) =>
+                            prev === option.key ? "" : option.key,
+                          )
+                        }
                         className={`min-w-20 rounded-full px-3 py-1.5 text-sm font-medium transition ${
-                          isActive ? "bg-primary text-white shadow" : "text-text hover:bg-panel-alt"
+                          isActive
+                            ? "bg-primary text-white shadow"
+                            : "text-text hover:bg-panel-alt"
                         }`}
                       >
                         {option.label}
@@ -252,11 +375,18 @@ const HumanNode: React.FC = () => {
                   })}
                 </div>
                 {activeProof && (
-                  <div className="grid gap-3 text-sm text-text sm:grid-cols-2">
+                  <div className="text-text grid gap-3 text-sm sm:grid-cols-2">
                     {proofSections[activeProof].items.map((item) => (
-                      <div key={item.label} className="flex h-20 flex-col items-center justify-between rounded-xl border border-border px-3 py-2 text-center">
-                        <p className="text-xs uppercase tracking-wide text-muted leading-tight min-h-6 text-center">{item.label}</p>
-                        <p className="text-sm font-semibold text-text min-h-5 text-center">{item.value}</p>
+                      <div
+                        key={item.label}
+                        className="flex h-20 flex-col items-center justify-between rounded-xl border border-border px-3 py-2 text-center"
+                      >
+                        <p className="min-h-6 text-center text-xs leading-tight tracking-wide text-muted uppercase">
+                          {item.label}
+                        </p>
+                        <p className="text-text min-h-5 text-center text-sm font-semibold">
+                          {item.value}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -271,7 +401,10 @@ const HumanNode: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               {history.map((entry) => (
-                <div key={entry} className="rounded-xl border border-border px-3 py-2 text-sm text-text">
+                <div
+                  key={entry}
+                  className="text-text rounded-xl border border-border px-3 py-2 text-sm"
+                >
                   {entry}
                 </div>
               ))}
