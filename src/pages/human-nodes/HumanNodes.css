@@ -59,7 +59,7 @@
 
 .human-node-card__tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem;
   margin-top: 0.75rem;
   width: 100%;
@@ -108,7 +108,7 @@
 
 .human-nodes-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: 1rem;
   width: 100%;
   --human-node-card-height: 18rem;
@@ -221,5 +221,15 @@
 
   .human-node-card__tiles {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .human-nodes-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .human-node-card__tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

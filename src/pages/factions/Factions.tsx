@@ -196,12 +196,6 @@ const Factions: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                  <div className="grid min-h-[64px] grid-rows-2 justify-items-start gap-2">
-                    <Badge variant="outline">Threads: {faction.threads}</Badge>
-                    <Badge variant="outline">
-                      Activity: {faction.activity}
-                    </Badge>
-                  </div>
                   <Button size="sm" className="w-full">
                     View faction
                   </Button>
@@ -228,11 +222,8 @@ const Factions: React.FC = () => {
                   </p>
                   <p className="text-xs text-muted">{faction.description}</p>
                 </div>
-                <div className="grid min-w-[180px] grid-rows-2 justify-items-start gap-2 text-xs text-muted">
+                <div className="grid min-w-[180px] grid-rows-1 justify-items-start gap-2 text-xs text-muted">
                   <Badge variant="outline">Members: {faction.members}</Badge>
-                  <Badge variant="outline">
-                    Threads: {faction.threads} · Activity: {faction.activity}
-                  </Badge>
                 </div>
               </CardContent>
             </Card>

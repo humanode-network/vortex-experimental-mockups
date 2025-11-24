@@ -112,9 +112,11 @@ const Chambers: React.FC = () => {
             key={chamber.id}
             className="bg-panel h-full border border-border"
           >
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-0">
               <div className="flex min-h-16 items-start justify-between gap-2">
-                <CardTitle className="max-w-[70%]">{chamber.name}</CardTitle>
+                <CardTitle className="max-w-[70%] leading-tight">
+                  {chamber.name}
+                </CardTitle>
                 <Badge
                   className="text-center text-xs font-semibold whitespace-nowrap uppercase"
                   variant="outline"
