@@ -1,5 +1,4 @@
-import { Outlet, Route, Routes } from "react-router";
-import Welcome from "../pages/Welcome";
+import { Navigate, Outlet, Route, Routes } from "react-router";
 import AppShell from "./AppShell";
 import HumanNodes from "../pages/human-nodes/HumanNodes";
 import Proposals from "../pages/proposals/Proposals";
@@ -22,7 +21,7 @@ const AppRoutes: React.FC = () => {
           </AppShell>
         }
       >
-        <Route path="/" element={<Welcome />} />
+        <Route path="/" element={<Navigate to="/profile" />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/factions" element={<Factions />} />
         <Route path="/human-nodes" element={<HumanNodes />} />
