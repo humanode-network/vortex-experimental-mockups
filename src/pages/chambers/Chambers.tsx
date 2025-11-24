@@ -137,7 +137,7 @@ const Chambers: React.FC = () => {
                 </div>
                 <div className="bg-panel-alt flex flex-col items-center rounded-xl border border-border px-3 py-2 text-center">
                   <dt className="text-[0.65rem] leading-tight tracking-wide whitespace-nowrap text-muted uppercase">
-                    MCM
+                    ACM
                   </dt>
                   <dd className="text-lg font-semibold">{chamber.stats.mcm}</dd>
                 </div>
