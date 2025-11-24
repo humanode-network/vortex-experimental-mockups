@@ -13,25 +13,25 @@ const governanceState = {
   ],
 };
 
-const politicalBlocs = [
+const factions = [
   {
     name: "Civic Union",
-    seats: "38 seats",
+    members: "38 members",
     stance: "Pro-expansion, social reform",
   },
   {
     name: "Protocol Guard",
-    seats: "31 seats",
+    members: "31 members",
     stance: "Security-first, validator hawks",
   },
   {
     name: "Arcadian Treasury",
-    seats: "24 seats",
+    members: "24 members",
     stance: "Fiscal conservatives",
   },
   {
     name: "Formation League",
-    seats: "17 seats",
+    members: "17 members",
     stance: "Growth of squads & guilds",
   },
 ];
@@ -78,16 +78,21 @@ const riskSignals = [
   },
 ];
 
-const edicts = [
+const chamberProposals = [
   {
-    title: "Edict #41 · Civic Prosperity",
-    effect: "Increased Formation funding for public works",
-    sponsors: "Civic Union · Formation League",
+    title: "Protocol Upgrade Rollout",
+    effect: "Sequencer redundancy patch ready for council vote",
+    sponsors: "Protocol Guard · Mesh Vanguard",
   },
   {
-    title: "Edict #38 · Sentinel Watch",
-    effect: "Expanded monitoring of validator regions",
-    sponsors: "Protocol Guard · Arcadian Treasury",
+    title: "Treasury Split Adjustment",
+    effect: "Rebalance civic vs operations disbursements",
+    sponsors: "Arcadian Treasury · Civic Union",
+  },
+  {
+    title: "Formation Tooling Bundle",
+    effect: "Approve guild ops stack for logistics squads",
+    sponsors: "Formation League · Guardian Circle",
   },
 ];
 
@@ -126,19 +131,19 @@ const Invision: React.FC = () => {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <Card className="h-full">
           <CardHeader className="pb-2">
-            <CardTitle>Political blocs</CardTitle>
+            <CardTitle>Factions</CardTitle>
           </CardHeader>
           <CardContent className="text-text grid gap-3 text-sm sm:grid-cols-2">
-            {politicalBlocs.map((bloc) => (
+            {factions.map((faction) => (
               <div
-                key={bloc.name}
+                key={faction.name}
                 className="bg-panel-alt rounded-xl border border-border px-4 py-3"
               >
-                <p className="text-text text-base font-semibold">{bloc.name}</p>
+                <p className="text-text text-base font-semibold">{faction.name}</p>
                 <p className="text-xs tracking-wide text-primary uppercase">
-                  {bloc.seats}
+                  {faction.members}
                 </p>
-                <p className="text-xs text-muted">{bloc.stance}</p>
+                <p className="text-xs text-muted">{faction.stance}</p>
               </div>
             ))}
           </CardContent>
@@ -192,21 +197,21 @@ const Invision: React.FC = () => {
 
         <Card className="h-full">
           <CardHeader className="pb-2">
-            <CardTitle>Council edicts</CardTitle>
+            <CardTitle>General chamber proposals</CardTitle>
           </CardHeader>
           <CardContent className="text-text space-y-3 text-sm">
-            {edicts.map((edict) => (
+            {chamberProposals.map((proposal) => (
               <div
-                key={edict.title}
+                key={proposal.title}
                 className="rounded-xl border border-border px-3 py-3"
               >
                 <p className="text-text text-base font-semibold">
-                  {edict.title}
+                  {proposal.title}
                 </p>
                 <p className="text-xs tracking-wide text-primary uppercase">
-                  {edict.effect}
+                  {proposal.effect}
                 </p>
-                <p className="text-xs text-muted">{edict.sponsors}</p>
+                <p className="text-xs text-muted">{proposal.sponsors}</p>
               </div>
             ))}
           </CardContent>
