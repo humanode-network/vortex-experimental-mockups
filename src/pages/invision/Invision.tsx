@@ -3,40 +3,34 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const governanceState = {
   label: "Egalitarian Republic",
   metrics: [
-    { label: "Legitimacy", value: "78%", trend: "+3% vs last epoch" },
-    { label: "Stability", value: "72%", trend: "Neutral" },
-    { label: "Centralization", value: "44%", trend: "Decentralizing" },
+    { label: "Legitimacy", value: "78%" },
+    { label: "Stability", value: "72%" },
+    { label: "Centralization", value: "44%" },
   ],
 };
 
 const factions = [
   {
-    name: "Civic Union",
-    members: 38,
-    threads: 22,
-    activity: "high",
-    stance: "Pro-expansion, social reform",
+    name: "Protocol Keepers",
+    members: 61,
+    votes: "28",
+    acm: "6,850",
+    stance: "Pushes for harder liveness guarantees and validator neutrality.",
   },
   {
-    name: "Protocol Guard",
-    members: 31,
-    threads: 18,
-    activity: "very high",
-    stance: "Security-first, validator hawks",
+    name: "Formation Guild",
+    members: 54,
+    votes: "21",
+    acm: "5,120",
+    stance:
+      "Wants Formation to own more budget and streamline squad approvals.",
   },
   {
-    name: "Arcadian Treasury",
-    members: 24,
-    threads: 14,
-    activity: "average",
-    stance: "Fiscal conservatives",
-  },
-  {
-    name: "Formation League",
-    members: 17,
-    threads: 12,
-    activity: "average",
-    stance: "Growth of squads & guilds",
+    name: "Mesh Vanguard",
+    members: 48,
+    votes: "19",
+    acm: "4,930",
+    stance: "Advocates anonymous identities and stronger mesh privacy.",
   },
 ];
 
@@ -104,7 +98,7 @@ const Invision: React.FC = () => {
   return (
     <div className="app-page flex flex-col gap-5">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-panel-alt px-6 py-5 text-center shadow-sm sm:col-span-2 lg:col-span-3">
+        <div className="bg-panel-alt rounded-2xl border border-border px-6 py-5 text-center shadow-sm sm:col-span-2 lg:col-span-3">
           <p className="text-xs tracking-wide text-muted uppercase">
             Governance model
           </p>
@@ -115,13 +109,12 @@ const Invision: React.FC = () => {
         {governanceState.metrics.map((metric) => (
           <div
             key={metric.label}
-            className="rounded-2xl border border-border bg-panel px-3 py-3 text-center"
+            className="bg-panel rounded-2xl border border-border px-3 py-3 text-center"
           >
             <p className="text-xs tracking-wide text-muted uppercase">
               {metric.label}
             </p>
             <p className="text-text text-2xl font-semibold">{metric.value}</p>
-            <p className="text-xs text-muted">{metric.trend}</p>
           </div>
         ))}
       </div>
@@ -137,7 +130,9 @@ const Invision: React.FC = () => {
                 key={faction.name}
                 className="bg-panel-alt rounded-2xl border border-border px-5 py-4 shadow-sm"
               >
-                <p className="text-text text-lg font-semibold">{faction.name}</p>
+                <p className="text-text text-lg font-semibold">
+                  {faction.name}
+                </p>
                 <p className="text-xs tracking-wide text-primary uppercase">
                   {faction.stance}
                 </p>
@@ -150,16 +145,16 @@ const Invision: React.FC = () => {
                   </div>
                   <div className="bg-panel rounded-xl border border-border px-2 py-2">
                     <p className="text-[0.7rem] tracking-wide text-muted uppercase">
-                      Threads
+                      Votes, %
                     </p>
-                    <p className="text-lg font-semibold">{faction.threads}</p>
+                    <p className="text-lg font-semibold">{faction.votes}</p>
                   </div>
                   <div className="bg-panel rounded-xl border border-border px-2 py-2">
                     <p className="text-[0.7rem] tracking-wide text-muted uppercase">
-                      Activity
+                      ACM
                     </p>
                     <p className="text-lg font-semibold capitalize">
-                      {faction.activity}
+                      {faction.acm}
                     </p>
                   </div>
                 </div>

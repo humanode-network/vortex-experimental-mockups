@@ -6,6 +6,7 @@ import Chambers from "../pages/chambers/Chambers";
 import Formation from "../pages/formation/Formation";
 import Invision from "../pages/invision/Invision";
 import Factions from "../pages/factions/Factions";
+import Faction from "../pages/factions/Faction";
 import Settings from "../pages/Settings";
 import Profile from "../pages/profile/Profile";
 import HumanNode from "../pages/human-nodes/HumanNode";
@@ -24,6 +25,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/" element={<Navigate to="/profile" />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/factions" element={<Factions />} />
+        <Route path="/factions/:id" element={<Faction />} />
         <Route path="/human-nodes" element={<HumanNodes />} />
         <Route path="/human-nodes/:id" element={<HumanNode />} />
         <Route path="/proposals" element={<Proposals />} />

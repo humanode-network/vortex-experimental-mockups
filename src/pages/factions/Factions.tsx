@@ -1,80 +1,10 @@
 import { useMemo, useRef, useState } from "react";
+import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-
-type Faction = {
-  id: string;
-  name: string;
-  description: string;
-  members: number;
-  threads: number;
-  activity: "none" | "low" | "average" | "high" | "very high";
-  focus: string;
-};
-
-const factions: Faction[] = [
-  {
-    id: "mesh-vanguard",
-    name: "Mesh Vanguard",
-    description:
-      "Reliability guild that keeps the mesh humming and telemetry tight.",
-    members: 48,
-    threads: 22,
-    activity: "high",
-    focus: "Reliability & ops",
-  },
-  {
-    id: "formation-guild",
-    name: "Formation Guild",
-    description:
-      "Logistics squads that coordinate projects, milestones, and squads.",
-    members: 54,
-    threads: 18,
-    activity: "average",
-    focus: "Execution & delivery",
-  },
-  {
-    id: "protocol-keepers",
-    name: "Protocol Keepers",
-    description:
-      "Protocol-first faction focused on validators, liveness, and upgrades.",
-    members: 61,
-    threads: 27,
-    activity: "very high",
-    focus: "Core protocol",
-  },
-  {
-    id: "treasury-collective",
-    name: "Treasury Collective",
-    description:
-      "Treasury and economics faction watching budgets and incentives.",
-    members: 37,
-    threads: 11,
-    activity: "average",
-    focus: "Economics",
-  },
-  {
-    id: "guardian-circle",
-    name: "Guardian Circle",
-    description: "Mentorship and safety net for new governors and operators.",
-    members: 29,
-    threads: 9,
-    activity: "low",
-    focus: "Mentorship",
-  },
-  {
-    id: "research-lab",
-    name: "Research Lab",
-    description:
-      "Cryptobiometrics and deterrence research to keep threats in check.",
-    members: 33,
-    threads: 14,
-    activity: "high",
-    focus: "Research",
-  },
-];
+import { factions } from "./factionData";
 
 const Factions: React.FC = () => {
   const [query, setQuery] = useState("");
@@ -82,18 +12,18 @@ const Factions: React.FC = () => {
 
   const totals = useMemo(() => {
     const totalMembers = factions.reduce((sum, f) => sum + f.members, 0);
-    const totalThreads = factions.reduce((sum, f) => sum + f.threads, 0);
-    const activityCounts = factions.reduce<Record<string, number>>((acc, f) => {
-      acc[f.activity] = (acc[f.activity] || 0) + 1;
-      return acc;
-    }, {});
-    const mostActive =
-      Object.entries(activityCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ??
-      "mixed";
+    const totalVotes = factions.reduce(
+      (sum, f) => sum + parseInt(f.votes, 10),
+      0,
+    );
+    const totalAcm = factions.reduce(
+      (sum, f) => sum + parseInt(f.acm.replace(/[,]/g, ""), 10),
+      0,
+    );
     return {
       totalMembers,
-      totalThreads,
-      mostActive,
+      totalVotes,
+      totalAcm,
       totalFactions: factions.length,
     };
   }, []);
@@ -144,18 +74,16 @@ const Factions: React.FC = () => {
             </div>
             <div className="bg-panel-alt rounded-2xl border border-border px-4 py-4 text-center shadow-sm">
               <p className="text-xs tracking-wide text-muted uppercase">
-                Threads
+                Votes
               </p>
               <p className="text-text text-2xl font-semibold">
-                {totals.totalThreads}
+                {totals.totalVotes}
               </p>
             </div>
             <div className="bg-panel-alt rounded-2xl border border-border px-4 py-4 text-center shadow-sm">
-              <p className="text-xs tracking-wide text-muted uppercase">
-                Activity mix
-              </p>
-              <p className="text-text text-2xl font-semibold capitalize">
-                {totals.mostActive}
+              <p className="text-xs tracking-wide text-muted uppercase">ACM</p>
+              <p className="text-text text-2xl font-semibold">
+                {totals.totalAcm}
               </p>
             </div>
           </section>
@@ -171,9 +99,9 @@ const Factions: React.FC = () => {
               >
                 <CardHeader className="pb-2">
                   <CardTitle>{faction.name}</CardTitle>
+                  <p className="text-sm text-muted">{faction.description}</p>
                 </CardHeader>
                 <CardContent className="text-text space-y-3 text-sm">
-                  <p className="text-muted">{faction.description}</p>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="bg-panel-alt rounded-xl border border-border px-2 py-2">
                       <p className="text-[0.7rem] tracking-wide text-muted uppercase">
@@ -183,21 +111,19 @@ const Factions: React.FC = () => {
                     </div>
                     <div className="bg-panel-alt rounded-xl border border-border px-2 py-2">
                       <p className="text-[0.7rem] tracking-wide text-muted uppercase">
-                        Threads
+                        Votes
                       </p>
-                      <p className="text-lg font-semibold">{faction.threads}</p>
+                      <p className="text-lg font-semibold">{faction.votes}</p>
                     </div>
                     <div className="bg-panel-alt rounded-xl border border-border px-2 py-2">
                       <p className="text-[0.7rem] tracking-wide text-muted uppercase">
-                        Activity
+                        ACM
                       </p>
-                      <p className="text-lg font-semibold capitalize">
-                        {faction.activity}
-                      </p>
+                      <p className="text-lg font-semibold">{faction.acm}</p>
                     </div>
                   </div>
-                  <Button size="sm" className="w-full">
-                    View faction
+                  <Button asChild size="sm" className="w-full">
+                    <Link to={`/factions/${faction.id}`}>View faction</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -225,6 +151,9 @@ const Factions: React.FC = () => {
                 <div className="grid min-w-[180px] grid-rows-1 justify-items-start gap-2 text-xs text-muted">
                   <Badge variant="outline">Members: {faction.members}</Badge>
                 </div>
+                <Button asChild size="sm">
+                  <Link to={`/factions/${faction.id}`}>Open</Link>
+                </Button>
               </CardContent>
             </Card>
           ))}
