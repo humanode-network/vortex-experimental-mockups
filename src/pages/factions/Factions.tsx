@@ -99,7 +99,7 @@ const Factions: React.FC = () => {
               >
                 <CardHeader className="pb-2">
                   <CardTitle>{faction.name}</CardTitle>
-                  <p className="text-sm text-muted">{faction.description}</p>
+                  <p className="text-sm text-muted line-clamp-2 min-h-[40px]">{faction.description}</p>
                 </CardHeader>
                 <CardContent className="text-text space-y-3 text-sm">
                   <div className="grid grid-cols-3 gap-2 text-center">
