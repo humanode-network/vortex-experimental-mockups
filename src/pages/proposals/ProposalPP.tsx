@@ -36,9 +36,9 @@ const ProposalPP: React.FC = () => {
   return (
     <div className="app-page flex flex-col gap-6">
       <section className="rounded-2xl border border-border bg-panel p-6">
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <div className="space-y-3">
-            <h1 className="text-2xl font-semibold text-(--text)">{proposal.title}</h1>
+        <div className="grid items-start gap-4">
+          <div className="space-y-4">
+            <h1 className="text-center text-2xl font-semibold text-(--text)">{proposal.title}</h1>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center">
                 <p className="text-[0.8rem] uppercase tracking-wide text-muted">Chamber</p>
@@ -49,21 +49,21 @@ const ProposalPP: React.FC = () => {
                 <p className="text-xl font-semibold">{proposal.proposer}</p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-4">
               <button
                 type="button"
-                className="rounded-full border-2 border-emerald-500 px-5 py-2 text-sm font-semibold text-emerald-600 transition-colors hover:bg-emerald-500 hover:text-white"
+                className="rounded-full border-2 border-emerald-500 px-6 py-3 text-base font-semibold text-emerald-600 transition-colors hover:bg-emerald-500 hover:text-white"
               >
                 Upvote
               </button>
               <button
                 type="button"
-                className="rounded-full border-2 border-red-500 px-5 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-500 hover:text-white"
+                className="rounded-full border-2 border-red-500 px-6 py-3 text-base font-semibold text-red-600 transition-colors hover:bg-red-500 hover:text-white"
               >
                 Downvote
               </button>
             </div>
-            <div className="flex items-center gap-2 rounded-full border border-border bg-panel-alt px-4 py-2 text-sm font-semibold text-(--text)">
+            <div className="mx-auto flex w-fit items-center gap-3 rounded-full border border-border bg-panel-alt px-6 py-3 text-base font-semibold text-(--text)">
               <span className="text-emerald-600">{proposal.upvotes} upvotes</span>
               <span className="text-muted">·</span>
               <span className="text-red-600">{proposal.downvotes} downvotes</span>
@@ -75,19 +75,19 @@ const ProposalPP: React.FC = () => {
               <CardTitle>Quorum of attention</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-3 text-sm text-(--text) sm:grid-cols-2 lg:grid-cols-2">
-              <div className="flex h-full flex-col items-center justify-center gap-1 rounded-xl border border-border bg-panel px-3 py-4 text-center">
+              <div className="flex h-full min-h-[96px] flex-col items-center justify-center gap-1 rounded-xl border border-border bg-panel px-3 py-4 text-center">
                 <p className="text-[0.7rem] uppercase tracking-wide text-muted">Governors</p>
                 <p className="text-2xl font-semibold whitespace-nowrap">{engaged} / {attentionNeeded}</p>
               </div>
-              <div className="flex h-full flex-col items-center justify-center gap-1 rounded-xl border border-border bg-panel px-3 py-4 text-center">
+              <div className="flex h-full min-h-[96px] flex-col items-center justify-center gap-1 rounded-xl border border-border bg-panel px-3 py-4 text-center">
                 <p className="text-[0.7rem] uppercase tracking-wide text-muted">Upvotes</p>
                 <p className="text-2xl font-semibold whitespace-nowrap">{proposal.upvotes} / {proposal.upvoteFloor}</p>
               </div>
-              <div className="flex h-full flex-col items-center justify-center gap-1 rounded-xl border border-border bg-panel px-3 py-4 text-center">
+              <div className="flex h-full min-h-[96px] flex-col items-center justify-center gap-1 rounded-xl border border-border bg-panel px-3 py-4 text-center">
                 <p className="text-[0.7rem] uppercase tracking-wide text-muted whitespace-nowrap">Governors (%)</p>
                 <p className="text-2xl font-semibold whitespace-nowrap">{attentionPercent} / {attentionNeededPercent}</p>
               </div>
-              <div className="flex h-full flex-col items-center justify-center gap-1 rounded-xl border border-border bg-panel px-3 py-4 text-center">
+              <div className="flex h-full min-h-[96px] flex-col items-center justify-center gap-1 rounded-xl border border-border bg-panel px-3 py-4 text-center">
                 <p className="text-[0.7rem] uppercase tracking-wide text-muted whitespace-nowrap">Upvotes (%)</p>
                 <p className="text-2xl font-semibold whitespace-nowrap">{upvoteCurrentPercent} / {upvoteFloorPercent}</p>
               </div>
