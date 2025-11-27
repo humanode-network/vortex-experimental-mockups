@@ -4,8 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 const heroStats = [
-  { label: "ACM score", value: "168" },
-  { label: "MM score", value: "81" },
+  { label: "ACM", value: "168" },
+  { label: "MM", value: "81" },
   { label: "Invision score", value: "78 / 100" },
   { label: "Member since", value: "04.03.2020" },
 ];
