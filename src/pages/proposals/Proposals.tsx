@@ -486,15 +486,11 @@ const Proposals: React.FC = () => {
 
   return (
     <div className="app-page flex flex-col gap-6">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-(--text)">Proposals</h1>
-          <p className="text-sm text-muted">Browse proposals across pools, chambers, and Formation.</p>
-        </div>
+      <div className="flex justify-end">
         <button className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90">
           Create proposal
         </button>
-      </header>
+      </div>
 
       <Card className="bg-panel overflow-hidden border border-border">
         <button

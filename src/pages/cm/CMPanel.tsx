@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const CMPannel: React.FC = () => {
+const CMPanel: React.FC = () => {
   return (
     <div className="app-page flex flex-col gap-6">
       <header>
@@ -19,4 +19,4 @@ const CMPannel: React.FC = () => {
   );
 };
 
-export default CMPannel;
+export default CMPanel;

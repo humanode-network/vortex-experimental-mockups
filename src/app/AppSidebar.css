@@ -58,3 +58,8 @@
   border-color: var(--primary-dim);
   background: rgba(95, 139, 255, 0.08);
 }
+
+.sidebar__link--nested {
+  display: block;
+  padding-left: 1.5rem;
+}
