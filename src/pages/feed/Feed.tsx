@@ -22,7 +22,7 @@ type FeedItem = {
   ctaPrimary?: string;
   ctaSecondary?: string;
   href?: string;
-  urgent?: boolean;
+  timestamp: string; // ISO string
 };
 
 const stageStyles: Record<Stage, string> = {
@@ -57,7 +57,7 @@ const feedItems: FeedItem[] = [
     ctaPrimary: "Open proposal",
     ctaSecondary: "Add to agenda",
     href: "/proposals/adaptive-fee/chamber",
-    urgent: true,
+    timestamp: "2025-02-15T12:10:00Z",
   },
   {
     id: "sequencer-upgrade",
@@ -81,7 +81,7 @@ const feedItems: FeedItem[] = [
     ctaPrimary: "Open proposal",
     ctaSecondary: "Watch",
     href: "/proposals/sequencer-upgrade/pp",
-    urgent: true,
+    timestamp: "2024-02-01T09:00:00Z",
   },
   {
     id: "liveness-sentinel",
@@ -105,6 +105,7 @@ const feedItems: FeedItem[] = [
     ctaPrimary: "Open proposal",
     ctaSecondary: "Track vote",
     href: "/proposals/liveness-sentinel/chamber",
+    timestamp: "2024-11-20T07:30:00Z",
   },
   {
     id: "deterrence-sim-lab",
@@ -128,14 +129,15 @@ const feedItems: FeedItem[] = [
     ctaPrimary: "View milestone",
     ctaSecondary: "Ping team",
     href: "/formation",
+    timestamp: "2025-03-15T18:00:00Z",
   },
   {
     id: "delegation-dispute",
-    title: "Appeal: Delegation Dispute #44",
-    meta: "Courts · Awaiting statement",
+    title: "Courts: Delegation Dispute #44",
+    meta: "Courts · Jury · Awaiting statement",
     stage: "courts",
-    stageLabel: "Appeal",
-    summaryPill: "Courts",
+    stageLabel: "Courts",
+    summaryPill: "Jury",
     summary: "Delegation dispute filed; statement requested before review.",
     stats: [
       { label: "Status", value: "Awaiting statement" },
@@ -144,7 +146,7 @@ const feedItems: FeedItem[] = [
     ctaPrimary: "Open appeal",
     ctaSecondary: "Track",
     href: "/courts",
-    urgent: true,
+    timestamp: "2025-04-02T06:45:00Z",
   },
   {
     id: "protocol-council-thread",
@@ -157,6 +159,7 @@ const feedItems: FeedItem[] = [
     ctaPrimary: "Open thread",
     ctaSecondary: "Mark read",
     href: "/chambers/protocol-engineering",
+    timestamp: "2025-03-30T05:10:00Z",
   },
   {
     id: "protocol-keepers-thread",
@@ -169,6 +172,7 @@ const feedItems: FeedItem[] = [
     ctaPrimary: "Open thread",
     ctaSecondary: "Mark read",
     href: "/factions/protocol-keepers",
+    timestamp: "2025-03-26T04:00:00Z",
   },
   {
     id: "formation-guild",
@@ -181,12 +185,35 @@ const feedItems: FeedItem[] = [
     ctaPrimary: "Open faction",
     ctaSecondary: "Follow",
     href: "/factions/formation-guild",
+    timestamp: "2025-03-20T20:00:00Z",
   },
 ];
 
+const eraActivity = {
+  era: "Era 142",
+  thresholdLabel: "Required actions",
+  required: 18,
+  completed: 11,
+  actions: [
+    { label: "Pool votes", done: 5, required: 6 },
+    { label: "Chamber votes", done: 3, required: 6 },
+    { label: "Court actions", done: 1, required: 3 },
+    { label: "Proposals / threads", done: 2, required: 3 },
+  ],
+};
+
+const formatDate = (iso: string) => {
+  const d = new Date(iso);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return `${day}/${month}/${year} · ${time}`;
+};
+
 const Feed: React.FC = () => {
   const sortedFeed = [...feedItems].sort(
-    (a, b) => Number(!!b.urgent) - Number(!!a.urgent),
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
   );
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -196,13 +223,71 @@ const Feed: React.FC = () => {
 
   return (
     <div className="app-page flex flex-col gap-4">
+      <Card className="border border-border bg-panel">
+        <CardHeader className="pb-2">
+          <CardTitle>Governing activity</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              {
+                label: "Era",
+                value: eraActivity.era,
+              },
+              {
+                label: "Time left",
+                value: "22d 14h",
+              },
+            ].map((tile) => (
+              <div
+                key={tile.label}
+                className="flex h-full flex-col items-center justify-center rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center"
+              >
+                <p className="text-sm text-muted">{tile.label}</p>
+                <p className="text-xl font-semibold text-(--text)">{tile.value}</p>
+              </div>
+            ))}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              {
+                label: eraActivity.thresholdLabel,
+                value: `${eraActivity.completed} / ${eraActivity.required} completed`,
+              },
+              {
+                label: "Status",
+                value: eraActivity.completed >= eraActivity.required ? "On track" : "At risk",
+              },
+            ].map((tile) => (
+              <div
+                key={tile.label}
+                className="flex h-full flex-col items-center justify-center rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center"
+              >
+                <p className="text-sm text-muted">{tile.label}</p>
+                <p className="text-xl font-semibold text-(--text)">{tile.value}</p>
+              </div>
+            ))}
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {eraActivity.actions.map((act) => (
+              <div key={act.label} className="flex h-full flex-col items-center justify-center rounded-xl border border-border bg-panel-alt px-3 py-3 text-center">
+                <p className="text-[0.7rem] uppercase tracking-wide text-muted">{act.label}</p>
+                <p className="text-base font-semibold text-(--text)">
+                  {act.done} / {act.required}
+                </p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       <section aria-live="polite" className="flex flex-col gap-4">
-        {sortedFeed.map((item) => (
+        {sortedFeed.map((item, index) => (
           <Card
             key={item.id}
             className={cn(
               "bg-panel overflow-hidden border",
-              item.urgent ? "border-primary" : "border-border",
+              index < 3 ? "border-primary" : "border-border",
             )}
           >
             <button
@@ -213,7 +298,7 @@ const Feed: React.FC = () => {
             >
               <div className="space-y-1">
                 <p className="text-xs tracking-wide text-muted uppercase">
-                  {item.meta}
+                  {formatDate(item.timestamp)}
                 </p>
                 <p className="text-lg font-semibold text-(--text)">
                   {item.title}
@@ -235,11 +320,6 @@ const Feed: React.FC = () => {
                 >
                   {item.summaryPill}
                 </Badge>
-                {item.urgent && (
-                  <Badge variant="outline" size="sm" className="whitespace-nowrap">
-                    Urgent
-                  </Badge>
-                )}
                 <span
                   className={cn(
                     "ml-auto h-5 w-5 text-muted transition-transform sm:ml-0",
@@ -295,23 +375,20 @@ const Feed: React.FC = () => {
                 )}
 
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  {item.proposer && item.proposerId && (
+                  {item.proposer && item.proposerId ? (
                     <Link
                       to={`/human-nodes/${item.proposerId}`}
                       className="text-sm font-semibold text-primary"
                     >
                       Proposer: {item.proposer}
                     </Link>
+                  ) : (
+                    <span className="text-sm text-muted"> </span>
                   )}
                   <div className="flex flex-wrap gap-2">
                     {item.href && item.ctaPrimary && (
                       <Button asChild size="sm">
                         <Link to={item.href}>{item.ctaPrimary}</Link>
-                      </Button>
-                    )}
-                    {item.ctaSecondary && (
-                      <Button size="sm" variant="ghost">
-                        {item.ctaSecondary}
                       </Button>
                     )}
                   </div>

@@ -5,9 +5,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router";
+import { cn } from "@/lib/utils";
 
 type Category = "all" | "research" | "development" | "social";
-type Stage = "live" | "upcoming" | "completed";
+type Stage = "live" | "gathering" | "completed";
 
 type FormationMetric = {
   label: string;
@@ -44,7 +45,7 @@ const categoryOptions: { label: string; value: Category }[] = [
 
 const stageLegend: { label: string; value: Stage; dotClass: string }[] = [
   { label: "Live", value: "live", dotClass: "bg-emerald-500" },
-  { label: "Upcoming", value: "upcoming", dotClass: "bg-amber-500" },
+  { label: "Gathering team", value: "gathering", dotClass: "bg-amber-500" },
   { label: "Completed", value: "completed", dotClass: "bg-slate-400" },
 ];
 
@@ -70,7 +71,7 @@ const projects: FormationProject[] = [
     summary:
       "Exploratory track modeling biometric verification attacks and mitigation strategies.",
     category: "research",
-    stage: "upcoming",
+    stage: "gathering",
     budget: "45k HMND",
     milestones: "0 / 5",
     teamSlots: "3 open",
@@ -160,10 +161,13 @@ const Formation: React.FC = () => {
               role="tab"
               size="sm"
               aria-selected={activeCategory === category.value}
-              variant={
-                activeCategory === category.value ? "primary" : "outline"
-              }
-              className="rounded-full px-4"
+              variant="ghost"
+              className={cn(
+                "rounded-full px-4",
+                activeCategory === category.value
+                  ? "bg-primary text-white hover:bg-primary"
+                  : "bg-white text-(--text) border border-border hover:border-[color:var(--primary-dim)] hover:text-(--text)",
+              )}
               onClick={() => setActiveCategory(category.value)}
             >
               {category.label}
