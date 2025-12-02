@@ -19,6 +19,7 @@ import Feed from "../pages/feed/Feed";
 import Courts from "../pages/courts/Courts";
 import CMPanel from "../pages/cm/CMPanel";
 import Courtroom from "../pages/courts/Courtroom";
+import ProposalCreation from "../pages/proposals/ProposalCreation";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -41,6 +42,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/courts/:id" element={<Courtroom />} />
         <Route path="/cm" element={<CMPanel />} />
         <Route path="/proposals" element={<Proposals />} />
+        <Route path="/proposals/new" element={<ProposalCreation />} />
         <Route path="/proposals/:id/pp" element={<ProposalPP />} />
         <Route path="/proposals/:id/chamber" element={<ProposalChamber />} />
         <Route

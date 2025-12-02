@@ -487,9 +487,9 @@ const Proposals: React.FC = () => {
   return (
     <div className="app-page flex flex-col gap-6">
       <div className="flex justify-end">
-        <button className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90">
-          Create proposal
-        </button>
+        <Button asChild size="sm" className="rounded-full px-4">
+          <Link to="/proposals/new">Create proposal</Link>
+        </Button>
       </div>
 
       <Card className="bg-panel overflow-hidden border border-border">
