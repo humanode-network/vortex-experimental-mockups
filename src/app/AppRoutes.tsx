@@ -5,6 +5,7 @@ import Proposals from "../pages/proposals/Proposals";
 import Chambers from "../pages/chambers/Chambers";
 import Formation from "../pages/formation/Formation";
 import Invision from "../pages/invision/Invision";
+import Vortexopedia from "../pages/Vortexopedia";
 import Factions from "../pages/factions/Factions";
 import Faction from "../pages/factions/Faction";
 import ProposalPP from "../pages/proposals/ProposalPP";
@@ -50,6 +51,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/chambers/:id" element={<Chamber />} />
         <Route path="/formation" element={<Formation />} />
         <Route path="/invision" element={<Invision />} />
+        <Route path="/vortexopedia" element={<Vortexopedia />} />
         <Route path="/settings" element={<General />} />
       </Route>
     </Routes>

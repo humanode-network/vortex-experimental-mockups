@@ -42,6 +42,9 @@ const AppSidebar: React.FC<React.PropsWithChildren> = ({ children }) => {
         <NavLink className={navClass} to="/courts">
           Courts
         </NavLink>
+        <NavLink className={navClass} to="/vortexopedia">
+          Vortexopedia
+        </NavLink>
         <button
           type="button"
           className={clsx("sidebar__link", settingsOpen && "sidebar__link--active")}

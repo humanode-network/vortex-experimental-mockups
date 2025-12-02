@@ -198,7 +198,7 @@ const eraActivity = {
     { label: "Pool votes", done: 5, required: 6 },
     { label: "Chamber votes", done: 3, required: 6 },
     { label: "Court actions", done: 1, required: 3 },
-    { label: "Proposals / threads", done: 2, required: 3 },
+    { label: "Proposals", done: 2, required: 3 },
   ],
 };
 
@@ -225,7 +225,7 @@ const Feed: React.FC = () => {
     <div className="app-page flex flex-col gap-4">
       <Card className="border border-border bg-panel">
         <CardHeader className="pb-2">
-          <CardTitle>Governing activity</CardTitle>
+          <CardTitle>Governing threshold</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2">
