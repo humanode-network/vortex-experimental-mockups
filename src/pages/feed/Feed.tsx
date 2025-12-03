@@ -15,7 +15,12 @@ type FeedItem = {
   stageLabel: string;
   summaryPill: string;
   summary: string;
-  stageData?: { title: string; description: string; value: string; tone?: "ok" | "warn" }[];
+  stageData?: {
+    title: string;
+    description: string;
+    value: string;
+    tone?: "ok" | "warn";
+  }[];
   stats?: { label: string; value: string }[];
   proposer?: string;
   proposerId?: string;
@@ -42,10 +47,21 @@ const feedItems: FeedItem[] = [
     stage: "vote",
     stageLabel: "Chamber vote",
     summaryPill: "Economics chamber",
-    summary: "Dynamic fee split feeding Formation, treasury, and biometrics based on stress.",
+    summary:
+      "Dynamic fee split feeding Formation, treasury, and biometrics based on stress.",
     stageData: [
-      { title: "Voting quorum", description: "Strict 33% active governors", value: "Met · 34%", tone: "ok" },
-      { title: "Passing rule", description: "≥66.6% + 1 vote yes", value: "Current 57%", tone: "warn" },
+      {
+        title: "Voting quorum",
+        description: "Strict 33% active governors",
+        value: "Met · 34%",
+        tone: "ok",
+      },
+      {
+        title: "Passing rule",
+        description: "≥66.6% + 1 vote yes",
+        value: "Current 57%",
+        tone: "warn",
+      },
       { title: "Time left", description: "Voting window", value: "05h 15m" },
     ],
     stats: [
@@ -66,10 +82,20 @@ const feedItems: FeedItem[] = [
     stage: "pool",
     stageLabel: "Proposal pool",
     summaryPill: "Protocol chamber",
-    summary: "Redundant biometric sequencers with cross-epoch checkpoints to cut failover time.",
+    summary:
+      "Redundant biometric sequencers with cross-epoch checkpoints to cut failover time.",
     stageData: [
-      { title: "Pool momentum", description: "Upvotes / Downvotes", value: "24 / 6" },
-      { title: "Attention quorum", description: "20% active or ≥10% upvotes", value: "Met · 30%", tone: "ok" },
+      {
+        title: "Pool momentum",
+        description: "Upvotes / Downvotes",
+        value: "24 / 6",
+      },
+      {
+        title: "Attention quorum",
+        description: "20% active or ≥10% upvotes",
+        value: "Met · 30%",
+        tone: "ok",
+      },
       { title: "Votes casted", description: "Backing seats", value: "24" },
     ],
     stats: [
@@ -90,10 +116,20 @@ const feedItems: FeedItem[] = [
     stage: "vote",
     stageLabel: "Chamber vote",
     summaryPill: "Security chamber",
-    summary: "Retrofit sentinel nodes with liveness circuit breaker to prevent cascading outages.",
+    summary:
+      "Retrofit sentinel nodes with liveness circuit breaker to prevent cascading outages.",
     stageData: [
-      { title: "Voting quorum", description: "Strict 33% active governors", value: "Pending · 28%", tone: "warn" },
-      { title: "Passing rule", description: "≥66.6% + 1 vote yes", value: "Current 62%" },
+      {
+        title: "Voting quorum",
+        description: "Strict 33% active governors",
+        value: "Pending · 28%",
+        tone: "warn",
+      },
+      {
+        title: "Passing rule",
+        description: "≥66.6% + 1 vote yes",
+        value: "Current 62%",
+      },
       { title: "Time left", description: "Voting window", value: "05h 42m" },
     ],
     stats: [
@@ -114,11 +150,16 @@ const feedItems: FeedItem[] = [
     stage: "build",
     stageLabel: "Formation",
     summaryPill: "Milestone 2 / 3",
-    summary: "Simulation track for deterrence scenarios; SRE/QA/Writer slots open.",
+    summary:
+      "Simulation track for deterrence scenarios; SRE/QA/Writer slots open.",
     stageData: [
       { title: "Budget allocated", description: "HMND", value: "180k" },
       { title: "Team slots", description: "Taken / Total", value: "3 / 6" },
-      { title: "Deployment progress", description: "Reported completion", value: "68%" },
+      {
+        title: "Deployment progress",
+        description: "Reported completion",
+        value: "68%",
+      },
     ],
     stats: [
       { label: "Lead chamber", value: "Research" },
@@ -223,63 +264,7 @@ const Feed: React.FC = () => {
 
   return (
     <div className="app-page flex flex-col gap-4">
-      <Card className="border border-border bg-panel">
-        <CardHeader className="pb-2">
-          <CardTitle>Governing threshold</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {[
-              {
-                label: "Era",
-                value: eraActivity.era,
-              },
-              {
-                label: "Time left",
-                value: "22d 14h",
-              },
-            ].map((tile) => (
-              <div
-                key={tile.label}
-                className="flex h-full flex-col items-center justify-center rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center"
-              >
-                <p className="text-sm text-muted">{tile.label}</p>
-                <p className="text-xl font-semibold text-(--text)">{tile.value}</p>
-              </div>
-            ))}
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {[
-              {
-                label: eraActivity.thresholdLabel,
-                value: `${eraActivity.completed} / ${eraActivity.required} completed`,
-              },
-              {
-                label: "Status",
-                value: eraActivity.completed >= eraActivity.required ? "On track" : "At risk",
-              },
-            ].map((tile) => (
-              <div
-                key={tile.label}
-                className="flex h-full flex-col items-center justify-center rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center"
-              >
-                <p className="text-sm text-muted">{tile.label}</p>
-                <p className="text-xl font-semibold text-(--text)">{tile.value}</p>
-              </div>
-            ))}
-          </div>
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {eraActivity.actions.map((act) => (
-              <div key={act.label} className="flex h-full flex-col items-center justify-center rounded-xl border border-border bg-panel-alt px-3 py-3 text-center">
-                <p className="text-[0.7rem] uppercase tracking-wide text-muted">{act.label}</p>
-                <p className="text-base font-semibold text-(--text)">
-                  {act.done} / {act.required}
-                </p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Governing threshold moved to MyGovernance */}
 
       <section aria-live="polite" className="flex flex-col gap-4">
         {sortedFeed.map((item, index) => (
@@ -332,7 +317,7 @@ const Feed: React.FC = () => {
             </button>
 
             {expanded === item.id && (
-              <div className="space-y-5 border-top border-t border-border px-5 py-5">
+              <div className="border-top space-y-5 border-t border-border px-5 py-5">
                 <p className="text-sm text-muted">{item.summary}</p>
 
                 {item.stageData && (
@@ -345,7 +330,9 @@ const Feed: React.FC = () => {
                         <p className="text-sm font-semibold text-muted">
                           {entry.title}
                         </p>
-                        <p className="text-xs text-muted">{entry.description}</p>
+                        <p className="text-xs text-muted">
+                          {entry.description}
+                        </p>
                         <p
                           className={cn(
                             "text-lg font-semibold text-(--text)",

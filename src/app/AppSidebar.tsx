@@ -6,7 +6,10 @@ import clsx from "clsx";
 const navClass = ({ isActive }: { isActive: boolean }) =>
   clsx("sidebar__link", isActive && "sidebar__link--active");
 const nestedNavClass = ({ isActive }: { isActive: boolean }) =>
-  clsx("sidebar__link sidebar__link--nested", isActive && "sidebar__link--active");
+  clsx(
+    "sidebar__link sidebar__link--nested",
+    isActive && "sidebar__link--active",
+  );
 
 const AppSidebar: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -20,6 +23,9 @@ const AppSidebar: React.FC<React.PropsWithChildren> = ({ children }) => {
       <nav className="sidebar__nav" aria-label="Primary">
         <NavLink className={navClass} to="/feed">
           Feed
+        </NavLink>
+        <NavLink className={navClass} to="/my-governance">
+          My governance
         </NavLink>
         <NavLink className={navClass} to="/proposals">
           Proposals
@@ -47,18 +53,24 @@ const AppSidebar: React.FC<React.PropsWithChildren> = ({ children }) => {
         </NavLink>
         <button
           type="button"
-          className={clsx("sidebar__link", settingsOpen && "sidebar__link--active")}
+          className={clsx(
+            "sidebar__link",
+            settingsOpen && "sidebar__link--active",
+          )}
           onClick={() => setSettingsOpen((open) => !open)}
         >
           Settings
         </button>
         {settingsOpen && (
-          <div className="pl-4 pt-1">
+          <div className="pt-1 pl-4">
             <NavLink className={nestedNavClass} to="/settings">
               General
             </NavLink>
             <NavLink className={nestedNavClass} to="/profile">
               My profile
+            </NavLink>
+            <NavLink className={nestedNavClass} to="/my-governance">
+              My governance
             </NavLink>
           </div>
         )}

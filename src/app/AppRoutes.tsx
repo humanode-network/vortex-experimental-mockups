@@ -20,6 +20,7 @@ import Courts from "../pages/courts/Courts";
 import CMPanel from "../pages/cm/CMPanel";
 import Courtroom from "../pages/courts/Courtroom";
 import ProposalCreation from "../pages/proposals/ProposalCreation";
+import MyGovernance from "../pages/MyGovernance";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -55,6 +56,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/invision" element={<Invision />} />
         <Route path="/vortexopedia" element={<Vortexopedia />} />
         <Route path="/settings" element={<General />} />
+        <Route path="/my-governance" element={<MyGovernance />} />
       </Route>
     </Routes>
   );
