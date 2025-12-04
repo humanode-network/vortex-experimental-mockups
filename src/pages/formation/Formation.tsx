@@ -49,6 +49,12 @@ const stageLegend: { label: string; value: Stage; dotClass: string }[] = [
   { label: "Completed", value: "completed", dotClass: "bg-slate-400" },
 ];
 
+const stageLabel: Record<Stage, string> = {
+  live: "Live",
+  gathering: "Gathering team",
+  completed: "Completed",
+};
+
 const projects: FormationProject[] = [
   {
     id: "node-health-kit",
@@ -166,7 +172,7 @@ const Formation: React.FC = () => {
                 "rounded-full px-4",
                 activeCategory === category.value
                   ? "bg-primary text-white hover:bg-primary"
-                  : "bg-white text-(--text) border border-border hover:border-[color:var(--primary-dim)] hover:text-(--text)",
+                  : "border border-border bg-white text-(--text) hover:border-(--primary-dim) hover:text-(--text)",
               )}
               onClick={() => setActiveCategory(category.value)}
             >
@@ -233,11 +239,7 @@ const Formation: React.FC = () => {
                 </h3>
               </div>
               <Badge variant="outline" className="text-xs font-semibold">
-                {project.stage === "live"
-                  ? "Live"
-                  : project.stage === "upcoming"
-                    ? "Upcoming"
-                    : "Completed"}
+                {stageLabel[project.stage]}
               </Badge>
             </CardHeader>
             <CardContent className="space-y-3">

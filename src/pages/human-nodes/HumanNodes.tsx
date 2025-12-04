@@ -6,7 +6,6 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -313,8 +312,12 @@ const HumanNodes: React.FC = () => {
           className="hover:bg-panel-alt flex w-full items-center justify-between px-5 py-4 text-left transition"
         >
           <div>
-            <p className="text-base font-semibold text-(--text)">Filters & search</p>
-            <p className="text-xs text-muted">{filtersOpen ? "Expanded" : "Collapsed"}</p>
+            <p className="text-base font-semibold text-(--text)">
+              Filters & search
+            </p>
+            <p className="text-xs text-muted">
+              {filtersOpen ? "Expanded" : "Collapsed"}
+            </p>
           </div>
           <ChevronDown
             className={clsx(
@@ -330,7 +333,10 @@ const HumanNodes: React.FC = () => {
           >
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               <div className="md:col-span-2 xl:col-span-3">
-                <Label htmlFor="human-node-search" className="text-sm font-medium text-(--text)">
+                <Label
+                  htmlFor="human-node-search"
+                  className="text-sm font-medium text-(--text)"
+                >
                   Keyword search
                 </Label>
                 <div className="flex flex-col gap-2 sm:flex-row">
@@ -497,8 +503,7 @@ const HumanNodes: React.FC = () => {
                   {
                     label: "Tier",
                     value:
-                      node.tier.charAt(0).toUpperCase() +
-                      node.tier.slice(1),
+                      node.tier.charAt(0).toUpperCase() + node.tier.slice(1),
                   },
                   {
                     label: "Governor",
@@ -525,15 +530,10 @@ const HumanNodes: React.FC = () => {
                   },
                 ];
                 return (
-                  <Card
-                    key={node.id}
-                    className="human-node-card border-border"
-                  >
+                  <Card key={node.id} className="human-node-card border-border">
                     <CardContent className="human-node-card__content pt-4">
                       <div>
-                        <h3 className="text-lg font-semibold">
-                          {node.name}
-                        </h3>
+                        <h3 className="text-lg font-semibold">{node.name}</h3>
                         <p className="text-sm text-muted">{node.role}</p>
                       </div>
                       <div className="human-node-card__tiles">
@@ -554,9 +554,7 @@ const HumanNodes: React.FC = () => {
                     </CardContent>
                     <CardFooter className="human-node-card__footer justify-end gap-2 pt-0">
                       <Button asChild size="sm">
-                        <Link to={`/human-nodes/${node.id}`}>
-                          Open profile
-                        </Link>
+                        <Link to={`/human-nodes/${node.id}`}>Open profile</Link>
                       </Button>
                     </CardFooter>
                   </Card>
@@ -570,9 +568,7 @@ const HumanNodes: React.FC = () => {
                   <CardContent className="pt-4 pb-3">
                     <div className="human-node-row">
                       <div className="human-node-row__details">
-                        <h4 className="text-base font-semibold">
-                          {node.name}
-                        </h4>
+                        <h4 className="text-base font-semibold">{node.name}</h4>
                         <p className="text-sm text-muted">{node.role}</p>
                       </div>
                       <div className="human-node-row__stats">

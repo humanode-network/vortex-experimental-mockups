@@ -24,7 +24,7 @@ const ProposalCreation: React.FC = () => {
 
   return (
     <div className="app-page flex flex-col gap-6">
-      <Card className="border border-border bg-panel">
+      <Card className="bg-panel border border-border">
         <CardHeader className="pb-2">
           <CardTitle>Create proposal</CardTitle>
         </CardHeader>
@@ -99,7 +99,7 @@ const ProposalCreation: React.FC = () => {
             <Label htmlFor="overview">Proposal overview</Label>
             <textarea
               id="overview"
-              className="w-full rounded-lg border border-border bg-panel-alt px-3 py-2 text-sm text-(--text)"
+              className="bg-panel-alt w-full rounded-lg border border-border px-3 py-2 text-sm text-(--text)"
               rows={3}
               value={form.overview}
               onChange={(e) => update("overview", e.target.value)}
@@ -111,7 +111,7 @@ const ProposalCreation: React.FC = () => {
             <Label htmlFor="execution">Execution plan</Label>
             <textarea
               id="execution"
-              className="w-full rounded-lg border border-border bg-panel-alt px-3 py-2 text-sm text-(--text)"
+              className="bg-panel-alt w-full rounded-lg border border-border px-3 py-2 text-sm text-(--text)"
               rows={3}
               value={form.executionPlan}
               onChange={(e) => update("executionPlan", e.target.value)}
@@ -123,7 +123,7 @@ const ProposalCreation: React.FC = () => {
             <Label htmlFor="budgetScope">Budget & scope</Label>
             <textarea
               id="budgetScope"
-              className="w-full rounded-lg border border-border bg-panel-alt px-3 py-2 text-sm text-(--text)"
+              className="bg-panel-alt w-full rounded-lg border border-border px-3 py-2 text-sm text-(--text)"
               rows={3}
               value={form.budgetScope}
               onChange={(e) => update("budgetScope", e.target.value)}
@@ -135,7 +135,7 @@ const ProposalCreation: React.FC = () => {
             <Label htmlFor="attachments">Attachments</Label>
             <textarea
               id="attachments"
-              className="w-full rounded-lg border border-border bg-panel-alt px-3 py-2 text-sm text-(--text)"
+              className="bg-panel-alt w-full rounded-lg border border-border px-3 py-2 text-sm text-(--text)"
               rows={2}
               value={form.attachments}
               onChange={(e) => update("attachments", e.target.value)}

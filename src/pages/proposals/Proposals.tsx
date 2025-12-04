@@ -649,7 +649,7 @@ const Proposals: React.FC = () => {
                     "rounded-full border px-3 py-1 text-sm font-medium transition",
                     selectedChip === chip
                       ? "border-transparent bg-primary text-white shadow"
-                      : "bg-panel-alt border-border text-(--text) hover:border-[color:var(--primary-dim)]",
+                      : "bg-panel-alt border-border text-(--text) hover:border-(--primary-dim)",
                   )}
                 >
                   {chip}
@@ -768,7 +768,7 @@ const Proposals: React.FC = () => {
                   ))}
                 </ul>
 
-                  <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <Link
                     to={`/human-nodes/${proposal.proposerId}`}
                     className="text-sm font-semibold text-primary"

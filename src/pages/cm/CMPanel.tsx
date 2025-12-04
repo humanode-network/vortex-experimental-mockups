@@ -6,12 +6,48 @@ import { Button } from "@/components/ui/button";
 
 const CMPanel: React.FC = () => {
   const initialChambers = [
-    { id: "protocol", name: "Protocol Engineering", current: 1.5, suggested: 1.5, member: true },
-    { id: "research", name: "Research & Cryptobiometrics", current: 1.8, suggested: 1.8, member: false },
-    { id: "treasury", name: "Treasury & Economics", current: 1.3, suggested: 1.3, member: false },
-    { id: "formation", name: "Formation Logistics", current: 1.2, suggested: 1.2, member: false },
-    { id: "social", name: "Social Outreach", current: 1.1, suggested: 1.1, member: false },
-    { id: "security", name: "Security Council", current: 1.7, suggested: 1.7, member: true },
+    {
+      id: "protocol",
+      name: "Protocol Engineering",
+      current: 1.5,
+      suggested: 1.5,
+      member: true,
+    },
+    {
+      id: "research",
+      name: "Research & Cryptobiometrics",
+      current: 1.8,
+      suggested: 1.8,
+      member: false,
+    },
+    {
+      id: "treasury",
+      name: "Treasury & Economics",
+      current: 1.3,
+      suggested: 1.3,
+      member: false,
+    },
+    {
+      id: "formation",
+      name: "Formation Logistics",
+      current: 1.2,
+      suggested: 1.2,
+      member: false,
+    },
+    {
+      id: "social",
+      name: "Social Outreach",
+      current: 1.1,
+      suggested: 1.1,
+      member: false,
+    },
+    {
+      id: "security",
+      name: "Security Council",
+      current: 1.7,
+      suggested: 1.7,
+      member: true,
+    },
   ];
 
   const [chambers, setChambers] = useState(initialChambers);
@@ -28,18 +64,21 @@ const CMPanel: React.FC = () => {
     <div className="app-page flex flex-col gap-6">
       <header>
         <h1 className="text-xl font-semibold text-(--text)">CM panel</h1>
-        <p className="text-sm text-muted">Track and adjust CM multipliers across chambers.</p>
+        <p className="text-sm text-muted">
+          Track and adjust CM multipliers across chambers.
+        </p>
       </header>
-      <Card className="border border-border bg-panel">
+      <Card className="bg-panel border border-border">
         <CardHeader className="pb-2">
           <CardTitle>Overview</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted">
-          Set your CM multipliers for chambers you are not a member of. Chambers you belong to are blurred and not adjustable here.
+          Set your CM multipliers for chambers you are not a member of. Chambers
+          you belong to are blurred and not adjustable here.
         </CardContent>
       </Card>
 
-      <Card className="border border-border bg-panel">
+      <Card className="bg-panel border border-border">
         <CardHeader className="pb-2">
           <CardTitle>Multipliers</CardTitle>
         </CardHeader>
@@ -47,14 +86,16 @@ const CMPanel: React.FC = () => {
           {chambers.map((chamber) => (
             <div
               key={chamber.id}
-              className={`relative rounded-2xl border border-border bg-panel-alt px-4 py-3 ${chamber.member ? "opacity-50" : ""}`}
+              className={`bg-panel-alt relative rounded-2xl border border-border px-4 py-3 ${chamber.member ? "opacity-50" : ""}`}
             >
               {chamber.member && (
-                <div className="absolute inset-0 rounded-2xl bg-panel-alt/60 backdrop-blur-sm" />
+                <div className="bg-panel-alt/60 absolute inset-0 rounded-2xl backdrop-blur-sm" />
               )}
               <div className="relative space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-(--text)">{chamber.name}</p>
+                  <p className="text-sm font-semibold text-(--text)">
+                    {chamber.name}
+                  </p>
                   <Badge variant="outline">M × {chamber.current}</Badge>
                 </div>
                 <div className="space-y-1 text-sm text-muted">
@@ -66,12 +107,16 @@ const CMPanel: React.FC = () => {
                     max="3"
                     disabled={chamber.member}
                     value={chamber.suggested}
-                    onChange={(e) => updateSuggestion(chamber.id, Number(e.target.value))}
+                    onChange={(e) =>
+                      updateSuggestion(chamber.id, Number(e.target.value))
+                    }
                     className="w-full"
                   />
                 </div>
                 {chamber.member && (
-                  <p className="text-xs text-muted">You cannot set M for chambers you belong to.</p>
+                  <p className="text-xs text-muted">
+                    You cannot set M for chambers you belong to.
+                  </p>
                 )}
               </div>
             </div>

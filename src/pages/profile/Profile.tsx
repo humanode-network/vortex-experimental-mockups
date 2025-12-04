@@ -238,7 +238,7 @@ const Profile: React.FC = () => {
                         {action.context}
                       </p>
                     </div>
-                    <div className="text-text pointer-events-none absolute top-full left-1/2 z-10 mt-2 w-64 -translate-x-1/2 rounded-xl border border-border bg-[color:var(--panel)] p-3 text-left text-xs opacity-0 shadow-lg transition group-hover:opacity-100">
+                    <div className="text-text pointer-events-none absolute top-full left-1/2 z-10 mt-2 w-64 -translate-x-1/2 rounded-xl border border-border bg-(--panel) p-3 text-left text-xs opacity-0 shadow-lg transition group-hover:opacity-100">
                       <p className="font-semibold">{action.title}</p>
                       <p className="text-muted">{action.context}</p>
                       <p className="mt-1 leading-snug">{action.detail}</p>
@@ -305,7 +305,7 @@ const Profile: React.FC = () => {
                 ))}
               </div>
               <div className="space-y-3 text-center">
-                <div className="inline-flex rounded-full border border-border bg-panel p-1">
+                <div className="bg-panel inline-flex rounded-full border border-border p-1">
                   {(
                     [
                       { key: "time", label: "PoT" },
@@ -320,7 +320,10 @@ const Profile: React.FC = () => {
                           color: "#fff",
                           boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
                         }
-                      : { color: "var(--text)", backgroundColor: "transparent" };
+                      : {
+                          color: "var(--text)",
+                          backgroundColor: "transparent",
+                        };
                     return (
                       <button
                         key={option.key}
@@ -330,7 +333,7 @@ const Profile: React.FC = () => {
                             prev === option.key ? "" : option.key,
                           )
                         }
-                        className="min-w-20 rounded-full px-3 py-1.5 text-sm font-semibold transition hover:bg-panel-alt"
+                        className="hover:bg-panel-alt min-w-20 rounded-full px-3 py-1.5 text-sm font-semibold transition"
                         style={style}
                       >
                         {option.label}
