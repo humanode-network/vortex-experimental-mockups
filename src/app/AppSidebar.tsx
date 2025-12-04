@@ -69,9 +69,6 @@ const AppSidebar: React.FC<React.PropsWithChildren> = ({ children }) => {
             <NavLink className={nestedNavClass} to="/profile">
               My profile
             </NavLink>
-            <NavLink className={nestedNavClass} to="/my-governance">
-              My governance
-            </NavLink>
           </div>
         )}
       </nav>
