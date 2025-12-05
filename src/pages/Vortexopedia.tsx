@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,22 @@ const Vortexopedia: React.FC = () => {
   const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
   };
+
+  const location = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get("term");
+    if (q) {
+      const exists = vortexopediaTerms.find((t) => t.id === q);
+      if (exists) {
+        setExpandedId(exists.id);
+        const el = document.querySelector(`[data-term-id="${exists.id}"]`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    }
+  }, [location.search]);
 
   return (
     <div className="app-page flex flex-col gap-6">
@@ -89,6 +106,7 @@ const Vortexopedia: React.FC = () => {
             {filtered.map((item) => (
               <Card
                 key={item.id}
+                data-term-id={item.id}
                 className={cn(
                   "bg-panel-alt border border-border transition-colors hover:border-primary/60",
                   expandedId === item.id && "border-primary",

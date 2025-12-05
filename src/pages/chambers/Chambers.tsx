@@ -1,13 +1,8 @@
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Hint } from "@/components/Hint";
 
 type Metric = {
   label: string;
@@ -91,7 +86,20 @@ const Chambers: React.FC = () => {
             key={metric.label}
             className="bg-panel-alt rounded-2xl border border-border px-4 py-5 text-center shadow-sm"
           >
-            <p className="text-sm text-muted">{metric.label}</p>
+            <p className="text-sm text-muted">
+              {metric.label === "Total ACM" ? (
+                <Hint termId="acm" noUnderline>
+                  <span className="space-x-1">
+                    <span className="font-normal">Total</span>
+                    <span className="font-semibold underline decoration-dashed underline-offset-4">
+                      ACM
+                    </span>
+                  </span>
+                </Hint>
+              ) : (
+                metric.label
+              )}
+            </p>
             <p className="text-2xl font-semibold text-(--text)">
               {metric.value}
             </p>
