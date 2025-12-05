@@ -838,7 +838,7 @@ vortex_term(
     "Governance stack combines proposal pools, chambers, and Formation with PoT/PoD/PoH safeguards."
   ],
   [decentralization, governance, transparency],
-  ["voter_apathy_mitigation", "professional_populist_balance"],
+  ["voter_apathy"],
   ["Core designs the stack but expects governors to drive decisions as decentralization grows."],
   [global],
   [link{label:"Docs", url:"https://gitbook.humanode.io/vortex-1.0"}],
@@ -848,17 +848,18 @@ vortex_term(
 
 vortex_term(
   44,
-  "voter_apathy_mitigation",
-  "Voter apathy mitigation",
+  "voter_apathy",
+  "Voter apathy",
   governance,
-  "Mitigates apathy by auto-removing inactive governors and counting only active votes toward quorum.",
+  "Low participation can stall governance; Vortex addresses apathy by requiring activity to stay governor and counting only active governors toward quorum.",
   [
+    "Apathy can block quorums and delay decisions.",
     "Governors must meet monthly action thresholds or revert to non-governing.",
     "Quorum (33%) counts only active governors; non-participants are excluded."
   ],
   [apathy, quorum, governance],
   ["gradual_decentralization", "quorum_of_vote"],
-  ["Inactivity drops governor status; only active participants count for quorum."],
+  ["Inactivity drops governor status; only active participants count toward quorum."],
   [chamber, pool],
   [link{label:"Docs", url:"https://gitbook.humanode.io/vortex-1.0"}],
   "Discussion",
@@ -867,25 +868,6 @@ vortex_term(
 
 vortex_term(
   45,
-  "professional_populist_balance",
-  "Professional vs populist balance",
-  governance,
-  "Hybrid PoT/PoD/tiers aim to give proposal rights to proven contributors while keeping voting power equal, resisting pure populism.",
-  [
-    "Governors must have an accepted proposal (PoD) before voting rights, raising the quality bar.",
-    "Tiers unlock proposal rights but voting power stays 1 + delegations."
-  ],
-  [populism, professionalism, tiers, governance],
-  ["proof_of_devotion_pod", "proposition_rights", "cognitocracy"],
-  ["Accepted proposal acts as anti-populism barrier; rights grow with proof, not popularity."],
-  [chamber],
-  [link{label:"Docs", url:"https://gitbook.humanode.io/vortex-1.0"}],
-  "Discussion",
-  "2025-12-04"
-).
-
-vortex_term(
-  46,
   "iron_law_of_oligarchy",
   "Iron law of oligarchy",
   governance,
@@ -904,7 +886,7 @@ vortex_term(
 ).
 
 vortex_term(
-  47,
+  46,
   "plutocracy_risk",
   "Plutocracy risk",
   governance,
@@ -914,7 +896,7 @@ vortex_term(
     "Proposals must be accepted on merit, reducing impact of pure capital/media influence."
   ],
   [plutocracy, governance, risk],
-  ["iron_law_of_oligarchy", "professional_populist_balance"],
+  ["iron_law_of_oligarchy"],
   ["Capital alone cannot buy vote weight; proposals need specialist acceptance."],
   [global, chamber],
   [link{label:"Docs", url:"https://gitbook.humanode.io/vortex-1.0"}],
@@ -923,7 +905,7 @@ vortex_term(
 ).
 
 vortex_term(
-  48,
+  47,
   "cognitocratic_populism",
   "Cognitocratic populism",
   governance,
@@ -933,7 +915,7 @@ vortex_term(
     "Delegation remains liquid, so popular governors can accumulate delegations."
   ],
   [populism, governance, delegation],
-  ["proof_of_devotion_pod", "professional_populist_balance"],
+  ["proof_of_devotion_pod"],
   ["Populists must appeal to cognitocrats, not the mass public, to gain delegations."],
   [chamber],
   [link{label:"Docs", url:"https://gitbook.humanode.io/vortex-1.0"}],
@@ -942,7 +924,7 @@ vortex_term(
 ).
 
 vortex_term(
-  49,
+  48,
   "cognitocratic_drain",
   "Cognitocratic drain",
   governance,

@@ -969,7 +969,7 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Governance stack combines proposal pools, chambers, and Formation with PoT/PoD/PoH safeguards.",
     ],
     tags: ["decentralization", "governance", "transparency"],
-    related: ["voter_apathy_mitigation", "professional_populist_balance"],
+    related: ["voter_apathy"],
     examples: [
       "Core designs the stack but expects governors to drive decisions as decentralization grows.",
     ],
@@ -980,19 +980,20 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
   },
   {
     ref: 44,
-    id: "voter_apathy_mitigation",
-    name: "Voter apathy mitigation",
+    id: "voter_apathy",
+    name: "Voter apathy",
     category: "governance",
     short:
-      "Mitigates apathy by auto-removing inactive governors and counting only active votes toward quorum.",
+      "Low participation can stall governance; Vortex requires activity to stay a governor and counts only active governors toward quorum.",
     long: [
+      "Voter apathy can block quorums and delay decisions.",
       "Governors must meet monthly action thresholds or revert to non-governing.",
       "Quorum (33%) counts only active governors; non-participants are excluded.",
     ],
     tags: ["apathy", "quorum", "governance"],
     related: ["gradual_decentralization", "quorum_of_vote"],
     examples: [
-      "Inactivity drops governor status; only active participants count for quorum.",
+      "Inactivity drops governor status; only active participants count toward quorum.",
     ],
     stages: ["chamber", "pool"],
     links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
@@ -1001,27 +1002,6 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
   },
   {
     ref: 45,
-    id: "professional_populist_balance",
-    name: "Professional vs populist balance",
-    category: "governance",
-    short:
-      "Hybrid PoT/PoD/tiers give proposal rights to proven contributors while voting power stays equal, resisting pure populism.",
-    long: [
-      "Governors must have an accepted proposal (PoD) before voting rights, raising the quality bar.",
-      "Tiers unlock proposal rights but voting power stays 1 + delegations.",
-    ],
-    tags: ["populism", "professionalism", "tiers", "governance"],
-    related: ["proof_of_devotion_pod", "proposition_rights", "cognitocracy"],
-    examples: [
-      "Accepted proposal acts as anti-populism barrier; rights grow with proof, not popularity.",
-    ],
-    stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
-    source: "Discussion",
-    updated: "2025-12-04",
-  },
-  {
-    ref: 46,
     id: "iron_law_of_oligarchy",
     name: "Iron law of oligarchy",
     category: "governance",
@@ -1042,7 +1022,7 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
     updated: "2025-12-04",
   },
   {
-    ref: 47,
+    ref: 46,
     id: "plutocracy_risk",
     name: "Plutocracy risk",
     category: "governance",
@@ -1053,7 +1033,7 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Proposals must be accepted on merit, reducing impact of pure capital/media influence.",
     ],
     tags: ["plutocracy", "governance", "risk"],
-    related: ["iron_law_of_oligarchy", "professional_populist_balance"],
+    related: ["iron_law_of_oligarchy"],
     examples: [
       "Capital alone cannot buy vote weight; proposals need specialist acceptance.",
     ],
@@ -1063,7 +1043,7 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
     updated: "2025-12-04",
   },
   {
-    ref: 48,
+    ref: 47,
     id: "cognitocratic_populism",
     name: "Cognitocratic populism",
     category: "governance",
@@ -1074,7 +1054,7 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Delegation remains liquid, so popular governors can accumulate delegations.",
     ],
     tags: ["populism", "governance", "delegation"],
-    related: ["proof_of_devotion_pod", "professional_populist_balance"],
+    related: ["proof_of_devotion_pod"],
     examples: [
       "Populists must appeal to cognitocrats, not the mass public, to gain delegations.",
     ],
@@ -1084,7 +1064,7 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
     updated: "2025-12-04",
   },
   {
-    ref: 49,
+    ref: 48,
     id: "cognitocratic_drain",
     name: "Cognitocratic drain",
     category: "governance",
