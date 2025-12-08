@@ -1,9 +1,11 @@
+import type { ReactNode } from "react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { HintLabel } from "@/components/Hint";
 
 type Stage = "pool" | "vote" | "build" | "thread" | "courts" | "faction";
 
@@ -14,7 +16,7 @@ type FeedItem = {
   stage: Stage;
   stageLabel: string;
   summaryPill: string;
-  summary: string;
+  summary: ReactNode;
   stageData?: {
     title: string;
     description: string;
@@ -222,7 +224,12 @@ const feedItems: FeedItem[] = [
     stage: "faction",
     stageLabel: "Faction",
     summaryPill: "Slots open",
-    summary: "Votes: 18 · ACM: 1,500 · Ops slots open for guild initiatives.",
+    summary: (
+      <span>
+        Votes: 18 · <HintLabel termId="acm">ACM</HintLabel>: 1,500 · Ops slots
+        open for guild initiatives.
+      </span>
+    ),
     ctaPrimary: "Open faction",
     ctaSecondary: "Follow",
     href: "/factions/formation-guild",

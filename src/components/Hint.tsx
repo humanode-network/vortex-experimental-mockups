@@ -3,30 +3,40 @@ import { useNavigate } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { vortexopediaTerms } from "@/data/vortexopedia";
+import { getVortexopediaTerm } from "@/data/vortexopediaLookup";
+import "./Hint.css";
 
 type HintProps = {
   termId: string;
   children: React.ReactNode;
   dwellMs?: number;
   noUnderline?: boolean;
+  placement?: "top" | "bottom" | "left" | "right";
 };
-
-const termLookup = new Map(vortexopediaTerms.map((t) => [t.id, t]));
 
 /**
  * Hint wraps inline text with an underlined hover-triggered tooltip that pulls
  * definitions from the Vortexopedia data set. After a dwell period the tooltip
  * becomes “stable” so users can hover onto it without it disappearing.
  */
-export const Hint: React.FC<HintProps> = ({ termId, dwellMs = 2200, children, noUnderline }) => {
-  const term = useMemo(() => termLookup.get(termId), [termId]);
+export const Hint: React.FC<HintProps> = ({
+  termId,
+  dwellMs = 2200,
+  children,
+  noUnderline,
+  placement = "bottom",
+}) => {
+  const term = useMemo(() => getVortexopediaTerm(termId), [termId]);
   const [visible, setVisible] = useState(false);
   const [stable, setStable] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
   const dwellStartRef = useRef(0);
   const timerRef = useRef<number | null>(null);
-  const progressRef = useRef<number | null>(null);
+  const hideTimerRef = useRef<number | null>(null);
+  const hoveringPopupRef = useRef(false);
   const navigate = useNavigate();
 
   const clearTimers = () => {
@@ -34,37 +44,39 @@ export const Hint: React.FC<HintProps> = ({ termId, dwellMs = 2200, children, no
       window.clearTimeout(timerRef.current);
       timerRef.current = null;
     }
-    if (progressRef.current) {
-      window.cancelAnimationFrame(progressRef.current);
-      progressRef.current = null;
+    if (hideTimerRef.current) {
+      window.clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
     }
   };
 
-  const startHover = () => {
+  const startHover = (clientX: number, clientY: number) => {
     if (!term) return;
+    setMousePos({ x: clientX + 12, y: clientY + 12 });
     setVisible(true);
     setStable(false);
-    setProgress(0);
     dwellStartRef.current = performance.now();
     timerRef.current = window.setTimeout(() => {
       setStable(true);
-      setProgress(100);
     }, dwellMs);
-    const step = () => {
-      const elapsed = performance.now() - dwellStartRef.current;
-      const pct = Math.min(100, (elapsed / dwellMs) * 100);
-      setProgress(pct);
-      if (pct < 100) {
-        progressRef.current = window.requestAnimationFrame(step);
-      }
-    };
-    progressRef.current = window.requestAnimationFrame(step);
   };
 
   const hide = () => {
     setVisible(false);
     setStable(false);
     clearTimers();
+  };
+
+  const scheduleHideIfNeeded = () => {
+    if (!stable) {
+      hide();
+      return;
+    }
+    hideTimerRef.current = window.setTimeout(() => {
+      if (!hoveringPopupRef.current) {
+        hide();
+      }
+    }, 200);
   };
 
   useEffect(() => {
@@ -76,59 +88,103 @@ export const Hint: React.FC<HintProps> = ({ termId, dwellMs = 2200, children, no
   }
 
   return (
-    <span className="relative inline-flex">
+    <span className="relative inline-flex items-center align-baseline">
       <span
-        className={cn(
-          "cursor-help text-(--text) hover:text-primary",
-          !noUnderline && "border-b border-dashed border-primary/60"
-        )}
-        onMouseEnter={startHover}
-        onMouseLeave={() => {
-          if (!stable) hide();
+        className={cn("hint-trigger", noUnderline && "no-underline")}
+        onMouseEnter={(e) => {
+          startHover(e.clientX, e.clientY);
         }}
+        onMouseLeave={scheduleHideIfNeeded}
       >
         {children}
       </span>
       {visible && (
         <div
           className={cn(
-            "absolute z-50 mt-1 min-w-[260px] max-w-[360px]",
-            "animate-in fade-in zoom-in-95"
+            "fixed z-50 max-w-[360px] min-w-[260px]",
+            "animate-in zoom-in-95 fade-in",
           )}
-          onMouseEnter={() => setVisible(true)}
-          onMouseLeave={() => hide()}
+          style={{
+            top: Math.min(mousePos.y + 12, window.innerHeight - 220),
+            left: Math.min(mousePos.x + 12, window.innerWidth - 340),
+          }}
+          onMouseEnter={() => {
+            hoveringPopupRef.current = true;
+            setVisible(true);
+          }}
+          onMouseLeave={() => {
+            hoveringPopupRef.current = false;
+            hide();
+          }}
         >
-          <Card className="border border-border bg-white shadow-lg rounded-xl w-[320px]">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center justify-between gap-2 text-base">
-                <span>{term.name}</span>
+          <Card className={cn("hint-card", stable && "stable")}>
+            <CardHeader className="px-4 pt-3 pb-2">
+              <CardTitle className="text-sm font-semibold text-(--text)">
+                {term.name}
               </CardTitle>
-              <p className="text-xs text-muted">{term.short}</p>
+              <p className="hint-desc text-sm leading-relaxed text-muted">
+                {term.short}
+              </p>
             </CardHeader>
-            <CardContent className="space-y-2 text-xs text-muted">
-              {term.examples?.[0] && <p className="text-(--text)">{term.examples[0]}</p>}
-              <div className="flex items-center gap-2">
-                <div className="h-1 flex-1 overflow-hidden rounded-full bg-muted/30">
-                  <div
-                    className={cn("h-full rounded-full transition-[width]", stable ? "bg-ok" : "bg-primary")}
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-                <span className="text-[0.65rem] text-muted">{stable ? "Stable" : "Holding…"}</span>
-              </div>
-              <div className="flex justify-end">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => navigate(`/vortexopedia?term=${term.id}`)}
-                >
-                  Open in Vortexopedia
-                </Button>
-              </div>
+            <CardContent className="hint-actions flex justify-center px-4 pt-1 pb-3">
+              <Button
+                size="sm"
+                variant="default"
+                className="bg-primary text-xs text-white hover:bg-primary/90"
+                onClick={() => navigate(`/vortexopedia?term=${term.id}`)}
+              >
+                Vortexopedia
+              </Button>
             </CardContent>
           </Card>
         </div>
       )}
     </span>
+  );
+};
+
+type HintLabelProps = {
+  termId: string;
+  prefix?: string;
+  termText?: string;
+  children?: React.ReactNode;
+  suffix?: string;
+  underline?: boolean;
+  className?: string;
+};
+
+/**
+ * HintLabel helps when only a portion of a label should be underlined/linked to a hint.
+ */
+export const HintLabel: React.FC<HintLabelProps> = ({
+  termId,
+  prefix,
+  termText,
+  children,
+  suffix,
+  underline = true,
+  className,
+}) => {
+  const content = children ?? termText ?? "";
+  return (
+    <Hint termId={termId} noUnderline>
+      <span
+        className={cn(
+          "inline-flex items-center space-x-1 align-baseline text-inherit",
+          className,
+        )}
+      >
+        {prefix && <span className="font-normal">{prefix}</span>}
+        <span
+          className={cn(
+            "font-semibold text-inherit",
+            underline && "hint-underline",
+          )}
+        >
+          {content}
+        </span>
+        {suffix && <span className="font-normal">{suffix}</span>}
+      </span>
+    </Hint>
   );
 };

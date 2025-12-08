@@ -294,7 +294,9 @@ const ProposalChamber: React.FC = () => {
             </Link>
             <div className="flex flex-wrap gap-2">
               <Button asChild size="sm">
-                <Link to={`/proposals/${id ?? "adaptive-fee-shaping"}/chamber`}>Open proposal</Link>
+                <Link to={`/proposals/${id ?? "adaptive-fee-shaping"}/chamber`}>
+                  Open proposal
+                </Link>
               </Button>
               <Button size="sm" variant="ghost">
                 Track vote

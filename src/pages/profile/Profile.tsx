@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { HintLabel } from "@/components/Hint";
 
 const heroStats = [
   { label: "ACM", value: "168" },
@@ -195,7 +196,11 @@ const Profile: React.FC = () => {
           <Card key={stat.label} className="h-full">
             <CardContent className="space-y-1 p-4 text-center">
               <p className="text-xs tracking-wide text-muted uppercase">
-                {stat.label}
+                {stat.label === "ACM" ? (
+                  <HintLabel termId="acm" termText="ACM" />
+                ) : (
+                  stat.label
+                )}
               </p>
               <p className="text-text text-2xl font-semibold">{stat.value}</p>
             </CardContent>

@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { HintLabel } from "@/components/Hint";
 
 const governanceState = {
   label: "Egalitarian Republic",
@@ -151,7 +152,7 @@ const Invision: React.FC = () => {
                   </div>
                   <div className="bg-panel rounded-xl border border-border px-2 py-2">
                     <p className="text-[0.7rem] tracking-wide text-muted uppercase">
-                      ACM
+                      <HintLabel termId="acm">ACM</HintLabel>
                     </p>
                     <p className="text-lg font-semibold capitalize">
                       {faction.acm}

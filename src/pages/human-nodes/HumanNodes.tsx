@@ -14,6 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Tabs } from "@/components/ui/tabs";
 import "./HumanNodes.css";
+import { HintLabel } from "@/components/Hint";
 import { ChevronDown } from "lucide-react";
 import clsx from "clsx";
 
@@ -398,7 +399,12 @@ const HumanNodes: React.FC = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="acm">ACM ≥</Label>
+                <Label htmlFor="acm">
+                  <HintLabel termId="acm" className="mr-1">
+                    ACM
+                  </HintLabel>
+                  ≥
+                </Label>
                 <Input
                   id="acm"
                   type="number"
@@ -543,7 +549,11 @@ const HumanNodes: React.FC = () => {
                             className="human-node-card__tile"
                           >
                             <span className="human-node-card__tile-label">
-                              {item.label}
+                              {item.label === "ACM" ? (
+                                <HintLabel termId="acm">{item.label}</HintLabel>
+                              ) : (
+                                item.label
+                              )}
                             </span>
                             <span className="human-node-card__tile-value">
                               {item.value}
@@ -572,7 +582,12 @@ const HumanNodes: React.FC = () => {
                         <p className="text-sm text-muted">{node.role}</p>
                       </div>
                       <div className="human-node-row__stats">
-                        <Badge size="sm">ACM: {node.acm}</Badge>
+                        <Badge size="sm">
+                          <HintLabel termId="acm" className="mr-1">
+                            ACM
+                          </HintLabel>{" "}
+                          {node.acm}
+                        </Badge>
                         <Badge size="sm">MM: {node.mm}</Badge>
                         {node.formationCapable && (
                           <Badge size="sm" variant="outline">

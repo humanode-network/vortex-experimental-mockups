@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { HintLabel } from "@/components/Hint";
 
 const heroStats = [
   { label: "ACM score", value: "182" },
@@ -237,7 +238,11 @@ const HumanNode: React.FC = () => {
           <Card key={stat.label} className="h-full text-center">
             <CardContent className="space-y-1 p-4 text-center">
               <p className="text-xs tracking-wide text-muted uppercase">
-                {stat.label}
+                {stat.label.startsWith("ACM") ? (
+                  <HintLabel termId="acm">{stat.label}</HintLabel>
+                ) : (
+                  stat.label
+                )}
               </p>
               <p className="text-text text-2xl font-semibold">{stat.value}</p>
             </CardContent>

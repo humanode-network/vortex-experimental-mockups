@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { HintLabel } from "@/components/Hint";
 import { factions } from "./factionData";
 
 const Factions: React.FC = () => {
@@ -81,7 +82,9 @@ const Factions: React.FC = () => {
               </p>
             </div>
             <div className="bg-panel-alt rounded-2xl border border-border px-4 py-4 text-center shadow-sm">
-              <p className="text-xs tracking-wide text-muted uppercase">ACM</p>
+              <p className="text-xs tracking-wide text-muted uppercase">
+                <HintLabel termId="acm" termText="ACM" />
+              </p>
               <p className="text-text text-2xl font-semibold">
                 {totals.totalAcm}
               </p>
@@ -119,7 +122,7 @@ const Factions: React.FC = () => {
                     </div>
                     <div className="bg-panel-alt rounded-xl border border-border px-2 py-2">
                       <p className="text-[0.7rem] tracking-wide text-muted uppercase">
-                        ACM
+                        <HintLabel termId="acm" termText="ACM" />
                       </p>
                       <p className="text-lg font-semibold">{faction.acm}</p>
                     </div>

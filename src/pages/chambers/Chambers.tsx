@@ -1,8 +1,14 @@
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Hint } from "@/components/Hint";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { HintLabel } from "@/components/Hint";
 
 type Metric = {
   label: string;
@@ -88,14 +94,10 @@ const Chambers: React.FC = () => {
           >
             <p className="text-sm text-muted">
               {metric.label === "Total ACM" ? (
-                <Hint termId="acm" noUnderline>
-                  <span className="space-x-1">
-                    <span className="font-normal">Total</span>
-                    <span className="font-semibold underline decoration-dashed underline-offset-4">
-                      ACM
-                    </span>
-                  </span>
-                </Hint>
+                <>
+                  <span className="font-normal">Total</span>{" "}
+                  <HintLabel termId="acm" termText="ACM" />
+                </>
               ) : (
                 metric.label
               )}
@@ -140,8 +142,8 @@ const Chambers: React.FC = () => {
                   </dd>
                 </div>
                 <div className="bg-panel-alt flex flex-col items-center rounded-xl border border-border px-3 py-2 text-center">
-                  <dt className="text-[0.65rem] leading-tight tracking-wide whitespace-nowrap text-muted uppercase">
-                    ACM
+                  <dt className="text-[0.65rem] leading-tight tracking-normal whitespace-nowrap text-muted normal-case">
+                    <HintLabel termId="acm">ACM</HintLabel>
                   </dt>
                   <dd className="text-lg font-semibold">{chamber.stats.mcm}</dd>
                 </div>

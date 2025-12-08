@@ -39,6 +39,9 @@ const AppSidebar: React.FC<React.PropsWithChildren> = ({ children }) => {
         <NavLink className={navClass} to="/formation">
           Formation
         </NavLink>
+        <NavLink className={navClass} to="/factions">
+          Factions
+        </NavLink>
         <NavLink className={navClass} to="/cm">
           CM panel
         </NavLink>

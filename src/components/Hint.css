@@ -1,0 +1,93 @@
+.hint-trigger {
+  display: inline-flex;
+  align-items: baseline;
+  cursor: help;
+  color: var(--text);
+  font-weight: 600;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-color: var(--primary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: color 120ms ease;
+}
+
+.hint-trigger.no-underline {
+  text-decoration: none;
+}
+
+.hint-trigger:hover {
+  color: var(--primary);
+}
+
+.hint-card {
+  background: #fff;
+  color: var(--text);
+  font-family: inherit;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 320px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.hint-card * {
+  text-transform: none;
+  letter-spacing: normal;
+  font-family: inherit;
+  color: inherit;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.hint-card.stable {
+  box-shadow:
+    0 0 0 2px rgba(76, 137, 245, 0.25),
+    0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.hint-underline {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 1px;
+  text-decoration-color: currentColor;
+  text-underline-offset: 4px;
+  color: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.hint-desc {
+  font-size: 0.9rem;
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.hint-actions .btn,
+.hint-actions button {
+  background-color: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.hint-actions .btn:hover,
+.hint-actions button:hover {
+  background-color: color-mix(in srgb, var(--primary) 90%, #000 10%);
+  color: #fff;
+}
+
+.hint-actions button {
+  width: fit-content;
+}

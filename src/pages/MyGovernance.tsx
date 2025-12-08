@@ -13,41 +13,6 @@ const eraActivity = {
   timeLeft: "22d 14h",
 };
 
-const progression = {
-  currentTier: {
-    title: "Tier 3 · Legate",
-    rights: "Can propose core infrastructure changes",
-    description: "Active for 1 year; proposal accepted; Formation participant.",
-  },
-  nextTier: {
-    title: "Tier 4 · Consul",
-    remaining: [
-      "Run node 2 years",
-      "Active governor 2 years",
-      "Proposal accepted",
-      "Formation participation",
-    ],
-  },
-  readiness: 68,
-  proof: {
-    pot: {
-      primary: "1 Y · 6 M human node",
-      secondary: "1 Y · 3 M governor",
-      progress: 75,
-    },
-    pod: {
-      primary: "2 proposals accepted",
-      secondary: "Formation member",
-      progress: 55,
-    },
-    pog: {
-      primary: "Active streak: 3 eras",
-      secondary: "Actions this era: 11 / 18",
-      progress: 61,
-    },
-  },
-};
-
 const MyGovernance: React.FC = () => {
   return (
     <div className="app-page flex flex-col gap-6">

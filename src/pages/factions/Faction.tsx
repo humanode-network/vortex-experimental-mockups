@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { factions } from "./factionData";
+import { HintLabel } from "@/components/Hint";
 
 const Faction: React.FC = () => {
   const { id } = useParams();
@@ -42,7 +43,18 @@ const Faction: React.FC = () => {
   ];
 
   const roster = [
-    { name: "John Doe", role: faction.focus, tag: "ACM 182" },
+    {
+      name: "John Doe",
+      role: faction.focus,
+      tag: (
+        <>
+          <HintLabel termId="acm" className="mr-1">
+            ACM
+          </HintLabel>
+          182
+        </>
+      ),
+    },
     { name: "Raamara", role: "Ops & delivery", tag: "Votes 52" },
     { name: "Nyx", role: "Signals & privacy", tag: "MM 81" },
   ];
@@ -106,7 +118,11 @@ const Faction: React.FC = () => {
           <Card key={stat.label} className="h-full text-center">
             <CardContent className="space-y-1 p-4">
               <p className="text-xs tracking-wide text-muted uppercase">
-                {stat.label}
+                {stat.label === "ACM" ? (
+                  <HintLabel termId="acm">{stat.label}</HintLabel>
+                ) : (
+                  stat.label
+                )}
               </p>
               <p className="text-text text-2xl font-semibold">{stat.value}</p>
             </CardContent>
