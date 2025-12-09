@@ -86,6 +86,7 @@ const ProposalFormation: React.FC = () => {
         key: "formation",
         label: "Formation",
         color: "bg-orange-500 text-white",
+        render: <HintLabel termId="formation">Formation</HintLabel>,
       },
     ] as const;
     return (

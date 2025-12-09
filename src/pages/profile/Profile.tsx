@@ -12,7 +12,10 @@ const heroStats = [
 ];
 
 const quickDetails = [
-  { label: "Tier", value: "Consul" },
+  {
+    label: "Tier",
+    value: <HintLabel termId="tier4_consul">Consul</HintLabel>,
+  },
   { label: "Faction", value: "Anonymous" },
   { label: "Proposals created", value: "18" },
   { label: "Delegation share", value: "2.4%" },
@@ -343,7 +346,21 @@ const Profile: React.FC = () => {
                         className="hover:bg-panel-alt min-w-20 rounded-full px-3 py-1.5 text-sm font-semibold transition"
                         style={style}
                       >
-                        {option.label}
+                        {option.label === "PoT" ? (
+                          <HintLabel termId="proof_of_time_pot">
+                            {option.label}
+                          </HintLabel>
+                        ) : option.label === "PoD" ? (
+                          <HintLabel termId="proof_of_devotion_pod">
+                            {option.label}
+                          </HintLabel>
+                        ) : option.label === "PoG" ? (
+                          <HintLabel termId="proof_of_governance_pog">
+                            {option.label}
+                          </HintLabel>
+                        ) : (
+                          option.label
+                        )}
                       </button>
                     );
                   })}

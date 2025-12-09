@@ -19,7 +19,11 @@ const MyGovernance: React.FC = () => {
     <div className="app-page flex flex-col gap-6">
       <Card className="bg-panel border border-border">
         <CardHeader className="pb-2">
-          <CardTitle>Governing threshold</CardTitle>
+          <CardTitle>
+            <HintLabel termId="governing_threshold">
+              Governing threshold
+            </HintLabel>
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2">
@@ -47,10 +51,16 @@ const MyGovernance: React.FC = () => {
           <div className="grid gap-3 sm:grid-cols-2">
             {[
               {
-                label: "Required actions",
+                key: "required",
+                label: (
+                  <HintLabel termId="governing_threshold">
+                    Required actions
+                  </HintLabel>
+                ),
                 value: `${eraActivity.completed} / ${eraActivity.required} completed`,
               },
               {
+                key: "status",
                 label: "Status",
                 value:
                   eraActivity.completed >= eraActivity.required
@@ -59,7 +69,7 @@ const MyGovernance: React.FC = () => {
               },
             ].map((tile) => (
               <div
-                key={tile.label}
+                key={tile.key}
                 className="bg-panel-alt flex h-full flex-col items-center justify-center rounded-2xl border border-border px-4 py-4 text-center"
               >
                 <p className="text-sm text-muted">{tile.label}</p>
@@ -97,7 +107,9 @@ const MyGovernance: React.FC = () => {
               <p className="text-xs tracking-wide text-muted uppercase">
                 Current tier
               </p>
-              <p className="text-lg font-semibold text-(--text)">Legate</p>
+              <p className="text-lg font-semibold text-(--text)">
+                <HintLabel termId="tier3_legate">Legate</HintLabel>
+              </p>
             </div>
             <div className="flex flex-col items-center justify-center gap-3 px-2">
               <p className="text-xs tracking-wide text-muted uppercase">
@@ -117,7 +129,9 @@ const MyGovernance: React.FC = () => {
               <p className="text-xs tracking-wide text-muted uppercase">
                 Next tier
               </p>
-              <p className="text-lg font-semibold text-(--text)">Consul</p>
+              <p className="text-lg font-semibold text-(--text)">
+                <HintLabel termId="tier4_consul">Consul</HintLabel>
+              </p>
             </div>
           </div>
           <div className="bg-panel-alt mt-4 rounded-2xl border border-border p-4">
@@ -169,7 +183,8 @@ const MyGovernance: React.FC = () => {
           <div className="grid gap-3 md:grid-cols-2">
             <div className="bg-panel-alt rounded-2xl border border-border p-4">
               <p className="text-sm font-semibold text-(--text)">
-                Proposals available with Legate
+                Proposals available with{" "}
+                <HintLabel termId="tier3_legate">Legate</HintLabel>
               </p>
               <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted">
                 <li>
@@ -183,7 +198,8 @@ const MyGovernance: React.FC = () => {
             </div>
             <div className="bg-panel-alt rounded-2xl border border-border p-4">
               <p className="text-sm font-semibold text-(--text)">
-                Proposals available with Consul
+                Proposals available with{" "}
+                <HintLabel termId="tier4_consul">Consul</HintLabel>
               </p>
               <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted">
                 <li>Administrative</li>

@@ -169,7 +169,9 @@ const Chambers: React.FC = () => {
                   <strong>{chamber.pipeline.vote}</strong>
                 </li>
                 <li className="flex items-center justify-between pt-2 text-(--text)">
-                  <span>Formation builds</span>
+                  <span>
+                    <HintLabel termId="formation">Formation</HintLabel> builds
+                  </span>
                   <strong>{chamber.pipeline.build}</strong>
                 </li>
               </ul>

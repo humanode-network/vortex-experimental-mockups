@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { HintLabel } from "@/components/Hint";
+import { HintLabel } from "@/components/Hint";
 
 type ProposalStage = "upcoming" | "live" | "ended";
 
@@ -285,7 +287,22 @@ const Chamber: React.FC = () => {
                   <div>
                     <p className="font-semibold">{gov.name}</p>
                     <p className="text-xs text-muted">
-                      {gov.tier} · {gov.focus}
+                      <HintLabel
+                        termId={
+                          gov.tier === "Nominee"
+                            ? "tier1_nominee"
+                            : gov.tier === "Ecclesiast"
+                              ? "tier2_ecclesiast"
+                              : gov.tier === "Legate"
+                                ? "tier3_legate"
+                                : gov.tier === "Consul"
+                                  ? "tier4_consul"
+                                  : "tier5_citizen"
+                        }
+                      >
+                        {gov.tier}
+                      </HintLabel>{" "}
+                      · {gov.focus}
                     </p>
                   </div>
                   <Button asChild size="sm" variant="ghost">

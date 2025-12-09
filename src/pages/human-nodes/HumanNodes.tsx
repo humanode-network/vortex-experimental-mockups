@@ -358,11 +358,21 @@ const HumanNodes: React.FC = () => {
                   onChange={(e) => setTierFilter(e.target.value)}
                 >
                   <option value="any">Any</option>
-                  <option value="nominee">Nominee</option>
-                  <option value="ecclesiast">Ecclesiast</option>
-                  <option value="legate">Legate</option>
-                  <option value="consul">Consul</option>
-                  <option value="citizen">Citizen</option>
+                  <option value="nominee">
+                    <HintLabel termId="tier1_nominee">Nominee</HintLabel>
+                  </option>
+                  <option value="ecclesiast">
+                    <HintLabel termId="tier2_ecclesiast">Ecclesiast</HintLabel>
+                  </option>
+                  <option value="legate">
+                    <HintLabel termId="tier3_legate">Legate</HintLabel>
+                  </option>
+                  <option value="consul">
+                    <HintLabel termId="tier4_consul">Consul</HintLabel>
+                  </option>
+                  <option value="citizen">
+                    <HintLabel termId="tier5_citizen">Citizen</HintLabel>
+                  </option>
                 </Select>
               </div>
               <div>
@@ -513,8 +523,23 @@ const HumanNodes: React.FC = () => {
                   { label: "MM", value: node.mm.toString() },
                   {
                     label: "Tier",
-                    value:
-                      node.tier.charAt(0).toUpperCase() + node.tier.slice(1),
+                    value: (
+                      <HintLabel
+                        termId={
+                          node.tier === "nominee"
+                            ? "tier1_nominee"
+                            : node.tier === "ecclesiast"
+                              ? "tier2_ecclesiast"
+                              : node.tier === "legate"
+                                ? "tier3_legate"
+                                : node.tier === "consul"
+                                  ? "tier4_consul"
+                                  : "tier5_citizen"
+                        }
+                      >
+                        {node.tier.charAt(0).toUpperCase() + node.tier.slice(1)}
+                      </HintLabel>
+                    ),
                   },
                   {
                     label: "Governor",

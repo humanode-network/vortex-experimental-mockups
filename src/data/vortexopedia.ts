@@ -43,8 +43,14 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
     ],
     stages: ["chamber", "pool", "formation"],
     links: [
-      { label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" },
-      { label: "App", url: "/vortexopedia/vortex" },
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+      {
+        label: "App",
+        url: "/vortexopedia/vortex",
+      },
     ],
     source: "gitbook:vortex-1.0:synopsis",
     updated: "2025-12-04",
@@ -100,7 +106,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Only cognitocrats can vote on matters of their specialization.",
     ],
     stages: ["global", "chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Principles",
     updated: "2025-12-04",
   },
@@ -121,7 +132,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Governors progress tiers via PoT/PoD merit rather than popularity.",
     ],
     stages: ["global"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Principles",
     updated: "2025-12-04",
   },
@@ -142,7 +158,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Chambers choose the most efficient fix, not an ideologically pure one.",
     ],
     stages: ["global"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Principles",
     updated: "2025-12-04",
   },
@@ -163,7 +184,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Governors monitor system state and vote directly to deter collusion.",
     ],
     stages: ["global", "chamber", "pool"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Principles",
     updated: "2025-12-04",
   },
@@ -184,7 +210,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Validators are individual humans; governance aims to reflect that base.",
     ],
     stages: ["global"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Principles",
     updated: "2025-12-04",
   },
@@ -202,7 +233,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
     related: ["proposal_pools", "voting_chambers", "formation"],
     examples: ["Proposal pools filter; chambers vote; Formation executes."],
     stages: ["pool", "chamber", "formation"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Structure",
     updated: "2025-12-04",
   },
@@ -270,7 +306,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Proposals must clear attention thresholds in pools to reach chambers.",
     ],
     stages: ["pool"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Structure",
     updated: "2025-12-04",
   },
@@ -291,7 +332,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "An approved chamber proposal becomes a Formation project for delivery.",
     ],
     stages: ["formation"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Structure",
     updated: "2025-12-04",
   },
@@ -312,7 +358,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Cognitocracy borrows the innovation drive of technocracy without the plutocratic tilt.",
     ],
     stages: ["global"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Principles",
     updated: "2025-12-04",
   },
@@ -333,7 +384,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Governors earn voting rights by proving deployable innovation in their field.",
     ],
     stages: ["global", "chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Principles",
     updated: "2025-12-04",
   },
@@ -354,7 +410,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Cognitocrats vote directly in chambers to reflect active will.",
     ],
     stages: ["global", "chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Principles",
     updated: "2025-12-04",
   },
@@ -378,7 +439,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
     ],
     examples: ["Cognitocrats may delegate votes per issue to stay responsive."],
     stages: ["global", "chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Principles",
     updated: "2025-12-04",
   },
@@ -404,7 +470,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Delegated votes can be reclaimed at any moment, keeping representation aligned.",
     ],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Principles",
     updated: "2025-12-04",
   },
@@ -426,7 +497,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Programming chamber admits engineers whose proposals were accepted.",
     ],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Chambers",
     updated: "2025-12-04",
   },
@@ -448,7 +524,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "GC can override an SC by accepting a repeatedly declined proposal.",
     ],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Chambers",
     updated: "2025-12-04",
   },
@@ -469,7 +550,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Formation of a new SC requires a proposal, vote, nominations, and CM setup.",
     ],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Chambers",
     updated: "2025-12-04",
   },
@@ -491,11 +577,15 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "GC censure dissolves a corrupt SC; targeted members don’t count toward quorum.",
     ],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Basis of Vortex – Chambers",
     updated: "2025-12-04",
   },
-
   {
     ref: 22,
     id: "quorum_of_attention",
@@ -514,7 +604,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "A pool item with 24% engagement and 14% upvotes moves to chamber voting.",
     ],
     stages: ["pool"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Voting, Delegation and Quorum",
     updated: "2025-12-04",
   },
@@ -537,7 +632,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "A chamber vote with 35% turnout passes if 67% yes within that turnout.",
     ],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Voting, Delegation and Quorum",
     updated: "2025-12-04",
   },
@@ -559,7 +659,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Non-active members delegate to active ones; delegated votes count in chamber stage, not in pools.",
     ],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Voting, Delegation and Quorum",
     updated: "2025-12-04",
   },
@@ -581,7 +686,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "If vetoed twice, a third approval is final with no further veto allowed.",
     ],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Voting, Delegation and Quorum",
     updated: "2025-12-04",
   },
@@ -603,7 +713,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "A proposal passes with an average score of 8 → proposer receives CM=8.",
     ],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Voting, Delegation and Quorum",
     updated: "2025-12-04",
   },
@@ -625,7 +740,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Philosophy chamber multiplier 3 vs Finance chamber multiplier 5; same CM scales differently.",
     ],
     stages: ["cm"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Voting, Delegation and Quorum",
     updated: "2025-12-04",
   },
@@ -644,7 +764,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
     related: ["mcm", "acm", "cognitocratic_measure_multiplier"],
     examples: ["5 LCM in Philosophy and 10 LCM in Finance before weighting."],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Voting, Delegation and Quorum",
     updated: "2025-12-04",
   },
@@ -662,7 +787,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
     related: ["lcm", "acm", "cognitocratic_measure_multiplier"],
     examples: ["LCM 5 in Philosophy × multiplier 3 = 15 MCM."],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Voting, Delegation and Quorum",
     updated: "2025-12-04",
   },
@@ -681,7 +811,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
     related: ["lcm", "mcm", "cognitocratic_measure_multiplier"],
     examples: ["(3 LCM in Philosophy ×3) + (10 LCM in Finance ×5) = 65 ACM."],
     stages: ["cm", "chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Voting, Delegation and Quorum",
     updated: "2025-12-04",
   },
@@ -703,7 +838,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "A cognitocrat without LCM in Finance submits 70; combined with others sets the chamber multiplier.",
     ],
     stages: ["cm"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Voting, Delegation and Quorum",
     updated: "2025-12-04",
   },
@@ -725,7 +865,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "A contributor receives MM based on governor ratings after a milestone delivery.",
     ],
     stages: ["formation"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Formation – Meritocratic Measure",
     updated: "2025-12-04",
   },
@@ -755,7 +900,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Tier progression unlocks proposal types without changing vote weight.",
     ],
     stages: ["chamber", "pool"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Proposition rights",
     updated: "2025-12-04",
   },
@@ -777,7 +927,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Passing era action threshold keeps a governor counted in quorums next era.",
     ],
     stages: ["global"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Proposition rights",
     updated: "2025-12-04",
   },
@@ -796,7 +951,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
     related: ["proof_of_devotion_pod", "proof_of_governance_pog"],
     examples: ["Longer node/governor uptime supports higher tiers."],
     stages: ["global"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Proposition rights – Proof types",
     updated: "2025-12-04",
   },
@@ -815,7 +975,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
     related: ["proof_of_time_pot", "proof_of_governance_pog"],
     examples: ["Accepted proposal + Formation participation advance PoD."],
     stages: ["global", "formation"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Proposition rights – Proof types",
     updated: "2025-12-04",
   },
@@ -836,7 +1001,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Complete era action thresholds to retain active governor status.",
     ],
     stages: ["global", "chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Proposition rights – Proof types",
     updated: "2025-12-04",
   },
@@ -857,7 +1027,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Nominee can propose general items and join Formation but has no vote yet.",
     ],
     stages: ["pool", "formation"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Proposition rights – Tiers",
     updated: "2025-12-04",
   },
@@ -878,7 +1053,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Ecclesiast can propose fee splits or monetary changes after first accepted proposal.",
     ],
     stages: ["chamber", "pool"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Proposition rights – Tiers",
     updated: "2025-12-04",
   },
@@ -903,7 +1083,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Legate can propose core infrastructure changes after sustained activity and Formation work.",
     ],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Proposition rights – Tiers",
     updated: "2025-12-04",
   },
@@ -928,7 +1113,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Consul can propose administrative changes after 2-year tenure and Formation work.",
     ],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Proposition rights – Tiers",
     updated: "2025-12-04",
   },
@@ -953,7 +1143,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Citizen tier can propose DAO core changes after long-term tenure and activity.",
     ],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Proposition rights – Tiers",
     updated: "2025-12-04",
   },
@@ -974,7 +1169,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Core designs the stack but expects governors to drive decisions as decentralization grows.",
     ],
     stages: ["global"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Discussion",
     updated: "2025-12-04",
   },
@@ -996,7 +1196,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Inactivity drops governor status; only active participants count toward quorum.",
     ],
     stages: ["chamber", "pool"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Discussion",
     updated: "2025-12-04",
   },
@@ -1017,7 +1222,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Equal votes plus tiers/intellectual barriers aim to temper oligarchic drift.",
     ],
     stages: ["global"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Discussion",
     updated: "2025-12-04",
   },
@@ -1038,7 +1248,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Capital alone cannot buy vote weight; proposals need specialist acceptance.",
     ],
     stages: ["global", "chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Discussion",
     updated: "2025-12-04",
   },
@@ -1059,7 +1274,12 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Populists must appeal to cognitocrats, not the mass public, to gain delegations.",
     ],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Discussion",
     updated: "2025-12-04",
   },
@@ -1081,11 +1301,15 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "Merge or dissolve an SC if it stagnates and lowers its admission quality.",
     ],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Discussion",
     updated: "2025-12-04",
   },
-
   {
     ref: 49,
     id: "chamber_vote",
@@ -1109,8 +1333,45 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
       "A proposal that met pool attention quorum proceeds to chamber vote; if 66.6% + 1 yes within quorum, it passes.",
     ],
     stages: ["chamber"],
-    links: [{ label: "Docs", url: "https://gitbook.humanode.io/vortex-1.0" }],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
     source: "Voting, Delegation and Quorum",
+    updated: "2025-12-04",
+  },
+  {
+    ref: 50,
+    id: "governing_threshold",
+    name: "Governing threshold",
+    category: "governance",
+    short:
+      "Action quota and uptime requirement per era to remain an active governor counted in quorums.",
+    long: [
+      "A governor is active if bioauthenticated, node ran 164/168 epochs, and required actions were met in the previous era.",
+      "Required actions per era include upvoting/downvoting proposals or voting on chamber proposals in Vortex.",
+      "Meeting the threshold keeps the governor eligible to be counted in quorums for the upcoming era.",
+    ],
+    tags: ["threshold", "quorum", "activity", "governor"],
+    related: [
+      "governing_era",
+      "governor",
+      "quorum_of_vote",
+      "quorum_of_attention",
+    ],
+    examples: [
+      "If the action threshold is met and uptime is 164/168 epochs, the governor is counted as active in the next era’s quorum.",
+    ],
+    stages: ["global"],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
+    source: "Proposition rights",
     updated: "2025-12-04",
   },
 ];

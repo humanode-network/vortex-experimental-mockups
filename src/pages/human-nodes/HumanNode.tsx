@@ -5,14 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { HintLabel } from "@/components/Hint";
 
 const heroStats = [
-  { label: "ACM score", value: "182" },
-  { label: "MM score", value: "92" },
+  { label: "ACM", value: "182" },
+  { label: "MM", value: "92" },
   { label: "Invision score", value: "82 / 100" },
   { label: "Member since", value: "11.06.2021" },
 ];
 
 const quickDetails = [
-  { label: "Tier", value: "Legate" },
+  {
+    label: "Tier",
+    value: <HintLabel termId="tier3_legate">Legate</HintLabel>,
+  },
   { label: "Faction", value: "Anonymous" },
   { label: "Delegation share", value: "113 · 3.4%" },
   { label: "Proposals created", value: "28" },
@@ -385,7 +388,21 @@ const HumanNode: React.FC = () => {
                         className="hover:bg-panel-alt min-w-20 rounded-full px-3 py-1.5 text-sm font-semibold transition"
                         style={style}
                       >
-                        {option.label}
+                        {option.label === "PoT" ? (
+                          <HintLabel termId="proof_of_time_pot">
+                            {option.label}
+                          </HintLabel>
+                        ) : option.label === "PoD" ? (
+                          <HintLabel termId="proof_of_devotion_pod">
+                            {option.label}
+                          </HintLabel>
+                        ) : option.label === "PoG" ? (
+                          <HintLabel termId="proof_of_governance_pog">
+                            {option.label}
+                          </HintLabel>
+                        ) : (
+                          option.label
+                        )}
                       </button>
                     );
                   })}

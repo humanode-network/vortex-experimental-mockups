@@ -963,5 +963,27 @@ vortex_term(
   "2025-12-04"
 ).
 
+vortex_term(
+  50,
+  "governing_threshold",
+  "Governing threshold",
+  governance,
+  "Action quota a governor must meet each era (e.g., votes/upvotes) plus node uptime to remain active for the next era’s quorums.",
+  [
+    "A governor is active if bioauthenticated, node ran 164/168 epochs, and required actions were met in the previous era.",
+    "Required actions per era include upvoting/downvoting proposals or voting on chamber proposals in Vortex.",
+    "Meeting the threshold keeps the governor eligible to be counted in quorums for the upcoming era."
+  ],
+  [threshold, quorum, activity, governor],
+  ["governing_era", "governor", "quorum_of_vote", "quorum_of_attention"],
+  [
+    "If the action threshold is met and uptime is 164/168 epochs, the governor is counted as active in the next era’s quorum."
+  ],
+  [global],
+  [link{label:"Docs", url:"https://gitbook.humanode.io/vortex-1.0"}],
+  "Proposition rights",
+  "2025-12-04"
+).
+
 % ---
 % You can add a search helper later (e.g., search_terms/3) to return dicts/JSON.

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useId, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { ChevronDown, Search } from "lucide-react";
@@ -16,13 +17,13 @@ type ProofWeight = "pot" | "pod" | "pog";
 type StageDatum = {
   title: string;
   description: string;
-  value: string;
+  value: ReactNode;
   tone?: "ok" | "warn";
 };
 
 type ProposalStat = {
   label: string;
-  value: string;
+  value: ReactNode;
 };
 
 type Proposal = {
@@ -74,7 +75,16 @@ const proposalData: Proposal[] = [
       { title: "Votes casted", description: "Backing seats", value: "24" },
     ],
     stats: [
-      { label: "Proof mix", value: "PoT 45% · PoD 35% · PoG 20%" },
+      {
+        label: "Proof mix",
+        value: (
+          <>
+            <HintLabel termId="proof_of_time_pot">PoT</HintLabel> 45% ·{" "}
+            <HintLabel termId="proof_of_devotion_pod">PoD</HintLabel> 35% ·{" "}
+            <HintLabel termId="proof_of_governance_pog">PoG</HintLabel> 20%
+          </>
+        ),
+      },
       { label: "Budget ask", value: "210k HMND" },
       { label: "Formation impact", value: "High" },
     ],
@@ -128,7 +138,16 @@ const proposalData: Proposal[] = [
     stats: [
       { label: "Formation impact", value: "Medium" },
       { label: "Votes casted", value: "34" },
-      { label: "Proof mix", value: "PoT 30% · PoD 50% · PoG 20%" },
+      {
+        label: "Proof mix",
+        value: (
+          <>
+            <HintLabel termId="proof_of_time_pot">PoT</HintLabel> 30% ·{" "}
+            <HintLabel termId="proof_of_devotion_pod">PoD</HintLabel> 50% ·{" "}
+            <HintLabel termId="proof_of_governance_pog">PoG</HintLabel> 20%
+          </>
+        ),
+      },
     ],
     proposer: "Victor",
     proposerId: "Victor",
@@ -730,6 +749,10 @@ const Proposals: React.FC = () => {
                     </HintLabel>
                   ) : proposal.stageLabel === "Chamber vote" ? (
                     <HintLabel termId="chamber_vote">
+                      {proposal.stageLabel}
+                    </HintLabel>
+                  ) : proposal.stageLabel === "Formation" ? (
+                    <HintLabel termId="formation">
                       {proposal.stageLabel}
                     </HintLabel>
                   ) : (

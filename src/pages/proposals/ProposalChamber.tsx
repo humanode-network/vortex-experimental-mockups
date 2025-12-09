@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { HintLabel } from "@/components/Hint";
+import { HintLabel } from "@/components/Hint";
 
 const ProposalChamber: React.FC = () => {
   const { id } = useParams();
@@ -54,6 +55,7 @@ const ProposalChamber: React.FC = () => {
         key: "formation",
         label: "Formation",
         color: "bg-orange-500 text-white",
+        render: <HintLabel termId="formation">Formation</HintLabel>,
       },
     ] as const;
     return (
@@ -277,10 +279,24 @@ const ProposalChamber: React.FC = () => {
 
           <ul className="grid gap-2 text-sm text-(--text) md:grid-cols-2">
             {[
-              { label: "Proof mix", value: "PoT 30% · PoD 50% · PoG 20%" },
+              {
+                label: "Proof mix",
+                value: (
+                  <>
+                    <HintLabel termId="proof_of_time_pot">PoT</HintLabel> 30% ·{" "}
+                    <HintLabel termId="proof_of_devotion_pod">PoD</HintLabel>{" "}
+                    50% ·{" "}
+                    <HintLabel termId="proof_of_governance_pog">PoG</HintLabel>{" "}
+                    20%
+                  </>
+                ),
+              },
               { label: "Formation impact", value: proposal.impact },
               { label: "Votes casted", value: "34" },
-              { label: "Tier requirement", value: "Consul" },
+              {
+                label: "Tier requirement",
+                value: <HintLabel termId="tier4_consul">Consul</HintLabel>,
+              },
             ].map((stat) => (
               <li
                 key={stat.label}

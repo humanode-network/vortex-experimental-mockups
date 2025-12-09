@@ -20,10 +20,10 @@ type FeedItem = {
   stageData?: {
     title: string;
     description: string;
-    value: string;
+    value: ReactNode;
     tone?: "ok" | "warn";
   }[];
-  stats?: { label: string; value: string }[];
+  stats?: { label: string; value: ReactNode }[];
   proposer?: string;
   proposerId?: string;
   ctaPrimary?: string;
@@ -101,7 +101,15 @@ const feedItems: FeedItem[] = [
       { title: "Votes casted", description: "Backing seats", value: "24" },
     ],
     stats: [
-      { label: "Proof mix", value: "PoT 45% · PoD 35% · PoG 20%" },
+      {
+        label: "Proof mix",
+        value: (
+          <>
+            <HintLabel termId="proof_of_time_pot">PoT</HintLabel> 45% · PoD 35%
+            · PoG 20%
+          </>
+        ),
+      },
       { label: "Budget ask", value: "210k HMND" },
     ],
     proposer: "John Doe",
@@ -294,6 +302,8 @@ const Feed: React.FC = () => {
                     <HintLabel termId="chamber_vote">
                       {item.stageLabel}
                     </HintLabel>
+                  ) : item.stageLabel === "Formation" ? (
+                    <HintLabel termId="formation">{item.stageLabel}</HintLabel>
                   ) : (
                     item.stageLabel
                   )}
