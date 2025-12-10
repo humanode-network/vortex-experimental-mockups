@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs } from "@/components/ui/tabs";
 import "./HumanNodes.css";
 import { HintLabel } from "@/components/Hint";
+import { PageHint } from "@/components/PageHint";
 import { ChevronDown } from "lucide-react";
 import clsx from "clsx";
 
@@ -304,6 +305,9 @@ const HumanNodes: React.FC = () => {
 
   return (
     <div className="app-page human-nodes-page">
+      <div className="flex justify-end pb-2">
+        <PageHint pageId="human-nodes" />
+      </div>
       <Card className="bg-panel overflow-hidden border border-border">
         <button
           type="button"

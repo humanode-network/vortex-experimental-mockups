@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { HintLabel } from "@/components/Hint";
+import { PageHint } from "@/components/PageHint";
 
 type Stage = "pool" | "vote" | "build" | "thread" | "courts" | "faction";
 
@@ -266,6 +267,9 @@ const Feed: React.FC = () => {
 
   return (
     <div className="app-page flex flex-col gap-4">
+      <div className="flex justify-end">
+        <PageHint pageId="feed" />
+      </div>
       {/* Governing threshold moved to MyGovernance */}
 
       <section aria-live="polite" className="flex flex-col gap-4">

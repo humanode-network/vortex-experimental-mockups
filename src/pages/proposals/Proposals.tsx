@@ -518,7 +518,8 @@ const Proposals: React.FC = () => {
 
   return (
     <div className="app-page flex flex-col gap-6">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <PageHint pageId="proposals" />
         <Button asChild size="sm" className="rounded-full px-4">
           <Link to="/proposals/new">Create proposal</Link>
         </Button>
