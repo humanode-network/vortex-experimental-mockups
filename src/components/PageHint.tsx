@@ -28,7 +28,7 @@ export const PageHint: React.FC<PageHintProps> = ({ pageId, className }) => {
       </Button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 backdrop-blur-sm">
           <div className="relative mt-8 w-full max-w-2xl">
             <Card className="rounded-2xl border border-white/10 bg-slate-900 text-white shadow-xl">
               <CardHeader className="pb-2">
