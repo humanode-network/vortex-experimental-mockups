@@ -157,30 +157,6 @@ export const pageHints: Record<string, PageHintEntry> = {
       },
     ],
   },
-  feed: {
-    id: "feed",
-    title: "Feed",
-    intro:
-      "Your personal governance feed. See proposals, threads, factions, and courts that need your attention.",
-    sections: [
-      {
-        heading: "What you see",
-        items: [
-          "Proposals across pool, chamber vote, and formation stages.",
-          "Threads and faction updates relevant to your roles.",
-          "Courts or appeals you may need to act on.",
-        ],
-      },
-      {
-        heading: "What you can do",
-        items: [
-          "Expand an item to read details, stats, and actions.",
-          "Open proposals or threads directly from the feed.",
-          "Track vote status or milestones without leaving the page.",
-        ],
-      },
-    ],
-  },
   "cm-panel": {
     id: "cm-panel",
     title: "CM Panel",
@@ -245,6 +221,76 @@ export const pageHints: Record<string, PageHintEntry> = {
         items: [
           "Members, votes, ACM, creator.",
           "Active initiatives with locations/stages and resources/links.",
+        ],
+      },
+    ],
+  },
+  chamber: {
+    id: "chamber",
+    title: "Chamber detail",
+    intro:
+      "See proposals, governors, and forum threads for a single chamber.",
+    sections: [
+      {
+        heading: "What you see",
+        items: [
+          "Proposal list by stage (upcoming, live, ended).",
+          "Governor roster with tiers and search.",
+          "Forum threads and chat activity.",
+        ],
+      },
+      {
+        heading: "What you can do",
+        items: [
+          "Filter proposals by stage and open them.",
+          "Search governors; view tiers and roles.",
+          "Read or start chamber threads and chat.",
+        ],
+      },
+    ],
+  },
+  courts: {
+    id: "courts",
+    title: "Courts",
+    intro:
+      "Overview of active and recent court cases. See jury status and next actions.",
+    sections: [
+      {
+        heading: "What you see",
+        items: [
+          "Active cases with status, stage, and jury info.",
+          "Links to open a specific courtroom.",
+        ],
+      },
+    ],
+  },
+  courtroom: {
+    id: "courtroom",
+    title: "Courtroom",
+    intro:
+      "Case detail with filings, jury status, and actions for the current courtroom.",
+    sections: [
+      {
+        heading: "What you can do",
+        items: [
+          "Review case context and filings.",
+          "See jury composition and timeline.",
+          "Submit statements or view decisions.",
+        ],
+      },
+    ],
+  },
+  invision: {
+    id: "invision",
+    title: "Invision",
+    intro:
+      "Network state dashboard: political/economic posture, factions, and council signals.",
+    sections: [
+      {
+        heading: "What you see",
+        items: [
+          "Current governance model and legitimacy metrics.",
+          "Factions snapshot and council proposals.",
         ],
       },
     ],

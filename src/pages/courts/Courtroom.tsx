@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useParams } from "react-router";
+import { PageHint } from "@/components/PageHint";
 
 const jury = [
   "John Doe",
@@ -24,6 +25,9 @@ const Courtroom: React.FC = () => {
 
   return (
     <div className="app-page flex flex-col gap-6">
+      <div className="flex items-center justify-end">
+        <PageHint pageId="courtroom" />
+      </div>
       <Card className="bg-panel border border-border">
         <CardHeader className="pb-2">
           <CardTitle>{caseTitle}</CardTitle>

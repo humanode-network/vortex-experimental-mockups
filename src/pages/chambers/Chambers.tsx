@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { HintLabel } from "@/components/Hint";
+import { PageHint } from "@/components/PageHint";
 
 type Metric = {
   label: string;
@@ -86,6 +87,9 @@ const chambers: Chamber[] = [
 const Chambers: React.FC = () => {
   return (
     <div className="app-page flex flex-col gap-6">
+      <div className="flex items-center justify-end">
+        <PageHint pageId="chambers" />
+      </div>
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metricCards.map((metric) => (
           <div

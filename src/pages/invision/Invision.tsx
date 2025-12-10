@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HintLabel } from "@/components/Hint";
+import { PageHint } from "@/components/PageHint";
 
 const governanceState = {
   label: "Egalitarian Republic",
@@ -98,6 +99,9 @@ const chamberProposals = [
 const Invision: React.FC = () => {
   return (
     <div className="app-page flex flex-col gap-5">
+      <div className="flex items-center justify-end">
+        <PageHint pageId="invision" />
+      </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="bg-panel-alt rounded-2xl border border-border px-6 py-5 text-center shadow-sm sm:col-span-2 lg:col-span-3">
           <p className="text-xs tracking-wide text-muted uppercase">

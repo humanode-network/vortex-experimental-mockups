@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { HintLabel } from "@/components/Hint";
-import { HintLabel } from "@/components/Hint";
+import { PageHint } from "@/components/PageHint";
 
 type ProposalStage = "upcoming" | "live" | "ended";
 
@@ -165,16 +165,20 @@ const Chamber: React.FC = () => {
 
   return (
     <div className="app-page flex flex-col gap-6">
-      <div>
-        <p className="text-xs tracking-wide text-muted uppercase">
-          Chamber detail
-        </p>
-        <h1 className="text-xl font-semibold text-(--text) capitalize">
-          {chamberTitle}
-        </h1>
-        <p className="text-sm text-muted">
-          Proposal status, governor roster, and forum activity for this chamber.
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs tracking-wide text-muted uppercase">
+            Chamber detail
+          </p>
+          <h1 className="text-xl font-semibold text-(--text) capitalize">
+            {chamberTitle}
+          </h1>
+          <p className="text-sm text-muted">
+            Proposal status, governor roster, and forum activity for this
+            chamber.
+          </p>
+        </div>
+        <PageHint pageId="chamber" />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">

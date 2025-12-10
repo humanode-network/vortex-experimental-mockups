@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { factions } from "./factionData";
 import { HintLabel } from "@/components/Hint";
+import { PageHint } from "@/components/PageHint";
 
 const Faction: React.FC = () => {
   const { id } = useParams();
@@ -103,6 +104,9 @@ const Faction: React.FC = () => {
 
   return (
     <div className="app-page flex flex-col gap-6">
+      <div className="flex items-center justify-end">
+        <PageHint pageId="faction" />
+      </div>
       <section className="bg-panel rounded-2xl border border-border p-6">
         <div className="grid items-center gap-4 lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <div className="flex justify-center lg:justify-start">

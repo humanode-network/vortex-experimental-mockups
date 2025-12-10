@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { HintLabel } from "@/components/Hint";
 import { factions } from "./factionData";
+import { PageHint } from "@/components/PageHint";
 
 const Factions: React.FC = () => {
   const [query, setQuery] = useState("");
@@ -44,7 +45,7 @@ const Factions: React.FC = () => {
 
   return (
     <div className="app-page flex flex-col gap-6">
-      <div>
+      <div className="flex items-center justify-between gap-3">
         <Input
           ref={inputRef}
           value={query}
@@ -52,6 +53,7 @@ const Factions: React.FC = () => {
           placeholder="Search by faction, focus, description…"
           aria-label="Search factions"
         />
+        <PageHint pageId="factions" />
       </div>
 
       {!showResultsOnly && (

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router";
 import { cn } from "@/lib/utils";
+import { PageHint } from "@/components/PageHint";
 
 type Category = "all" | "research" | "development" | "social";
 type Stage = "live" | "gathering" | "completed";
@@ -132,11 +133,14 @@ const Formation: React.FC = () => {
 
   return (
     <div className="app-page flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold text-(--text)">Formation</h1>
-        <p className="text-sm text-muted">
-          Formation programs, squads, and milestone progress.
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold text-(--text)">Formation</h1>
+          <p className="text-sm text-muted">
+            Formation programs, squads, and milestone progress.
+          </p>
+        </div>
+        <PageHint pageId="formation" />
       </div>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
