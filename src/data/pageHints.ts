@@ -228,8 +228,7 @@ export const pageHints: Record<string, PageHintEntry> = {
   chamber: {
     id: "chamber",
     title: "Chamber detail",
-    intro:
-      "See proposals, governors, and forum threads for a single chamber.",
+    intro: "See proposals, governors, and forum threads for a single chamber.",
     sections: [
       {
         heading: "What you see",
