@@ -447,9 +447,7 @@ const ProposalPP: React.FC = () => {
               Focuses on validator neutrality: rollout reduces single-operator
               dependence in failover events.
             </li>
-            <li>
-              alongside hardware budget.
-            </li>
+            <li>alongside hardware budget.</li>
             <li>
               Risk note: requires chamber coordination for staged deployment and
               rollback on adverse metrics.

@@ -18,7 +18,7 @@ export const PageHint: React.FC<PageHintProps> = ({ pageId, className }) => {
 
   return (
     <div
-      className={cn("fixed right-2 top-4 sm:right-4 sm:top-6 z-40", className)}
+      className={cn("fixed top-4 right-2 z-40 sm:top-6 sm:right-4", className)}
     >
       <Button
         variant="ghost"

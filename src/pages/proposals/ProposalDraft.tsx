@@ -269,9 +269,7 @@ const ProposalDraft: React.FC = () => {
                     key={slot.title}
                     className="bg-panel rounded-xl border border-border px-3 py-2"
                   >
-                    <p className="font-semibold text-(--text)">
-                      {slot.title}
-                    </p>
+                    <p className="font-semibold text-(--text)">{slot.title}</p>
                     <p className="text-xs text-muted">{slot.desc}</p>
                   </li>
                 ))}

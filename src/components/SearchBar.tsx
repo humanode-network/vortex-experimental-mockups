@@ -40,7 +40,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         aria-label={ariaLabel || placeholder}
         className={cn("flex-1", inputClassName)}
       />
-      {rightContent ? <div className="flex items-center gap-2">{rightContent}</div> : null}
+      {rightContent ? (
+        <div className="flex items-center gap-2">{rightContent}</div>
+      ) : null}
     </div>
   );
 };

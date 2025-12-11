@@ -353,7 +353,12 @@ const Proposals: React.FC = () => {
   return (
     <div className="app-page flex flex-col gap-6">
       <div className="flex justify-between gap-2">
-        <Button asChild size="sm" variant="outline" className="rounded-full px-4">
+        <Button
+          asChild
+          size="sm"
+          variant="outline"
+          className="rounded-full px-4"
+        >
           <Link to="/proposals/drafts">Drafts</Link>
         </Button>
         <div className="flex items-center gap-2">
