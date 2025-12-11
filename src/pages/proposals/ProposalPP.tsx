@@ -450,7 +450,6 @@ const ProposalPP: React.FC = () => {
               dependence in failover events.
             </li>
             <li>
-              Formation impact: new telemetry and health-kit playbooks needed
               alongside hardware budget.
             </li>
             <li>

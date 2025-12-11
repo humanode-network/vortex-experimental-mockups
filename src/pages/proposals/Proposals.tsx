@@ -76,16 +76,6 @@ const proposalData: Proposal[] = [
       { title: "Votes casted", description: "Backing seats", value: "24" },
     ],
     stats: [
-      {
-        label: "Proof mix",
-        value: (
-          <>
-            <HintLabel termId="proof_of_time_pot">PoT</HintLabel> 45% ·{" "}
-            <HintLabel termId="proof_of_devotion_pod">PoD</HintLabel> 35% ·{" "}
-            <HintLabel termId="proof_of_governance_pog">PoG</HintLabel> 20%
-          </>
-        ),
-      },
       { label: "Budget ask", value: "210k HMND" },
       { label: "Formation impact", value: "High" },
     ],
@@ -136,20 +126,7 @@ const proposalData: Proposal[] = [
       },
       { title: "Time left", description: "Voting window", value: "02h 15m" },
     ],
-    stats: [
-      { label: "Formation impact", value: "Medium" },
-      { label: "Votes casted", value: "34" },
-      {
-        label: "Proof mix",
-        value: (
-          <>
-            <HintLabel termId="proof_of_time_pot">PoT</HintLabel> 30% ·{" "}
-            <HintLabel termId="proof_of_devotion_pod">PoD</HintLabel> 50% ·{" "}
-            <HintLabel termId="proof_of_governance_pog">PoG</HintLabel> 20%
-          </>
-        ),
-      },
-    ],
+    stats: [{ label: "Votes casted", value: "34" }],
     proposer: "Victor",
     proposerId: "Victor",
     chamber: "Economics & Treasury",
@@ -274,10 +251,7 @@ const proposalData: Proposal[] = [
       },
       { title: "Time left", description: "Voting window", value: "05h 42m" },
     ],
-    stats: [
-      { label: "Equipment budget", value: "60k HMND" },
-      { label: "Rollout scope", value: "42 sentinel nodes" },
-    ],
+    stats: [{ label: "Equipment budget", value: "60k HMND" }],
     proposer: "Shannon",
     proposerId: "Shannon",
     chamber: "Security & Infra",
@@ -519,11 +493,16 @@ const Proposals: React.FC = () => {
 
   return (
     <div className="app-page flex flex-col gap-6">
-      <div className="flex justify-end gap-2">
-        <PageHint pageId="proposals" />
-        <Button asChild size="sm" className="rounded-full px-4">
-          <Link to="/proposals/new">Create proposal</Link>
+      <div className="flex justify-between gap-2">
+        <Button asChild size="sm" variant="outline" className="rounded-full px-4">
+          <Link to="/proposals/drafts">Drafts</Link>
         </Button>
+        <div className="flex items-center gap-2">
+          <PageHint pageId="proposals" />
+          <Button asChild size="sm" className="rounded-full px-4">
+            <Link to="/proposals/new">Edit proposal</Link>
+          </Button>
+        </div>
       </div>
 
       <Card className="bg-panel overflow-hidden border border-border">

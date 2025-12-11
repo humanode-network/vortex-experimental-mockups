@@ -26,7 +26,7 @@ const ProposalCreation: React.FC = () => {
     <div className="app-page flex flex-col gap-6">
       <Card className="bg-panel border border-border">
         <CardHeader className="pb-2">
-          <CardTitle>Create proposal</CardTitle>
+          <CardTitle>Edit proposal</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-sm text-(--text)">
           <div className="grid gap-3 sm:grid-cols-2">
@@ -147,7 +147,7 @@ const ProposalCreation: React.FC = () => {
             <Button variant="ghost" size="sm">
               Cancel
             </Button>
-            <Button size="sm">Create proposal</Button>
+            <Button size="sm">Edit proposal</Button>
           </div>
         </CardContent>
       </Card>

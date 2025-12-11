@@ -279,19 +279,6 @@ const ProposalChamber: React.FC = () => {
 
           <ul className="grid gap-2 text-sm text-(--text) md:grid-cols-2">
             {[
-              {
-                label: "Proof mix",
-                value: (
-                  <>
-                    <HintLabel termId="proof_of_time_pot">PoT</HintLabel> 30% ·{" "}
-                    <HintLabel termId="proof_of_devotion_pod">PoD</HintLabel>{" "}
-                    50% ·{" "}
-                    <HintLabel termId="proof_of_governance_pog">PoG</HintLabel>{" "}
-                    20%
-                  </>
-                ),
-              },
-              { label: "Formation impact", value: proposal.impact },
               { label: "Votes casted", value: "34" },
               {
                 label: "Tier requirement",

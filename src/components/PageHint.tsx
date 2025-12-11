@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { pageHints } from "@/data/pageHints";
 import { X, HelpCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type PageHintProps = {
   pageId: string;
@@ -16,15 +17,17 @@ export const PageHint: React.FC<PageHintProps> = ({ pageId, className }) => {
   if (!hint) return null;
 
   return (
-    <div className={className}>
+    <div
+      className={cn("fixed right-2 top-4 sm:right-4 sm:top-6 z-40", className)}
+    >
       <Button
-        variant="outline"
+        variant="ghost"
         size="icon"
-        className="h-9 w-9 rounded-full border-border text-(--text)"
+        className="h-10 w-10 rounded-full border border-orange-500 bg-orange-500 text-white shadow-md hover:bg-orange-600 hover:text-white"
         onClick={() => setOpen(true)}
         aria-label="Open page hint"
       >
-        <HelpCircle className="h-4 w-4" />
+        <HelpCircle className="h-6 w-6" />
       </Button>
 
       {open && (

@@ -101,18 +101,7 @@ const feedItems: FeedItem[] = [
       },
       { title: "Votes casted", description: "Backing seats", value: "24" },
     ],
-    stats: [
-      {
-        label: "Proof mix",
-        value: (
-          <>
-            <HintLabel termId="proof_of_time_pot">PoT</HintLabel> 45% · PoD 35%
-            · PoG 20%
-          </>
-        ),
-      },
-      { label: "Budget ask", value: "210k HMND" },
-    ],
+    stats: [{ label: "Budget ask", value: "210k HMND" }],
     proposer: "John Doe",
     proposerId: "john-doe",
     ctaPrimary: "Open proposal",
