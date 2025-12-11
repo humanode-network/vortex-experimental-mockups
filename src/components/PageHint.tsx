@@ -37,9 +37,6 @@ export const PageHint: React.FC<PageHintProps> = ({ pageId, className }) => {
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-xs tracking-wide text-slate-300 uppercase">
-                      Page hint
-                    </p>
                     <CardTitle className="text-xl font-semibold text-white">
                       {hint.title}
                     </CardTitle>

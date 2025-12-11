@@ -168,14 +168,20 @@ export const Hint: React.FC<HintProps> = ({
         onMouseEnter={(e) =>
           overlay.showAt({ x: e.clientX ?? 0, y: e.clientY ?? 0 })
         }
-        onMouseLeave={() => overlay.hide()}
+        onMouseLeave={() => {
+          overlay.setHovering(false);
+          overlay.hide();
+        }}
       >
         {children}
       </span>
       <OverlayPortal visible={overlay.visible} position={overlay.position}>
         <div
           onMouseEnter={() => overlay.setHovering(true)}
-          onMouseLeave={() => overlay.hide()}
+          onMouseLeave={() => {
+            overlay.setHovering(false);
+            overlay.hide();
+          }}
         >
           <HintSurface
             title={term.name}
