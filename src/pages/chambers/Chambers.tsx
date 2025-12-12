@@ -88,18 +88,39 @@ const chambers: Chamber[] = [
 
 const Chambers: React.FC = () => {
   const [search, setSearch] = useState("");
+  const [pipelineFilter, setPipelineFilter] = useState<
+    "any" | "pool" | "vote" | "build"
+  >("any");
+  const [sortBy, setSortBy] = useState<"name" | "governors" | "acm">("name");
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return chambers;
-    return chambers.filter(
-      (chamber) =>
-        chamber.name.toLowerCase().includes(term) ||
-        chamber.stats.governors.toLowerCase().includes(term) ||
-        chamber.stats.mcm.toLowerCase().includes(term) ||
-        chamber.stats.lcm.toLowerCase().includes(term) ||
-        chamber.multiplier.toLowerCase().includes(term),
-    );
-  }, [search]);
+    return [...chambers]
+      .filter((chamber) => {
+        const matchesTerm =
+          term.length === 0 ||
+          chamber.name.toLowerCase().includes(term) ||
+          chamber.stats.governors.toLowerCase().includes(term) ||
+          chamber.stats.mcm.toLowerCase().includes(term) ||
+          chamber.stats.lcm.toLowerCase().includes(term) ||
+          chamber.multiplier.toLowerCase().includes(term);
+        const matchesPipeline =
+          pipelineFilter === "any" ||
+          chamber.pipeline[pipelineFilter] > 0 ||
+          pipelineFilter === "build";
+        return matchesTerm && matchesPipeline;
+      })
+      .sort((a, b) => {
+        if (sortBy === "name") return a.name.localeCompare(b.name);
+        if (sortBy === "governors")
+          return (
+            parseInt(b.stats.governors, 10) - parseInt(a.stats.governors, 10)
+          );
+        return (
+          parseInt(b.stats.mcm.replace(/[,]/g, ""), 10) -
+          parseInt(a.stats.mcm.replace(/[,]/g, ""), 10)
+        );
+      });
+  }, [search, pipelineFilter, sortBy]);
 
   return (
     <div className="app-page flex flex-col gap-6">
@@ -134,6 +155,36 @@ const Chambers: React.FC = () => {
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search chambers by name or stats…"
         ariaLabel="Search chambers"
+        filtersConfig={[
+          {
+            key: "pipelineFilter",
+            label: "Pipeline filter",
+            options: [
+              { value: "any", label: "Any pipeline" },
+              { value: "pool", label: "Has proposal pool items" },
+              { value: "vote", label: "Has chamber votes" },
+              { value: "build", label: "Has Formation builds" },
+            ],
+          },
+          {
+            key: "sortBy",
+            label: "Sort by",
+            options: [
+              { value: "name", label: "Name (A–Z)" },
+              { value: "governors", label: "Governors (desc)" },
+              { value: "acm", label: "ACM (desc)" },
+            ],
+          },
+        ]}
+        filtersState={{ pipelineFilter, sortBy }}
+        onFiltersChange={(next) => {
+          if (next.pipelineFilter)
+            setPipelineFilter(
+              next.pipelineFilter as "any" | "pool" | "vote" | "build",
+            );
+          if (next.sortBy)
+            setSortBy(next.sortBy as "name" | "governors" | "acm");
+        }}
       />
 
       <section

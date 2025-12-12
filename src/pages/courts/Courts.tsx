@@ -58,15 +58,29 @@ const statusStyles: Record<CourtCase["status"], string> = {
 
 const Courts: React.FC = () => {
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<CourtCase["status"] | "any">(
+    "any",
+  );
+  const [sortBy, setSortBy] = useState<"recent" | "reports">("recent");
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return cases;
-    return cases.filter((c) =>
-      [c.title, c.subject, c.triggeredBy].some((field) =>
-        field.toLowerCase().includes(term),
-      ),
-    );
-  }, [search]);
+    return [...cases]
+      .filter((c) => {
+        const matchesTerm = [c.title, c.subject, c.triggeredBy].some((field) =>
+          field.toLowerCase().includes(term),
+        );
+        const matchesStatus =
+          statusFilter === "any" ? true : c.status === statusFilter;
+        return matchesTerm && matchesStatus;
+      })
+      .sort((a, b) => {
+        if (sortBy === "reports") return b.reports - a.reports;
+        return (
+          new Date(b.opened.split("/").reverse().join("-")).getTime() -
+          new Date(a.opened.split("/").reverse().join("-")).getTime()
+        );
+      });
+  }, [search, statusFilter, sortBy]);
   return (
     <div className="app-page flex flex-col gap-6">
       <div className="flex items-center justify-end">
@@ -103,6 +117,32 @@ const Courts: React.FC = () => {
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search court cases, subjects, or reports…"
         ariaLabel="Search courts"
+        filtersConfig={[
+          {
+            key: "statusFilter",
+            label: "Status",
+            options: [
+              { value: "any", label: "Any status" },
+              { value: "jury", label: "Jury forming" },
+              { value: "deliberating", label: "Deliberating" },
+              { value: "closed", label: "Closed" },
+            ],
+          },
+          {
+            key: "sortBy",
+            label: "Sort by",
+            options: [
+              { value: "recent", label: "Opened (newest)" },
+              { value: "reports", label: "Reports (desc)" },
+            ],
+          },
+        ]}
+        filtersState={{ statusFilter, sortBy }}
+        onFiltersChange={(next) => {
+          if (next.statusFilter)
+            setStatusFilter(next.statusFilter as CourtCase["status"] | "any");
+          if (next.sortBy) setSortBy(next.sortBy as "recent" | "reports");
+        }}
       />
 
       <Card className="bg-panel border border-border">

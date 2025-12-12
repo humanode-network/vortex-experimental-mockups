@@ -44,16 +44,28 @@ const drafts: Draft[] = [
 
 const ProposalDrafts: React.FC = () => {
   const [query, setQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"updated" | "chamber">("updated");
+  const [chamberFilter, setChamberFilter] = useState<string>("any");
+  const chambers = useMemo(
+    () => Array.from(new Set(drafts.map((d) => d.chamber))),
+    [],
+  );
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
-    if (!term) return drafts;
-    return drafts.filter(
-      (d) =>
-        d.title.toLowerCase().includes(term) ||
-        d.chamber.toLowerCase().includes(term) ||
-        d.summary.toLowerCase().includes(term),
-    );
-  }, [query]);
+    return [...drafts]
+      .filter(
+        (d) =>
+          (term.length === 0 ||
+            d.title.toLowerCase().includes(term) ||
+            d.chamber.toLowerCase().includes(term) ||
+            d.summary.toLowerCase().includes(term)) &&
+          (chamberFilter === "any" ? true : d.chamber === chamberFilter),
+      )
+      .sort((a, b) => {
+        if (sortBy === "chamber") return a.chamber.localeCompare(b.chamber);
+        return b.updated.localeCompare(a.updated);
+      });
+  }, [query, sortBy, chamberFilter]);
 
   return (
     <div className="app-page flex flex-col gap-6">
@@ -77,6 +89,29 @@ const ProposalDrafts: React.FC = () => {
           placeholder="Search drafts by title or chamber…"
           ariaLabel="Search drafts"
           className="max-w-md"
+          filtersConfig={[
+            {
+              key: "chamberFilter",
+              label: "Chamber",
+              options: [
+                { value: "any", label: "Any chamber" },
+                ...chambers.map((c) => ({ value: c, label: c })),
+              ],
+            },
+            {
+              key: "sortBy",
+              label: "Sort by",
+              options: [
+                { value: "updated", label: "Updated (newest)" },
+                { value: "chamber", label: "Chamber (A–Z)" },
+              ],
+            },
+          ]}
+          filtersState={{ chamberFilter, sortBy }}
+          onFiltersChange={(next) => {
+            if (next.chamberFilter) setChamberFilter(next.chamberFilter);
+            if (next.sortBy) setSortBy(next.sortBy as "updated" | "chamber");
+          }}
         />
       </div>
 

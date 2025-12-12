@@ -99,6 +99,8 @@ const projects: FormationProject[] = [
 
 const Formation: React.FC = () => {
   const [search, setSearch] = useState("");
+  const [stageFilter, setStageFilter] = useState<Stage | "any">("any");
+  const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all");
 
   const filteredProjects = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -109,9 +111,13 @@ const Formation: React.FC = () => {
         project.proposer.toLowerCase().includes(term) ||
         project.summary.toLowerCase().includes(term) ||
         project.focus.toLowerCase().includes(term);
-      return matchesSearch;
+      const matchesStage =
+        stageFilter === "any" ? true : project.stage === stageFilter;
+      const matchesCategory =
+        categoryFilter === "all" ? true : project.category === categoryFilter;
+      return matchesSearch && matchesStage && matchesCategory;
     });
-  }, [search]);
+  }, [search, stageFilter, categoryFilter]);
 
   return (
     <div className="app-page flex flex-col gap-6">
@@ -147,6 +153,35 @@ const Formation: React.FC = () => {
           placeholder="Search by project, proposer, focus, stage…"
           ariaLabel="Search projects"
           inputClassName="w-full"
+          filtersConfig={[
+            {
+              key: "stageFilter",
+              label: "Stage",
+              options: [
+                { value: "any", label: "Any stage" },
+                { value: "live", label: "Live" },
+                { value: "gathering", label: "Gathering team" },
+                { value: "completed", label: "Completed" },
+              ],
+            },
+            {
+              key: "categoryFilter",
+              label: "Category",
+              options: [
+                { value: "all", label: "All focuses" },
+                { value: "research", label: "Research" },
+                { value: "development", label: "Development & Product" },
+                { value: "social", label: "Social Good & Community" },
+              ],
+            },
+          ]}
+          filtersState={{ stageFilter, categoryFilter }}
+          onFiltersChange={(next) => {
+            if (next.stageFilter)
+              setStageFilter(next.stageFilter as Stage | "any");
+            if (next.categoryFilter)
+              setCategoryFilter(next.categoryFilter as Category | "all");
+          }}
         />
       </section>
 

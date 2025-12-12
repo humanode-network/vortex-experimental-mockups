@@ -8,23 +8,38 @@ import { cn } from "@/lib/utils";
 const Vortexopedia: React.FC = () => {
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [category, setCategory] = useState<string>("any");
+  const [sortBy, setSortBy] = useState<"name" | "updated">("name");
+
+  const categories = useMemo(
+    () => Array.from(new Set(vortexopediaTerms.map((t) => t.category))),
+    [],
+  );
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    return vortexopediaTerms.filter((item) => {
-      const text = [
-        item.name,
-        item.id,
-        item.short,
-        ...item.long,
-        ...item.tags,
-        ...item.related,
-      ]
-        .join(" ")
-        .toLowerCase();
-      return term.length === 0 || text.includes(term);
-    });
-  }, [search]);
+    return [...vortexopediaTerms]
+      .filter((item) => {
+        const text = [
+          item.name,
+          item.id,
+          item.short,
+          ...item.long,
+          ...item.tags,
+          ...item.related,
+        ]
+          .join(" ")
+          .toLowerCase();
+        const matchesText = term.length === 0 || text.includes(term);
+        const matchesCategory =
+          category === "any" ? true : item.category === category;
+        return matchesText && matchesCategory;
+      })
+      .sort((a, b) => {
+        if (sortBy === "name") return a.name.localeCompare(b.name);
+        return b.updated.localeCompare(a.updated);
+      });
+  }, [search, category, sortBy]);
 
   const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
@@ -62,6 +77,29 @@ const Vortexopedia: React.FC = () => {
             placeholder="Search by term, tag, or description…"
             ariaLabel="Search terms"
             className="w-full"
+            filtersConfig={[
+              {
+                key: "category",
+                label: "Category",
+                options: [
+                  { value: "any", label: "Any category" },
+                  ...categories.map((cat) => ({ value: cat, label: cat })),
+                ],
+              },
+              {
+                key: "sortBy",
+                label: "Sort by",
+                options: [
+                  { value: "name", label: "Name (A–Z)" },
+                  { value: "updated", label: "Updated (newest)" },
+                ],
+              },
+            ]}
+            filtersState={{ category, sortBy }}
+            onFiltersChange={(next) => {
+              if (next.category) setCategory(next.category);
+              if (next.sortBy) setSortBy(next.sortBy as "name" | "updated");
+            }}
           />
 
           <div className="text-xs text-muted">

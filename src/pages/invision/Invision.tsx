@@ -100,15 +100,28 @@ const chamberProposals = [
 
 const Invision: React.FC = () => {
   const [search, setSearch] = useState("");
+  const [factionSort, setFactionSort] = useState<"members" | "votes" | "acm">(
+    "members",
+  );
   const filteredFactions = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return factions;
-    return factions.filter(
-      (f) =>
-        f.name.toLowerCase().includes(term) ||
-        f.stance.toLowerCase().includes(term),
-    );
-  }, [search]);
+    return [...factions]
+      .filter(
+        (f) =>
+          term.length === 0 ||
+          f.name.toLowerCase().includes(term) ||
+          f.stance.toLowerCase().includes(term),
+      )
+      .sort((a, b) => {
+        if (factionSort === "members") return b.members - a.members;
+        if (factionSort === "votes")
+          return parseInt(b.votes, 10) - parseInt(a.votes, 10);
+        return (
+          parseInt(b.acm.replace(/[,]/g, ""), 10) -
+          parseInt(a.acm.replace(/[,]/g, ""), 10)
+        );
+      });
+  }, [search, factionSort]);
 
   return (
     <div className="app-page flex flex-col gap-5">
@@ -142,6 +155,22 @@ const Invision: React.FC = () => {
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search factions, blocs, proposals…"
         ariaLabel="Search invision"
+        filtersConfig={[
+          {
+            key: "factionSort",
+            label: "Sort factions",
+            options: [
+              { value: "members", label: "Members (desc)" },
+              { value: "votes", label: "Votes (desc)" },
+              { value: "acm", label: "ACM (desc)" },
+            ],
+          },
+        ]}
+        filtersState={{ factionSort }}
+        onFiltersChange={(next) => {
+          if (next.factionSort)
+            setFactionSort(next.factionSort as "members" | "votes" | "acm");
+        }}
       />
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">

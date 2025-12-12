@@ -13,6 +13,13 @@ type SearchBarProps = {
   className?: string;
   inputClassName?: string;
   filtersContent?: ReactNode;
+  filtersConfig?: {
+    key: string;
+    label: string;
+    options: { value: string; label: string }[];
+  }[];
+  filtersState?: Record<string, string>;
+  onFiltersChange?: (next: Record<string, string>) => void;
   onApplyFilters?: () => void;
 };
 
@@ -30,11 +37,46 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   className,
   inputClassName,
   filtersContent,
+  filtersConfig,
+  filtersState,
+  onFiltersChange,
   onApplyFilters,
 }) => {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const content =
-    filtersContent || "Filters are not configured for this search yet.";
+    filtersContent ||
+    (filtersConfig ? (
+      <div className="space-y-3">
+        {filtersConfig.map((field) => (
+          <div key={field.key} className="space-y-1">
+            <p className="text-xs tracking-wide text-muted uppercase">
+              {field.label}
+            </p>
+            <select
+              className="w-full rounded-md border border-border px-3 py-2 text-sm"
+              value={
+                filtersState?.[field.key] ?? field.options[0]?.value ?? ""
+              }
+              onChange={(e) => {
+                const next = {
+                  ...filtersState,
+                  [field.key]: e.target.value,
+                };
+                onFiltersChange?.(next);
+              }}
+            >
+              {field.options.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
+    ) : (
+      "Filters are not configured for this search yet."
+    ));
 
   return (
     <div

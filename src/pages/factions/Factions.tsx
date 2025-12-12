@@ -10,6 +10,8 @@ import { SearchBar } from "@/components/SearchBar";
 
 const Factions: React.FC = () => {
   const [query, setQuery] = useState("");
+  const [focusFilter, setFocusFilter] = useState<string>("any");
+  const [sortBy, setSortBy] = useState<"members" | "votes" | "acm">("members");
 
   const totals = useMemo(() => {
     const totalMembers = factions.reduce((sum, f) => sum + f.members, 0);
@@ -29,16 +31,34 @@ const Factions: React.FC = () => {
     };
   }, []);
 
+  const focusOptions = useMemo(
+    () => Array.from(new Set(factions.map((f) => f.focus))),
+    [],
+  );
+
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
-    if (!term) return factions;
-    return factions.filter(
-      (f) =>
-        f.name.toLowerCase().includes(term) ||
-        f.description.toLowerCase().includes(term) ||
-        f.focus.toLowerCase().includes(term),
-    );
-  }, [query]);
+    return [...factions]
+      .filter((f) => {
+        const matchesTerm =
+          term.length === 0 ||
+          f.name.toLowerCase().includes(term) ||
+          f.description.toLowerCase().includes(term) ||
+          f.focus.toLowerCase().includes(term);
+        const matchesFocus =
+          focusFilter === "any" ? true : f.focus === focusFilter;
+        return matchesTerm && matchesFocus;
+      })
+      .sort((a, b) => {
+        if (sortBy === "members") return b.members - a.members;
+        if (sortBy === "votes")
+          return parseInt(b.votes, 10) - parseInt(a.votes, 10);
+        return (
+          parseInt(b.acm.replace(/[,]/g, ""), 10) -
+          parseInt(a.acm.replace(/[,]/g, ""), 10)
+        );
+      });
+  }, [query, focusFilter, sortBy]);
 
   const showResultsOnly = query.trim().length > 0;
 
@@ -90,6 +110,31 @@ const Factions: React.FC = () => {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search factions by name, focus, tags…"
             ariaLabel="Search factions"
+            filtersConfig={[
+              {
+                key: "focusFilter",
+                label: "Focus",
+                options: [
+                  { value: "any", label: "Any focus" },
+                  ...focusOptions.map((opt) => ({ value: opt, label: opt })),
+                ],
+              },
+              {
+                key: "sortBy",
+                label: "Sort by",
+                options: [
+                  { value: "members", label: "Members (desc)" },
+                  { value: "votes", label: "Votes (desc)" },
+                  { value: "acm", label: "ACM (desc)" },
+                ],
+              },
+            ]}
+            filtersState={{ focusFilter, sortBy }}
+            onFiltersChange={(next) => {
+              if (next.focusFilter) setFocusFilter(next.focusFilter);
+              if (next.sortBy)
+                setSortBy(next.sortBy as "members" | "votes" | "acm");
+            }}
           />
 
           <section

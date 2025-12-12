@@ -247,6 +247,9 @@ const HumanNodes: React.FC = () => {
   const [sortBy, setSortBy] = useState<
     "acm-desc" | "acm-asc" | "tier" | "name"
   >("acm-desc");
+  const [tierFilter, setTierFilter] = useState<
+    "all" | "nominee" | "ecclesiast" | "legate" | "consul" | "citizen"
+  >("all");
   const [view, setView] = useState<"cards" | "list">("cards");
 
   const filtered = useMemo(() => {
@@ -258,7 +261,9 @@ const HumanNodes: React.FC = () => {
           node.role.toLowerCase().includes(term) ||
           node.tags.some((t) => t.toLowerCase().includes(term)) ||
           node.chamber.toLowerCase().includes(term);
-        return matchesTerm;
+        const matchesTier =
+          tierFilter === "all" ? true : node.tier === tierFilter;
+        return matchesTerm && matchesTier;
       })
       .sort((a, b) => {
         if (sortBy === "acm-desc") return b.acm - a.acm;
@@ -277,28 +282,45 @@ const HumanNodes: React.FC = () => {
         placeholder="Search human nodes by handle, chamber, focus…"
         ariaLabel="Search human nodes"
         rightContent={<PageHint pageId="human-nodes" />}
-        filtersContent={
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <p className="text-xs tracking-wide text-muted uppercase">
-                Sort by
-              </p>
-              <Select
-                value={sortBy}
-                onChange={(e) =>
-                  setSortBy(
-                    e.target.value as "acm-desc" | "acm-asc" | "tier" | "name",
-                  )
-                }
-              >
-                <option value="acm-desc">ACM (desc)</option>
-                <option value="acm-asc">ACM (asc)</option>
-                <option value="tier">Tier</option>
-                <option value="name">Name</option>
-              </Select>
-            </div>
-          </div>
-        }
+        filtersConfig={[
+          {
+            key: "sortBy",
+            label: "Sort by",
+            options: [
+              { value: "acm-desc", label: "ACM (desc)" },
+              { value: "acm-asc", label: "ACM (asc)" },
+              { value: "tier", label: "Tier" },
+              { value: "name", label: "Name" },
+            ],
+          },
+          {
+            key: "tierFilter",
+            label: "Tier filter",
+            options: [
+              { value: "all", label: "All tiers" },
+              { value: "nominee", label: "Nominee" },
+              { value: "ecclesiast", label: "Ecclesiast" },
+              { value: "legate", label: "Legate" },
+              { value: "consul", label: "Consul" },
+              { value: "citizen", label: "Citizen" },
+            ],
+          },
+        ]}
+        filtersState={{ sortBy, tierFilter }}
+        onFiltersChange={(next) => {
+          if (next.sortBy)
+            setSortBy(next.sortBy as "acm-desc" | "acm-asc" | "tier" | "name");
+          if (next.tierFilter)
+            setTierFilter(
+              next.tierFilter as
+                | "all"
+                | "nominee"
+                | "ecclesiast"
+                | "legate"
+                | "consul"
+                | "citizen",
+            );
+        }}
       />
 
       <Card className="w-full">
