@@ -1,6 +1,8 @@
 import type { ChangeEventHandler, ReactNode } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 type SearchBarProps = {
   value: string;
@@ -10,6 +12,8 @@ type SearchBarProps = {
   rightContent?: ReactNode;
   className?: string;
   inputClassName?: string;
+  filtersContent?: ReactNode;
+  onApplyFilters?: () => void;
 };
 
 /**
@@ -25,21 +29,54 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   rightContent,
   className,
   inputClassName,
+  filtersContent,
+  onApplyFilters,
 }) => {
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const content =
+    filtersContent || "Filters are not configured for this search yet.";
+
   return (
     <div
       className={cn(
-        "flex w-full items-center justify-between gap-3",
+        "relative flex w-full items-center justify-between gap-3",
         className,
       )}
     >
-      <Input
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        aria-label={ariaLabel || placeholder}
-        className={cn("flex-1", inputClassName)}
-      />
+      <div className="relative flex-1">
+        <Input
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          aria-label={ariaLabel || placeholder}
+          onFocus={() => setFiltersOpen(true)}
+          onClick={() => setFiltersOpen(true)}
+          className={cn("w-full", inputClassName)}
+        />
+        {filtersOpen ? (
+          <div className="absolute top-[calc(100%+0.5rem)] right-0 left-0 z-50 w-full rounded-2xl border border-border bg-white p-4 shadow-xl">
+            <div className="space-y-3 text-sm text-(--text)">{content}</div>
+            <div className="mt-4 flex justify-end gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setFiltersOpen(false)}
+              >
+                Close
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  onApplyFilters?.();
+                  setFiltersOpen(false);
+                }}
+              >
+                Apply
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </div>
       {rightContent ? (
         <div className="flex items-center gap-2">{rightContent}</div>
       ) : null}
