@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router";
-import { cn } from "@/lib/utils";
 import { PageHint } from "@/components/PageHint";
 import { SearchBar } from "@/components/SearchBar";
 
@@ -35,19 +34,6 @@ const metrics: FormationMetric[] = [
   { label: "Active projects", value: "12", dataAttr: "metric-active" },
   { label: "Open team slots", value: "9", dataAttr: "metric-slots" },
   { label: "Milestones delivered", value: "46", dataAttr: "metric-milestones" },
-];
-
-const categoryOptions: { label: string; value: Category }[] = [
-  { label: "All", value: "all" },
-  { label: "Research", value: "research" },
-  { label: "Development & Product", value: "development" },
-  { label: "Social Good & Community", value: "social" },
-];
-
-const stageLegend: { label: string; value: Stage; dotClass: string }[] = [
-  { label: "Live", value: "live", dotClass: "bg-emerald-500" },
-  { label: "Gathering team", value: "gathering", dotClass: "bg-amber-500" },
-  { label: "Completed", value: "completed", dotClass: "bg-slate-400" },
 ];
 
 const stageLabel: Record<Stage, string> = {
@@ -112,23 +98,20 @@ const projects: FormationProject[] = [
 ];
 
 const Formation: React.FC = () => {
-  const [activeCategory, setActiveCategory] = useState<Category>("all");
   const [search, setSearch] = useState("");
 
   const filteredProjects = useMemo(() => {
     const term = search.trim().toLowerCase();
     return projects.filter((project) => {
-      const matchesCategory =
-        activeCategory === "all" || project.category === activeCategory;
       const matchesSearch =
         term.length === 0 ||
         project.title.toLowerCase().includes(term) ||
         project.proposer.toLowerCase().includes(term) ||
         project.summary.toLowerCase().includes(term) ||
         project.focus.toLowerCase().includes(term);
-      return matchesCategory && matchesSearch;
+      return matchesSearch;
     });
-  }, [activeCategory, search]);
+  }, [search]);
 
   return (
     <div className="app-page flex flex-col gap-6">
@@ -155,42 +138,6 @@ const Formation: React.FC = () => {
             </strong>
           </article>
         ))}
-      </section>
-
-      <section className="bg-panel flex flex-col gap-3 rounded-2xl border border-border p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
-        <div
-          className="flex flex-wrap gap-2"
-          role="tablist"
-          aria-label="Formation filters"
-        >
-          {categoryOptions.map((category) => (
-            <Button
-              key={category.value}
-              type="button"
-              role="tab"
-              size="sm"
-              aria-selected={activeCategory === category.value}
-              variant="ghost"
-              className={cn(
-                "rounded-full px-4",
-                activeCategory === category.value
-                  ? "bg-primary text-white hover:bg-primary"
-                  : "border border-border bg-white text-(--text) hover:border-(--primary-dim) hover:text-(--text)",
-              )}
-              onClick={() => setActiveCategory(category.value)}
-            >
-              {category.label}
-            </Button>
-          ))}
-        </div>
-        <div className="flex flex-wrap items-center gap-4 text-sm text-muted">
-          {stageLegend.map((stage) => (
-            <span key={stage.value} className="inline-flex items-center gap-2">
-              <span className={`h-2.5 w-2.5 rounded-full ${stage.dotClass}`} />
-              {stage.label}
-            </span>
-          ))}
-        </div>
       </section>
 
       <section role="search" className="space-y-2">

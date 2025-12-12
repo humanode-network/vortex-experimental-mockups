@@ -277,6 +277,28 @@ const HumanNodes: React.FC = () => {
         placeholder="Search human nodes by handle, chamber, focus…"
         ariaLabel="Search human nodes"
         rightContent={<PageHint pageId="human-nodes" />}
+        filtersContent={
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <p className="text-xs tracking-wide text-muted uppercase">
+                Sort by
+              </p>
+              <Select
+                value={sortBy}
+                onChange={(e) =>
+                  setSortBy(
+                    e.target.value as "acm-desc" | "acm-asc" | "tier" | "name",
+                  )
+                }
+              >
+                <option value="acm-desc">ACM (desc)</option>
+                <option value="acm-asc">ACM (asc)</option>
+                <option value="tier">Tier</option>
+                <option value="name">Name</option>
+              </Select>
+            </div>
+          </div>
+        }
       />
 
       <Card className="w-full">

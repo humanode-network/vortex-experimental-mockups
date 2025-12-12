@@ -1,26 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { SearchBar } from "@/components/SearchBar";
 import { vortexopediaTerms } from "@/data/vortexopedia";
 import { cn } from "@/lib/utils";
-import { SearchBar } from "@/components/SearchBar";
 
 const Vortexopedia: React.FC = () => {
   const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState<string>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-
-  const categories = useMemo(() => {
-    const set = new Set(vortexopediaTerms.map((t) => t.category));
-    return ["all", ...Array.from(set).sort()];
-  }, []);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     return vortexopediaTerms.filter((item) => {
-      const matchesCategory =
-        activeCategory === "all" || item.category === activeCategory;
       const text = [
         item.name,
         item.id,
@@ -31,10 +22,9 @@ const Vortexopedia: React.FC = () => {
       ]
         .join(" ")
         .toLowerCase();
-      const matchesSearch = term.length === 0 || text.includes(term);
-      return matchesCategory && matchesSearch;
+      return term.length === 0 || text.includes(term);
     });
-  }, [search, activeCategory]);
+  }, [search]);
 
   const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
@@ -62,42 +52,17 @@ const Vortexopedia: React.FC = () => {
         <CardHeader className="pb-2">
           <CardTitle>Vortexopedia</CardTitle>
           <p className="text-xs text-muted">
-            Dictionary of Vortex terminology with search and quick filters.
+            Dictionary of Vortex terminology.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <SearchBar
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by term, tag, or description…"
-              ariaLabel="Search terms"
-              className="w-full md:max-w-md"
-            />
-            <div className="flex flex-wrap gap-2">
-              {categories.map((cat) => {
-                const btnVariant = (
-                  activeCategory === cat ? "primary" : "outline"
-                ) as "primary" | "outline";
-                return (
-                  <Button
-                    key={cat}
-                    size="sm"
-                    variant={btnVariant}
-                    className={cn(
-                      "rounded-full border border-border text-xs",
-                      activeCategory === cat
-                        ? "bg-primary text-white"
-                        : "bg-panel-alt text-(--text)",
-                    )}
-                    onClick={() => setActiveCategory(cat)}
-                  >
-                    {cat === "all" ? "All categories" : cat}
-                  </Button>
-                );
-              })}
-            </div>
-          </div>
+          <SearchBar
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by term, tag, or description…"
+            ariaLabel="Search terms"
+            className="w-full"
+          />
 
           <div className="text-xs text-muted">
             Showing {filtered.length} / {vortexopediaTerms.length} entries
@@ -135,7 +100,7 @@ const Vortexopedia: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                    <p className="text-sm text-(--text)">{item.short}</p>
+                    <p className="text-sm text-foreground">{item.short}</p>
                     <div className="flex flex-wrap gap-2">
                       {item.tags.map((tag) => (
                         <span
@@ -149,7 +114,7 @@ const Vortexopedia: React.FC = () => {
                   </CardHeader>
                 </button>
                 {expandedId === item.id && (
-                  <CardContent className="space-y-3 text-sm text-(--text)">
+                  <CardContent className="space-y-3 text-sm text-foreground">
                     <div className="space-y-1">
                       <p className="font-semibold">Details</p>
                       <ul className="list-disc space-y-1 pl-5 text-muted">

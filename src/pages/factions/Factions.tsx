@@ -44,13 +44,9 @@ const Factions: React.FC = () => {
 
   return (
     <div className="app-page flex flex-col gap-6">
-      <SearchBar
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search by faction, focus, description…"
-        ariaLabel="Search factions"
-        rightContent={<PageHint pageId="factions" />}
-      />
+      <div className="flex justify-end">
+        <PageHint pageId="factions" />
+      </div>
 
       {!showResultsOnly && (
         <>
@@ -88,6 +84,13 @@ const Factions: React.FC = () => {
               </p>
             </div>
           </section>
+
+          <SearchBar
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search factions by name, focus, tags…"
+            ariaLabel="Search factions"
+          />
 
           <section
             className="grid gap-4 md:grid-cols-2 xl:grid-cols-3"

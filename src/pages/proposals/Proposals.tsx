@@ -6,6 +6,7 @@ import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { HintLabel } from "@/components/Hint";
 import { PageHint } from "@/components/PageHint";
@@ -323,28 +324,98 @@ const stageStyles: Record<Stage, string> = {
 const Proposals: React.FC = () => {
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [stageFilter, setStageFilter] = useState<Stage | "any">("any");
+  const [chamberFilter, setChamberFilter] = useState("All chambers");
+  const [sortBy, setSortBy] = useState<
+    "Newest" | "Oldest" | "Activity" | "Votes"
+  >("Newest");
 
   const filteredProposals = useMemo(() => {
     const term = search.trim().toLowerCase();
 
     return proposalData
       .filter((proposal) => {
-        if (!term) return true;
-        return (
-          proposal.title.toLowerCase().includes(term) ||
-          proposal.summary.toLowerCase().includes(term) ||
-          proposal.meta.toLowerCase().includes(term) ||
-          proposal.keywords.some((keyword) =>
-            keyword.toLowerCase().includes(term),
-          )
-        );
+        const matchesTerm = term
+          ? proposal.title.toLowerCase().includes(term) ||
+            proposal.summary.toLowerCase().includes(term) ||
+            proposal.meta.toLowerCase().includes(term) ||
+            proposal.keywords.some((keyword) =>
+              keyword.toLowerCase().includes(term),
+            )
+          : true;
+        const matchesStage =
+          stageFilter === "any" ? true : proposal.stage === stageFilter;
+        const matchesChamber =
+          chamberFilter === "All chambers"
+            ? true
+            : proposal.chamber === chamberFilter;
+        return matchesTerm && matchesStage && matchesChamber;
       })
-      .sort(
-        (a, b) =>
-          new Date(b.date).getTime() - new Date(a.date).getTime() ||
-          b.activityScore - a.activityScore,
-      );
-  }, [search]);
+      .sort((a, b) => {
+        if (sortBy === "Newest") {
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        }
+        if (sortBy === "Oldest") {
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        }
+        if (sortBy === "Activity") {
+          return b.activityScore - a.activityScore;
+        }
+        if (sortBy === "Votes") {
+          return b.votes - a.votes;
+        }
+        return 0;
+      });
+  }, [search, stageFilter, chamberFilter, sortBy]);
+
+  const filtersContent = (
+    <div className="space-y-3">
+      <div className="space-y-1">
+        <p className="text-xs tracking-wide text-muted uppercase">Status</p>
+        <Select
+          value={stageFilter}
+          onChange={(e) => setStageFilter(e.target.value as Stage | "any")}
+        >
+          <option value="any">Any</option>
+          <option value="pool">Proposal pool</option>
+          <option value="vote">Chamber vote</option>
+          <option value="build">Formation</option>
+          <option value="final">Final vote</option>
+          <option value="archived">Archived</option>
+        </Select>
+      </div>
+      <div className="space-y-1">
+        <p className="text-xs tracking-wide text-muted uppercase">Chamber</p>
+        <Select
+          value={chamberFilter}
+          onChange={(e) => setChamberFilter(e.target.value)}
+        >
+          <option value="All chambers">All chambers</option>
+          <option value="Protocol Engineering">Protocol Engineering</option>
+          <option value="Economics & Treasury">Economics & Treasury</option>
+          <option value="Security & Infra">Security & Infra</option>
+          <option value="Constitutional">Constitutional</option>
+          <option value="Social Impact">Social Impact</option>
+        </Select>
+      </div>
+      <div className="space-y-1">
+        <p className="text-xs tracking-wide text-muted uppercase">Sort by</p>
+        <Select
+          value={sortBy}
+          onChange={(e) =>
+            setSortBy(
+              e.target.value as "Newest" | "Oldest" | "Activity" | "Votes",
+            )
+          }
+        >
+          <option value="Newest">Newest</option>
+          <option value="Oldest">Oldest</option>
+          <option value="Activity">Activity</option>
+          <option value="Votes">Votes casted</option>
+        </Select>
+      </div>
+    </div>
+  );
 
   const toggleProposal = (id: string) => {
     setExpanded((current) => (current === id ? null : id));
@@ -374,6 +445,7 @@ const Proposals: React.FC = () => {
         onChange={(event) => setSearch(event.target.value)}
         placeholder="Search proposals by title, hash, proposer…"
         ariaLabel="Search proposals"
+        filtersContent={filtersContent}
       />
 
       <section aria-live="polite" className="flex flex-col gap-4">

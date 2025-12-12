@@ -1,8 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
 import { PageHint } from "@/components/PageHint";
+import { SearchBar } from "@/components/SearchBar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router";
 
 type CourtCase = {
   id: string;
@@ -55,6 +57,16 @@ const statusStyles: Record<CourtCase["status"], string> = {
 };
 
 const Courts: React.FC = () => {
+  const [search, setSearch] = useState("");
+  const filtered = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return cases;
+    return cases.filter((c) =>
+      [c.title, c.subject, c.triggeredBy].some((field) =>
+        field.toLowerCase().includes(term),
+      ),
+    );
+  }, [search]);
   return (
     <div className="app-page flex flex-col gap-6">
       <div className="flex items-center justify-end">
@@ -78,7 +90,7 @@ const Courts: React.FC = () => {
               <p className="text-xs tracking-wide text-muted uppercase">
                 {metric.label}
               </p>
-              <p className="text-2xl font-semibold text-(--text)">
+              <p className="text-2xl font-semibold text-foreground">
                 {metric.value}
               </p>
             </CardContent>
@@ -86,12 +98,19 @@ const Courts: React.FC = () => {
         ))}
       </section>
 
+      <SearchBar
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Search court cases, subjects, or reports…"
+        ariaLabel="Search courts"
+      />
+
       <Card className="bg-panel border border-border">
         <CardHeader className="pb-2">
           <CardTitle>Active courtrooms</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {cases.map((courtCase) => (
+          {filtered.map((courtCase) => (
             <Card
               key={courtCase.id}
               className="bg-panel-alt border border-border"
@@ -102,7 +121,7 @@ const Courts: React.FC = () => {
                     <p className="text-xs tracking-wide text-muted uppercase">
                       {courtCase.subject}
                     </p>
-                    <p className="text-lg font-semibold text-(--text)">
+                    <p className="text-lg font-semibold text-foreground">
                       {courtCase.title}
                     </p>
                     <p className="text-xs text-muted">
@@ -127,7 +146,7 @@ const Courts: React.FC = () => {
                 </div>
               </CardHeader>
               <CardContent className="flex flex-wrap items-center justify-between gap-3 pt-0">
-                <div className="flex flex-wrap gap-3 text-sm text-(--text)">
+                <div className="flex flex-wrap gap-3 text-sm text-foreground">
                   <span className="bg-panel rounded-full px-3 py-1">
                     Reports: {courtCase.reports}
                   </span>

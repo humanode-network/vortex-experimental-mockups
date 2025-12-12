@@ -1,6 +1,8 @@
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HintLabel } from "@/components/Hint";
 import { PageHint } from "@/components/PageHint";
+import { SearchBar } from "@/components/SearchBar";
 
 const governanceState = {
   label: "Egalitarian Republic",
@@ -97,6 +99,17 @@ const chamberProposals = [
 ];
 
 const Invision: React.FC = () => {
+  const [search, setSearch] = useState("");
+  const filteredFactions = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return factions;
+    return factions.filter(
+      (f) =>
+        f.name.toLowerCase().includes(term) ||
+        f.stance.toLowerCase().includes(term),
+    );
+  }, [search]);
+
   return (
     <div className="app-page flex flex-col gap-5">
       <div className="flex items-center justify-end">
@@ -124,13 +137,20 @@ const Invision: React.FC = () => {
         ))}
       </div>
 
+      <SearchBar
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Search factions, blocs, proposals…"
+        ariaLabel="Search invision"
+      />
+
       <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <Card className="h-full">
           <CardHeader className="pb-2">
             <CardTitle>Largest factions</CardTitle>
           </CardHeader>
           <CardContent className="text-text grid gap-4 text-sm sm:grid-cols-2">
-            {factions.map((faction) => (
+            {filteredFactions.map((faction) => (
               <div
                 key={faction.name}
                 className="bg-panel-alt rounded-2xl border border-border px-5 py-4 shadow-sm"

@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/card";
 import { HintLabel } from "@/components/Hint";
 import { PageHint } from "@/components/PageHint";
+import { SearchBar } from "@/components/SearchBar";
+import { useMemo, useState } from "react";
 
 type Metric = {
   label: string;
@@ -85,6 +87,20 @@ const chambers: Chamber[] = [
 ];
 
 const Chambers: React.FC = () => {
+  const [search, setSearch] = useState("");
+  const filtered = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return chambers;
+    return chambers.filter(
+      (chamber) =>
+        chamber.name.toLowerCase().includes(term) ||
+        chamber.stats.governors.toLowerCase().includes(term) ||
+        chamber.stats.mcm.toLowerCase().includes(term) ||
+        chamber.stats.lcm.toLowerCase().includes(term) ||
+        chamber.multiplier.toLowerCase().includes(term),
+    );
+  }, [search]);
+
   return (
     <div className="app-page flex flex-col gap-6">
       <div className="flex items-center justify-end">
@@ -113,11 +129,18 @@ const Chambers: React.FC = () => {
         ))}
       </section>
 
+      <SearchBar
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Search chambers by name or stats…"
+        ariaLabel="Search chambers"
+      />
+
       <section
         aria-live="polite"
         className="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
       >
-        {chambers.map((chamber) => (
+        {filtered.map((chamber) => (
           <Card
             key={chamber.id}
             className="bg-panel h-full border border-border"
