@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { HintLabel } from "@/components/Hint";
@@ -193,11 +193,6 @@ const projects = [
   },
 ];
 
-const history = [
-  "Epoch 192 · Proposed GC motion on fee telemetry",
-  "Epoch 181 · Presented fee split adjustment #883",
-];
-
 const proofToggleOptions: { key: ProofKey; label: string }[] = [
   { key: "time", label: "PoT" },
   { key: "devotion", label: "PoD" },
@@ -219,18 +214,18 @@ const HumanNode: React.FC = () => {
       <div className="flex justify-end">
         <PageHint pageId="human-node" />
       </div>
-      <section className="bg-panel rounded-2xl border border-border p-6">
+      <section className="rounded-2xl border border-border bg-panel p-6">
         <div className="grid items-center gap-6 lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <div className="flex justify-center lg:justify-start">
-            <div className="bg-panel-alt flex h-28 w-28 items-center justify-center rounded-full border-4 border-border text-lg font-semibold text-muted shadow-inner">
+            <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-border bg-panel-alt text-lg font-semibold text-muted shadow-inner">
               {name.substring(0, 2).toUpperCase()}
             </div>
           </div>
           <div className="flex flex-col items-center text-center">
-            <h1 className="text-text text-3xl font-semibold">{name}</h1>
+            <h1 className="text-3xl font-semibold text-text">{name}</h1>
           </div>
           <div className="flex flex-col items-center gap-2 text-sm lg:items-end">
-            <div className="bg-panel-alt inline-flex w-48 items-center justify-between rounded-full border border-border px-4 py-2">
+            <div className="inline-flex w-48 items-center justify-between rounded-full border border-border bg-panel-alt px-4 py-2">
               <span className="text-xs tracking-wide text-muted uppercase">
                 Governor
               </span>
@@ -240,7 +235,7 @@ const HumanNode: React.FC = () => {
                 {governorActive ? "Active" : "Not active"}
               </span>
             </div>
-            <div className="bg-panel-alt inline-flex w-48 items-center justify-between rounded-full border border-border px-4 py-2">
+            <div className="inline-flex w-48 items-center justify-between rounded-full border border-border bg-panel-alt px-4 py-2">
               <span className="text-xs tracking-wide text-muted uppercase">
                 Human node
               </span>
@@ -269,195 +264,181 @@ const HumanNode: React.FC = () => {
                   stat.label
                 )}
               </p>
-              <p className="text-text text-2xl font-semibold">{stat.value}</p>
+              <p className="text-2xl font-semibold text-text">{stat.value}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <div className="flex flex-col gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Governance summary</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted">
-              <p>
-                JohnDoe currently leads several operator-focused squads and acts
-                as a liaison for the Governance Council. Recent work focused on
-                telemetry for biometric proofs, redundancy inside the mesh
-                sequencer, and readiness drills for upcoming upgrades.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Governance activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid max-h-72 grid-cols-1 gap-3 overflow-y-scroll pr-2 sm:grid-cols-2 xl:grid-cols-3">
-                {governanceActions.map((action) => (
-                  <div key={action.title} className="group relative">
-                    <div className="bg-panel-alt space-y-1 rounded-xl border border-border px-3 py-3 text-center">
-                      <p className="text-text line-clamp-1 text-sm font-semibold">
-                        {action.title}
-                      </p>
-                      <p className="line-clamp-1 text-xs tracking-wide text-primary uppercase">
-                        {action.action}
-                      </p>
-                      <p className="line-clamp-1 text-xs text-muted">
-                        {action.context}
-                      </p>
-                    </div>
-                    <div className="text-text pointer-events-none absolute top-full left-1/2 z-10 mt-2 w-64 -translate-x-1/2 rounded-xl border border-border bg-(--panel) p-3 text-left text-xs opacity-0 shadow-lg transition group-hover:opacity-100">
-                      <p className="font-semibold">{action.title}</p>
-                      <p className="text-muted">{action.context}</p>
-                      <p className="mt-1 leading-snug">{action.detail}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Formation projects</CardTitle>
-            </CardHeader>
-            <CardContent className="max-h-96 space-y-4 overflow-y-auto pr-1">
-              {projects.map((project) => (
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle>Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-3 text-center sm:grid-cols-2">
+              {quickDetails.map((detail) => (
                 <div
-                  key={project.title}
-                  className="rounded-xl border border-border px-4 py-3"
+                  key={detail.label}
+                  className="flex h-20 flex-col items-center justify-between rounded-xl border border-border px-3 py-3 text-center"
                 >
-                  <div className="flex flex-col gap-1">
-                    <p className="text-text text-sm font-semibold">
-                      {project.title}
-                    </p>
-                    <p className="text-xs tracking-wide text-muted uppercase">
-                      {project.status}
-                    </p>
-                  </div>
-                  <p className="text-sm text-muted">{project.summary}</p>
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {project.chips.map((chip) => (
-                      <Badge key={chip} variant="outline">
-                        {chip}
-                      </Badge>
-                    ))}
-                  </div>
+                  <p className="text-center text-xs tracking-wide text-muted uppercase">
+                    {detail.label}
+                  </p>
+                  <p className="text-center text-base font-semibold text-text">
+                    {detail.value}
+                  </p>
                 </div>
               ))}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-3 text-center sm:grid-cols-2">
-                {quickDetails.map((detail) => (
-                  <div
-                    key={detail.label}
-                    className="flex h-20 flex-col items-center justify-between rounded-xl border border-border px-3 py-3 text-center"
-                  >
-                    <p className="text-center text-xs tracking-wide text-muted uppercase">
-                      {detail.label}
-                    </p>
-                    <p className="text-text text-center text-base font-semibold">
-                      {detail.value}
-                    </p>
-                  </div>
-                ))}
+            </div>
+            <div className="space-y-3 text-center">
+              <div className="inline-flex rounded-full border border-border bg-panel p-1">
+                {proofToggleOptions.map((option) => {
+                  const isActive = activeProof === option.key;
+                  return (
+                    <button
+                      key={option.key}
+                      type="button"
+                      onClick={() =>
+                        setActiveProof((prev) =>
+                          prev === option.key ? "" : option.key,
+                        )
+                      }
+                      className={[
+                        "min-w-20 rounded-full px-3 py-1.5 text-sm font-semibold transition",
+                        isActive
+                          ? "bg-primary text-[var(--primary-foreground)] shadow-[var(--shadow-tile)]"
+                          : "bg-transparent text-text hover:bg-panel-alt",
+                      ].join(" ")}
+                    >
+                      {option.label === "PoT" ? (
+                        <HintLabel termId="proof_of_time_pot">
+                          {option.label}
+                        </HintLabel>
+                      ) : option.label === "PoD" ? (
+                        <HintLabel termId="proof_of_devotion_pod">
+                          {option.label}
+                        </HintLabel>
+                      ) : option.label === "PoG" ? (
+                        <HintLabel termId="proof_of_governance_pog">
+                          {option.label}
+                        </HintLabel>
+                      ) : (
+                        option.label
+                      )}
+                    </button>
+                  );
+                })}
               </div>
-              <div className="space-y-3 text-center">
-                <div className="bg-panel inline-flex rounded-full border border-border p-1">
-                  {proofToggleOptions.map((option) => {
-                    const isActive = activeProof === option.key;
-                    const style = isActive
-                      ? {
-                          backgroundColor: "var(--primary)",
-                          color: "#fff",
-                          boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-                        }
-                      : {
-                          color: "var(--text)",
-                          backgroundColor: "transparent",
-                        };
-                    return (
-                      <button
-                        key={option.key}
-                        type="button"
-                        onClick={() =>
-                          setActiveProof((prev) =>
-                            prev === option.key ? "" : option.key,
-                          )
-                        }
-                        className="hover:bg-panel-alt min-w-20 rounded-full px-3 py-1.5 text-sm font-semibold transition"
-                        style={style}
+              {activeSection ? (
+                <div className="grid gap-3 text-sm text-text sm:grid-cols-2">
+                  {(activeSection.items ?? []).map(
+                    (item: { label: string; value: string }) => (
+                      <div
+                        key={item.label}
+                        className="flex h-20 flex-col items-center justify-between rounded-xl border border-border px-3 py-2 text-center"
                       >
-                        {option.label === "PoT" ? (
-                          <HintLabel termId="proof_of_time_pot">
-                            {option.label}
-                          </HintLabel>
-                        ) : option.label === "PoD" ? (
-                          <HintLabel termId="proof_of_devotion_pod">
-                            {option.label}
-                          </HintLabel>
-                        ) : option.label === "PoG" ? (
-                          <HintLabel termId="proof_of_governance_pog">
-                            {option.label}
-                          </HintLabel>
-                        ) : (
-                          option.label
-                        )}
-                      </button>
-                    );
-                  })}
+                        <p className="min-h-6 text-center text-xs leading-tight tracking-wide text-muted uppercase">
+                          {item.label}
+                        </p>
+                        <p className="text-base font-semibold">{item.value}</p>
+                      </div>
+                    ),
+                  )}
                 </div>
-                {activeSection ? (
-                  <div className="text-text grid gap-3 text-sm sm:grid-cols-2">
-                    {(activeSection.items ?? []).map(
-                      (item: { label: string; value: string }) => (
-                        <div
-                          key={item.label}
-                          className="flex h-20 flex-col items-center justify-between rounded-xl border border-border px-3 py-2 text-center"
-                        >
-                          <p className="min-h-6 text-center text-xs leading-tight tracking-wide text-muted uppercase">
-                            {item.label}
-                          </p>
-                          <p className="text-text min-h-5 text-center text-sm font-semibold">
-                            {item.value}
-                          </p>
-                        </div>
-                      ),
-                    )}
-                  </div>
-                ) : null}
-              </div>
-            </CardContent>
-          </Card>
+              ) : (
+                <p className="text-xs text-muted">
+                  Select PoT, PoD, or PoG to view metrics.
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>History</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {history.map((entry) => (
-                <div
-                  key={entry}
-                  className="text-text rounded-xl border border-border px-3 py-2 text-sm"
-                >
-                  {entry}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle>Governance summary</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted">
+            <p>
+              JohnDoe currently leads several operator-focused squads and acts
+              as a liaison for the Governance Council. Recent work focused on
+              telemetry for biometric proofs, redundancy inside the mesh
+              sequencer, and readiness drills for upcoming upgrades.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between gap-3">
+              <CardTitle>Governance activity</CardTitle>
+              <Link
+                to={`/human-nodes/${id ?? ""}/history`}
+                className="text-sm font-semibold text-primary hover:underline"
+              >
+                View full history
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {governanceActions.map((action) => (
+                <div key={action.title} className="group relative">
+                  <div className="space-y-1 rounded-xl border border-border bg-panel-alt px-3 py-3 text-center">
+                    <p className="line-clamp-1 text-sm font-semibold text-text">
+                      {action.title}
+                    </p>
+                    <p className="line-clamp-1 text-xs tracking-wide text-primary uppercase">
+                      {action.action}
+                    </p>
+                    <p className="line-clamp-1 text-xs text-muted">
+                      {action.context}
+                    </p>
+                  </div>
+                  <div className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 w-64 -translate-x-1/2 rounded-xl border border-border bg-panel p-3 text-left text-xs text-text opacity-0 shadow-lg transition group-hover:opacity-100">
+                    <p className="font-semibold">{action.title}</p>
+                    <p className="text-muted">{action.context}</p>
+                    <p className="mt-1 leading-snug">{action.detail}</p>
+                  </div>
                 </div>
               ))}
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle>Formation projects</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {projects.map((project) => (
+              <div
+                key={project.title}
+                className="rounded-xl border border-border px-4 py-3"
+              >
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-semibold text-text">
+                    {project.title}
+                  </p>
+                  <p className="text-xs tracking-wide text-muted uppercase">
+                    {project.status}
+                  </p>
+                </div>
+                <p className="text-sm text-muted">{project.summary}</p>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {project.chips.map((chip) => (
+                    <Badge key={chip} variant="outline">
+                      {chip}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

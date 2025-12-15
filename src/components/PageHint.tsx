@@ -23,7 +23,7 @@ export const PageHint: React.FC<PageHintProps> = ({ pageId, className }) => {
       <Button
         variant="ghost"
         size="sm"
-        className="h-10 w-10 rounded-full border border-orange-500 bg-orange-500 text-white shadow-md hover:bg-orange-600 hover:text-white"
+        className="h-10 w-10 rounded-full border border-[var(--primary-dim)] bg-[var(--primary)] text-[var(--primary-foreground)] shadow-md hover:bg-[var(--primary-hover)] hover:text-[var(--primary-foreground)] focus-visible:ring-[var(--primary)]"
         onClick={() => setOpen(true)}
         aria-label="Open page hint"
       >
@@ -31,13 +31,13 @@ export const PageHint: React.FC<PageHintProps> = ({ pageId, className }) => {
       </Button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-[var(--veil)] p-4 backdrop-blur-sm">
           <div className="relative mt-8 w-full max-w-2xl">
-            <Card className="rounded-2xl border border-white/10 bg-slate-900 text-white shadow-xl">
+            <Card className="rounded-2xl border border-border bg-[var(--panel)] text-[var(--text)] shadow-xl">
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <CardTitle className="text-xl font-semibold text-white">
+                    <CardTitle className="text-xl font-semibold text-[var(--text)]">
                       {hint.title}
                     </CardTitle>
                   </div>
@@ -46,17 +46,17 @@ export const PageHint: React.FC<PageHintProps> = ({ pageId, className }) => {
                     size="sm"
                     aria-label="Close page hint"
                     onClick={() => setOpen(false)}
-                    className="text-white"
+                    className="text-[var(--text)]"
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4 text-sm text-white">
-                <p className="text-slate-200">{hint.intro}</p>
+              <CardContent className="space-y-4 text-sm text-[var(--text)]">
+                <p className="text-muted">{hint.intro}</p>
                 {hint.sections?.map((section) => (
                   <div key={section.heading} className="space-y-1">
-                    <p className="text-[0.7rem] tracking-wide text-slate-300 uppercase">
+                    <p className="text-[0.7rem] tracking-wide text-muted uppercase">
                       {section.heading}
                     </p>
                     <ul className="list-disc space-y-1 pl-5">
@@ -70,7 +70,7 @@ export const PageHint: React.FC<PageHintProps> = ({ pageId, className }) => {
                 ))}
                 {hint.actions && hint.actions.length > 0 && (
                   <div className="space-y-1">
-                    <p className="text-[0.7rem] tracking-wide text-slate-300 uppercase">
+                    <p className="text-[0.7rem] tracking-wide text-muted uppercase">
                       Actions
                     </p>
                     <ul className="list-disc space-y-1 pl-5">

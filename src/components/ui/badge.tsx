@@ -17,9 +17,10 @@ export function Badge({
     md: "px-2.5 py-0.5 text-sm",
   };
   const variants = {
-    default: "bg-(--panel-alt) text-(--text) border border-border",
-    outline: "border border-border text-(--text)",
-    muted: "bg-(--bg-accent) text-muted border border-border",
+    default:
+      "bg-[var(--primary-dim)] text-[var(--primary)] border border-[var(--primary-dim)]",
+    outline: "border border-border bg-transparent text-text",
+    muted: "border border-border bg-panel-alt text-muted",
   };
 
   return (

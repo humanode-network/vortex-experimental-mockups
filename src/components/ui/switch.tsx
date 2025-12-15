@@ -14,8 +14,8 @@ export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
         )}
       >
         <input type="checkbox" className="peer sr-only" ref={ref} {...props} />
-        <span className="absolute inset-0 rounded-full bg-[color:var(--border)] transition peer-checked:bg-[color:var(--primary-dim)]" />
-        <span className="absolute left-0.5 h-5 w-5 rounded-full bg-white shadow transition peer-checked:translate-x-5" />
+        <span className="absolute inset-0 rounded-full bg-border transition peer-checked:bg-[color:var(--primary-dim)]" />
+        <span className="absolute left-0.5 h-5 w-5 rounded-full border border-border bg-panel shadow-sm transition peer-checked:translate-x-5" />
       </label>
     );
   },

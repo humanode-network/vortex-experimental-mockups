@@ -107,15 +107,15 @@ const Faction: React.FC = () => {
       <div className="flex items-center justify-end">
         <PageHint pageId="faction" />
       </div>
-      <section className="bg-panel rounded-2xl border border-border p-6">
+      <section className="rounded-2xl border border-border bg-panel p-6">
         <div className="grid items-center gap-4 lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <div className="flex justify-center lg:justify-start">
-            <div className="bg-panel-alt flex h-24 w-24 items-center justify-center rounded-full border-4 border-border text-lg font-semibold text-muted shadow-inner">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-border bg-panel-alt text-lg font-semibold text-muted shadow-inner">
               {faction.name.substring(0, 2).toUpperCase()}
             </div>
           </div>
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-text text-4xl font-semibold">{faction.name}</h1>
+            <h1 className="text-4xl font-semibold text-text">{faction.name}</h1>
           </div>
           <div className="flex flex-col items-center gap-2 text-sm lg:items-end">
             <Button size="sm">Join faction</Button>
@@ -139,7 +139,7 @@ const Faction: React.FC = () => {
                   stat.label
                 )}
               </p>
-              <p className="text-text text-2xl font-semibold">{stat.value}</p>
+              <p className="text-2xl font-semibold text-text">{stat.value}</p>
             </CardContent>
           </Card>
         ))}
@@ -153,7 +153,7 @@ const Faction: React.FC = () => {
           {faction.goals.map((goal) => (
             <div
               key={goal}
-              className="bg-panel-alt text-text rounded-xl border border-border px-3 py-2"
+              className="rounded-xl border border-border bg-panel-alt px-3 py-2 text-text"
             >
               {goal}
             </div>
@@ -166,11 +166,11 @@ const Faction: React.FC = () => {
           <CardHeader className="pb-2">
             <CardTitle>Active initiatives</CardTitle>
           </CardHeader>
-          <CardContent className="text-text grid gap-3 text-sm sm:grid-cols-3">
+          <CardContent className="grid gap-3 text-sm text-text sm:grid-cols-3">
             {initiatives.map((item) => (
               <div
                 key={item.title}
-                className="bg-panel-alt flex h-[140px] flex-col items-center justify-between rounded-xl border border-border px-3 py-3 text-center"
+                className="flex h-[140px] flex-col items-center justify-between rounded-xl border border-border bg-panel-alt px-3 py-3 text-center"
               >
                 <p className="h-10 overflow-hidden text-sm leading-snug font-semibold">
                   {item.title}
@@ -190,11 +190,11 @@ const Faction: React.FC = () => {
           <CardHeader className="pb-2">
             <CardTitle>Resources</CardTitle>
           </CardHeader>
-          <CardContent className="text-text space-y-2 text-sm">
+          <CardContent className="space-y-2 text-sm text-text">
             {resources.map((item) => (
               <div
                 key={item.label}
-                className="bg-panel-alt rounded-xl border border-border px-3 py-2"
+                className="rounded-xl border border-border bg-panel-alt px-3 py-2"
               >
                 <p className="font-semibold">{item.label}</p>
                 <p className="text-xs text-muted">
@@ -210,11 +210,11 @@ const Faction: React.FC = () => {
         <CardHeader className="pb-2">
           <CardTitle>Roster highlights</CardTitle>
         </CardHeader>
-        <CardContent className="text-text grid gap-3 text-sm sm:grid-cols-3">
+        <CardContent className="grid gap-3 text-sm text-text sm:grid-cols-3">
           {roster.map((member) => (
             <div
               key={member.name}
-              className="bg-panel-alt rounded-xl border border-border px-3 py-3 text-center"
+              className="rounded-xl border border-border bg-panel-alt px-3 py-3 text-center"
             >
               <p className="text-base font-semibold">{member.name}</p>
               <p className="text-xs text-muted">{member.role}</p>
@@ -228,11 +228,11 @@ const Faction: React.FC = () => {
         <CardHeader className="pb-2">
           <CardTitle>Recent activity</CardTitle>
         </CardHeader>
-        <CardContent className="text-text grid max-h-72 grid-cols-1 gap-3 overflow-y-auto pr-2 text-sm sm:grid-cols-2 xl:grid-cols-3">
+        <CardContent className="grid max-h-72 grid-cols-1 gap-3 overflow-y-auto pr-2 text-sm text-text sm:grid-cols-2 xl:grid-cols-3">
           {activity.map((item) => (
             <div
               key={item.title}
-              className="bg-panel-alt rounded-xl border border-border px-3 py-3 text-center"
+              className="rounded-xl border border-border bg-panel-alt px-3 py-3 text-center"
             >
               <p className="line-clamp-1 text-sm font-semibold">{item.title}</p>
               <p className="line-clamp-1 text-xs tracking-wide text-primary uppercase">

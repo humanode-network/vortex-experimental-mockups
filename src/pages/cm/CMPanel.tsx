@@ -67,7 +67,7 @@ const CMPanel: React.FC = () => {
       <div className="flex items-center justify-end">
         <PageHint pageId="cm-panel" />
       </div>
-      <Card className="bg-panel border border-border">
+      <Card className="border border-border bg-panel">
         <CardHeader className="pb-2">
           <CardTitle>Overview</CardTitle>
         </CardHeader>
@@ -78,7 +78,7 @@ const CMPanel: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Card className="bg-panel border border-border">
+      <Card className="border border-border bg-panel">
         <CardHeader className="pb-2">
           <CardTitle>Multipliers</CardTitle>
         </CardHeader>
@@ -86,10 +86,10 @@ const CMPanel: React.FC = () => {
           {chambers.map((chamber) => (
             <div
               key={chamber.id}
-              className={`bg-panel-alt relative rounded-2xl border border-border px-4 py-3 ${chamber.member ? "opacity-50" : ""}`}
+              className={`relative rounded-2xl border border-border bg-panel-alt px-4 py-3 ${chamber.member ? "opacity-50" : ""}`}
             >
               {chamber.member && (
-                <div className="bg-panel-alt/60 absolute inset-0 rounded-2xl backdrop-blur-sm" />
+                <div className="absolute inset-0 rounded-2xl bg-panel-alt/60 backdrop-blur-sm" />
               )}
               <div className="relative space-y-2">
                 <div className="flex items-center justify-between">

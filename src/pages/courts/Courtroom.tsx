@@ -28,7 +28,7 @@ const Courtroom: React.FC = () => {
       <div className="flex items-center justify-end">
         <PageHint pageId="courtroom" />
       </div>
-      <Card className="bg-panel border border-border">
+      <Card className="border border-border bg-panel">
         <CardHeader className="pb-2">
           <CardTitle>{caseTitle}</CardTitle>
           <p className="text-sm text-muted">
@@ -42,7 +42,7 @@ const Courtroom: React.FC = () => {
             <Badge variant="outline">Reports: 18</Badge>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
-            <div className="bg-panel-alt rounded-xl border border-border p-3">
+            <div className="rounded-xl border border-border bg-panel-alt p-3">
               <p className="text-xs tracking-wide text-muted uppercase">
                 Subject
               </p>
@@ -50,7 +50,7 @@ const Courtroom: React.FC = () => {
                 Delegation dispute on Protocol Keepers
               </p>
             </div>
-            <div className="bg-panel-alt rounded-xl border border-border p-3">
+            <div className="rounded-xl border border-border bg-panel-alt p-3">
               <p className="text-xs tracking-wide text-muted uppercase">
                 Trigger
               </p>
@@ -62,7 +62,7 @@ const Courtroom: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Card className="bg-panel border border-border">
+      <Card className="border border-border bg-panel">
         <CardHeader className="pb-2">
           <CardTitle>Jury</CardTitle>
         </CardHeader>
@@ -70,7 +70,7 @@ const Courtroom: React.FC = () => {
           {jury.map((member) => (
             <div
               key={member}
-              className="bg-panel-alt rounded-xl border border-border px-3 py-2 text-sm text-(--text)"
+              className="rounded-xl border border-border bg-panel-alt px-3 py-2 text-sm text-(--text)"
             >
               {member}
             </div>
@@ -78,19 +78,19 @@ const Courtroom: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Card className="bg-panel border border-border">
+      <Card className="border border-border bg-panel">
         <CardHeader className="pb-2">
           <CardTitle>Proceedings</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted">
-          <div className="bg-panel-alt rounded-xl border border-border px-3 py-2">
+          <div className="rounded-xl border border-border bg-panel-alt px-3 py-2">
             <p className="text-xs tracking-wide text-muted uppercase">Claim</p>
             <p>
               Delegation was rerouted without consent; requester asks for
               reversal and audit.
             </p>
           </div>
-          <div className="bg-panel-alt rounded-xl border border-border px-3 py-2">
+          <div className="rounded-xl border border-border bg-panel-alt px-3 py-2">
             <p className="text-xs tracking-wide text-muted uppercase">
               Evidence
             </p>
@@ -99,7 +99,7 @@ const Courtroom: React.FC = () => {
               <li>Screenshots from faction portal</li>
             </ul>
           </div>
-          <div className="bg-panel-alt rounded-xl border border-border px-3 py-2">
+          <div className="rounded-xl border border-border bg-panel-alt px-3 py-2">
             <p className="text-xs tracking-wide text-muted uppercase">
               Next steps
             </p>

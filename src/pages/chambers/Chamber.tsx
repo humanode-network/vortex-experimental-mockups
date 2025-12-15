@@ -182,7 +182,7 @@ const Chamber: React.FC = () => {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
-        <Card className="bg-panel border border-border">
+        <Card className="border border-border bg-panel">
           <CardHeader className="flex flex-col gap-4 pb-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs tracking-wide text-muted uppercase">
@@ -213,14 +213,14 @@ const Chamber: React.FC = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {filteredProposals.length === 0 ? (
-              <p className="bg-panel-alt rounded-2xl border border-dashed border-border/70 px-4 py-6 text-center text-sm text-muted">
+              <p className="rounded-2xl border border-dashed border-border/70 bg-panel-alt px-4 py-6 text-center text-sm text-muted">
                 No proposals in this stage.
               </p>
             ) : (
               filteredProposals.map((proposal) => (
                 <div
                   key={proposal.id}
-                  className="bg-panel-alt rounded-2xl border border-border p-4"
+                  className="rounded-2xl border border-border bg-panel-alt p-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -243,7 +243,7 @@ const Chamber: React.FC = () => {
                     {proposal.summary}
                   </p>
                   <div className="mt-3 grid gap-2 text-sm text-muted sm:grid-cols-2">
-                    <div className="bg-panel rounded-xl border border-border px-3 py-2">
+                    <div className="rounded-xl border border-border bg-panel px-3 py-2">
                       <p className="text-xs tracking-wide uppercase">
                         Next step
                       </p>
@@ -251,7 +251,7 @@ const Chamber: React.FC = () => {
                         {proposal.nextStep}
                       </p>
                     </div>
-                    <div className="bg-panel rounded-xl border border-border px-3 py-2">
+                    <div className="rounded-xl border border-border bg-panel px-3 py-2">
                       <p className="text-xs tracking-wide uppercase">Timing</p>
                       <p className="text-sm font-semibold text-(--text)">
                         {proposal.timing}
@@ -264,7 +264,7 @@ const Chamber: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-panel border border-border">
+        <Card className="border border-border bg-panel">
           <CardHeader className="flex items-center justify-between pb-3">
             <div>
               <p className="text-xs tracking-wide text-muted uppercase">
@@ -272,7 +272,7 @@ const Chamber: React.FC = () => {
               </p>
               <CardTitle>Chamber roster</CardTitle>
             </div>
-            <span className="bg-panel-alt rounded-full border border-border px-3 py-1 text-sm font-semibold">
+            <span className="rounded-full border border-border bg-panel-alt px-3 py-1 text-sm font-semibold">
               {governors.length}
             </span>
           </CardHeader>
@@ -286,7 +286,7 @@ const Chamber: React.FC = () => {
               {filteredGovernors.map((gov) => (
                 <li
                   key={gov.id}
-                  className="bg-panel-alt flex items-center justify-between rounded-xl border border-border px-3 py-2"
+                  className="flex items-center justify-between rounded-xl border border-border bg-panel-alt px-3 py-2"
                 >
                   <div>
                     <p className="font-semibold">{gov.name}</p>
@@ -315,7 +315,7 @@ const Chamber: React.FC = () => {
                 </li>
               ))}
               {filteredGovernors.length === 0 && (
-                <li className="bg-panel-alt rounded-xl border border-dashed border-border/70 px-3 py-4 text-center text-muted">
+                <li className="rounded-xl border border-dashed border-border/70 bg-panel-alt px-3 py-4 text-center text-muted">
                   No governors found.
                 </li>
               )}
@@ -324,7 +324,7 @@ const Chamber: React.FC = () => {
         </Card>
       </div>
 
-      <section className="bg-panel rounded-2xl border border-border p-5">
+      <section className="rounded-2xl border border-border bg-panel p-5">
         <header className="mb-4 flex flex-col gap-3 border-b border-border pb-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-xs tracking-wide text-muted uppercase">
@@ -344,7 +344,7 @@ const Chamber: React.FC = () => {
             {threads.map((thread) => (
               <article
                 key={thread.id}
-                className="bg-panel-alt rounded-2xl border border-border px-4 py-3 shadow-sm"
+                className="rounded-2xl border border-border bg-panel-alt px-4 py-3 shadow-sm"
               >
                 <h3 className="text-base font-semibold text-(--text)">
                   {thread.title}
@@ -357,7 +357,7 @@ const Chamber: React.FC = () => {
             ))}
           </div>
 
-          <div className="bg-panel-alt rounded-2xl border border-border p-4 shadow-sm">
+          <div className="rounded-2xl border border-border bg-panel-alt p-4 shadow-sm">
             <header className="text-sm font-semibold text-(--text)">
               Chamber chat
             </header>

@@ -34,12 +34,12 @@ type FeedItem = {
 };
 
 const stageStyles: Record<Stage, string> = {
-  pool: "bg-amber-100 text-amber-800",
-  vote: "bg-emerald-100 text-emerald-800",
-  build: "bg-blue-100 text-blue-800",
-  thread: "bg-purple-100 text-purple-800",
-  courts: "bg-red-100 text-red-800",
-  faction: "bg-slate-100 text-slate-800",
+  pool: "bg-[color:var(--accent-warm)]/15 text-[var(--accent-warm)]",
+  vote: "bg-[color:var(--accent)]/15 text-[var(--accent)]",
+  build: "bg-[color:var(--primary)]/12 text-primary",
+  thread: "bg-[var(--tint-primary)] text-primary",
+  courts: "bg-[color:var(--destructive)]/15 text-[var(--destructive)]",
+  faction: "bg-panel-alt text-text",
 };
 
 const feedItems: FeedItem[] = [
@@ -266,13 +266,13 @@ const Feed: React.FC = () => {
           <Card
             key={item.id}
             className={cn(
-              "bg-panel overflow-hidden border",
+              "overflow-hidden border bg-panel",
               index < 3 ? "border-primary" : "border-border",
             )}
           >
             <button
               type="button"
-              className="hover:bg-panel-alt flex w-full flex-col gap-4 px-5 py-4 text-left transition sm:flex-row sm:items-center sm:justify-between"
+              className="flex w-full flex-col gap-4 px-5 py-4 text-left transition hover:bg-panel-alt sm:flex-row sm:items-center sm:justify-between"
               aria-expanded={expanded === item.id}
               onClick={() => toggle(item.id)}
             >
@@ -328,7 +328,7 @@ const Feed: React.FC = () => {
                     {item.stageData.map((entry) => (
                       <div
                         key={entry.title}
-                        className="bg-panel-alt rounded-xl border border-border p-4"
+                        className="rounded-xl border border-border bg-panel-alt p-4"
                       >
                         <p className="text-sm font-semibold text-muted">
                           {entry.title}
@@ -339,8 +339,9 @@ const Feed: React.FC = () => {
                         <p
                           className={cn(
                             "text-lg font-semibold text-(--text)",
-                            entry.tone === "ok" && "text-emerald-500",
-                            entry.tone === "warn" && "text-amber-500",
+                            entry.tone === "ok" && "text-[var(--accent)]",
+                            entry.tone === "warn" &&
+                              "text-[var(--accent-warm)]",
                           )}
                         >
                           {entry.value}
@@ -355,7 +356,7 @@ const Feed: React.FC = () => {
                     {item.stats.map((stat) => (
                       <li
                         key={stat.label}
-                        className="bg-panel-alt rounded-xl border border-dashed border-border/70 px-4 py-3"
+                        className="rounded-xl border border-dashed border-border/70 bg-panel-alt px-4 py-3"
                       >
                         <span className="font-semibold">{stat.label}:</span>{" "}
                         {stat.value}

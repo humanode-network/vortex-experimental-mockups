@@ -171,10 +171,10 @@ const Profile: React.FC = () => {
       <div className="flex items-center justify-end">
         <PageHint pageId="profile" />
       </div>
-      <section className="bg-panel rounded-2xl border border-border p-6">
+      <section className="rounded-2xl border border-border bg-panel p-6">
         <div className="grid items-center gap-6 lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <div className="flex justify-center lg:justify-start">
-            <div className="bg-panel-alt flex h-28 w-28 items-center justify-center rounded-full border-4 border-border text-lg font-semibold text-muted shadow-inner">
+            <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-border bg-panel-alt text-lg font-semibold text-muted shadow-inner">
               MP
             </div>
           </div>
@@ -182,13 +182,13 @@ const Profile: React.FC = () => {
             <p className="text-xs tracking-wide text-muted uppercase">
               My profile
             </p>
-            <h1 className="text-text text-3xl font-semibold">{name}</h1>
+            <h1 className="text-3xl font-semibold text-text">{name}</h1>
           </div>
           <div className="flex flex-col items-center gap-2 text-sm lg:items-end">
             <Button variant="outline" size="sm">
               Edit profile
             </Button>
-            <div className="bg-panel-alt inline-flex w-48 items-center justify-between rounded-full border border-border px-4 py-2">
+            <div className="inline-flex w-48 items-center justify-between rounded-full border border-border bg-panel-alt px-4 py-2">
               <span className="text-xs tracking-wide text-muted uppercase">
                 Governor
               </span>
@@ -198,7 +198,7 @@ const Profile: React.FC = () => {
                 {governorActive ? "Active" : "Not active"}
               </span>
             </div>
-            <div className="bg-panel-alt inline-flex w-48 items-center justify-between rounded-full border border-border px-4 py-2">
+            <div className="inline-flex w-48 items-center justify-between rounded-full border border-border bg-panel-alt px-4 py-2">
               <span className="text-xs tracking-wide text-muted uppercase">
                 Human node
               </span>
@@ -225,7 +225,7 @@ const Profile: React.FC = () => {
                   stat.label
                 )}
               </p>
-              <p className="text-text text-2xl font-semibold">{stat.value}</p>
+              <p className="text-2xl font-semibold text-text">{stat.value}</p>
             </CardContent>
           </Card>
         ))}
@@ -255,8 +255,8 @@ const Profile: React.FC = () => {
               <div className="grid max-h-72 grid-cols-1 gap-3 overflow-y-scroll pr-2 sm:grid-cols-2 xl:grid-cols-3">
                 {governanceActions.map((action) => (
                   <div key={action.title} className="group relative">
-                    <div className="bg-panel-alt space-y-1 rounded-xl border border-border px-3 py-3 text-center">
-                      <p className="text-text line-clamp-1 text-sm font-semibold">
+                    <div className="space-y-1 rounded-xl border border-border bg-panel-alt px-3 py-3 text-center">
+                      <p className="line-clamp-1 text-sm font-semibold text-text">
                         {action.title}
                       </p>
                       <p className="line-clamp-1 text-xs tracking-wide text-primary uppercase">
@@ -266,7 +266,7 @@ const Profile: React.FC = () => {
                         {action.context}
                       </p>
                     </div>
-                    <div className="text-text pointer-events-none absolute top-full left-1/2 z-10 mt-2 w-64 -translate-x-1/2 rounded-xl border border-border bg-(--panel) p-3 text-left text-xs opacity-0 shadow-lg transition group-hover:opacity-100">
+                    <div className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 w-64 -translate-x-1/2 rounded-xl border border-border bg-panel p-3 text-left text-xs text-text opacity-0 shadow-lg transition group-hover:opacity-100">
                       <p className="font-semibold">{action.title}</p>
                       <p className="text-muted">{action.context}</p>
                       <p className="mt-1 leading-snug">{action.detail}</p>
@@ -288,7 +288,7 @@ const Profile: React.FC = () => {
                   className="rounded-xl border border-border px-4 py-3"
                 >
                   <div className="flex flex-col gap-1 text-center">
-                    <p className="text-text text-sm font-semibold">
+                    <p className="text-sm font-semibold text-text">
                       {project.title}
                     </p>
                     <p className="text-xs tracking-wide text-muted uppercase">
@@ -326,26 +326,16 @@ const Profile: React.FC = () => {
                     <p className="text-xs tracking-wide text-muted uppercase">
                       {detail.label}
                     </p>
-                    <p className="text-text text-base font-semibold">
+                    <p className="text-base font-semibold text-text">
                       {detail.value}
                     </p>
                   </div>
                 ))}
               </div>
               <div className="space-y-3 text-center">
-                <div className="bg-panel inline-flex rounded-full border border-border p-1">
+                <div className="inline-flex rounded-full border border-border bg-panel p-1">
                   {proofToggleOptions.map((option) => {
                     const isActive = activeProof === option.key;
-                    const style = isActive
-                      ? {
-                          backgroundColor: "var(--primary)",
-                          color: "#fff",
-                          boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-                        }
-                      : {
-                          color: "var(--text)",
-                          backgroundColor: "transparent",
-                        };
                     return (
                       <button
                         key={option.key}
@@ -355,8 +345,12 @@ const Profile: React.FC = () => {
                             prev === option.key ? "" : option.key,
                           )
                         }
-                        className="hover:bg-panel-alt min-w-20 rounded-full px-3 py-1.5 text-sm font-semibold transition"
-                        style={style}
+                        className={[
+                          "min-w-20 rounded-full px-3 py-1.5 text-sm font-semibold transition",
+                          isActive
+                            ? "bg-primary text-[var(--primary-foreground)] shadow-[var(--shadow-tile)]"
+                            : "bg-transparent text-text hover:bg-panel-alt",
+                        ].join(" ")}
                       >
                         {option.label === "PoT" ? (
                           <HintLabel termId="proof_of_time_pot">
@@ -378,7 +372,7 @@ const Profile: React.FC = () => {
                   })}
                 </div>
                 {activeSection ? (
-                  <div className="text-text grid gap-3 text-sm sm:grid-cols-2">
+                  <div className="grid gap-3 text-sm text-text sm:grid-cols-2">
                     {(activeSection.items ?? []).map(
                       (item: { label: string; value: string }) => (
                         <div
@@ -388,7 +382,7 @@ const Profile: React.FC = () => {
                           <p className="min-h-6 text-xs leading-tight tracking-wide text-muted uppercase">
                             {item.label}
                           </p>
-                          <p className="text-text min-h-5 text-sm font-semibold">
+                          <p className="min-h-5 text-sm font-semibold text-text">
                             {item.value}
                           </p>
                         </div>
@@ -408,7 +402,7 @@ const Profile: React.FC = () => {
               {history.map((entry) => (
                 <div
                   key={entry}
-                  className="text-text rounded-xl border border-border px-3 py-2 text-center text-sm"
+                  className="rounded-xl border border-border px-3 py-2 text-center text-sm text-text"
                 >
                   {entry}
                 </div>

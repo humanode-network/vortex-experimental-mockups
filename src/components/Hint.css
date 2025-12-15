@@ -26,16 +26,16 @@
 }
 
 .hint-card {
-  background: #fff;
+  background: var(--panel);
   color: var(--text);
   font-family: inherit;
   font-weight: 500;
-  border: 1px solid var(--border);
+  border: 1px solid var(--primary-dim);
   border-radius: 12px;
   width: 320px;
   font-size: 0.95rem;
   line-height: 1.45;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-popover);
   overflow: hidden;
   text-transform: none;
   letter-spacing: normal;
@@ -52,8 +52,8 @@
 
 .hint-card.stable {
   box-shadow:
-    0 0 0 2px rgba(76, 137, 245, 0.25),
-    0 12px 30px rgba(0, 0, 0, 0.12);
+    0 0 0 2px var(--primary-dim),
+    var(--shadow-popover);
 }
 
 .hint-underline {
@@ -79,14 +79,14 @@
 .hint-actions .btn,
 .hint-actions button {
   background-color: var(--primary);
-  color: #fff;
+  color: var(--primary-foreground);
   border-color: var(--primary);
 }
 
 .hint-actions .btn:hover,
 .hint-actions button:hover {
-  background-color: color-mix(in srgb, var(--primary) 90%, #000 10%);
-  color: #fff;
+  background-color: var(--primary-hover);
+  color: var(--primary-foreground);
 }
 
 .hint-actions button {

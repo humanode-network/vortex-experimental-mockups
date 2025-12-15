@@ -51,9 +51,9 @@ const cases: CourtCase[] = [
 ];
 
 const statusStyles: Record<CourtCase["status"], string> = {
-  jury: "bg-emerald-100 text-emerald-800",
-  deliberating: "bg-amber-100 text-amber-800",
-  closed: "bg-slate-200 text-slate-800",
+  jury: "bg-[color:var(--accent)]/15 text-[var(--accent)]",
+  deliberating: "bg-[color:var(--accent-warm)]/15 text-[var(--accent-warm)]",
+  closed: "bg-panel-alt text-muted",
 };
 
 const Courts: React.FC = () => {
@@ -98,7 +98,7 @@ const Courts: React.FC = () => {
         ].map((metric) => (
           <Card
             key={metric.label}
-            className="bg-panel-alt border border-border text-center"
+            className="border border-border bg-panel-alt text-center"
           >
             <CardContent className="space-y-1 p-4">
               <p className="text-xs tracking-wide text-muted uppercase">
@@ -145,7 +145,7 @@ const Courts: React.FC = () => {
         }}
       />
 
-      <Card className="bg-panel border border-border">
+      <Card className="border border-border bg-panel">
         <CardHeader className="pb-2">
           <CardTitle>Active courtrooms</CardTitle>
         </CardHeader>
@@ -153,7 +153,7 @@ const Courts: React.FC = () => {
           {filtered.map((courtCase) => (
             <Card
               key={courtCase.id}
-              className="bg-panel-alt border border-border"
+              className="border border-border bg-panel-alt"
             >
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-2">
@@ -187,10 +187,10 @@ const Courts: React.FC = () => {
               </CardHeader>
               <CardContent className="flex flex-wrap items-center justify-between gap-3 pt-0">
                 <div className="flex flex-wrap gap-3 text-sm text-foreground">
-                  <span className="bg-panel rounded-full px-3 py-1">
+                  <span className="rounded-full bg-panel px-3 py-1">
                     Reports: {courtCase.reports}
                   </span>
-                  <span className="bg-panel rounded-full px-3 py-1">
+                  <span className="rounded-full bg-panel px-3 py-1">
                     Jury: {courtCase.juryCount} governors
                   </span>
                 </div>

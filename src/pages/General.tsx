@@ -9,7 +9,7 @@ const General: React.FC = () => {
           Global preferences and account options.
         </p>
       </header>
-      <Card className="bg-panel border border-border">
+      <Card className="border border-border bg-panel">
         <CardHeader className="pb-2">
           <CardTitle>Preferences</CardTitle>
         </CardHeader>
