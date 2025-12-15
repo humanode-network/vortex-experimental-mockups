@@ -314,11 +314,12 @@ const proposalData: Proposal[] = [
 ];
 
 const stageStyles: Record<Stage, string> = {
-  pool: "border border-[color:var(--primary)]/30 bg-[color:var(--primary)]/10 text-primary",
-  vote: "border border-indigo-500/30 bg-indigo-500/10 text-indigo-500",
-  build: "border border-emerald-500/40 bg-emerald-500/10 text-emerald-600",
-  final: "border border-amber-500/30 bg-amber-500/10 text-amber-600",
-  archived: "border border-slate-400/40 bg-slate-400/10 text-muted",
+  pool: "border border-[var(--primary-dim)] bg-[var(--tint-primary)] text-primary",
+  vote: "border border-[var(--cool-dim)] bg-[color:var(--accent)]/10 text-[var(--accent)]",
+  build:
+    "border border-[var(--warm-dim)] bg-[color:var(--accent-warm)]/10 text-[var(--accent-warm)]",
+  final: "border border-border bg-panel-alt text-text",
+  archived: "border border-border bg-panel-alt text-muted",
 };
 
 const Proposals: React.FC = () => {
@@ -450,7 +451,7 @@ const Proposals: React.FC = () => {
 
       <section aria-live="polite" className="flex flex-col gap-4">
         {filteredProposals.length === 0 && (
-          <Card className="bg-panel border border-dashed border-border px-5 py-6 text-center text-sm text-muted">
+          <Card className="border border-dashed border-border bg-panel px-5 py-6 text-center text-sm text-muted">
             No proposals match the current search.
           </Card>
         )}
@@ -458,11 +459,11 @@ const Proposals: React.FC = () => {
         {filteredProposals.map((proposal) => (
           <Card
             key={proposal.id}
-            className="bg-panel overflow-hidden border border-border"
+            className="overflow-hidden border border-border bg-panel"
           >
             <button
               type="button"
-              className="hover:bg-panel-alt flex w-full flex-col gap-4 px-5 py-4 text-left transition sm:flex-row sm:items-center sm:justify-between"
+              className="flex w-full flex-col gap-4 px-5 py-4 text-left transition hover:bg-panel-alt sm:flex-row sm:items-center sm:justify-between"
               aria-expanded={expanded === proposal.id}
               onClick={() => toggleProposal(proposal.id)}
             >
@@ -521,7 +522,7 @@ const Proposals: React.FC = () => {
                   {proposal.stageData.map((item) => (
                     <div
                       key={item.title}
-                      className="bg-panel-alt rounded-xl border border-border p-4"
+                      className="rounded-xl border border-border bg-panel-alt p-4"
                     >
                       <p className="text-sm font-semibold text-muted">
                         {item.title}
@@ -530,8 +531,8 @@ const Proposals: React.FC = () => {
                       <p
                         className={cn(
                           "text-lg font-semibold text-(--text)",
-                          item.tone === "ok" && "text-emerald-500",
-                          item.tone === "warn" && "text-amber-500",
+                          item.tone === "ok" && "text-[var(--accent)]",
+                          item.tone === "warn" && "text-[var(--accent-warm)]",
                         )}
                       >
                         {item.value}
@@ -544,7 +545,7 @@ const Proposals: React.FC = () => {
                   {proposal.stats.map((stat) => (
                     <li
                       key={stat.label}
-                      className="bg-panel-alt rounded-xl border border-dashed border-border/70 px-4 py-3"
+                      className="rounded-xl border border-dashed border-border/70 bg-panel-alt px-4 py-3"
                     >
                       <span className="font-semibold">{stat.label}:</span>{" "}
                       {stat.value}

@@ -111,7 +111,7 @@ const HintSurface: React.FC<HintSurfaceProps> = ({
   return (
     <Card className={cn("hint-card", stable && "stable")}>
       <CardHeader className="px-4 pt-3 pb-2">
-        <CardTitle className="text-sm font-semibold text-(--text)">
+        <CardTitle className="text-sm font-semibold text-text">
           {title}
         </CardTitle>
         <p className="hint-desc text-sm leading-relaxed text-muted">
@@ -122,7 +122,7 @@ const HintSurface: React.FC<HintSurfaceProps> = ({
         <Button
           size="sm"
           variant="primary"
-          className="text-xs text-white"
+          className="text-xs"
           onClick={onNavigate}
         >
           Vortexopedia

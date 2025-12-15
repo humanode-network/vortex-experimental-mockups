@@ -1,17 +1,15 @@
-import { Link } from "react-router";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { HintLabel } from "@/components/Hint";
 import { PageHint } from "@/components/PageHint";
 import { SearchBar } from "@/components/SearchBar";
 import { useMemo, useState } from "react";
+import MetricTile from "@/components/MetricTile";
+import BackgroundContainer from "@/components/BackgroundContainer";
+import AppCard from "@/components/AppCard";
+import { Badge } from "@/components/ui/badge";
+import StatGrid, { makeChamberStats } from "@/components/StatGrid";
+import PipelineList from "@/components/PipelineList";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router";
 
 type Metric = {
   label: string;
@@ -123,31 +121,25 @@ const Chambers: React.FC = () => {
   }, [search, pipelineFilter, sortBy]);
 
   return (
-    <div className="app-page flex flex-col gap-6">
+    <BackgroundContainer>
       <div className="flex items-center justify-end">
         <PageHint pageId="chambers" />
       </div>
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {metricCards.map((metric) => (
-          <div
-            key={metric.label}
-            className="bg-panel-alt rounded-2xl border border-border px-4 py-5 text-center shadow-sm"
-          >
-            <p className="text-sm text-muted">
-              {metric.label === "Total ACM" ? (
-                <>
-                  <span className="font-normal">Total</span>{" "}
-                  <HintLabel termId="acm" termText="ACM" />
-                </>
-              ) : (
-                metric.label
-              )}
-            </p>
-            <p className="text-2xl font-semibold text-(--text)">
-              {metric.value}
-            </p>
-          </div>
-        ))}
+        {metricCards.map((metric) => {
+          const label =
+            metric.label === "Total ACM" ? (
+              <>
+                <span className="font-normal">Total</span>{" "}
+                <HintLabel termId="acm" termText="ACM" />
+              </>
+            ) : (
+              metric.label
+            );
+          return (
+            <MetricTile key={metric.label} label={label} value={metric.value} />
+          );
+        })}
       </section>
 
       <SearchBar
@@ -155,6 +147,7 @@ const Chambers: React.FC = () => {
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search chambers by name or stats…"
         ariaLabel="Search chambers"
+        inputClassName="bg-[var(--panel-alt)] border border-border text-[var(--text)]"
         filtersConfig={[
           {
             key: "pipelineFilter",
@@ -192,77 +185,26 @@ const Chambers: React.FC = () => {
         className="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
       >
         {filtered.map((chamber) => (
-          <Card
+          <AppCard
             key={chamber.id}
-            className="bg-panel h-full border border-border"
-          >
-            <CardHeader className="pb-0">
-              <div className="flex min-h-16 items-start justify-between gap-2">
-                <CardTitle className="max-w-[70%] leading-tight">
-                  {chamber.name}
-                </CardTitle>
-                <Badge
-                  className="text-center text-xs font-semibold whitespace-nowrap uppercase"
-                  variant="outline"
-                >
-                  M × {chamber.multiplier.replace("×", "").trim()}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <dl className="grid grid-cols-3 gap-3 text-center text-sm text-(--text)">
-                <div className="bg-panel-alt flex flex-col items-center rounded-xl border border-border px-3 py-2 text-center">
-                  <dt className="text-center text-[0.65rem] leading-tight tracking-wide whitespace-nowrap text-muted uppercase">
-                    Governors
-                  </dt>
-                  <dd className="text-lg font-semibold">
-                    {chamber.stats.governors}
-                  </dd>
-                </div>
-                <div className="bg-panel-alt flex flex-col items-center rounded-xl border border-border px-3 py-2 text-center">
-                  <dt className="text-[0.65rem] leading-tight tracking-normal whitespace-nowrap text-muted normal-case">
-                    <HintLabel termId="acm">ACM</HintLabel>
-                  </dt>
-                  <dd className="text-lg font-semibold">{chamber.stats.mcm}</dd>
-                </div>
-                <div className="bg-panel-alt flex flex-col items-center rounded-xl border border-border px-3 py-2 text-center">
-                  <dt className="text-[0.65rem] leading-tight tracking-normal whitespace-nowrap text-muted normal-case">
-                    <HintLabel termId="lcm">LCM</HintLabel>
-                  </dt>
-                  <dd className="text-lg font-semibold">{chamber.stats.lcm}</dd>
-                </div>
-              </dl>
-
-              <ul className="bg-panel-alt rounded-2xl border border-dashed border-border/80 px-3 py-3 text-sm">
-                <li className="flex items-center justify-between border-b border-border/50 pb-2 text-(--text)">
-                  <span>
-                    <HintLabel termId="proposal_pools">Proposal pool</HintLabel>
-                  </span>
-                  <strong>{chamber.pipeline.pool}</strong>
-                </li>
-                <li className="flex items-center justify-between border-b border-border/50 py-2 text-(--text)">
-                  <span>
-                    <HintLabel termId="chamber_vote">Chamber vote</HintLabel>
-                  </span>
-                  <strong>{chamber.pipeline.vote}</strong>
-                </li>
-                <li className="flex items-center justify-between pt-2 text-(--text)">
-                  <span>
-                    <HintLabel termId="formation">Formation</HintLabel> builds
-                  </span>
-                  <strong>{chamber.pipeline.build}</strong>
-                </li>
-              </ul>
-            </CardContent>
-            <CardFooter className="pt-0">
-              <Button asChild size="sm" className="w-full">
+            title={chamber.name}
+            badge={
+              <Badge className="border-none bg-[var(--primary-dim)] text-center text-xs font-semibold whitespace-nowrap text-[var(--primary)] uppercase">
+                M × {chamber.multiplier.replace("×", "").trim()}
+              </Badge>
+            }
+            footer={
+              <Button asChild size="sm" variant="gradient" className="w-full">
                 <Link to={`/chambers/${chamber.id}`}>Open chamber</Link>
               </Button>
-            </CardFooter>
-          </Card>
+            }
+          >
+            <StatGrid items={makeChamberStats(chamber.stats)} />
+            <PipelineList pipeline={chamber.pipeline} />
+          </AppCard>
         ))}
       </section>
-    </div>
+    </BackgroundContainer>
   );
 };
 

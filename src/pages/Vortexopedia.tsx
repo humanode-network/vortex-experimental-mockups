@@ -63,7 +63,7 @@ const Vortexopedia: React.FC = () => {
 
   return (
     <div className="app-page flex flex-col gap-6">
-      <Card className="bg-panel border border-border">
+      <Card className="border border-border bg-panel">
         <CardHeader className="pb-2">
           <CardTitle>Vortexopedia</CardTitle>
           <p className="text-xs text-muted">
@@ -112,7 +112,7 @@ const Vortexopedia: React.FC = () => {
                 key={item.id}
                 data-term-id={item.id}
                 className={cn(
-                  "bg-panel-alt border border-border transition-colors hover:border-primary/60",
+                  "border border-border bg-panel-alt transition-colors hover:border-primary/60",
                   expandedId === item.id && "border-primary",
                 )}
               >
@@ -143,7 +143,7 @@ const Vortexopedia: React.FC = () => {
                       {item.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="bg-panel rounded-full border border-border px-2 py-0.5 text-[0.7rem] tracking-wide text-muted uppercase"
+                          className="rounded-full border border-border bg-panel px-2 py-0.5 text-[0.7rem] tracking-wide text-muted uppercase"
                         >
                           {tag}
                         </span>
@@ -178,7 +178,7 @@ const Vortexopedia: React.FC = () => {
                           {item.stages.map((stage) => (
                             <span
                               key={stage}
-                              className="bg-panel rounded-full border border-border px-2 py-0.5 text-[0.75rem] text-muted"
+                              className="rounded-full border border-border bg-panel px-2 py-0.5 text-[0.75rem] text-muted"
                             >
                               {stage}
                             </span>
@@ -193,7 +193,7 @@ const Vortexopedia: React.FC = () => {
                           {item.related.map((rel) => (
                             <span
                               key={rel}
-                              className="bg-panel rounded-full border border-border px-2 py-0.5 text-[0.75rem] text-muted"
+                              className="rounded-full border border-border bg-panel px-2 py-0.5 text-[0.75rem] text-muted"
                             >
                               {rel}
                             </span>
@@ -208,7 +208,7 @@ const Vortexopedia: React.FC = () => {
                           {item.links.map((link) => (
                             <a
                               key={link.url}
-                              className="bg-panel rounded-full border border-border px-2 py-0.5 text-[0.75rem] text-primary hover:border-primary"
+                              className="rounded-full border border-border bg-panel px-2 py-0.5 text-[0.75rem] text-primary hover:border-primary"
                               href={link.url}
                               target="_blank"
                               rel="noreferrer"

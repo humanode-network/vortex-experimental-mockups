@@ -56,7 +56,8 @@
 .sidebar__link--active {
   color: var(--primary);
   border-color: var(--primary-dim);
-  background: rgba(95, 139, 255, 0.08);
+  background: var(--tint-primary-strong);
+  box-shadow: var(--shadow-sidebar-active);
 }
 
 .sidebar__link--nested {

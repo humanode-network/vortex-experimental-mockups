@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HintLabel } from "@/components/Hint";
+import ProposalStageBar from "@/components/ProposalStageBar";
 
 const ProposalPP: React.FC = () => {
   const proposal = {
@@ -82,47 +83,11 @@ const ProposalPP: React.FC = () => {
 
   const renderStageBar = (
     current: "draft" | "pool" | "chamber" | "formation",
-  ) => {
-    const stages = [
-      { key: "draft", label: "Draft", color: "bg-slate-300 text-slate-800" },
-      {
-        key: "pool",
-        label: "Proposal pool",
-        color: "bg-blue-500 text-white",
-        render: <HintLabel termId="proposal_pools">Proposal pool</HintLabel>,
-      },
-      {
-        key: "chamber",
-        label: "Chamber vote",
-        color: "bg-emerald-500 text-white",
-        render: <HintLabel termId="chamber_vote">Chamber vote</HintLabel>,
-      },
-      {
-        key: "formation",
-        label: "Formation",
-        color: "bg-orange-500 text-white",
-        render: <HintLabel termId="formation">Formation</HintLabel>,
-      },
-    ] as const;
-    return (
-      <div className="flex gap-2">
-        {stages.map((stage) => (
-          <div
-            key={stage.key}
-            className={`flex-1 rounded-full px-3 py-2 text-center text-xs font-semibold ${
-              current === stage.key ? stage.color : "bg-slate-200 text-muted"
-            }`}
-          >
-            {"render" in stage && stage.render ? stage.render : stage.label}
-          </div>
-        ))}
-      </div>
-    );
-  };
+  ) => <ProposalStageBar current={current} />;
 
   return (
     <div className="app-page flex flex-col gap-6">
-      <section className="bg-panel rounded-2xl border border-border p-6">
+      <section className="rounded-2xl border border-border bg-panel p-6">
         <div className="grid items-start gap-4">
           <div className="space-y-4">
             <h1 className="text-center text-2xl font-semibold text-(--text)">
@@ -130,13 +95,13 @@ const ProposalPP: React.FC = () => {
             </h1>
             {renderStageBar("pool")}
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="bg-panel-alt rounded-2xl border border-border px-4 py-4 text-center">
+              <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center">
                 <p className="text-[0.8rem] tracking-wide text-muted uppercase">
                   Chamber
                 </p>
                 <p className="text-2xl font-semibold">{proposal.chamber}</p>
               </div>
-              <div className="bg-panel-alt rounded-2xl border border-border px-4 py-4 text-center">
+              <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center">
                 <p className="text-[0.8rem] tracking-wide text-muted uppercase">
                   Proposer
                 </p>
@@ -146,7 +111,7 @@ const ProposalPP: React.FC = () => {
             <div className="flex flex-wrap items-center justify-center gap-4">
               <button
                 type="button"
-                className="flex min-w-[220px] items-center justify-center gap-3 rounded-full border-2 border-emerald-500 px-12 py-6 text-2xl leading-none font-semibold text-emerald-600 transition-colors hover:bg-emerald-500 hover:text-white"
+                className="flex min-w-[220px] items-center justify-center gap-3 rounded-full border-2 border-[var(--accent)] px-12 py-6 text-2xl leading-none font-semibold text-[var(--accent)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
                 onClick={() => {
                   setPendingAction("upvote");
                   setRulesChecked(false);
@@ -158,7 +123,7 @@ const ProposalPP: React.FC = () => {
               </button>
               <button
                 type="button"
-                className="flex min-w-[220px] items-center justify-center gap-3 rounded-full border-2 border-red-500 px-12 py-6 text-2xl leading-none font-semibold text-red-600 transition-colors hover:bg-red-500 hover:text-white"
+                className="flex min-w-[220px] items-center justify-center gap-3 rounded-full border-2 border-[var(--destructive)] px-12 py-6 text-2xl leading-none font-semibold text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)] hover:text-[var(--destructive-foreground)]"
                 onClick={() => {
                   setPendingAction("downvote");
                   setRulesChecked(false);
@@ -169,23 +134,23 @@ const ProposalPP: React.FC = () => {
                 <span className="text-2xl leading-none">Downvote</span>
               </button>
             </div>
-            <div className="bg-panel-alt mx-auto flex w-fit items-center gap-5 rounded-full border border-border px-14 py-7 text-2xl font-semibold text-(--text)">
-              <span className="text-emerald-600">
+            <div className="mx-auto flex w-fit items-center gap-5 rounded-full border border-border bg-panel-alt px-14 py-7 text-2xl font-semibold text-text">
+              <span className="text-[var(--accent)]">
                 {proposal.upvotes} upvotes
               </span>
               <span className="text-muted">·</span>
-              <span className="text-red-600">
+              <span className="text-[var(--destructive)]">
                 {proposal.downvotes} downvotes
               </span>
             </div>
           </div>
 
-          <Card className="bg-panel-alt h-full border border-border">
+          <Card className="h-full border border-border bg-panel-alt">
             <CardHeader className="pb-2">
               <CardTitle>Quorum of attention</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-3 text-sm text-(--text) sm:grid-cols-2 lg:grid-cols-2">
-              <div className="bg-panel flex h-full min-h-[96px] flex-col items-center justify-center gap-1 rounded-xl border border-border px-3 py-4 text-center">
+              <div className="flex h-full min-h-[96px] flex-col items-center justify-center gap-1 rounded-xl border border-border bg-panel px-3 py-4 text-center">
                 <p className="text-[0.7rem] tracking-wide text-muted uppercase">
                   Governors
                 </p>
@@ -193,7 +158,7 @@ const ProposalPP: React.FC = () => {
                   {engaged} / {attentionNeeded}
                 </p>
               </div>
-              <div className="bg-panel flex h-full min-h-[96px] flex-col items-center justify-center gap-1 rounded-xl border border-border px-3 py-4 text-center">
+              <div className="flex h-full min-h-[96px] flex-col items-center justify-center gap-1 rounded-xl border border-border bg-panel px-3 py-4 text-center">
                 <p className="text-[0.7rem] tracking-wide text-muted uppercase">
                   Upvotes
                 </p>
@@ -201,7 +166,7 @@ const ProposalPP: React.FC = () => {
                   {proposal.upvotes} / {proposal.upvoteFloor}
                 </p>
               </div>
-              <div className="bg-panel flex h-full min-h-[96px] flex-col items-center justify-center gap-1 rounded-xl border border-border px-3 py-4 text-center">
+              <div className="flex h-full min-h-[96px] flex-col items-center justify-center gap-1 rounded-xl border border-border bg-panel px-3 py-4 text-center">
                 <p className="text-[0.7rem] tracking-wide whitespace-nowrap text-muted uppercase">
                   Governors (%)
                 </p>
@@ -209,7 +174,7 @@ const ProposalPP: React.FC = () => {
                   {attentionPercent} / {attentionNeededPercent}
                 </p>
               </div>
-              <div className="bg-panel flex h-full min-h-[96px] flex-col items-center justify-center gap-1 rounded-xl border border-border px-3 py-4 text-center">
+              <div className="flex h-full min-h-[96px] flex-col items-center justify-center gap-1 rounded-xl border border-border bg-panel px-3 py-4 text-center">
                 <p className="text-[0.7rem] tracking-wide whitespace-nowrap text-muted uppercase">
                   Upvotes (%)
                 </p>
@@ -250,7 +215,7 @@ const ProposalPP: React.FC = () => {
             ].map((item) => (
               <div
                 key={item.label}
-                className="bg-panel-alt rounded-xl border border-border px-3 py-3 text-center"
+                className="rounded-xl border border-border bg-panel-alt px-3 py-3 text-center"
               >
                 <p className="text-[0.7rem] tracking-wide text-muted uppercase">
                   {item.label}
@@ -260,7 +225,7 @@ const ProposalPP: React.FC = () => {
             ))}
           </div>
           <div className="space-y-4 text-(--text)">
-            <div className="bg-panel-alt space-y-2 rounded-2xl border border-border px-4 py-3">
+            <div className="space-y-2 rounded-2xl border border-border bg-panel-alt px-4 py-3">
               <p className="text-sm font-semibold">Proposal overview</p>
               <p className="text-sm leading-relaxed text-muted">
                 Redundant sequencers across clusters with cross-epoch
@@ -270,7 +235,7 @@ const ProposalPP: React.FC = () => {
                 without privileging any validator set.
               </p>
             </div>
-            <div className="bg-panel-alt space-y-2 rounded-2xl border border-border px-4 py-3">
+            <div className="space-y-2 rounded-2xl border border-border bg-panel-alt px-4 py-3">
               <p className="text-sm font-semibold">Execution plan</p>
               <ul className="list-disc space-y-1 pl-5 text-sm text-muted">
                 <li>
@@ -290,7 +255,7 @@ const ProposalPP: React.FC = () => {
                 </li>
               </ul>
             </div>
-            <div className="bg-panel-alt space-y-2 rounded-2xl border border-border px-4 py-3">
+            <div className="space-y-2 rounded-2xl border border-border bg-panel-alt px-4 py-3">
               <p className="text-sm font-semibold">Budget & scope</p>
               <p className="text-sm text-muted">
                 210k HMND covering hardware, telemetry integration, and rollout
@@ -299,13 +264,13 @@ const ProposalPP: React.FC = () => {
               </p>
             </div>
             <div className="grid gap-3 lg:grid-cols-2">
-              <div className="bg-panel-alt space-y-2 rounded-2xl border border-border px-4 py-3">
+              <div className="space-y-2 rounded-2xl border border-border bg-panel-alt px-4 py-3">
                 <p className="text-sm font-semibold">Team (locked)</p>
                 <ul className="space-y-2 text-sm text-muted">
                   {teamLocked.map((member) => (
                     <li
                       key={member.name}
-                      className="bg-panel flex items-center justify-between rounded-xl border border-border px-3 py-2"
+                      className="flex items-center justify-between rounded-xl border border-border bg-panel px-3 py-2"
                     >
                       <span className="font-semibold text-(--text)">
                         {member.name}
@@ -315,13 +280,13 @@ const ProposalPP: React.FC = () => {
                   ))}
                 </ul>
               </div>
-              <div className="bg-panel-alt space-y-2 rounded-2xl border border-border px-4 py-3">
+              <div className="space-y-2 rounded-2xl border border-border bg-panel-alt px-4 py-3">
                 <p className="text-sm font-semibold">Open slots (positions)</p>
                 <ul className="space-y-2 text-sm text-muted">
                   {openSlotNeeds.map((slot) => (
                     <li
                       key={slot.title}
-                      className="bg-panel rounded-xl border border-border px-3 py-2"
+                      className="rounded-xl border border-border bg-panel px-3 py-2"
                     >
                       <p className="font-semibold text-(--text)">
                         {slot.title}
@@ -332,13 +297,13 @@ const ProposalPP: React.FC = () => {
                 </ul>
               </div>
             </div>
-            <div className="bg-panel-alt space-y-2 rounded-2xl border border-border px-4 py-3">
+            <div className="space-y-2 rounded-2xl border border-border bg-panel-alt px-4 py-3">
               <p className="text-sm font-semibold">Milestones</p>
               <ul className="space-y-2 text-sm text-muted">
                 {milestonesDetail.map((ms) => (
                   <li
                     key={ms.title}
-                    className="bg-panel rounded-xl border border-border px-3 py-2"
+                    className="rounded-xl border border-border bg-panel px-3 py-2"
                   >
                     <p className="font-semibold text-(--text)">{ms.title}</p>
                     <p className="text-xs text-muted">{ms.desc}</p>
@@ -346,22 +311,22 @@ const ProposalPP: React.FC = () => {
                 ))}
               </ul>
             </div>
-            <div className="bg-panel-alt space-y-2 rounded-2xl border border-border px-4 py-3">
+            <div className="space-y-2 rounded-2xl border border-border bg-panel-alt px-4 py-3">
               <p className="text-sm font-semibold">Attachments</p>
               <ul className="space-y-2 text-sm text-muted">
-                <li className="bg-panel flex items-center justify-between rounded-xl border border-border px-3 py-2">
+                <li className="flex items-center justify-between rounded-xl border border-border bg-panel px-3 py-2">
                   <span>Rollout plan (PDF)</span>
                   <button className="text-sm font-semibold text-primary">
                     View
                   </button>
                 </li>
-                <li className="bg-panel flex items-center justify-between rounded-xl border border-border px-3 py-2">
+                <li className="flex items-center justify-between rounded-xl border border-border bg-panel px-3 py-2">
                   <span>Telemetry checklist (DOC)</span>
                   <button className="text-sm font-semibold text-primary">
                     View
                   </button>
                 </li>
-                <li className="bg-panel flex items-center justify-between rounded-xl border border-border px-3 py-2">
+                <li className="flex items-center justify-between rounded-xl border border-border bg-panel px-3 py-2">
                   <span>Budget breakdown (XLS)</span>
                   <button className="text-sm font-semibold text-primary">
                     View
@@ -374,40 +339,40 @@ const ProposalPP: React.FC = () => {
       </Card>
 
       {showRules && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="bg-panel/95 w-full max-w-xl rounded-2xl border border-border p-6 text-white shadow-2xl backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--veil)] p-4 backdrop-blur-sm">
+          <div className="w-full max-w-xl rounded-2xl border border-border bg-panel [background-image:var(--card-grad)] bg-cover bg-no-repeat p-6 text-text shadow-[var(--shadow-popover)]">
             <div className="mb-4 flex items-center justify-between">
               <p className="text-lg font-semibold">Pool rules</p>
               <button
-                className="text-sm text-gray-300 hover:text-white"
+                className="text-sm text-muted hover:text-text"
                 onClick={() => setShowRules(false)}
               >
                 Close
               </button>
             </div>
-            <div className="space-y-2 text-sm text-gray-200">
+            <div className="space-y-2 text-sm text-muted">
               <ul className="list-disc space-y-1 pl-4">
                 <li>22% attention from active governors required.</li>
                 <li>At least 10% upvotes to move to chamber.</li>
                 <li>Delegated votes are ignored in the pool.</li>
               </ul>
             </div>
-            <div className="bg-panel-alt mt-4 flex items-center gap-2 rounded-xl border border-border px-3 py-2">
+            <div className="mt-4 flex items-center gap-2 rounded-xl border border-border bg-panel-alt px-3 py-2">
               <input
                 id="rules-confirm"
                 type="checkbox"
-                className="h-4 w-4 accent-primary"
+                className="h-4 w-4 accent-[var(--primary)]"
                 checked={rulesChecked}
                 onChange={(e) => setRulesChecked(e.target.checked)}
               />
-              <label htmlFor="rules-confirm" className="text-sm text-white">
+              <label htmlFor="rules-confirm" className="text-sm text-text">
                 I read the proposal and know the rules
               </label>
             </div>
             <div className="mt-4 flex justify-end gap-2">
               <button
                 type="button"
-                className="hover:bg-panel-alt/50 rounded-full border border-border px-4 py-2 text-sm font-semibold text-white"
+                className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-text hover:bg-panel-alt"
                 onClick={() => setShowRules(false)}
               >
                 Cancel
@@ -417,10 +382,10 @@ const ProposalPP: React.FC = () => {
                 disabled={!rulesChecked}
                 className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
                   !rulesChecked
-                    ? "cursor-not-allowed bg-muted text-white opacity-60"
+                    ? "cursor-not-allowed bg-muted text-[var(--primary-foreground)] opacity-60"
                     : pendingAction === "downvote"
-                      ? "border-2 border-red-500 text-white hover:bg-red-600"
-                      : "border-2 border-emerald-500 text-white hover:bg-emerald-500"
+                      ? "border-2 border-[var(--destructive)] bg-[var(--destructive)] text-[var(--destructive-foreground)] hover:opacity-95"
+                      : "border-2 border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)] hover:opacity-95"
                 }`}
                 onClick={() => setShowRules(false)}
               >

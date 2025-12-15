@@ -1,20 +1,53 @@
 :root {
   color-scheme: light;
-  --bg: #f2f5ff; /* page background */
+  --bg: #edf2ff; /* page background */
   --bg-accent: #e8efff; /* navbar */
-  --panel: #f9fbff; /* main containers */
-  --panel-alt: #f2f7ff; /* lighter surfaces/cards */
-  --text: #111827;
-  --muted: #5d6475;
-  --primary: #4f6ad7;
-  --secondary: #8fb4ff;
-  --accent: #5bc2b5;
-  --primary-dim: rgba(79, 106, 215, 0.22);
-  --border: rgba(17, 24, 39, 0.12);
+  --panel: #ffffff; /* main containers */
+  --panel-alt: #e6efff; /* lighter surfaces/cards */
+  --text: #0b1324;
+  --muted: #475569;
+  --primary: #2f5bff;
+  --primary-hover: #3d6bff;
+  --secondary: #8fb1ff;
+  --accent: #18b6a5;
+  --accent-warm: #ff9f4a;
+  --primary-foreground: #ffffff;
+  --secondary-foreground: var(--text);
+  --accent-foreground: var(--text);
+  --muted-foreground: var(--text);
+  --destructive: #ef4444;
+  --destructive-foreground: var(--text);
+  --primary-dim: rgba(47, 91, 255, 0.22);
+  --cool-dim: rgba(24, 182, 165, 0.22);
+  --warm-dim: rgba(255, 159, 74, 0.26);
+  --border: rgba(11, 19, 36, 0.14);
+  --veil: rgba(11, 19, 36, 0.55);
+  --shadow-card: 0 16px 38px rgba(11, 19, 36, 0.1);
+  --shadow-popover: 0 18px 44px rgba(11, 19, 36, 0.2);
+  --shadow-tile: 0 12px 28px rgba(11, 19, 36, 0.1);
+  --shadow-sidebar-active: 0 10px 20px rgba(47, 91, 255, 0.22);
+  --shadow-primary: 0 12px 28px rgba(47, 91, 255, 0.24);
+  --tint-primary: rgba(47, 91, 255, 0.08);
+  --tint-primary-strong: rgba(47, 91, 255, 0.14);
   --card-grad: linear-gradient(
     135deg,
-    rgba(79, 106, 215, 0.08),
-    rgba(139, 180, 255, 0.08)
+    rgba(47, 91, 255, 0.16),
+    rgba(143, 177, 255, 0.14)
+  );
+  --grad-primary: linear-gradient(
+    135deg,
+    rgba(47, 91, 255, 0.24),
+    rgba(143, 177, 255, 0.16)
+  );
+  --grad-cool: linear-gradient(
+    135deg,
+    rgba(24, 182, 165, 0.22),
+    rgba(143, 177, 255, 0.14)
+  );
+  --grad-warm: linear-gradient(
+    135deg,
+    rgba(255, 159, 74, 0.24),
+    rgba(143, 177, 255, 0.12)
   );
   font-family:
     "Inter",
@@ -58,7 +91,7 @@ button[disabled] {
 }
 
 ::selection {
-  background: rgba(95, 139, 255, 0.2);
+  background: var(--primary-dim);
 }
 
 .skip-link {
@@ -127,13 +160,13 @@ h3 {
 
 .btn--primary {
   background: linear-gradient(120deg, var(--primary), var(--secondary));
-  color: #ffffff;
-  box-shadow: 0 10px 25px rgba(95, 139, 255, 0.2);
+  color: var(--primary-foreground);
+  box-shadow: var(--shadow-primary);
 }
 
 .btn--primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgba(95, 139, 255, 0.3);
+  box-shadow: var(--shadow-popover);
 }
 
 .btn--ghost {

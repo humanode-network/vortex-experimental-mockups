@@ -71,35 +71,35 @@ const Factions: React.FC = () => {
       {!showResultsOnly && (
         <>
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="bg-panel-alt rounded-2xl border border-border px-4 py-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center shadow-sm">
               <p className="text-xs tracking-wide text-muted uppercase">
                 Total factions
               </p>
-              <p className="text-text text-2xl font-semibold">
+              <p className="text-2xl font-semibold text-text">
                 {totals.totalFactions}
               </p>
             </div>
-            <div className="bg-panel-alt rounded-2xl border border-border px-4 py-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center shadow-sm">
               <p className="text-xs tracking-wide text-muted uppercase">
                 Members
               </p>
-              <p className="text-text text-2xl font-semibold">
+              <p className="text-2xl font-semibold text-text">
                 {totals.totalMembers}
               </p>
             </div>
-            <div className="bg-panel-alt rounded-2xl border border-border px-4 py-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center shadow-sm">
               <p className="text-xs tracking-wide text-muted uppercase">
                 Votes
               </p>
-              <p className="text-text text-2xl font-semibold">
+              <p className="text-2xl font-semibold text-text">
                 {totals.totalVotes}
               </p>
             </div>
-            <div className="bg-panel-alt rounded-2xl border border-border px-4 py-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center shadow-sm">
               <p className="text-xs tracking-wide text-muted uppercase">
                 <HintLabel termId="acm" termText="ACM" />
               </p>
-              <p className="text-text text-2xl font-semibold">
+              <p className="text-2xl font-semibold text-text">
                 {totals.totalAcm}
               </p>
             </div>
@@ -144,7 +144,7 @@ const Factions: React.FC = () => {
             {factions.map((faction) => (
               <Card
                 key={faction.id}
-                className="bg-panel h-full border border-border"
+                className="h-full border border-border bg-panel"
               >
                 <CardHeader className="pb-2">
                   <CardTitle>{faction.name}</CardTitle>
@@ -152,21 +152,21 @@ const Factions: React.FC = () => {
                     {faction.description}
                   </p>
                 </CardHeader>
-                <CardContent className="text-text space-y-3 text-sm">
+                <CardContent className="space-y-3 text-sm text-text">
                   <div className="grid grid-cols-3 gap-2 text-center">
-                    <div className="bg-panel-alt rounded-xl border border-border px-2 py-2">
+                    <div className="rounded-xl border border-border bg-panel-alt px-2 py-2">
                       <p className="text-[0.7rem] tracking-wide text-muted uppercase">
                         Members
                       </p>
                       <p className="text-lg font-semibold">{faction.members}</p>
                     </div>
-                    <div className="bg-panel-alt rounded-xl border border-border px-2 py-2">
+                    <div className="rounded-xl border border-border bg-panel-alt px-2 py-2">
                       <p className="text-[0.7rem] tracking-wide text-muted uppercase">
                         Votes
                       </p>
                       <p className="text-lg font-semibold">{faction.votes}</p>
                     </div>
-                    <div className="bg-panel-alt rounded-xl border border-border px-2 py-2">
+                    <div className="rounded-xl border border-border bg-panel-alt px-2 py-2">
                       <p className="text-[0.7rem] tracking-wide text-muted uppercase">
                         <HintLabel termId="acm" termText="ACM" />
                       </p>
@@ -186,15 +186,15 @@ const Factions: React.FC = () => {
       {showResultsOnly && (
         <section className="space-y-3" aria-live="polite">
           {filtered.length === 0 && (
-            <Card className="bg-panel border border-dashed border-border px-4 py-6 text-center text-sm text-muted">
+            <Card className="border border-dashed border-border bg-panel px-4 py-6 text-center text-sm text-muted">
               No factions match this search.
             </Card>
           )}
           {filtered.map((faction) => (
-            <Card key={faction.id} className="bg-panel border border-border">
+            <Card key={faction.id} className="border border-border bg-panel">
               <CardContent className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-text text-sm font-semibold">
+                  <p className="text-sm font-semibold text-text">
                     {faction.name}
                   </p>
                   <p className="text-xs text-muted">{faction.description}</p>

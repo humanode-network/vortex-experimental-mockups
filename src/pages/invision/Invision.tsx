@@ -129,23 +129,23 @@ const Invision: React.FC = () => {
         <PageHint pageId="invision" />
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="bg-panel-alt rounded-2xl border border-border px-6 py-5 text-center shadow-sm sm:col-span-2 lg:col-span-3">
+        <div className="rounded-2xl border border-border bg-panel-alt px-6 py-5 text-center shadow-sm sm:col-span-2 lg:col-span-3">
           <p className="text-xs tracking-wide text-muted uppercase">
             Governance model
           </p>
-          <h1 className="text-text text-2xl font-semibold">
+          <h1 className="text-2xl font-semibold text-text">
             {governanceState.label}
           </h1>
         </div>
         {governanceState.metrics.map((metric) => (
           <div
             key={metric.label}
-            className="bg-panel rounded-2xl border border-border px-3 py-3 text-center"
+            className="rounded-2xl border border-border bg-panel px-3 py-3 text-center"
           >
             <p className="text-xs tracking-wide text-muted uppercase">
               {metric.label}
             </p>
-            <p className="text-text text-2xl font-semibold">{metric.value}</p>
+            <p className="text-2xl font-semibold text-text">{metric.value}</p>
           </div>
         ))}
       </div>
@@ -178,32 +178,32 @@ const Invision: React.FC = () => {
           <CardHeader className="pb-2">
             <CardTitle>Largest factions</CardTitle>
           </CardHeader>
-          <CardContent className="text-text grid gap-4 text-sm sm:grid-cols-2">
+          <CardContent className="grid gap-4 text-sm text-text sm:grid-cols-2">
             {filteredFactions.map((faction) => (
               <div
                 key={faction.name}
-                className="bg-panel-alt rounded-2xl border border-border px-5 py-4 shadow-sm"
+                className="rounded-2xl border border-border bg-panel-alt px-5 py-4 shadow-sm"
               >
-                <p className="text-text text-lg font-semibold">
+                <p className="text-lg font-semibold text-text">
                   {faction.name}
                 </p>
                 <p className="text-xs tracking-wide text-primary uppercase">
                   {faction.stance}
                 </p>
                 <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                  <div className="bg-panel rounded-xl border border-border px-2 py-2">
+                  <div className="rounded-xl border border-border bg-panel px-2 py-2">
                     <p className="text-[0.7rem] tracking-wide text-muted uppercase">
                       Members
                     </p>
                     <p className="text-lg font-semibold">{faction.members}</p>
                   </div>
-                  <div className="bg-panel rounded-xl border border-border px-2 py-2">
+                  <div className="rounded-xl border border-border bg-panel px-2 py-2">
                     <p className="text-[0.7rem] tracking-wide text-muted uppercase">
                       Votes, %
                     </p>
                     <p className="text-lg font-semibold">{faction.votes}</p>
                   </div>
-                  <div className="bg-panel rounded-xl border border-border px-2 py-2">
+                  <div className="rounded-xl border border-border bg-panel px-2 py-2">
                     <p className="text-[0.7rem] tracking-wide text-muted uppercase">
                       <HintLabel termId="acm">ACM</HintLabel>
                     </p>
@@ -221,7 +221,7 @@ const Invision: React.FC = () => {
           <CardHeader className="pb-2">
             <CardTitle>Treasury & economy</CardTitle>
           </CardHeader>
-          <CardContent className="text-text space-y-3 text-sm">
+          <CardContent className="space-y-3 text-sm text-text">
             {economicIndicators.map((indicator) => (
               <div
                 key={indicator.label}
@@ -230,7 +230,7 @@ const Invision: React.FC = () => {
                 <p className="text-xs tracking-wide text-muted uppercase">
                   {indicator.label}
                 </p>
-                <p className="text-text text-lg font-semibold">
+                <p className="text-lg font-semibold text-text">
                   {indicator.value}
                 </p>
                 <p className="text-xs text-muted">{indicator.detail}</p>
@@ -245,7 +245,7 @@ const Invision: React.FC = () => {
           <CardHeader className="pb-2">
             <CardTitle>Risk dashboard</CardTitle>
           </CardHeader>
-          <CardContent className="text-text grid gap-3 text-sm sm:grid-cols-2">
+          <CardContent className="grid gap-3 text-sm text-text sm:grid-cols-2">
             {riskSignals.map((signal) => (
               <div
                 key={signal.title}
@@ -267,13 +267,13 @@ const Invision: React.FC = () => {
           <CardHeader className="pb-2">
             <CardTitle>General chamber proposals</CardTitle>
           </CardHeader>
-          <CardContent className="text-text space-y-3 text-sm">
+          <CardContent className="space-y-3 text-sm text-text">
             {chamberProposals.map((proposal) => (
               <div
                 key={proposal.title}
                 className="rounded-xl border border-border px-3 py-3"
               >
-                <p className="text-text text-base font-semibold">
+                <p className="text-base font-semibold text-text">
                   {proposal.title}
                 </p>
                 <p className="text-xs tracking-wide text-primary uppercase">

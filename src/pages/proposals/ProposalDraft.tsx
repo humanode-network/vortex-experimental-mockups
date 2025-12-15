@@ -2,8 +2,8 @@ import { Link } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { HintLabel } from "@/components/Hint";
 import { PageHint } from "@/components/PageHint";
+import ProposalStageBar from "@/components/ProposalStageBar";
 
 const draftDetails = {
   title: "Mesh Telemetry Upgrade",
@@ -69,48 +69,6 @@ const draftDetails = {
   ],
 };
 
-const renderStageBar = () => {
-  const stages = [
-    {
-      key: "draft",
-      label: "Draft",
-      color: "bg-amber-100 text-amber-800 border border-amber-200",
-    },
-    {
-      key: "pool",
-      label: "Proposal pool",
-      color: "bg-slate-200 text-muted",
-      render: <HintLabel termId="proposal_pools">Proposal pool</HintLabel>,
-    },
-    {
-      key: "chamber",
-      label: "Chamber vote",
-      color: "bg-slate-200 text-muted",
-      render: <HintLabel termId="chamber_vote">Chamber vote</HintLabel>,
-    },
-    {
-      key: "formation",
-      label: "Formation",
-      color: "bg-slate-200 text-muted",
-      render: <HintLabel termId="formation">Formation</HintLabel>,
-    },
-  ] as const;
-  return (
-    <div className="flex gap-2">
-      {stages.map((stage) => (
-        <div
-          key={stage.key}
-          className={`flex-1 rounded-full px-3 py-2 text-center text-xs font-semibold ${
-            stage.key === "draft" ? stage.color : "bg-slate-200 text-muted"
-          }`}
-        >
-          {"render" in stage && stage.render ? stage.render : stage.label}
-        </div>
-      ))}
-    </div>
-  );
-};
-
 const ProposalDraft: React.FC = () => {
   const [filledSlots, totalSlots] = draftDetails.teamSlots
     .split("/")
@@ -134,14 +92,14 @@ const ProposalDraft: React.FC = () => {
         </div>
       </div>
 
-      <Card className="bg-panel border border-border">
+      <Card className="border border-border bg-panel">
         <CardHeader className="space-y-3 pb-3">
           <CardTitle className="text-2xl font-semibold text-(--text)">
             {draftDetails.title}
           </CardTitle>
-          {renderStageBar()}
+          <ProposalStageBar current="draft" />
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="bg-panel-alt rounded-2xl border border-border px-4 py-4 text-center">
+            <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center">
               <p className="text-[0.8rem] tracking-wide text-muted uppercase">
                 Chamber
               </p>
@@ -149,7 +107,7 @@ const ProposalDraft: React.FC = () => {
                 {draftDetails.chamber}
               </p>
             </div>
-            <div className="bg-panel-alt rounded-2xl border border-border px-4 py-4 text-center">
+            <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center">
               <p className="text-[0.8rem] tracking-wide text-muted uppercase">
                 Proposer
               </p>
@@ -157,7 +115,7 @@ const ProposalDraft: React.FC = () => {
                 {draftDetails.proposer}
               </p>
             </div>
-            <div className="bg-panel-alt rounded-2xl border border-border px-4 py-4 text-center">
+            <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center">
               <p className="text-[0.8rem] tracking-wide text-muted uppercase">
                 Tier
               </p>
@@ -186,7 +144,7 @@ const ProposalDraft: React.FC = () => {
             ].map((item) => (
               <div
                 key={item.label}
-                className="bg-panel-alt rounded-xl border border-border px-3 py-3 text-center"
+                className="rounded-xl border border-border bg-panel-alt px-3 py-3 text-center"
               >
                 <p className="text-[0.7rem] tracking-wide text-muted uppercase">
                   {item.label}
@@ -196,14 +154,14 @@ const ProposalDraft: React.FC = () => {
             ))}
           </div>
 
-          <div className="bg-panel-alt space-y-4 rounded-2xl border border-border px-4 py-4 text-(--text)">
+          <div className="space-y-4 rounded-2xl border border-border bg-panel-alt px-4 py-4 text-(--text)">
             <div className="space-y-2">
               <p className="text-sm font-semibold">Summary</p>
               <p className="text-sm leading-relaxed text-muted">
                 {draftDetails.summary}
               </p>
             </div>
-            <div className="bg-panel space-y-2 rounded-xl border border-border px-3 py-3">
+            <div className="space-y-2 rounded-xl border border-border bg-panel px-3 py-3">
               <p className="text-sm font-semibold">Proposal overview</p>
               <p className="text-sm leading-relaxed text-muted">
                 Redundant sequencers across clusters with cross-epoch
@@ -213,7 +171,7 @@ const ProposalDraft: React.FC = () => {
                 without privileging any validator set.
               </p>
             </div>
-            <div className="bg-panel space-y-2 rounded-xl border border-border px-3 py-3">
+            <div className="space-y-2 rounded-xl border border-border bg-panel px-3 py-3">
               <p className="text-sm font-semibold">Execution plan</p>
               <ul className="list-disc space-y-1 pl-5 text-sm text-muted">
                 <li>
@@ -233,7 +191,7 @@ const ProposalDraft: React.FC = () => {
                 </li>
               </ul>
             </div>
-            <div className="bg-panel space-y-2 rounded-xl border border-border px-3 py-3">
+            <div className="space-y-2 rounded-xl border border-border bg-panel px-3 py-3">
               <p className="text-sm font-semibold">Budget &amp; scope</p>
               <p className="text-sm text-muted">
                 210k HMND covering hardware, telemetry integration, and rollout
@@ -245,13 +203,13 @@ const ProposalDraft: React.FC = () => {
           </div>
 
           <div className="grid gap-3 lg:grid-cols-2">
-            <div className="bg-panel-alt space-y-2 rounded-2xl border border-border px-4 py-3">
+            <div className="space-y-2 rounded-2xl border border-border bg-panel-alt px-4 py-3">
               <p className="text-sm font-semibold">Team (locked)</p>
               <ul className="space-y-2 text-sm text-muted">
                 {draftDetails.teamLocked.map((member) => (
                   <li
                     key={member.name}
-                    className="bg-panel flex items-center justify-between rounded-xl border border-border px-3 py-2"
+                    className="flex items-center justify-between rounded-xl border border-border bg-panel px-3 py-2"
                   >
                     <span className="font-semibold text-(--text)">
                       {member.name}
@@ -261,13 +219,13 @@ const ProposalDraft: React.FC = () => {
                 ))}
               </ul>
             </div>
-            <div className="bg-panel-alt space-y-2 rounded-2xl border border-border px-4 py-3">
+            <div className="space-y-2 rounded-2xl border border-border bg-panel-alt px-4 py-3">
               <p className="text-sm font-semibold">Open slots (positions)</p>
               <ul className="space-y-2 text-sm text-muted">
                 {draftDetails.openSlotNeeds.map((slot) => (
                   <li
                     key={slot.title}
-                    className="bg-panel rounded-xl border border-border px-3 py-2"
+                    className="rounded-xl border border-border bg-panel px-3 py-2"
                   >
                     <p className="font-semibold text-(--text)">{slot.title}</p>
                     <p className="text-xs text-muted">{slot.desc}</p>
@@ -277,13 +235,13 @@ const ProposalDraft: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-panel-alt space-y-2 rounded-2xl border border-border px-4 py-3">
+          <div className="space-y-2 rounded-2xl border border-border bg-panel-alt px-4 py-3">
             <p className="text-sm font-semibold">Milestones</p>
             <ul className="space-y-2 text-sm text-muted">
               {draftDetails.milestonesDetail.map((ms) => (
                 <li
                   key={ms.title}
-                  className="bg-panel rounded-xl border border-border px-3 py-2"
+                  className="rounded-xl border border-border bg-panel px-3 py-2"
                 >
                   <p className="font-semibold text-(--text)">{ms.title}</p>
                   <p className="text-xs text-muted">{ms.desc}</p>
@@ -292,13 +250,13 @@ const ProposalDraft: React.FC = () => {
             </ul>
           </div>
 
-          <div className="bg-panel-alt space-y-2 rounded-2xl border border-border px-4 py-3">
+          <div className="space-y-2 rounded-2xl border border-border bg-panel-alt px-4 py-3">
             <p className="text-sm font-semibold">Attachments</p>
             <ul className="space-y-2 text-sm text-muted">
               {draftDetails.attachments.map((file) => (
                 <li
                   key={file.title}
-                  className="bg-panel flex items-center justify-between rounded-xl border border-border px-3 py-2"
+                  className="flex items-center justify-between rounded-xl border border-border bg-panel px-3 py-2"
                 >
                   <span>{file.title}</span>
                   <button className="text-sm font-semibold text-primary">

@@ -17,20 +17,13 @@ export function Tabs({
   return (
     <div
       className={cn(
-        "bg-panel inline-flex rounded-full border border-border p-1",
+        "inline-flex rounded-full border border-border bg-panel [background-image:var(--card-grad)] p-1 shadow-sm",
         className,
       )}
       {...props}
     >
       {options.map((opt) => {
         const active = opt.value === value;
-        const style = active
-          ? {
-              backgroundColor: "var(--primary)",
-              color: "#fff",
-              boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-            }
-          : { color: "var(--text)", backgroundColor: "transparent" };
         return (
           <button
             key={opt.value}
@@ -38,9 +31,10 @@ export function Tabs({
             onClick={() => onValueChange(opt.value)}
             className={cn(
               "min-w-[90px] rounded-full px-3 py-1.5 text-sm font-semibold transition",
-              !active && "hover:bg-panel-alt",
+              active
+                ? "bg-primary text-[var(--primary-foreground)] shadow-md"
+                : "bg-transparent text-text hover:bg-panel-alt",
             )}
-            style={style}
           >
             {opt.label}
           </button>

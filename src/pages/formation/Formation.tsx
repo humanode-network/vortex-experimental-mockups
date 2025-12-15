@@ -136,7 +136,7 @@ const Formation: React.FC = () => {
           <article
             key={metric.label}
             data-metric={metric.dataAttr}
-            className="bg-panel-alt rounded-2xl border border-border px-4 py-5 shadow-sm"
+            className="rounded-2xl border border-border bg-panel-alt px-4 py-5 shadow-sm"
           >
             <p className="text-sm text-muted">{metric.label}</p>
             <strong className="text-2xl font-semibold text-(--text)">
@@ -193,7 +193,7 @@ const Formation: React.FC = () => {
         {filteredProjects.map((project) => (
           <Card
             key={project.id}
-            className="bg-panel border border-border shadow-sm"
+            className="border border-border bg-panel shadow-sm"
           >
             <CardHeader className="flex items-center justify-between pb-2">
               <div>
@@ -211,19 +211,19 @@ const Formation: React.FC = () => {
             <CardContent className="space-y-3">
               <p className="text-sm text-(--text)">{project.summary}</p>
               <div className="grid gap-2 text-sm text-(--text)">
-                <div className="bg-panel-alt rounded-xl border border-border px-3 py-2">
+                <div className="rounded-xl border border-border bg-panel-alt px-3 py-2">
                   <p className="text-xs tracking-wide text-muted uppercase">
                     Budget
                   </p>
                   <p className="font-semibold">{project.budget}</p>
                 </div>
-                <div className="bg-panel-alt rounded-xl border border-border px-3 py-2">
+                <div className="rounded-xl border border-border bg-panel-alt px-3 py-2">
                   <p className="text-xs tracking-wide text-muted uppercase">
                     Milestones
                   </p>
                   <p className="font-semibold">{project.milestones}</p>
                 </div>
-                <div className="bg-panel-alt rounded-xl border border-border px-3 py-2">
+                <div className="rounded-xl border border-border bg-panel-alt px-3 py-2">
                   <p className="text-xs tracking-wide text-muted uppercase">
                     Team slots
                   </p>
@@ -247,7 +247,7 @@ const Formation: React.FC = () => {
           </Card>
         ))}
         {filteredProjects.length === 0 && (
-          <div className="bg-panel rounded-2xl border border-dashed border-border/70 px-4 py-8 text-center text-sm text-muted md:col-span-2 xl:col-span-3">
+          <div className="rounded-2xl border border-dashed border-border/70 bg-panel px-4 py-8 text-center text-sm text-muted md:col-span-2 xl:col-span-3">
             No Formation projects match the current filters.
           </div>
         )}

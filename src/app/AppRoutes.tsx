@@ -23,6 +23,7 @@ import ProposalCreation from "../pages/proposals/ProposalCreation";
 import MyGovernance from "../pages/MyGovernance";
 import ProposalDrafts from "../pages/proposals/ProposalDrafts";
 import ProposalDraft from "../pages/proposals/ProposalDraft";
+import FullHistory from "../pages/human-nodes/FullHistory";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -41,6 +42,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/factions/:id" element={<Faction />} />
         <Route path="/human-nodes" element={<HumanNodes />} />
         <Route path="/human-nodes/:id" element={<HumanNode />} />
+        <Route path="/human-nodes/:id/history" element={<FullHistory />} />
         <Route path="/courts" element={<Courts />} />
         <Route path="/courts/:id" element={<Courtroom />} />
         <Route path="/cm" element={<CMPanel />} />

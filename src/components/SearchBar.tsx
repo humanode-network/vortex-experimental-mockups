@@ -53,10 +53,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               {field.label}
             </p>
             <select
-              className="w-full rounded-md border border-border px-3 py-2 text-sm"
-              value={
-                filtersState?.[field.key] ?? field.options[0]?.value ?? ""
-              }
+              className="w-full rounded-xl border border-border bg-panel-alt px-3 py-2 text-sm text-text shadow-sm transition focus:ring-2 focus:ring-[color:var(--primary-dim)] focus:ring-offset-2 focus:ring-offset-panel focus:outline-none"
+              value={filtersState?.[field.key] ?? field.options[0]?.value ?? ""}
               onChange={(e) => {
                 const next = {
                   ...filtersState,
@@ -93,21 +91,25 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           aria-label={ariaLabel || placeholder}
           onFocus={() => setFiltersOpen(true)}
           onClick={() => setFiltersOpen(true)}
-          className={cn("w-full", inputClassName)}
+          className={cn(
+            "w-full border border-border bg-[var(--panel-alt)] text-[var(--text)]",
+            inputClassName,
+          )}
         />
         {filtersOpen ? (
-          <div className="absolute top-[calc(100%+0.5rem)] right-0 left-0 z-50 w-full rounded-2xl border border-border bg-white p-4 shadow-xl">
-            <div className="space-y-3 text-sm text-(--text)">{content}</div>
+          <div className="absolute top-[calc(100%+0.5rem)] right-0 left-0 z-50 w-full rounded-2xl border border-[var(--primary-dim)] bg-panel [background-image:var(--card-grad)] p-4 shadow-[var(--shadow-popover)]">
+            <div className="space-y-3 text-sm text-text">{content}</div>
             <div className="mt-4 flex justify-end gap-2">
               <Button
                 size="sm"
-                variant="ghost"
+                className="border border-[var(--accent-warm)] bg-[var(--panel)] text-[var(--accent-warm)] hover:bg-[var(--accent-warm)] hover:text-[var(--primary-foreground)]"
                 onClick={() => setFiltersOpen(false)}
               >
                 Close
               </Button>
               <Button
                 size="sm"
+                className="bg-[var(--primary)] text-[var(--primary-foreground)] shadow-md hover:bg-[var(--secondary)]"
                 onClick={() => {
                   onApplyFilters?.();
                   setFiltersOpen(false);

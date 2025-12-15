@@ -4,75 +4,34 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Vortex cool palette */
-  --background: #f2f5ff;
-  --foreground: #111827;
-  --card: #f9fbff;
-  --card-foreground: #111827;
-  --popover: #f9fbff;
-  --popover-foreground: #111827;
-  --primary: #4f6ad7;
-  --primary-foreground: #ffffff;
-  --secondary: #8fb4ff;
-  --secondary-foreground: #111827;
-  --muted: #5d6475;
-  --muted-foreground: #111827;
-  --accent: #5bc2b5;
-  --accent-foreground: #111827;
-  --destructive: #f87171;
-  --destructive-foreground: #111827;
-  --border: rgba(17, 24, 39, 0.12);
-  --input: rgba(17, 24, 39, 0.12);
-  --ring: rgba(79, 106, 215, 0.22);
-  --chart-1: #4f6ad7;
-  --chart-2: #8fb4ff;
-  --chart-3: #5bc2b5;
-  --chart-4: #a6b5ff;
-  --chart-5: #c4d4ff;
+  /* Map shadcn-style tokens to the app palette (`src/styles/base.css`). */
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--panel);
+  --card-foreground: var(--text);
+  --popover: var(--panel);
+  --popover-foreground: var(--text);
+  --primary-foreground: var(--primary-foreground);
+  --secondary-foreground: var(--secondary-foreground);
+  --muted-foreground: var(--muted-foreground);
+  --accent-foreground: var(--accent-foreground);
+  --destructive-foreground: var(--destructive-foreground);
+  --input: var(--border);
+  --ring: var(--primary-dim);
+  --chart-1: var(--primary);
+  --chart-2: var(--secondary);
+  --chart-3: var(--accent);
+  --chart-4: var(--accent-warm);
+  --chart-5: var(--primary-hover);
   --radius: 0.625rem;
-  --sidebar: #e8efff;
-  --sidebar-foreground: #111827;
-  --sidebar-primary: #4f6ad7;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f2f7ff;
-  --sidebar-accent-foreground: #111827;
-  --sidebar-border: rgba(17, 24, 39, 0.12);
-  --sidebar-ring: rgba(79, 106, 215, 0.22);
-}
-
-.dark {
-  --background: #0f172a;
-  --foreground: #e5e7eb;
-  --card: #111827;
-  --card-foreground: #e5e7eb;
-  --popover: #111827;
-  --popover-foreground: #e5e7eb;
-  --primary: #8fb4ff;
-  --primary-foreground: #0f172a;
-  --secondary: #1f2937;
-  --secondary-foreground: #e5e7eb;
-  --muted: #475569;
-  --muted-foreground: #cbd5e1;
-  --accent: #5bc2b5;
-  --accent-foreground: #0f172a;
-  --destructive: #f87171;
-  --destructive-foreground: #0f172a;
-  --border: rgba(255, 255, 255, 0.12);
-  --input: rgba(255, 255, 255, 0.12);
-  --ring: rgba(143, 180, 255, 0.4);
-  --chart-1: #8fb4ff;
-  --chart-2: #5bc2b5;
-  --chart-3: #a6b5ff;
-  --chart-4: #c4d4ff;
-  --chart-5: #4f6ad7;
-  --sidebar: #0f172a;
-  --sidebar-foreground: #e5e7eb;
-  --sidebar-primary: #8fb4ff;
-  --sidebar-primary-foreground: #0f172a;
-  --sidebar-accent: #1f2937;
-  --sidebar-accent-foreground: #e5e7eb;
-  --sidebar-border: rgba(255, 255, 255, 0.12);
-  --sidebar-ring: rgba(143, 180, 255, 0.4);
+  --sidebar: var(--bg-accent);
+  --sidebar-foreground: var(--text);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--panel-alt);
+  --sidebar-accent-foreground: var(--text);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--primary-dim);
 }
 
 @theme inline {
@@ -82,6 +41,14 @@
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+  /* App-specific surfaces (defined in `src/styles/base.css`). */
+  --color-bg: var(--bg);
+  --color-bg-accent: var(--bg-accent);
+  --color-panel: var(--panel);
+  --color-panel-alt: var(--panel-alt);
+  --color-text: var(--text);
+  --color-accent-warm: var(--accent-warm);
+  --color-primary-hover: var(--primary-hover);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
