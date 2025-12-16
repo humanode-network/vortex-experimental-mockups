@@ -97,7 +97,7 @@ const ProposalDraft: React.FC = () => {
 
       <Card>
         <CardHeader className="space-y-3 pb-3">
-          <CardTitle className="text-2xl font-semibold text-(--text)">
+          <CardTitle className="text-2xl font-semibold text-text">
             {draftDetails.title}
           </CardTitle>
           <ProposalStageBar current="draft" />
@@ -147,11 +147,15 @@ const ProposalDraft: React.FC = () => {
                 value: draftDetails.milestonesPlanned,
               },
             ].map((item) => (
-              <StatTile key={item.label} label={item.label} value={item.value} />
+              <StatTile
+                key={item.label}
+                label={item.label}
+                value={item.value}
+              />
             ))}
           </div>
 
-          <Surface variant="panelAlt" className="space-y-4 px-4 py-4 text-(--text)">
+          <Surface variant="panelAlt" className="space-y-4 px-4 py-4 text-text">
             <div className="space-y-2">
               <p className="text-sm font-semibold">Summary</p>
               <p className="text-sm leading-relaxed text-muted">
@@ -227,7 +231,7 @@ const ProposalDraft: React.FC = () => {
                     shadow="control"
                     className="flex items-center justify-between px-3 py-2"
                   >
-                    <span className="font-semibold text-(--text)">
+                    <span className="font-semibold text-text">
                       {member.name}
                     </span>
                     <span className="text-xs text-muted">{member.role}</span>
@@ -247,7 +251,7 @@ const ProposalDraft: React.FC = () => {
                     shadow="control"
                     className="px-3 py-2"
                   >
-                    <p className="font-semibold text-(--text)">{slot.title}</p>
+                    <p className="font-semibold text-text">{slot.title}</p>
                     <p className="text-xs text-muted">{slot.desc}</p>
                   </Surface>
                 ))}
@@ -267,7 +271,7 @@ const ProposalDraft: React.FC = () => {
                   shadow="control"
                   className="px-3 py-2"
                 >
-                  <p className="font-semibold text-(--text)">{ms.title}</p>
+                  <p className="font-semibold text-text">{ms.title}</p>
                   <p className="text-xs text-muted">{ms.desc}</p>
                 </Surface>
               ))}
@@ -301,7 +305,7 @@ const ProposalDraft: React.FC = () => {
         <CardHeader className="pb-2">
           <CardTitle>Invision insight</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-(--text)">
+        <CardContent className="space-y-3 text-sm text-text">
           <ul className="list-disc space-y-2 pl-5 text-muted">
             <li>
               Addresses liveness bottlenecks by adding redundant biometric

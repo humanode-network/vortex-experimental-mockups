@@ -472,7 +472,7 @@ const Proposals: React.FC = () => {
                 <p className="text-xs tracking-wide text-muted uppercase">
                   {proposal.meta}
                 </p>
-                <p className="text-lg font-semibold text-(--text)">
+                <p className="text-lg font-semibold text-text">
                   {proposal.title}
                 </p>
               </div>
@@ -534,7 +534,7 @@ const Proposals: React.FC = () => {
                       <p className="text-xs text-muted">{item.description}</p>
                       <p
                         className={cn(
-                          "text-lg font-semibold text-(--text)",
+                          "text-lg font-semibold text-text",
                           item.tone === "ok" && "text-[var(--accent)]",
                           item.tone === "warn" && "text-[var(--accent-warm)]",
                         )}
@@ -545,7 +545,7 @@ const Proposals: React.FC = () => {
                   ))}
                 </div>
 
-                <ul className="grid gap-2 text-sm text-(--text) md:grid-cols-2">
+                <ul className="grid gap-2 text-sm text-text md:grid-cols-2">
                   {proposal.stats.map((stat) => (
                     <Surface
                       key={stat.label}

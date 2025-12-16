@@ -95,7 +95,7 @@ const CMPanel: React.FC = () => {
               )}
               <div className="relative space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-(--text)">
+                  <p className="text-sm font-semibold text-text">
                     {chamber.name}
                   </p>
                   <Badge variant="outline">M × {chamber.current}</Badge>

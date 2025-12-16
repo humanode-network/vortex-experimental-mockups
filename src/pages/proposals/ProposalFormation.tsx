@@ -2,7 +2,6 @@ import { useParams } from "react-router";
 import { Link } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { HintLabel } from "@/components/Hint";
 import ProposalStageBar from "@/components/ProposalStageBar";
 import { Surface } from "@/components/Surface";
 import { StatTile } from "@/components/StatTile";
@@ -83,7 +82,7 @@ const ProposalFormation: React.FC = () => {
       >
         <div className="grid gap-4">
           <div className="space-y-4">
-            <h1 className="text-center text-2xl font-semibold text-(--text)">
+            <h1 className="text-center text-2xl font-semibold text-text">
               {project.title}
             </h1>
             {renderStageBar("formation")}
@@ -111,7 +110,7 @@ const ProposalFormation: React.FC = () => {
             <CardHeader className="pb-2">
               <CardTitle>Project status</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-3 text-sm text-(--text) sm:grid-cols-2 lg:grid-cols-4">
+            <CardContent className="grid gap-3 text-sm text-text sm:grid-cols-2 lg:grid-cols-4">
               <Surface
                 variant="panel"
                 radius="xl"
@@ -179,7 +178,7 @@ const ProposalFormation: React.FC = () => {
             under adversarial conditions. Formation build with staged milestones
             and open roles.
           </p>
-          <div className="grid gap-2 text-sm text-(--text) sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-2 text-sm text-text sm:grid-cols-2 lg:grid-cols-4">
             {[
               { label: "Budget ask", value: project.budget },
               { label: "Impact", value: project.impact },
@@ -194,7 +193,7 @@ const ProposalFormation: React.FC = () => {
               />
             ))}
           </div>
-          <div className="space-y-4 text-(--text)">
+          <div className="space-y-4 text-text">
             <Surface variant="panelAlt" className="space-y-2 px-4 py-3">
               <p className="text-sm font-semibold">Project overview</p>
               <p className="text-sm leading-relaxed text-muted">
@@ -275,14 +274,12 @@ const ProposalFormation: React.FC = () => {
                   {entry.title}
                 </p>
                 <p className="text-xs text-muted">{entry.description}</p>
-                <p className="text-lg font-semibold text-(--text)">
-                  {entry.value}
-                </p>
+                <p className="text-lg font-semibold text-text">{entry.value}</p>
               </Surface>
             ))}
           </div>
 
-          <ul className="grid gap-2 text-sm text-(--text) md:grid-cols-2">
+          <ul className="grid gap-2 text-sm text-text md:grid-cols-2">
             {project.stats.map((stat) => (
               <Surface
                 key={stat.label}
@@ -311,7 +308,7 @@ const ProposalFormation: React.FC = () => {
                     shadow="control"
                     className="flex items-center justify-between px-3 py-2"
                   >
-                    <span className="font-semibold text-(--text)">
+                    <span className="font-semibold text-text">
                       {member.name}
                     </span>
                     <span className="text-xs text-muted">{member.role}</span>
@@ -331,7 +328,7 @@ const ProposalFormation: React.FC = () => {
                     shadow="control"
                     className="px-3 py-2"
                   >
-                    <p className="font-semibold text-(--text)">{slot.title}</p>
+                    <p className="font-semibold text-text">{slot.title}</p>
                     <p className="text-xs text-muted">{slot.desc}</p>
                   </Surface>
                 ))}
@@ -351,7 +348,7 @@ const ProposalFormation: React.FC = () => {
                   shadow="control"
                   className="px-3 py-2"
                 >
-                  <p className="font-semibold text-(--text)">{ms.title}</p>
+                  <p className="font-semibold text-text">{ms.title}</p>
                   <p className="text-xs text-muted">{ms.desc}</p>
                 </Surface>
               ))}

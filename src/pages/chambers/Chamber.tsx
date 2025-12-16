@@ -171,7 +171,7 @@ const Chamber: React.FC = () => {
           <p className="text-xs tracking-wide text-muted uppercase">
             Chamber detail
           </p>
-          <h1 className="text-xl font-semibold text-(--text) capitalize">
+          <h1 className="text-xl font-semibold text-text capitalize">
             {chamberTitle}
           </h1>
           <p className="text-sm text-muted">
@@ -223,17 +223,13 @@ const Chamber: React.FC = () => {
               </Surface>
             ) : (
               filteredProposals.map((proposal) => (
-                <Surface
-                  key={proposal.id}
-                  variant="panelAlt"
-                  className="p-4"
-                >
+                <Surface key={proposal.id} variant="panelAlt" className="p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p className="text-xs tracking-wide text-muted uppercase">
                         {proposal.meta}
                       </p>
-                      <h3 className="text-lg font-semibold text-(--text)">
+                      <h3 className="text-lg font-semibold text-text">
                         {proposal.title}
                       </h3>
                     </div>
@@ -245,9 +241,7 @@ const Chamber: React.FC = () => {
                       Lead {proposal.lead}
                     </Badge>
                   </div>
-                  <p className="mt-2 text-sm text-(--text)">
-                    {proposal.summary}
-                  </p>
+                  <p className="mt-2 text-sm text-text">{proposal.summary}</p>
                   <div className="mt-3 grid gap-2 text-sm text-muted sm:grid-cols-2">
                     <Surface
                       variant="panel"
@@ -258,7 +252,7 @@ const Chamber: React.FC = () => {
                       <p className="text-xs tracking-wide uppercase">
                         Next step
                       </p>
-                      <p className="text-sm font-semibold text-(--text)">
+                      <p className="text-sm font-semibold text-text">
                         {proposal.nextStep}
                       </p>
                     </Surface>
@@ -269,7 +263,7 @@ const Chamber: React.FC = () => {
                       className="px-3 py-2"
                     >
                       <p className="text-xs tracking-wide uppercase">Timing</p>
-                      <p className="text-sm font-semibold text-(--text)">
+                      <p className="text-sm font-semibold text-text">
                         {proposal.timing}
                       </p>
                     </Surface>
@@ -298,7 +292,7 @@ const Chamber: React.FC = () => {
               onChange={(event) => setGovernorSearch(event.target.value)}
               placeholder="Search governors"
             />
-            <ul className="max-h-[360px] space-y-2 overflow-auto pr-1 text-sm text-(--text)">
+            <ul className="max-h-[360px] space-y-2 overflow-auto pr-1 text-sm text-text">
               {filteredGovernors.map((gov) => (
                 <Surface
                   as="li"
@@ -350,15 +344,19 @@ const Chamber: React.FC = () => {
         </Card>
       </div>
 
-      <Surface as="section" variant="panel" radius="2xl" shadow="card" className="p-5">
+      <Surface
+        as="section"
+        variant="panel"
+        radius="2xl"
+        shadow="card"
+        className="p-5"
+      >
         <header className="mb-4 flex flex-col gap-3 border-b border-border pb-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-xs tracking-wide text-muted uppercase">
               Chamber forum
             </p>
-            <h2 className="text-lg font-semibold text-(--text)">
-              Threads & chat
-            </h2>
+            <h2 className="text-lg font-semibold text-text">Threads & chat</h2>
           </div>
           <Button variant="ghost" size="sm">
             New thread
@@ -368,12 +366,9 @@ const Chamber: React.FC = () => {
         <div className="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
           <div className="space-y-3">
             {threads.map((thread) => (
-              <article
-                key={thread.id}
-                className="contents"
-              >
+              <article key={thread.id} className="contents">
                 <Surface variant="panelAlt" className="px-4 py-3">
-                  <h3 className="text-base font-semibold text-(--text)">
+                  <h3 className="text-base font-semibold text-text">
                     {thread.title}
                   </h3>
                   <p className="text-sm text-muted">
@@ -386,7 +381,7 @@ const Chamber: React.FC = () => {
           </div>
 
           <Surface variant="panelAlt" className="p-4">
-            <header className="text-sm font-semibold text-(--text)">
+            <header className="text-sm font-semibold text-text">
               Chamber chat
             </header>
             <div className="my-3 max-h-64 space-y-2 overflow-auto pr-2 text-sm">

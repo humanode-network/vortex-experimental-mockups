@@ -172,7 +172,13 @@ const Profile: React.FC = () => {
       <div className="flex items-center justify-end">
         <PageHint pageId="profile" />
       </div>
-      <Surface as="section" variant="panel" radius="2xl" shadow="card" className="p-6">
+      <Surface
+        as="section"
+        variant="panel"
+        radius="2xl"
+        shadow="card"
+        className="p-6"
+      >
         <div className="grid items-center gap-6 lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <div className="flex justify-center lg:justify-start">
             <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-border bg-panel-alt text-lg font-semibold text-muted shadow-inner">
@@ -294,7 +300,12 @@ const Profile: React.FC = () => {
             </CardHeader>
             <CardContent className="max-h-96 space-y-4 overflow-y-auto pr-1">
               {projects.map((project) => (
-                <Surface key={project.title} variant="panelAlt" radius="xl" className="px-4 py-3">
+                <Surface
+                  key={project.title}
+                  variant="panelAlt"
+                  radius="xl"
+                  className="px-4 py-3"
+                >
                   <div className="flex flex-col gap-1 text-center">
                     <p className="text-sm font-semibold text-text">
                       {project.title}

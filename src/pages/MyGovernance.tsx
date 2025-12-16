@@ -50,9 +50,7 @@ const MyGovernance: React.FC = () => {
                     tile.label
                   )}
                 </p>
-                <p className="text-xl font-semibold text-(--text)">
-                  {tile.value}
-                </p>
+                <p className="text-xl font-semibold text-text">{tile.value}</p>
               </Surface>
             ))}
           </div>
@@ -84,9 +82,7 @@ const MyGovernance: React.FC = () => {
                 className="flex h-full flex-col items-center justify-center px-4 py-4 text-center"
               >
                 <p className="text-sm text-muted">{tile.label}</p>
-                <p className="text-xl font-semibold text-(--text)">
-                  {tile.value}
-                </p>
+                <p className="text-xl font-semibold text-text">{tile.value}</p>
               </Surface>
             ))}
           </div>
@@ -102,7 +98,7 @@ const MyGovernance: React.FC = () => {
                 <p className="text-[0.7rem] tracking-wide text-muted uppercase">
                   {act.label}
                 </p>
-                <p className="text-base font-semibold text-(--text)">
+                <p className="text-base font-semibold text-text">
                   {act.done} / {act.required}
                 </p>
               </Surface>
@@ -126,7 +122,7 @@ const MyGovernance: React.FC = () => {
               <p className="text-xs tracking-wide text-muted uppercase">
                 Current tier
               </p>
-              <p className="text-lg font-semibold text-(--text)">
+              <p className="text-lg font-semibold text-text">
                 <HintLabel termId="tier3_legate">Legate</HintLabel>
               </p>
             </Surface>
@@ -140,9 +136,7 @@ const MyGovernance: React.FC = () => {
                   style={{ width: "68%" }}
                 />
               </div>
-              <p className="text-sm font-semibold text-(--text)">
-                68% to Consul
-              </p>
+              <p className="text-sm font-semibold text-text">68% to Consul</p>
             </div>
             <Surface
               variant="panelAlt"
@@ -153,7 +147,7 @@ const MyGovernance: React.FC = () => {
               <p className="text-xs tracking-wide text-muted uppercase">
                 Next tier
               </p>
-              <p className="text-lg font-semibold text-(--text)">
+              <p className="text-lg font-semibold text-text">
                 <HintLabel termId="tier4_consul">Consul</HintLabel>
               </p>
             </Surface>
@@ -165,7 +159,7 @@ const MyGovernance: React.FC = () => {
             className="mt-4 p-4"
           >
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-(--text)">
+              <p className="text-sm font-semibold text-text">
                 Run a node for 2 years
               </p>
               <p className="text-sm text-muted">1 Y 204 D</p>
@@ -176,11 +170,16 @@ const MyGovernance: React.FC = () => {
                 style={{ width: "78%" }}
               />
             </div>
-            <p className="mt-2 text-xs font-semibold text-(--text)">78%</p>
+            <p className="mt-2 text-xs font-semibold text-text">78%</p>
           </Surface>
-          <Surface variant="panelAlt" radius="2xl" shadow="tile" className="p-4">
+          <Surface
+            variant="panelAlt"
+            radius="2xl"
+            shadow="tile"
+            className="p-4"
+          >
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-(--text)">
+              <p className="text-sm font-semibold text-text">
                 Be an active governor for 2 years
               </p>
               <p className="text-sm text-muted">1 Y 2 D</p>
@@ -191,7 +190,7 @@ const MyGovernance: React.FC = () => {
                 style={{ width: "50%" }}
               />
             </div>
-            <p className="mt-2 text-xs font-semibold text-(--text)">50%</p>
+            <p className="mt-2 text-xs font-semibold text-text">50%</p>
           </Surface>
           <div className="grid gap-3 md:grid-cols-2">
             {[
@@ -205,7 +204,7 @@ const MyGovernance: React.FC = () => {
                 shadow="tile"
                 className="flex items-center justify-between p-4"
               >
-                <p className="text-sm font-semibold text-(--text)">{label}</p>
+                <p className="text-sm font-semibold text-text">{label}</p>
                 <span className="bg-ok/20 text-ok inline-flex h-6 w-6 items-center justify-center rounded-full">
                   ✓
                 </span>
@@ -213,8 +212,13 @@ const MyGovernance: React.FC = () => {
             ))}
           </div>
           <div className="grid gap-3 md:grid-cols-2">
-            <Surface variant="panelAlt" radius="2xl" shadow="tile" className="p-4">
-              <p className="text-sm font-semibold text-(--text)">
+            <Surface
+              variant="panelAlt"
+              radius="2xl"
+              shadow="tile"
+              className="p-4"
+            >
+              <p className="text-sm font-semibold text-text">
                 Proposals available with{" "}
                 <HintLabel termId="tier3_legate">Legate</HintLabel>
               </p>
@@ -228,8 +232,13 @@ const MyGovernance: React.FC = () => {
                 <li>Core infrastructure</li>
               </ul>
             </Surface>
-            <Surface variant="panelAlt" radius="2xl" shadow="tile" className="p-4">
-              <p className="text-sm font-semibold text-(--text)">
+            <Surface
+              variant="panelAlt"
+              radius="2xl"
+              shadow="tile"
+              className="p-4"
+            >
+              <p className="text-sm font-semibold text-text">
                 Proposals available with{" "}
                 <HintLabel termId="tier4_consul">Consul</HintLabel>
               </p>

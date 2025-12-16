@@ -51,7 +51,7 @@ const ProposalChamber: React.FC = () => {
       >
         <div className="grid gap-4">
           <div className="space-y-4">
-            <h1 className="text-center text-2xl font-semibold text-(--text)">
+            <h1 className="text-center text-2xl font-semibold text-text">
               {proposal.title}
             </h1>
             {renderStageBar("chamber")}
@@ -90,7 +90,7 @@ const ProposalChamber: React.FC = () => {
             <CardHeader className="pb-2">
               <CardTitle>Voting quorum</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-3 text-sm text-(--text) sm:grid-cols-2 lg:grid-cols-4">
+            <CardContent className="grid gap-3 text-sm text-text sm:grid-cols-2 lg:grid-cols-4">
               <StatTile
                 label="Governors"
                 value={
@@ -143,7 +143,7 @@ const ProposalChamber: React.FC = () => {
             Dynamic fee split that feeds Formation, treasury, and biometric
             maintenance based on network stress and quorum activity.
           </p>
-          <div className="grid gap-2 text-sm text-(--text) sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-2 text-sm text-text sm:grid-cols-2 lg:grid-cols-4">
             {[
               { label: "Budget ask", value: proposal.budget },
               { label: "Impact", value: proposal.impact },
@@ -158,7 +158,7 @@ const ProposalChamber: React.FC = () => {
               />
             ))}
           </div>
-          <div className="space-y-4 text-(--text)">
+          <div className="space-y-4 text-text">
             <Surface variant="panelAlt" className="space-y-2 px-4 py-3">
               <p className="text-sm font-semibold">Proposal overview</p>
               <p className="text-sm leading-relaxed text-muted">
@@ -260,7 +260,7 @@ const ProposalChamber: React.FC = () => {
                 <p className="text-xs text-muted">{entry.description}</p>
                 <p
                   className={cn(
-                    "text-lg font-semibold text-(--text)",
+                    "text-lg font-semibold text-text",
                     entry.tone === "ok" && "text-[var(--accent)]",
                     entry.tone === "warn" && "text-[var(--accent-warm)]",
                   )}
@@ -271,7 +271,7 @@ const ProposalChamber: React.FC = () => {
             ))}
           </div>
 
-          <ul className="grid gap-2 text-sm text-(--text) md:grid-cols-2">
+          <ul className="grid gap-2 text-sm text-text md:grid-cols-2">
             {[
               { label: "Votes casted", value: "34" },
               {

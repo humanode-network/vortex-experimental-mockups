@@ -125,7 +125,7 @@ const Formation: React.FC = () => {
     <div className="app-page flex flex-col gap-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-(--text)">Formation</h1>
+          <h1 className="text-xl font-semibold text-text">Formation</h1>
           <p className="text-sm text-muted">
             Formation programs, squads, and milestone progress.
           </p>
@@ -200,7 +200,7 @@ const Formation: React.FC = () => {
                 <p className="text-xs tracking-wide text-muted uppercase">
                   {project.focus}
                 </p>
-                <h3 className="text-lg font-semibold text-(--text)">
+                <h3 className="text-lg font-semibold text-text">
                   {project.title}
                 </h3>
               </div>
@@ -209,8 +209,8 @@ const Formation: React.FC = () => {
               </Badge>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p className="text-sm text-(--text)">{project.summary}</p>
-              <div className="grid gap-2 text-sm text-(--text)">
+              <p className="text-sm text-text">{project.summary}</p>
+              <div className="grid gap-2 text-sm text-text">
                 <Surface
                   variant="panelAlt"
                   radius="xl"
@@ -248,7 +248,7 @@ const Formation: React.FC = () => {
               <div className="flex items-center justify-between text-sm text-muted">
                 <span>
                   Proposer:{" "}
-                  <span className="font-semibold text-(--text) hover:text-primary">
+                  <span className="font-semibold text-text hover:text-primary">
                     {project.proposer}
                   </span>
                 </span>

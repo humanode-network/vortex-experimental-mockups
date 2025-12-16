@@ -185,10 +185,7 @@ const Invision: React.FC = () => {
           </CardHeader>
           <CardContent className="grid gap-4 text-sm text-text sm:grid-cols-2">
             {filteredFactions.map((faction) => (
-              <div
-                key={faction.name}
-                className="contents"
-              >
+              <div key={faction.name} className="contents">
                 <Surface variant="panelAlt" className="px-5 py-4">
                   <p className="text-lg font-semibold text-text">
                     {faction.name}
@@ -206,9 +203,7 @@ const Invision: React.FC = () => {
                       <p className="text-[0.7rem] tracking-wide text-muted uppercase">
                         Members
                       </p>
-                      <p className="text-lg font-semibold">
-                        {faction.members}
-                      </p>
+                      <p className="text-lg font-semibold">{faction.members}</p>
                     </Surface>
                     <Surface
                       variant="panel"

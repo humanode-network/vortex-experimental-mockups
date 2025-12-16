@@ -281,9 +281,7 @@ const Feed: React.FC = () => {
                 <p className="text-xs tracking-wide text-muted uppercase">
                   {formatDate(item.timestamp)}
                 </p>
-                <p className="text-lg font-semibold text-(--text)">
-                  {item.title}
-                </p>
+                <p className="text-lg font-semibold text-text">{item.title}</p>
               </div>
               <div className="flex flex-col gap-2 text-right sm:flex-row sm:items-center sm:gap-3">
                 <span
@@ -342,7 +340,7 @@ const Feed: React.FC = () => {
                         </p>
                         <p
                           className={cn(
-                            "text-lg font-semibold text-(--text)",
+                            "text-lg font-semibold text-text",
                             entry.tone === "ok" && "text-[var(--accent)]",
                             entry.tone === "warn" &&
                               "text-[var(--accent-warm)]",
@@ -356,7 +354,7 @@ const Feed: React.FC = () => {
                 )}
 
                 {item.stats && (
-                  <ul className="grid gap-2 text-sm text-(--text) md:grid-cols-2">
+                  <ul className="grid gap-2 text-sm text-text md:grid-cols-2">
                     {item.stats.map((stat) => (
                       <Surface
                         key={stat.label}

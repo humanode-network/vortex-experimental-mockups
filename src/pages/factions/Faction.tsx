@@ -15,9 +15,7 @@ const Faction: React.FC = () => {
   if (!faction) {
     return (
       <div className="app-page flex flex-col gap-4">
-        <h1 className="text-xl font-semibold text-(--text)">
-          Faction not found
-        </h1>
+        <h1 className="text-xl font-semibold text-text">Faction not found</h1>
         <Button asChild size="sm">
           <Link to="/factions">Back to factions</Link>
         </Button>
@@ -108,7 +106,13 @@ const Faction: React.FC = () => {
       <div className="flex items-center justify-end">
         <PageHint pageId="faction" />
       </div>
-      <Surface as="section" variant="panel" radius="2xl" shadow="card" className="p-6">
+      <Surface
+        as="section"
+        variant="panel"
+        radius="2xl"
+        shadow="card"
+        className="p-6"
+      >
         <div className="grid items-center gap-4 lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <div className="flex justify-center lg:justify-start">
             <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-border bg-panel-alt text-lg font-semibold text-muted shadow-inner">
@@ -150,20 +154,20 @@ const Faction: React.FC = () => {
         <CardHeader className="pb-2">
           <CardTitle>Goals</CardTitle>
         </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted">
-            {faction.goals.map((goal) => (
-              <Surface
-                key={goal}
-                variant="panelAlt"
-                radius="xl"
-                shadow="control"
-                className="px-3 py-2 text-text"
-              >
-                {goal}
-              </Surface>
-            ))}
-          </CardContent>
-        </Card>
+        <CardContent className="space-y-3 text-sm text-muted">
+          {faction.goals.map((goal) => (
+            <Surface
+              key={goal}
+              variant="panelAlt"
+              radius="xl"
+              shadow="control"
+              className="px-3 py-2 text-text"
+            >
+              {goal}
+            </Surface>
+          ))}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <Card>

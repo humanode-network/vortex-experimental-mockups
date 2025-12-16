@@ -17,7 +17,7 @@ export function Tabs({
   return (
     <div
       className={cn(
-        "inline-flex rounded-full border border-border bg-panel [background-image:var(--card-grad)] p-1 shadow-[var(--shadow-control)] ring-1 ring-inset ring-[color:var(--glass-border)]",
+        "inline-flex rounded-full border border-border bg-panel [background-image:var(--card-grad)] p-1 shadow-[var(--shadow-control)] ring-1 ring-[color:var(--glass-border)] ring-inset",
         className,
       )}
       {...props}
@@ -32,7 +32,7 @@ export function Tabs({
             className={cn(
               "min-w-[90px] rounded-full px-3 py-1.5 text-sm font-semibold transition",
               active
-                ? "bg-[var(--primary)] [background-image:var(--btn-primary-grad),var(--btn-sheen)] bg-cover bg-no-repeat text-[var(--primary-foreground)] shadow-[var(--shadow-control)] border border-[color:var(--glass-border)]"
+                ? "border border-[color:var(--glass-border)] bg-[var(--primary)] [background-image:var(--btn-primary-grad),var(--btn-sheen)] bg-cover bg-no-repeat text-[var(--primary-foreground)] shadow-[var(--shadow-control)]"
                 : "bg-transparent text-text hover:bg-panel-alt",
             )}
           >

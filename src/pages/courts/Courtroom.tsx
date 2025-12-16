@@ -43,19 +43,29 @@ const Courtroom: React.FC = () => {
             <Badge variant="outline">Reports: 18</Badge>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
-            <Surface variant="panelAlt" radius="xl" shadow="tile" className="p-3">
+            <Surface
+              variant="panelAlt"
+              radius="xl"
+              shadow="tile"
+              className="p-3"
+            >
               <p className="text-xs tracking-wide text-muted uppercase">
                 Subject
               </p>
-              <p className="text-sm font-semibold text-(--text)">
+              <p className="text-sm font-semibold text-text">
                 Delegation dispute on Protocol Keepers
               </p>
             </Surface>
-            <Surface variant="panelAlt" radius="xl" shadow="tile" className="p-3">
+            <Surface
+              variant="panelAlt"
+              radius="xl"
+              shadow="tile"
+              className="p-3"
+            >
               <p className="text-xs tracking-wide text-muted uppercase">
                 Trigger
               </p>
-              <p className="text-sm font-semibold text-(--text)">
+              <p className="text-sm font-semibold text-text">
                 18 reports · Delegation shift
               </p>
             </Surface>
@@ -74,7 +84,7 @@ const Courtroom: React.FC = () => {
               variant="panelAlt"
               radius="xl"
               shadow="control"
-              className="px-3 py-2 text-sm text-(--text)"
+              className="px-3 py-2 text-sm text-text"
             >
               {member}
             </Surface>
@@ -87,14 +97,24 @@ const Courtroom: React.FC = () => {
           <CardTitle>Proceedings</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted">
-          <Surface variant="panelAlt" radius="xl" shadow="tile" className="px-3 py-2">
+          <Surface
+            variant="panelAlt"
+            radius="xl"
+            shadow="tile"
+            className="px-3 py-2"
+          >
             <p className="text-xs tracking-wide text-muted uppercase">Claim</p>
             <p>
               Delegation was rerouted without consent; requester asks for
               reversal and audit.
             </p>
           </Surface>
-          <Surface variant="panelAlt" radius="xl" shadow="tile" className="px-3 py-2">
+          <Surface
+            variant="panelAlt"
+            radius="xl"
+            shadow="tile"
+            className="px-3 py-2"
+          >
             <p className="text-xs tracking-wide text-muted uppercase">
               Evidence
             </p>
@@ -103,7 +123,12 @@ const Courtroom: React.FC = () => {
               <li>Screenshots from faction portal</li>
             </ul>
           </Surface>
-          <Surface variant="panelAlt" radius="xl" shadow="tile" className="px-3 py-2">
+          <Surface
+            variant="panelAlt"
+            radius="xl"
+            shadow="tile"
+            className="px-3 py-2"
+          >
             <p className="text-xs tracking-wide text-muted uppercase">
               Next steps
             </p>

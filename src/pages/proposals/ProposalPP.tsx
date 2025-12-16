@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { HintLabel } from "@/components/Hint";
 import ProposalStageBar from "@/components/ProposalStageBar";
 import { Surface } from "@/components/Surface";
 import { StatTile } from "@/components/StatTile";
@@ -98,7 +97,7 @@ const ProposalPP: React.FC = () => {
       >
         <div className="grid items-start gap-4">
           <div className="space-y-4">
-            <h1 className="text-center text-2xl font-semibold text-(--text)">
+            <h1 className="text-center text-2xl font-semibold text-text">
               {proposal.title}
             </h1>
             {renderStageBar("pool")}
@@ -161,7 +160,7 @@ const ProposalPP: React.FC = () => {
             <CardHeader className="pb-2">
               <CardTitle>Quorum of attention</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-3 text-sm text-(--text) sm:grid-cols-2 lg:grid-cols-2">
+            <CardContent className="grid gap-3 text-sm text-text sm:grid-cols-2 lg:grid-cols-2">
               <StatTile
                 label="Governors"
                 value={
@@ -223,7 +222,7 @@ const ProposalPP: React.FC = () => {
             enable double commits across epochs. Pool stage is collecting quorum
             of attention before moving to a chamber vote.
           </p>
-          <div className="grid gap-3 text-sm text-(--text) sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 text-sm text-text sm:grid-cols-2 lg:grid-cols-4">
             {[
               { label: "Budget ask", value: proposal.budget },
               {
@@ -239,10 +238,14 @@ const ProposalPP: React.FC = () => {
                 value: `${proposal.milestones} planned · pilot + rollout`,
               },
             ].map((item) => (
-              <StatTile key={item.label} label={item.label} value={item.value} />
+              <StatTile
+                key={item.label}
+                label={item.label}
+                value={item.value}
+              />
             ))}
           </div>
-          <div className="space-y-4 text-(--text)">
+          <div className="space-y-4 text-text">
             <Surface variant="panelAlt" className="space-y-2 px-4 py-3">
               <p className="text-sm font-semibold">Proposal overview</p>
               <p className="text-sm leading-relaxed text-muted">
@@ -294,7 +297,7 @@ const ProposalPP: React.FC = () => {
                       shadow="control"
                       className="flex items-center justify-between px-3 py-2"
                     >
-                      <span className="font-semibold text-(--text)">
+                      <span className="font-semibold text-text">
                         {member.name}
                       </span>
                       <span className="text-xs text-muted">{member.role}</span>
@@ -314,9 +317,7 @@ const ProposalPP: React.FC = () => {
                       shadow="control"
                       className="px-3 py-2"
                     >
-                      <p className="font-semibold text-(--text)">
-                        {slot.title}
-                      </p>
+                      <p className="font-semibold text-text">{slot.title}</p>
                       <p className="text-xs text-muted">{slot.desc}</p>
                     </Surface>
                   ))}
@@ -335,7 +336,7 @@ const ProposalPP: React.FC = () => {
                     shadow="control"
                     className="px-3 py-2"
                   >
-                    <p className="font-semibold text-(--text)">{ms.title}</p>
+                    <p className="font-semibold text-text">{ms.title}</p>
                     <p className="text-xs text-muted">{ms.desc}</p>
                   </Surface>
                 ))}
@@ -460,7 +461,7 @@ const ProposalPP: React.FC = () => {
         <CardHeader className="pb-2">
           <CardTitle>Invision insight</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-(--text)">
+        <CardContent className="space-y-3 text-sm text-text">
           <ul className="list-disc space-y-2 pl-5 text-muted">
             <li>
               Addresses liveness bottlenecks by adding redundant biometric

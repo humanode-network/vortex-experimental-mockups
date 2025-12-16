@@ -215,7 +215,13 @@ const HumanNode: React.FC = () => {
       <div className="flex justify-end">
         <PageHint pageId="human-node" />
       </div>
-      <Surface as="section" variant="panel" radius="2xl" shadow="card" className="p-6">
+      <Surface
+        as="section"
+        variant="panel"
+        radius="2xl"
+        shadow="card"
+        className="p-6"
+      >
         <div className="grid items-center gap-6 lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <div className="flex justify-center lg:justify-start">
             <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-border bg-panel-alt text-lg font-semibold text-muted shadow-inner">
@@ -388,12 +394,12 @@ const HumanNode: React.FC = () => {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {governanceActions.map((action) => (
                 <div key={action.title} className="group relative">
-                <Surface
-                  variant="panelAlt"
-                  radius="xl"
-                  shadow="tile"
-                  className="space-y-1 px-3 py-3 text-center"
-                >
+                  <Surface
+                    variant="panelAlt"
+                    radius="xl"
+                    shadow="tile"
+                    className="space-y-1 px-3 py-3 text-center"
+                  >
                     <p className="line-clamp-1 text-sm font-semibold text-text">
                       {action.title}
                     </p>
@@ -402,23 +408,23 @@ const HumanNode: React.FC = () => {
                     </p>
                     <p className="line-clamp-1 text-xs text-muted">
                       {action.context}
-                  </p>
-                </Surface>
-                <Surface
-                  variant="panel"
-                  radius="xl"
-                  shadow="popover"
-                  className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 w-64 -translate-x-1/2 p-3 text-left text-xs text-text opacity-0 transition group-hover:opacity-100"
-                >
-                  <p className="font-semibold">{action.title}</p>
-                  <p className="text-muted">{action.context}</p>
-                  <p className="mt-1 leading-snug">{action.detail}</p>
-                </Surface>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+                    </p>
+                  </Surface>
+                  <Surface
+                    variant="panel"
+                    radius="xl"
+                    shadow="popover"
+                    className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 w-64 -translate-x-1/2 p-3 text-left text-xs text-text opacity-0 transition group-hover:opacity-100"
+                  >
+                    <p className="font-semibold">{action.title}</p>
+                    <p className="text-muted">{action.context}</p>
+                    <p className="mt-1 leading-snug">{action.detail}</p>
+                  </Surface>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader className="pb-2">

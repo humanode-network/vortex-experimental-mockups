@@ -44,7 +44,18 @@ export type SurfaceProps = React.HTMLAttributes<HTMLDivElement> &
   };
 
 export const Surface = React.forwardRef<HTMLDivElement, SurfaceProps>(
-  ({ as: Comp = "div", className, variant, radius, shadow, borderStyle, ...props }, ref) => {
+  (
+    {
+      as: Comp = "div",
+      className,
+      variant,
+      radius,
+      shadow,
+      borderStyle,
+      ...props
+    },
+    ref,
+  ) => {
     return (
       <Comp
         ref={ref as any}

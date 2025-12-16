@@ -82,7 +82,7 @@ const ProposalDrafts: React.FC = () => {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-(--text)">Drafts</h1>
+        <h1 className="text-xl font-semibold text-text">Drafts</h1>
         <SearchBar
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -117,16 +117,13 @@ const ProposalDrafts: React.FC = () => {
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {filtered.map((draft) => (
-          <Card
-            key={draft.id}
-            className="border border-border bg-panel p-4"
-          >
+          <Card key={draft.id} className="border border-border bg-panel p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs tracking-wide text-muted uppercase">
                   Draft · {draft.updated}
                 </p>
-                <h2 className="text-lg font-semibold text-(--text)">
+                <h2 className="text-lg font-semibold text-text">
                   {draft.title}
                 </h2>
                 <p className="text-sm text-muted">{draft.summary}</p>

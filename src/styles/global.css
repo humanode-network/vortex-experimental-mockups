@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Map shadcn-style tokens to the app palette (`src/styles/base.css`). */
+  /* Map UI tokens to the app palette (`src/styles/base.css`). */
   --background: var(--bg);
   --foreground: var(--text);
   --card: var(--panel);
