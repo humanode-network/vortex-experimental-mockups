@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router";
-import { PageHint } from "@/components/PageHint";
 import { SearchBar } from "@/components/SearchBar";
 import { MetricTile } from "@/components/MetricTile";
 import { Surface } from "@/components/Surface";
+import { AppPage } from "@/components/AppPage";
+import { PageHeader } from "@/components/PageHeader";
 
 type Category = "all" | "research" | "development" | "social";
 type Stage = "live" | "gathering" | "completed";
@@ -122,16 +123,11 @@ const Formation: React.FC = () => {
   }, [search, stageFilter, categoryFilter]);
 
   return (
-    <div className="app-page flex flex-col gap-6">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold text-text">Formation</h1>
-          <p className="text-sm text-muted">
-            Formation programs, squads, and milestone progress.
-          </p>
-        </div>
-        <PageHint pageId="formation" />
-      </div>
+    <AppPage pageId="formation">
+      <PageHeader
+        title="Formation"
+        description="Formation programs, squads, and milestone progress."
+      />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
@@ -271,7 +267,7 @@ const Formation: React.FC = () => {
           </Surface>
         )}
       </section>
-    </div>
+    </AppPage>
   );
 };
 

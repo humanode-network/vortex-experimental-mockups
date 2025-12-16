@@ -2,11 +2,11 @@ import { Link } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageHint } from "@/components/PageHint";
 import ProposalStageBar from "@/components/ProposalStageBar";
 import { HintLabel } from "@/components/Hint";
 import { Surface } from "@/components/Surface";
 import { StatTile } from "@/components/StatTile";
+import { AppPage } from "@/components/AppPage";
 
 const draftDetails = {
   title: "Mesh Telemetry Upgrade",
@@ -79,13 +79,12 @@ const ProposalDraft: React.FC = () => {
   const openSlots = Math.max(totalSlots - filledSlots, 0);
 
   return (
-    <div className="app-page flex flex-col gap-6">
+    <AppPage pageId="proposals">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" size="sm">
             <Link to="/proposals/drafts">Back to drafts</Link>
           </Button>
-          <PageHint pageId="proposals" />
         </div>
         <div className="flex items-center gap-2">
           <Button asChild size="sm" variant="ghost">
@@ -319,7 +318,7 @@ const ProposalDraft: React.FC = () => {
           </ul>
         </CardContent>
       </Card>
-    </div>
+    </AppPage>
   );
 };
 

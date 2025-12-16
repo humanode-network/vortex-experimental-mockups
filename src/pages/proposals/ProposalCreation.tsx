@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { AppPage } from "@/components/AppPage";
 
 const ProposalCreation: React.FC = () => {
   const [form, setForm] = useState({
@@ -23,7 +24,7 @@ const ProposalCreation: React.FC = () => {
     setForm((prev) => ({ ...prev, [key]: value }));
 
   return (
-    <div className="app-page flex flex-col gap-6">
+    <AppPage pageId="proposals">
       <Card className="border border-border bg-panel">
         <CardHeader className="pb-2">
           <CardTitle>Edit proposal</CardTitle>
@@ -151,7 +152,7 @@ const ProposalCreation: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </AppPage>
   );
 };
 

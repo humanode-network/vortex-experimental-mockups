@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HintLabel } from "@/components/Hint";
-import { PageHint } from "@/components/PageHint";
 import { Surface } from "@/components/Surface";
+import { AppPage } from "@/components/AppPage";
 
 const CMPanel: React.FC = () => {
   const initialChambers = [
@@ -64,10 +64,7 @@ const CMPanel: React.FC = () => {
   const nonMemberSuggestions = chambers.filter((c) => !c.member);
 
   return (
-    <div className="app-page flex flex-col gap-6">
-      <div className="flex items-center justify-end">
-        <PageHint pageId="cm-panel" />
-      </div>
+    <AppPage pageId="cm-panel">
       <Card>
         <CardHeader className="pb-2">
           <CardTitle>Overview</CardTitle>
@@ -131,7 +128,7 @@ const CMPanel: React.FC = () => {
           Submit suggestions
         </Button>
       </div>
-    </div>
+    </AppPage>
   );
 };
 

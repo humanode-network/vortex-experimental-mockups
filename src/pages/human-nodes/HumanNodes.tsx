@@ -13,8 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs } from "@/components/ui/tabs";
 import "./HumanNodes.css";
 import { HintLabel } from "@/components/Hint";
-import { PageHint } from "@/components/PageHint";
 import { SearchBar } from "@/components/SearchBar";
+import { AppPage } from "@/components/AppPage";
 
 // Data types and sample data
 type Node = {
@@ -275,13 +275,12 @@ const HumanNodes: React.FC = () => {
   }, [search, sortBy]);
 
   return (
-    <div className="app-page human-nodes-page">
+    <AppPage pageId="human-nodes" variant="custom" className="human-nodes-page">
       <SearchBar
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search human nodes by handle, chamber, focus…"
         ariaLabel="Search human nodes"
-        rightContent={<PageHint pageId="human-nodes" />}
         filtersConfig={[
           {
             key: "sortBy",
@@ -503,7 +502,7 @@ const HumanNodes: React.FC = () => {
           )}
         </CardContent>
       </Card>
-    </div>
+    </AppPage>
   );
 };
 

@@ -3,8 +3,10 @@ import { Link, useParams } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { HintLabel } from "@/components/Hint";
-import { PageHint } from "@/components/PageHint";
 import { Surface } from "@/components/Surface";
+import { AvatarPlaceholder } from "@/components/AvatarPlaceholder";
+import { StatusPill } from "@/components/StatusPill";
+import { AppPage } from "@/components/AppPage";
 
 const heroStats = [
   { label: "ACM", value: "182" },
@@ -211,10 +213,7 @@ const HumanNode: React.FC = () => {
     : null;
 
   return (
-    <div className="app-page flex flex-col gap-6">
-      <div className="flex justify-end">
-        <PageHint pageId="human-node" />
-      </div>
+    <AppPage pageId="human-node">
       <Surface
         as="section"
         variant="panel"
@@ -224,34 +223,25 @@ const HumanNode: React.FC = () => {
       >
         <div className="grid items-center gap-6 lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <div className="flex justify-center lg:justify-start">
-            <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-border bg-panel-alt text-lg font-semibold text-muted shadow-inner">
-              {name.substring(0, 2).toUpperCase()}
-            </div>
+            <AvatarPlaceholder
+              initials={name.substring(0, 2).toUpperCase()}
+              size="lg"
+            />
           </div>
           <div className="flex flex-col items-center text-center">
             <h1 className="text-3xl font-semibold text-text">{name}</h1>
           </div>
           <div className="flex flex-col items-center gap-2 text-sm lg:items-end">
-            <div className="inline-flex w-48 items-center justify-between rounded-full border border-border bg-panel-alt px-4 py-2">
-              <span className="text-xs tracking-wide text-muted uppercase">
-                Governor
-              </span>
-              <span
-                className={`font-semibold ${governorActive ? "text-primary" : "text-muted"}`}
-              >
-                {governorActive ? "Active" : "Not active"}
-              </span>
-            </div>
-            <div className="inline-flex w-48 items-center justify-between rounded-full border border-border bg-panel-alt px-4 py-2">
-              <span className="text-xs tracking-wide text-muted uppercase">
-                Human node
-              </span>
-              <span
-                className={`font-semibold ${humanNodeActive ? "text-primary" : "text-muted"}`}
-              >
-                {humanNodeActive ? "Active" : "Not active"}
-              </span>
-            </div>
+            <StatusPill
+              label="Governor"
+              value={governorActive ? "Active" : "Not active"}
+              active={governorActive}
+            />
+            <StatusPill
+              label="Human node"
+              value={humanNodeActive ? "Active" : "Not active"}
+              active={humanNodeActive}
+            />
           </div>
         </div>
       </Surface>
@@ -457,7 +447,7 @@ const HumanNode: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </AppPage>
   );
 };
 

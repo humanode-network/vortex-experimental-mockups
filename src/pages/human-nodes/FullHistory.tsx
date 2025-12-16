@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageHint } from "@/components/PageHint";
+import { AppPage } from "@/components/AppPage";
+import { PageHeader } from "@/components/PageHeader";
 import { Link, useParams } from "react-router";
 
 type HistoryItem = {
@@ -90,16 +91,12 @@ const FullHistory: React.FC = () => {
   const name = id ?? "Human node";
 
   return (
-    <div className="app-page flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs tracking-wide text-muted uppercase">
-            Full history
-          </p>
-          <h1 className="text-2xl font-semibold text-foreground">{name}</h1>
-        </div>
-        <PageHint pageId="human-node" />
-      </div>
+    <AppPage pageId="human-node">
+      <PageHeader
+        eyebrow="Full history"
+        title={name}
+        titleClassName="text-2xl text-foreground"
+      />
 
       <Card>
         <CardHeader className="pb-2">
@@ -133,7 +130,7 @@ const FullHistory: React.FC = () => {
           ))}
         </CardContent>
       </Card>
-    </div>
+    </AppPage>
   );
 };
 

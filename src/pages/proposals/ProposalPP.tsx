@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ProposalStageBar from "@/components/ProposalStageBar";
 import { Surface } from "@/components/Surface";
 import { StatTile } from "@/components/StatTile";
+import { AppPage } from "@/components/AppPage";
 
 const ProposalPP: React.FC = () => {
   const proposal = {
@@ -87,7 +88,7 @@ const ProposalPP: React.FC = () => {
   ) => <ProposalStageBar current={current} />;
 
   return (
-    <div className="app-page flex flex-col gap-6">
+    <AppPage pageId="proposals">
       <Surface
         as="section"
         variant="panel"
@@ -479,7 +480,7 @@ const ProposalPP: React.FC = () => {
           </ul>
         </CardContent>
       </Card>
-    </div>
+    </AppPage>
   );
 };
 

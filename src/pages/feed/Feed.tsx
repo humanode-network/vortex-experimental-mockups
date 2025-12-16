@@ -1,13 +1,14 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { Link } from "react-router";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { HintLabel } from "@/components/Hint";
-import { PageHint } from "@/components/PageHint";
-import { Surface } from "@/components/Surface";
+import { AppPage } from "@/components/AppPage";
+import { ExpandableCard } from "@/components/ExpandableCard";
+import { StageDataTile } from "@/components/StageDataTile";
+import { DashedStatItem } from "@/components/DashedStatItem";
 
 type Stage = "pool" | "vote" | "build" | "thread" | "courts" | "faction";
 
@@ -256,34 +257,20 @@ const Feed: React.FC = () => {
   };
 
   return (
-    <div className="app-page flex flex-col gap-4">
-      <div className="flex justify-end">
-        <PageHint pageId="feed" />
-      </div>
+    <AppPage pageId="feed" variant="stack4">
       {/* Governing threshold moved to MyGovernance */}
 
       <section aria-live="polite" className="flex flex-col gap-4">
         {sortedFeed.map((item, index) => (
-          <Card
+          <ExpandableCard
             key={item.id}
-            className={cn(
-              "overflow-hidden border bg-panel",
-              index < 3 ? "border-primary" : "border-border",
-            )}
-          >
-            <button
-              type="button"
-              className="flex w-full flex-col gap-4 px-5 py-4 text-left transition hover:bg-panel-alt sm:flex-row sm:items-center sm:justify-between"
-              aria-expanded={expanded === item.id}
-              onClick={() => toggle(item.id)}
-            >
-              <div className="space-y-1">
-                <p className="text-xs tracking-wide text-muted uppercase">
-                  {formatDate(item.timestamp)}
-                </p>
-                <p className="text-lg font-semibold text-text">{item.title}</p>
-              </div>
-              <div className="flex flex-col gap-2 text-right sm:flex-row sm:items-center sm:gap-3">
+            expanded={expanded === item.id}
+            onToggle={() => toggle(item.id)}
+            className={cn(index < 3 ? "border-primary" : "border-border")}
+            meta={formatDate(item.timestamp)}
+            title={item.title}
+            right={
+              <>
                 <span
                   className={cn(
                     "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase",
@@ -307,95 +294,60 @@ const Feed: React.FC = () => {
                 >
                   {item.summaryPill}
                 </Badge>
-                <span
-                  className={cn(
-                    "ml-auto h-5 w-5 text-muted transition-transform sm:ml-0",
-                    expanded === item.id && "rotate-180",
-                  )}
+              </>
+            }
+          >
+            <p className="text-sm text-muted">{item.summary}</p>
+
+            {item.stageData ? (
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {item.stageData.map((entry) => (
+                  <StageDataTile
+                    key={entry.title}
+                    title={entry.title}
+                    description={entry.description}
+                    value={entry.value}
+                    tone={entry.tone}
+                  />
+                ))}
+              </div>
+            ) : null}
+
+            {item.stats ? (
+              <ul className="grid gap-2 text-sm text-text md:grid-cols-2">
+                {item.stats.map((stat) => (
+                  <DashedStatItem
+                    key={stat.label}
+                    label={stat.label}
+                    value={stat.value}
+                  />
+                ))}
+              </ul>
+            ) : null}
+
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              {item.proposer && item.proposerId ? (
+                <Link
+                  to={`/human-nodes/${item.proposerId}`}
+                  className="text-sm font-semibold text-primary"
                 >
-                  ▼
-                </span>
+                  Proposer: {item.proposer}
+                </Link>
+              ) : (
+                <span className="text-sm text-muted"> </span>
+              )}
+              <div className="flex flex-wrap gap-2">
+                {item.href && item.ctaPrimary ? (
+                  <Button asChild size="sm">
+                    <Link to={item.href}>{item.ctaPrimary}</Link>
+                  </Button>
+                ) : null}
               </div>
-            </button>
-
-            {expanded === item.id && (
-              <div className="border-top space-y-5 border-t border-border px-5 py-5">
-                <p className="text-sm text-muted">{item.summary}</p>
-
-                {item.stageData && (
-                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                    {item.stageData.map((entry) => (
-                      <Surface
-                        key={entry.title}
-                        variant="panelAlt"
-                        radius="xl"
-                        shadow="tile"
-                        className="p-4"
-                      >
-                        <p className="text-sm font-semibold text-muted">
-                          {entry.title}
-                        </p>
-                        <p className="text-xs text-muted">
-                          {entry.description}
-                        </p>
-                        <p
-                          className={cn(
-                            "text-lg font-semibold text-text",
-                            entry.tone === "ok" && "text-[var(--accent)]",
-                            entry.tone === "warn" &&
-                              "text-[var(--accent-warm)]",
-                          )}
-                        >
-                          {entry.value}
-                        </p>
-                      </Surface>
-                    ))}
-                  </div>
-                )}
-
-                {item.stats && (
-                  <ul className="grid gap-2 text-sm text-text md:grid-cols-2">
-                    {item.stats.map((stat) => (
-                      <Surface
-                        key={stat.label}
-                        as="li"
-                        variant="panelAlt"
-                        radius="xl"
-                        borderStyle="dashed"
-                        className="px-4 py-3"
-                      >
-                        <span className="font-semibold">{stat.label}:</span>{" "}
-                        {stat.value}
-                      </Surface>
-                    ))}
-                  </ul>
-                )}
-
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  {item.proposer && item.proposerId ? (
-                    <Link
-                      to={`/human-nodes/${item.proposerId}`}
-                      className="text-sm font-semibold text-primary"
-                    >
-                      Proposer: {item.proposer}
-                    </Link>
-                  ) : (
-                    <span className="text-sm text-muted"> </span>
-                  )}
-                  <div className="flex flex-wrap gap-2">
-                    {item.href && item.ctaPrimary && (
-                      <Button asChild size="sm">
-                        <Link to={item.href}>{item.ctaPrimary}</Link>
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-          </Card>
+            </div>
+          </ExpandableCard>
         ))}
       </section>
-    </div>
+    </AppPage>
   );
 };
 

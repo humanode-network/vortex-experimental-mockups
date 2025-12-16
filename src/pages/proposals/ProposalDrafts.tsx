@@ -3,8 +3,8 @@ import { Link } from "react-router";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { PageHint } from "@/components/PageHint";
 import { SearchBar } from "@/components/SearchBar";
+import { AppPage } from "@/components/AppPage";
 
 type Draft = {
   id: string;
@@ -68,13 +68,12 @@ const ProposalDrafts: React.FC = () => {
   }, [query, sortBy, chamberFilter]);
 
   return (
-    <div className="app-page flex flex-col gap-6">
+    <AppPage pageId="proposals">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" size="sm">
             <Link to="/proposals">Back to proposals</Link>
           </Button>
-          <PageHint pageId="proposals" />
         </div>
         <Button asChild size="sm">
           <Link to="/proposals/new">Edit proposal</Link>
@@ -139,7 +138,7 @@ const ProposalDrafts: React.FC = () => {
           </Card>
         ))}
       </div>
-    </div>
+    </AppPage>
   );
 };
 

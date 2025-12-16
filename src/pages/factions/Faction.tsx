@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { factions } from "./factionData";
 import { HintLabel } from "@/components/Hint";
-import { PageHint } from "@/components/PageHint";
 import { Surface } from "@/components/Surface";
+import { AvatarPlaceholder } from "@/components/AvatarPlaceholder";
+import { AppPage } from "@/components/AppPage";
 
 const Faction: React.FC = () => {
   const { id } = useParams();
@@ -14,12 +15,12 @@ const Faction: React.FC = () => {
 
   if (!faction) {
     return (
-      <div className="app-page flex flex-col gap-4">
+      <AppPage variant="stack4">
         <h1 className="text-xl font-semibold text-text">Faction not found</h1>
         <Button asChild size="sm">
           <Link to="/factions">Back to factions</Link>
         </Button>
-      </div>
+      </AppPage>
     );
   }
 
@@ -102,10 +103,7 @@ const Faction: React.FC = () => {
   ];
 
   return (
-    <div className="app-page flex flex-col gap-6">
-      <div className="flex items-center justify-end">
-        <PageHint pageId="faction" />
-      </div>
+    <AppPage pageId="faction">
       <Surface
         as="section"
         variant="panel"
@@ -115,9 +113,10 @@ const Faction: React.FC = () => {
       >
         <div className="grid items-center gap-4 lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <div className="flex justify-center lg:justify-start">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-border bg-panel-alt text-lg font-semibold text-muted shadow-inner">
-              {faction.name.substring(0, 2).toUpperCase()}
-            </div>
+            <AvatarPlaceholder
+              initials={faction.name.substring(0, 2).toUpperCase()}
+              size="md"
+            />
           </div>
           <div className="flex flex-col items-center gap-2 text-center">
             <h1 className="text-4xl font-semibold text-text">{faction.name}</h1>
@@ -263,7 +262,7 @@ const Faction: React.FC = () => {
           ))}
         </CardContent>
       </Card>
-    </div>
+    </AppPage>
   );
 };
 

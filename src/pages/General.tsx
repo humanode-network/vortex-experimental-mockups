@@ -1,14 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AppPage } from "@/components/AppPage";
+import { PageHeader } from "@/components/PageHeader";
 
 const General: React.FC = () => {
   return (
-    <div className="app-page flex flex-col gap-6">
-      <header>
-        <h1 className="text-xl font-semibold text-text">General</h1>
-        <p className="text-sm text-muted">
-          Global preferences and account options.
-        </p>
-      </header>
+    <AppPage>
+      <PageHeader
+        title="General"
+        description="Global preferences and account options."
+      />
       <Card className="border border-border bg-panel">
         <CardHeader className="pb-2">
           <CardTitle>Preferences</CardTitle>
@@ -17,7 +17,7 @@ const General: React.FC = () => {
           Configure your experience here.
         </CardContent>
       </Card>
-    </div>
+    </AppPage>
   );
 };
 

@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PageHint } from "@/components/PageHint";
 import { SearchBar } from "@/components/SearchBar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router";
+import { AppPage } from "@/components/AppPage";
+import { MetricTile } from "@/components/MetricTile";
 
 type CourtCase = {
   id: string;
@@ -82,10 +83,7 @@ const Courts: React.FC = () => {
       });
   }, [search, statusFilter, sortBy]);
   return (
-    <div className="app-page flex flex-col gap-6">
-      <div className="flex items-center justify-end">
-        <PageHint pageId="courts" />
-      </div>
+    <AppPage pageId="courts">
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
           {
@@ -96,19 +94,12 @@ const Courts: React.FC = () => {
           { label: "New reports", value: "27 this week" },
           { label: "Closed cases (30d)", value: "6" },
         ].map((metric) => (
-          <Card
+          <MetricTile
             key={metric.label}
-            className="border border-border bg-panel-alt text-center"
-          >
-            <CardContent className="space-y-1 p-4">
-              <p className="text-xs tracking-wide text-muted uppercase">
-                {metric.label}
-              </p>
-              <p className="text-2xl font-semibold text-foreground">
-                {metric.value}
-              </p>
-            </CardContent>
-          </Card>
+            label={metric.label}
+            value={metric.value}
+            className="px-4 py-4"
+          />
         ))}
       </section>
 
@@ -202,7 +193,7 @@ const Courts: React.FC = () => {
           ))}
         </CardContent>
       </Card>
-    </div>
+    </AppPage>
   );
 };
 

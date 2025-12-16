@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HintLabel } from "@/components/Hint";
-import { PageHint } from "@/components/PageHint";
 import { SearchBar } from "@/components/SearchBar";
 import { Surface } from "@/components/Surface";
+import { AppPage } from "@/components/AppPage";
 
 const governanceState = {
   label: "Egalitarian Republic",
@@ -125,10 +125,7 @@ const Invision: React.FC = () => {
   }, [search, factionSort]);
 
   return (
-    <div className="app-page flex flex-col gap-5">
-      <div className="flex items-center justify-end">
-        <PageHint pageId="invision" />
-      </div>
+    <AppPage pageId="invision" variant="stack5">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Surface
           variant="panelAlt"
@@ -304,7 +301,7 @@ const Invision: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </AppPage>
   );
 };
 

@@ -122,9 +122,7 @@ const Chambers: React.FC = () => {
 
   return (
     <BackgroundContainer>
-      <div className="flex items-center justify-end">
-        <PageHint pageId="chambers" />
-      </div>
+      <PageHint pageId="chambers" />
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metricCards.map((metric) => {
           const label =

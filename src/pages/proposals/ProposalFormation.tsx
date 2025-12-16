@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import ProposalStageBar from "@/components/ProposalStageBar";
 import { Surface } from "@/components/Surface";
 import { StatTile } from "@/components/StatTile";
+import { AppPage } from "@/components/AppPage";
 
 const ProposalFormation: React.FC = () => {
   useParams();
@@ -72,7 +73,7 @@ const ProposalFormation: React.FC = () => {
   ) => <ProposalStageBar current={current} />;
 
   return (
-    <div className="app-page flex flex-col gap-6">
+    <AppPage pageId="proposals">
       <Surface
         as="section"
         variant="panel"
@@ -373,7 +374,7 @@ const ProposalFormation: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </AppPage>
   );
 };
 

@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SearchBar } from "@/components/SearchBar";
 import { vortexopediaTerms } from "@/data/vortexopedia";
 import { cn } from "@/lib/utils";
+import { Pill } from "@/components/Pill";
+import { AppPage } from "@/components/AppPage";
 
 const Vortexopedia: React.FC = () => {
   const [search, setSearch] = useState("");
@@ -62,7 +64,7 @@ const Vortexopedia: React.FC = () => {
   }, [location.search]);
 
   return (
-    <div className="app-page flex flex-col gap-6">
+    <AppPage>
       <Card className="border border-border bg-panel">
         <CardHeader className="pb-2">
           <CardTitle>Vortexopedia</CardTitle>
@@ -130,23 +132,33 @@ const Vortexopedia: React.FC = () => {
                         <CardTitle className="text-lg">{item.name}</CardTitle>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted">
-                        <span className="rounded-full border border-border px-2 py-1">
+                        <Pill
+                          size="sm"
+                          tone="muted"
+                          className="px-2 py-1 text-xs"
+                        >
                           ID: {item.id}
-                        </span>
-                        <span className="rounded-full border border-border px-2 py-1">
+                        </Pill>
+                        <Pill
+                          size="sm"
+                          tone="muted"
+                          className="px-2 py-1 text-xs"
+                        >
                           Updated: {item.updated}
-                        </span>
+                        </Pill>
                       </div>
                     </div>
                     <p className="text-sm text-foreground">{item.short}</p>
                     <div className="flex flex-wrap gap-2">
                       {item.tags.map((tag) => (
-                        <span
+                        <Pill
                           key={tag}
-                          className="rounded-full border border-border bg-panel px-2 py-0.5 text-[0.7rem] tracking-wide text-muted uppercase"
+                          tone="muted"
+                          size="xs"
+                          className="uppercase"
                         >
                           {tag}
-                        </span>
+                        </Pill>
                       ))}
                     </div>
                   </CardHeader>
@@ -176,12 +188,9 @@ const Vortexopedia: React.FC = () => {
                         <p className="font-semibold">Stages / context</p>
                         <div className="flex flex-wrap gap-2">
                           {item.stages.map((stage) => (
-                            <span
-                              key={stage}
-                              className="rounded-full border border-border bg-panel px-2 py-0.5 text-[0.75rem] text-muted"
-                            >
+                            <Pill key={stage} tone="muted" size="xs">
                               {stage}
-                            </span>
+                            </Pill>
                           ))}
                         </div>
                       </div>
@@ -191,12 +200,9 @@ const Vortexopedia: React.FC = () => {
                         <p className="font-semibold">Related terms</p>
                         <div className="flex flex-wrap gap-2">
                           {item.related.map((rel) => (
-                            <span
-                              key={rel}
-                              className="rounded-full border border-border bg-panel px-2 py-0.5 text-[0.75rem] text-muted"
-                            >
+                            <Pill key={rel} tone="muted" size="xs">
                               {rel}
-                            </span>
+                            </Pill>
                           ))}
                         </div>
                       </div>
@@ -206,15 +212,18 @@ const Vortexopedia: React.FC = () => {
                         <p className="font-semibold">Links</p>
                         <div className="flex flex-wrap gap-2">
                           {item.links.map((link) => (
-                            <a
+                            <Pill
                               key={link.url}
-                              className="rounded-full border border-border bg-panel px-2 py-0.5 text-[0.75rem] text-primary hover:border-primary"
+                              as="a"
+                              tone="primary"
+                              size="xs"
+                              className="hover:border-primary"
                               href={link.url}
                               target="_blank"
                               rel="noreferrer"
                             >
                               {link.label}
-                            </a>
+                            </Pill>
                           ))}
                         </div>
                       </div>
@@ -229,7 +238,7 @@ const Vortexopedia: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </AppPage>
   );
 };
 

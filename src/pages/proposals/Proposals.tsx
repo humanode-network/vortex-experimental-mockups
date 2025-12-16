@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
-import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,9 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { HintLabel } from "@/components/Hint";
-import { PageHint } from "@/components/PageHint";
 import { SearchBar } from "@/components/SearchBar";
-import { Surface } from "@/components/Surface";
+import { AppPage } from "@/components/AppPage";
+import { ExpandableCard } from "@/components/ExpandableCard";
+import { StageDataTile } from "@/components/StageDataTile";
+import { DashedStatItem } from "@/components/DashedStatItem";
 
 type Stage = "pool" | "vote" | "build" | "final" | "archived";
 type ProofWeight = "pot" | "pod" | "pog";
@@ -424,7 +425,7 @@ const Proposals: React.FC = () => {
   };
 
   return (
-    <div className="app-page flex flex-col gap-6">
+    <AppPage pageId="proposals">
       <div className="flex justify-between gap-2">
         <Button
           asChild
@@ -435,7 +436,6 @@ const Proposals: React.FC = () => {
           <Link to="/proposals/drafts">Drafts</Link>
         </Button>
         <div className="flex items-center gap-2">
-          <PageHint pageId="proposals" />
           <Button asChild size="sm" className="rounded-full px-4">
             <Link to="/proposals/new">Create proposal</Link>
           </Button>
@@ -458,25 +458,14 @@ const Proposals: React.FC = () => {
         )}
 
         {filteredProposals.map((proposal) => (
-          <Card
+          <ExpandableCard
             key={proposal.id}
-            className="overflow-hidden border border-border bg-panel"
-          >
-            <button
-              type="button"
-              className="flex w-full flex-col gap-4 px-5 py-4 text-left transition hover:bg-panel-alt sm:flex-row sm:items-center sm:justify-between"
-              aria-expanded={expanded === proposal.id}
-              onClick={() => toggleProposal(proposal.id)}
-            >
-              <div className="space-y-1">
-                <p className="text-xs tracking-wide text-muted uppercase">
-                  {proposal.meta}
-                </p>
-                <p className="text-lg font-semibold text-text">
-                  {proposal.title}
-                </p>
-              </div>
-              <div className="flex flex-col gap-2 text-right sm:flex-row sm:items-center sm:gap-3">
+            expanded={expanded === proposal.id}
+            onToggle={() => toggleProposal(proposal.id)}
+            meta={proposal.meta}
+            title={proposal.title}
+            right={
+              <>
                 <span
                   className={cn(
                     "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase",
@@ -506,95 +495,67 @@ const Proposals: React.FC = () => {
                 >
                   {proposal.summaryPill}
                 </Badge>
-                <ChevronDown
-                  className={cn(
-                    "ml-auto h-5 w-5 text-muted transition-transform sm:ml-0",
-                    expanded === proposal.id && "rotate-180",
-                  )}
+              </>
+            }
+          >
+            <p className="text-sm text-muted">{proposal.summary}</p>
+
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {proposal.stageData.map((item) => (
+                <StageDataTile
+                  key={item.title}
+                  title={item.title}
+                  description={item.description}
+                  value={item.value}
+                  tone={item.tone}
                 />
-              </div>
-            </button>
+              ))}
+            </div>
 
-            {expanded === proposal.id && (
-              <div className="space-y-5 border-t border-border px-5 py-5">
-                <p className="text-sm text-muted">{proposal.summary}</p>
+            <ul className="grid gap-2 text-sm text-text md:grid-cols-2">
+              {proposal.stats.map((stat) => (
+                <DashedStatItem
+                  key={stat.label}
+                  label={stat.label}
+                  value={stat.value}
+                />
+              ))}
+            </ul>
 
-                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                  {proposal.stageData.map((item) => (
-                    <Surface
-                      key={item.title}
-                      variant="panelAlt"
-                      radius="xl"
-                      shadow="tile"
-                      className="p-4"
-                    >
-                      <p className="text-sm font-semibold text-muted">
-                        {item.title}
-                      </p>
-                      <p className="text-xs text-muted">{item.description}</p>
-                      <p
-                        className={cn(
-                          "text-lg font-semibold text-text",
-                          item.tone === "ok" && "text-[var(--accent)]",
-                          item.tone === "warn" && "text-[var(--accent-warm)]",
-                        )}
-                      >
-                        {item.value}
-                      </p>
-                    </Surface>
-                  ))}
-                </div>
-
-                <ul className="grid gap-2 text-sm text-text md:grid-cols-2">
-                  {proposal.stats.map((stat) => (
-                    <Surface
-                      key={stat.label}
-                      as="li"
-                      variant="panelAlt"
-                      radius="xl"
-                      borderStyle="dashed"
-                      className="px-4 py-3"
-                    >
-                      <span className="font-semibold">{stat.label}:</span>{" "}
-                      {stat.value}
-                    </Surface>
-                  ))}
-                </ul>
-
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <Link
-                    to={`/human-nodes/${proposal.proposerId}`}
-                    className="text-sm font-semibold text-primary"
-                  >
-                    Proposer: {proposal.proposer}
-                  </Link>
-                  <div className="flex flex-wrap gap-2">
-                    {(() => {
-                      const primaryHref =
-                        proposal.stage === "pool"
-                          ? `/proposals/${proposal.id}/pp`
-                          : proposal.stage === "vote"
-                            ? `/proposals/${proposal.id}/chamber`
-                            : proposal.stage === "build"
-                              ? `/proposals/${proposal.id}/formation`
-                              : `/proposals/${proposal.id}/pp`;
-                      return (
-                        <Button asChild size="sm">
-                          <Link to={primaryHref}>{proposal.ctaPrimary}</Link>
-                        </Button>
-                      );
-                    })()}
-                    <Button size="sm" variant="ghost">
-                      {proposal.ctaSecondary}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Link
+                to={`/human-nodes/${proposal.proposerId}`}
+                className="text-sm font-semibold text-primary"
+              >
+                Proposer: {proposal.proposer}
+              </Link>
+              <div className="flex flex-wrap gap-2">
+                {(() => {
+                  const primaryHref =
+                    proposal.stage === "pool"
+                      ? `/proposals/${proposal.id}/pp`
+                      : proposal.stage === "vote"
+                        ? `/proposals/${proposal.id}/chamber`
+                        : proposal.stage === "build"
+                          ? `/proposals/${proposal.id}/formation`
+                          : `/proposals/${proposal.id}/pp`;
+                  return (
+                    <Button asChild size="sm">
+                      <Link to={primaryHref}>{proposal.ctaPrimary}</Link>
                     </Button>
-                  </div>
-                </div>
+                  );
+                })()}
+                {proposal.ctaSecondary ? (
+                  <Button size="sm" variant="ghost">
+                    {proposal.ctaSecondary}
+                  </Button>
+                ) : null}
               </div>
-            )}
-          </Card>
+            </div>
+          </ExpandableCard>
         ))}
       </section>
-    </div>
+    </AppPage>
   );
 };
 

@@ -5,10 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { HintLabel } from "@/components/Hint";
 import { factions } from "./factionData";
-import { PageHint } from "@/components/PageHint";
 import { SearchBar } from "@/components/SearchBar";
 import { MetricTile } from "@/components/MetricTile";
 import { StatTile } from "@/components/StatTile";
+import { AppPage } from "@/components/AppPage";
 
 const Factions: React.FC = () => {
   const [query, setQuery] = useState("");
@@ -65,11 +65,7 @@ const Factions: React.FC = () => {
   const showResultsOnly = query.trim().length > 0;
 
   return (
-    <div className="app-page flex flex-col gap-6">
-      <div className="flex justify-end">
-        <PageHint pageId="factions" />
-      </div>
-
+    <AppPage pageId="factions">
       {!showResultsOnly && (
         <>
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -187,7 +183,7 @@ const Factions: React.FC = () => {
           ))}
         </section>
       )}
-    </div>
+    </AppPage>
   );
 };
 

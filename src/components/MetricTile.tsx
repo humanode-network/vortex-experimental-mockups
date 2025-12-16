@@ -20,8 +20,8 @@ export const MetricTile: React.FC<MetricTileProps> = ({
       shadow="tile"
       className={cn("px-4 py-5 text-center", className)}
     >
-      <p className="text-sm text-muted">{label}</p>
-      <p className="text-2xl font-semibold text-[var(--text)]">{value}</p>
+      <p className="text-xs tracking-wide text-muted uppercase">{label}</p>
+      <p className="text-2xl font-semibold text-text">{value}</p>
     </Surface>
   );
 };
