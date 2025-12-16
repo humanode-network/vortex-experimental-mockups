@@ -41,7 +41,7 @@ export const ProposalStageBar: React.FC<ProposalStageBarProps> = ({
         const active = stage.key === current;
         const activeClasses =
           stage.key === "draft"
-            ? "bg-panel text-text border border-border shadow-sm"
+            ? "bg-panel text-text border border-border shadow-[var(--shadow-control)] ring-1 ring-inset ring-[color:var(--glass-border)]"
             : stage.key === "pool"
               ? "bg-primary text-[var(--primary-foreground)]"
               : stage.key === "chamber"

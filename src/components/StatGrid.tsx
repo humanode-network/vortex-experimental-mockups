@@ -12,7 +12,7 @@ type StatGridProps = {
 };
 
 const tileClass =
-  "flex flex-col items-center rounded-xl border bg-panel-alt px-3 py-2 text-center text-text shadow-[var(--shadow-tile)] bg-cover bg-no-repeat";
+  "flex flex-col items-center rounded-xl border bg-panel-alt px-3 py-2 text-center text-text shadow-[var(--shadow-tile)] ring-1 ring-inset ring-[color:var(--glass-border)] bg-cover bg-no-repeat";
 
 export const StatGrid: React.FC<StatGridProps> = ({ items }) => {
   return (
@@ -30,14 +30,6 @@ export const StatGrid: React.FC<StatGridProps> = ({ items }) => {
                   : item.tone === "warm"
                     ? "var(--grad-warm)"
                     : "var(--card-grad)",
-            borderColor:
-              item.tone === "primary"
-                ? "var(--primary-dim)"
-                : item.tone === "cool"
-                  ? "var(--cool-dim)"
-                  : item.tone === "warm"
-                    ? "var(--warm-dim)"
-                    : undefined,
           }}
         >
           <dt className="text-center text-[0.65rem] leading-tight tracking-wide whitespace-nowrap text-muted uppercase">

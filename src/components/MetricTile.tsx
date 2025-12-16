@@ -8,7 +8,7 @@ type MetricTileProps = {
 };
 
 const singleTileClass =
-  "border border-border bg-panel text-text shadow-[var(--shadow-tile)] [background-image:var(--card-grad)]";
+  "border border-border bg-panel-alt text-text shadow-[var(--shadow-tile)] [background-image:var(--card-grad)]";
 
 export const MetricTile: React.FC<MetricTileProps> = ({
   label,
@@ -18,7 +18,7 @@ export const MetricTile: React.FC<MetricTileProps> = ({
   return (
     <div
       className={cn(
-        "rounded-2xl border px-4 py-5 text-center",
+        "rounded-2xl border px-4 py-5 text-center ring-1 ring-inset ring-[color:var(--glass-border)]",
         singleTileClass,
         className,
       )}

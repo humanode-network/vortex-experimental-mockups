@@ -194,7 +194,7 @@ const Chambers: React.FC = () => {
               </Badge>
             }
             footer={
-              <Button asChild size="sm" variant="gradient" className="w-full">
+              <Button asChild size="sm" variant="primary" className="w-full">
                 <Link to={`/chambers/${chamber.id}`}>Open chamber</Link>
               </Button>
             }

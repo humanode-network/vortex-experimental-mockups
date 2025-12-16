@@ -68,10 +68,10 @@ const Factions: React.FC = () => {
         <PageHint pageId="factions" />
       </div>
 
-      {!showResultsOnly && (
+          {!showResultsOnly && (
         <>
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center shadow-[var(--shadow-tile)] ring-1 ring-inset ring-[color:var(--glass-border)]">
               <p className="text-xs tracking-wide text-muted uppercase">
                 Total factions
               </p>
@@ -79,7 +79,7 @@ const Factions: React.FC = () => {
                 {totals.totalFactions}
               </p>
             </div>
-            <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center shadow-[var(--shadow-tile)] ring-1 ring-inset ring-[color:var(--glass-border)]">
               <p className="text-xs tracking-wide text-muted uppercase">
                 Members
               </p>
@@ -87,7 +87,7 @@ const Factions: React.FC = () => {
                 {totals.totalMembers}
               </p>
             </div>
-            <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center shadow-[var(--shadow-tile)] ring-1 ring-inset ring-[color:var(--glass-border)]">
               <p className="text-xs tracking-wide text-muted uppercase">
                 Votes
               </p>
@@ -95,7 +95,7 @@ const Factions: React.FC = () => {
                 {totals.totalVotes}
               </p>
             </div>
-            <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-border bg-panel-alt px-4 py-4 text-center shadow-[var(--shadow-tile)] ring-1 ring-inset ring-[color:var(--glass-border)]">
               <p className="text-xs tracking-wide text-muted uppercase">
                 <HintLabel termId="acm" termText="ACM" />
               </p>

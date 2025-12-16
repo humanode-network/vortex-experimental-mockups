@@ -398,7 +398,7 @@ const HumanNode: React.FC = () => {
                       {action.context}
                     </p>
                   </div>
-                  <div className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 w-64 -translate-x-1/2 rounded-xl border border-border bg-panel p-3 text-left text-xs text-text opacity-0 shadow-lg transition group-hover:opacity-100">
+                  <div className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 w-64 -translate-x-1/2 rounded-xl border border-border bg-panel p-3 text-left text-xs text-text opacity-0 shadow-[var(--shadow-popover)] ring-1 ring-inset ring-[color:var(--glass-border)] transition group-hover:opacity-100">
                     <p className="font-semibold">{action.title}</p>
                     <p className="text-muted">{action.context}</p>
                     <p className="mt-1 leading-snug">{action.detail}</p>

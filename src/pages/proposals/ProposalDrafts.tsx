@@ -119,7 +119,7 @@ const ProposalDrafts: React.FC = () => {
         {filtered.map((draft) => (
           <Card
             key={draft.id}
-            className="border border-border bg-panel p-4 shadow-sm"
+            className="border border-border bg-panel p-4"
           >
             <div className="flex items-start justify-between gap-3">
               <div>

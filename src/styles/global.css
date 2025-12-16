@@ -24,14 +24,15 @@
   --chart-4: var(--accent-warm);
   --chart-5: var(--primary-hover);
   --radius: 0.625rem;
-  --sidebar: var(--bg-accent);
-  --sidebar-foreground: var(--text);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--panel-alt);
-  --sidebar-accent-foreground: var(--text);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--primary-dim);
+  /* Sidebar is intentionally decoupled from main UI colors. */
+  --sidebar: var(--sidebar-bg);
+  --sidebar-foreground: var(--sidebar-text);
+  --sidebar-primary: var(--sidebar-primary);
+  --sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --sidebar-accent: var(--sidebar-active-bg);
+  --sidebar-accent-foreground: var(--sidebar-text);
+  --sidebar-border: var(--sidebar-border);
+  --sidebar-ring: var(--sidebar-primary-dim);
 }
 
 @theme inline {

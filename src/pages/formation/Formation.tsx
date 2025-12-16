@@ -136,7 +136,7 @@ const Formation: React.FC = () => {
           <article
             key={metric.label}
             data-metric={metric.dataAttr}
-            className="rounded-2xl border border-border bg-panel-alt px-4 py-5 shadow-sm"
+            className="rounded-2xl border border-border bg-panel-alt px-4 py-5 shadow-[var(--shadow-tile)] ring-1 ring-inset ring-[color:var(--glass-border)]"
           >
             <p className="text-sm text-muted">{metric.label}</p>
             <strong className="text-2xl font-semibold text-(--text)">
@@ -193,7 +193,7 @@ const Formation: React.FC = () => {
         {filteredProjects.map((project) => (
           <Card
             key={project.id}
-            className="border border-border bg-panel shadow-sm"
+            className="border border-border bg-panel"
           >
             <CardHeader className="flex items-center justify-between pb-2">
               <div>

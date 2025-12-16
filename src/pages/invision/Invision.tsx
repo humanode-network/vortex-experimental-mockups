@@ -129,7 +129,7 @@ const Invision: React.FC = () => {
         <PageHint pageId="invision" />
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-panel-alt px-6 py-5 text-center shadow-sm sm:col-span-2 lg:col-span-3">
+        <div className="rounded-2xl border border-border bg-panel-alt px-6 py-5 text-center shadow-[var(--shadow-tile)] ring-1 ring-inset ring-[color:var(--glass-border)] sm:col-span-2 lg:col-span-3">
           <p className="text-xs tracking-wide text-muted uppercase">
             Governance model
           </p>
@@ -182,7 +182,7 @@ const Invision: React.FC = () => {
             {filteredFactions.map((faction) => (
               <div
                 key={faction.name}
-                className="rounded-2xl border border-border bg-panel-alt px-5 py-4 shadow-sm"
+                className="rounded-2xl border border-border bg-panel-alt px-5 py-4 shadow-[var(--shadow-tile)] ring-1 ring-inset ring-[color:var(--glass-border)]"
               >
                 <p className="text-lg font-semibold text-text">
                   {faction.name}

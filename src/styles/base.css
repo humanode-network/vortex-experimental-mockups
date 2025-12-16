@@ -1,53 +1,83 @@
 :root {
   color-scheme: light;
-  --bg: #edf2ff; /* page background */
+  /* Compounding palette based on sidebar (#e8efff): split-complementary anchors. */
+  --bg: #f2f5ff; /* app shell background */
+  --page: #eaf0ff; /* page container background */
   --bg-accent: #e8efff; /* navbar */
-  --panel: #ffffff; /* main containers */
-  --panel-alt: #e6efff; /* lighter surfaces/cards */
-  --text: #0b1324;
-  --muted: #475569;
-  --primary: #2f5bff;
-  --primary-hover: #3d6bff;
-  --secondary: #8fb1ff;
-  --accent: #18b6a5;
-  --accent-warm: #ff9f4a;
+  --panel: #f9fbff; /* main containers */
+  --panel-alt: #f2f7ff; /* tiles/inputs */
+  --text: #111827;
+  --muted: #5d6475;
+  /* Primary is derived from sidebar hue but intentionally less saturated. */
+  --primary: #6fa8ff; /* sky blue */
+  --primary-hover: #82b6ff;
+  --secondary: #c6ddff;
+  --accent: #5bc2b5; /* cool accent */
+  --accent-warm: #f4b37f; /* warm accent */
   --primary-foreground: #ffffff;
   --secondary-foreground: var(--text);
-  --accent-foreground: var(--text);
-  --muted-foreground: var(--text);
+  --accent-foreground: #ffffff;
+  --muted-foreground: var(--muted);
   --destructive: #ef4444;
-  --destructive-foreground: var(--text);
-  --primary-dim: rgba(47, 91, 255, 0.22);
-  --cool-dim: rgba(24, 182, 165, 0.22);
-  --warm-dim: rgba(255, 159, 74, 0.26);
-  --border: rgba(11, 19, 36, 0.14);
-  --veil: rgba(11, 19, 36, 0.55);
-  --shadow-card: 0 16px 38px rgba(11, 19, 36, 0.1);
-  --shadow-popover: 0 18px 44px rgba(11, 19, 36, 0.2);
-  --shadow-tile: 0 12px 28px rgba(11, 19, 36, 0.1);
-  --shadow-sidebar-active: 0 10px 20px rgba(47, 91, 255, 0.22);
-  --shadow-primary: 0 12px 28px rgba(47, 91, 255, 0.24);
-  --tint-primary: rgba(47, 91, 255, 0.08);
-  --tint-primary-strong: rgba(47, 91, 255, 0.14);
-  --card-grad: linear-gradient(
-    135deg,
-    rgba(47, 91, 255, 0.16),
-    rgba(143, 177, 255, 0.14)
+  --destructive-foreground: var(--primary-foreground);
+  --primary-dim: rgba(111, 168, 255, 0.18);
+  --cool-dim: rgba(91, 194, 181, 0.18);
+  --warm-dim: rgba(244, 179, 127, 0.24);
+  --border: rgba(17, 24, 39, 0.12);
+  --veil: rgba(17, 24, 39, 0.45);
+  --shadow-card: 0 18px 44px rgba(17, 24, 39, 0.09);
+  --shadow-popover: 0 22px 60px rgba(17, 24, 39, 0.16);
+  --shadow-tile: 0 14px 34px rgba(17, 24, 39, 0.09);
+  --shadow-sidebar-active: 0 10px 20px rgba(79, 106, 215, 0.18);
+  --shadow-primary: 0 12px 28px rgba(111, 168, 255, 0.18);
+  --shadow-pagehint: 0 14px 30px rgba(255, 106, 42, 0.22);
+  --shadow-control: 0 10px 22px rgba(17, 24, 39, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.42);
+  --glass-border-strong: rgba(255, 255, 255, 0.62);
+  --tint-primary: rgba(111, 168, 255, 0.06);
+  --tint-primary-strong: rgba(111, 168, 255, 0.1);
+
+  /* Page hint button (separate from main palette). */
+  --pagehint: #ff6a2a;
+  --pagehint-hover: #ff7a44;
+  --pagehint-dim: rgba(255, 106, 42, 0.22);
+  --pagehint-foreground: #ffffff;
+
+  /* Sidebar tokens (decoupled so sidebar can stay cool). */
+  --sidebar-bg: #e8efff;
+  --sidebar-border: rgba(17, 24, 39, 0.12);
+  --sidebar-text: #111827;
+  --sidebar-muted: #5d6475;
+  --sidebar-primary: #4f6ad7;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-primary-dim: rgba(79, 106, 215, 0.18);
+  --sidebar-active-bg: rgba(79, 106, 215, 0.12);
+  --sidebar-active-shadow: 0 10px 20px rgba(79, 106, 215, 0.16);
+  --sidebar-active-shadow-strong: 0 14px 28px rgba(79, 106, 215, 0.22);
+
+  /* Drop gradients everywhere (components reference these tokens). */
+  --bg-grad: none;
+  --card-grad: none;
+  --grad-primary: none;
+  --grad-cool: none;
+  --grad-warm: none;
+  /* Button-only subtle gradients (requested). */
+  --btn-primary-grad: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.28),
+    rgba(0, 0, 0, 0.16)
   );
-  --grad-primary: linear-gradient(
-    135deg,
-    rgba(47, 91, 255, 0.24),
-    rgba(143, 177, 255, 0.16)
+  --btn-primary-hover-grad: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.32),
+    rgba(0, 0, 0, 0.2)
   );
-  --grad-cool: linear-gradient(
-    135deg,
-    rgba(24, 182, 165, 0.22),
-    rgba(143, 177, 255, 0.14)
-  );
-  --grad-warm: linear-gradient(
-    135deg,
-    rgba(255, 159, 74, 0.24),
-    rgba(143, 177, 255, 0.12)
+  /* Extra “glassy” sheen overlay for primary buttons. */
+  --btn-sheen: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0.12) 35%,
+    rgba(255, 255, 255, 0) 60%
   );
   font-family:
     "Inter",
@@ -68,6 +98,7 @@ body {
   margin: 0;
   min-height: 100vh;
   background: var(--bg);
+  background-image: var(--bg-grad);
   color: var(--text);
   line-height: 1.6;
   font-weight: 400;
@@ -159,7 +190,9 @@ h3 {
 }
 
 .btn--primary {
-  background: linear-gradient(120deg, var(--primary), var(--secondary));
+  background: var(--primary);
+  background-image: var(--btn-primary-grad);
+  background-blend-mode: overlay;
   color: var(--primary-foreground);
   box-shadow: var(--shadow-primary);
 }
@@ -167,6 +200,8 @@ h3 {
 .btn--primary:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-popover);
+  background: var(--primary-hover);
+  background-image: var(--btn-primary-hover-grad);
 }
 
 .btn--ghost {

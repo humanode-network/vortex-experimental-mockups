@@ -23,7 +23,7 @@ export const PageHint: React.FC<PageHintProps> = ({ pageId, className }) => {
       <Button
         variant="ghost"
         size="sm"
-        className="h-10 w-10 rounded-full border border-[var(--primary-dim)] bg-[var(--primary)] text-[var(--primary-foreground)] shadow-md hover:bg-[var(--primary-hover)] hover:text-[var(--primary-foreground)] focus-visible:ring-[var(--primary)]"
+        className="h-10 w-10 rounded-full border border-[var(--pagehint-dim)] bg-[var(--pagehint)] text-[var(--pagehint-foreground)] shadow-[var(--shadow-pagehint)] hover:bg-[var(--pagehint-hover)] hover:text-[var(--pagehint-foreground)] focus-visible:ring-[var(--pagehint-dim)]"
         onClick={() => setOpen(true)}
         aria-label="Open page hint"
       >
@@ -33,7 +33,7 @@ export const PageHint: React.FC<PageHintProps> = ({ pageId, className }) => {
       {open && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-[var(--veil)] p-4 backdrop-blur-sm">
           <div className="relative mt-8 w-full max-w-2xl">
-            <Card className="rounded-2xl border border-border bg-[var(--panel)] text-[var(--text)] shadow-xl">
+            <Card className="rounded-2xl border border-border bg-[var(--panel)] text-[var(--text)] shadow-[var(--shadow-popover)]">
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-3">
                   <div>

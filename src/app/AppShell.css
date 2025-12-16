@@ -53,8 +53,7 @@
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 2rem;
-  background: var(--panel-alt);
-  background-image: var(--card-grad);
+  background: var(--page);
   box-shadow: var(--shadow-card);
 }
 

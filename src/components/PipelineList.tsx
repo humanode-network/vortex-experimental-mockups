@@ -12,11 +12,11 @@ type PipelineListProps = {
 };
 
 const badgeClass =
-  "rounded-full border border-[var(--accent-warm)] bg-panel px-2 py-0.5 text-[0.8rem] font-semibold text-[var(--accent-warm)]";
+  "rounded-full border border-[var(--accent)] bg-panel px-2 py-0.5 text-[0.8rem] font-semibold text-[var(--accent)]";
 
 export const PipelineList: React.FC<PipelineListProps> = ({ pipeline }) => {
   return (
-    <ul className="rounded-2xl border border-dashed border-border bg-panel-alt [background-image:var(--card-grad)] bg-cover bg-no-repeat px-3 py-3 text-sm shadow-[var(--shadow-tile)]">
+    <ul className="rounded-2xl border border-dashed border-border bg-panel-alt [background-image:var(--card-grad)] bg-cover bg-no-repeat px-3 py-3 text-sm shadow-[var(--shadow-tile)] ring-1 ring-inset ring-[color:var(--glass-border)]">
       <li className="flex items-center justify-between border-b border-border/50 pb-2 text-text">
         <span>
           <HintLabel termId="proposal_pools">Proposal pool</HintLabel>

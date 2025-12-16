@@ -344,7 +344,7 @@ const Chamber: React.FC = () => {
             {threads.map((thread) => (
               <article
                 key={thread.id}
-                className="rounded-2xl border border-border bg-panel-alt px-4 py-3 shadow-sm"
+                className="rounded-2xl border border-border bg-panel-alt px-4 py-3 shadow-[var(--shadow-tile)] ring-1 ring-inset ring-[color:var(--glass-border)]"
               >
                 <h3 className="text-base font-semibold text-(--text)">
                   {thread.title}
@@ -357,7 +357,7 @@ const Chamber: React.FC = () => {
             ))}
           </div>
 
-          <div className="rounded-2xl border border-border bg-panel-alt p-4 shadow-sm">
+          <div className="rounded-2xl border border-border bg-panel-alt p-4 shadow-[var(--shadow-tile)] ring-1 ring-inset ring-[color:var(--glass-border)]">
             <header className="text-sm font-semibold text-(--text)">
               Chamber chat
             </header>
