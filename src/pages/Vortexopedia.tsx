@@ -10,7 +10,6 @@ import { SearchBar } from "@/components/SearchBar";
 import { vortexopediaTerms } from "@/data/vortexopedia";
 import { cn } from "@/lib/utils";
 import { Pill } from "@/components/Pill";
-import { AppPage } from "@/components/AppPage";
 import { Kicker } from "@/components/Kicker";
 
 const Vortexopedia: React.FC = () => {
@@ -73,178 +72,170 @@ const Vortexopedia: React.FC = () => {
   }, [location.search]);
 
   return (
-    <AppPage>
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle>Vortexopedia</CardTitle>
-          <p className="text-xs text-muted">
-            Dictionary of Vortex terminology.
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <SearchBar
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by term, tag, or description…"
-            ariaLabel="Search terms"
-            className="w-full"
-            filtersConfig={[
-              {
-                key: "category",
-                label: "Category",
-                options: [
-                  { value: "any", label: "Any category" },
-                  ...categories.map((cat) => ({ value: cat, label: cat })),
-                ],
-              },
-              {
-                key: "sortBy",
-                label: "Sort by",
-                options: [
-                  { value: "name", label: "Name (A–Z)" },
-                  { value: "updated", label: "Updated (newest)" },
-                ],
-              },
-            ]}
-            filtersState={filters}
-            onFiltersChange={setFilters}
-          />
+    <div className="flex flex-col gap-6">
+      <div className="space-y-4">
+        <SearchBar
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by term, tag, or description…"
+          ariaLabel="Search terms"
+          className="w-full"
+          filtersConfig={[
+            {
+              key: "category",
+              label: "Category",
+              options: [
+                { value: "any", label: "Any category" },
+                ...categories.map((cat) => ({ value: cat, label: cat })),
+              ],
+            },
+            {
+              key: "sortBy",
+              label: "Sort by",
+              options: [
+                { value: "name", label: "Name (A–Z)" },
+                { value: "updated", label: "Updated (newest)" },
+              ],
+            },
+          ]}
+          filtersState={filters}
+          onFiltersChange={setFilters}
+        />
 
-          <div className="text-xs text-muted">
-            Showing {filtered.length} / {vortexopediaTerms.length} entries
-          </div>
+        <div className="text-xs text-muted">
+          Showing {filtered.length} / {vortexopediaTerms.length} entries
+        </div>
 
-          <div className="grid gap-3">
-            {filtered.map((item) => (
-              <Card
-                key={item.id}
-                data-term-id={item.id}
-                className={cn(
-                  "border border-border bg-panel-alt transition-colors hover:border-primary/60",
-                  expandedId === item.id && "border-primary",
-                )}
+        <div className="grid gap-3">
+          {filtered.map((item) => (
+            <Card
+              key={item.id}
+              data-term-id={item.id}
+              className={cn(
+                "border border-border bg-panel-alt transition-colors hover:border-primary/60",
+                expandedId === item.id && "border-primary",
+              )}
+            >
+              <button
+                type="button"
+                className="w-full text-left"
+                onClick={() => toggleExpand(item.id)}
               >
-                <button
-                  type="button"
-                  className="w-full text-left"
-                  onClick={() => toggleExpand(item.id)}
-                >
-                  <CardHeader className="pb-2">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex flex-col">
-                        <Kicker className="text-[0.75rem]">
-                          Ref {item.ref} · {item.category}
-                        </Kicker>
-                        <CardTitle className="text-lg">{item.name}</CardTitle>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-muted">
-                        <Pill
-                          size="sm"
-                          tone="muted"
-                          className="px-2 py-1 text-xs"
-                        >
-                          ID: {item.id}
-                        </Pill>
-                        <Pill
-                          size="sm"
-                          tone="muted"
-                          className="px-2 py-1 text-xs"
-                        >
-                          Updated: {item.updated}
-                        </Pill>
-                      </div>
+                <CardHeader className="pb-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-col">
+                      <Kicker className="text-[0.75rem]">
+                        Ref {item.ref} · {item.category}
+                      </Kicker>
+                      <CardTitle className="text-lg">{item.name}</CardTitle>
                     </div>
-                    <p className="text-sm text-foreground">{item.short}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {item.tags.map((tag) => (
-                        <Pill
-                          key={tag}
-                          tone="muted"
-                          size="xs"
-                          className="uppercase"
-                        >
-                          {tag}
-                        </Pill>
+                    <div className="flex items-center gap-2 text-xs text-muted">
+                      <Pill
+                        size="sm"
+                        tone="muted"
+                        className="px-2 py-1 text-xs"
+                      >
+                        ID: {item.id}
+                      </Pill>
+                      <Pill
+                        size="sm"
+                        tone="muted"
+                        className="px-2 py-1 text-xs"
+                      >
+                        Updated: {item.updated}
+                      </Pill>
+                    </div>
+                  </div>
+                  <p className="text-sm text-foreground">{item.short}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {item.tags.map((tag) => (
+                      <Pill
+                        key={tag}
+                        tone="muted"
+                        size="xs"
+                        className="uppercase"
+                      >
+                        {tag}
+                      </Pill>
+                    ))}
+                  </div>
+                </CardHeader>
+              </button>
+              {expandedId === item.id && (
+                <CardContent className="space-y-3 text-sm text-foreground">
+                  <div className="space-y-1">
+                    <p className="font-semibold">Details</p>
+                    <ul className="list-disc space-y-1 pl-5 text-muted">
+                      {item.long.map((line, idx) => (
+                        <li key={idx}>{line}</li>
                       ))}
-                    </div>
-                  </CardHeader>
-                </button>
-                {expandedId === item.id && (
-                  <CardContent className="space-y-3 text-sm text-foreground">
+                    </ul>
+                  </div>
+                  {item.examples.length > 0 && (
                     <div className="space-y-1">
-                      <p className="font-semibold">Details</p>
+                      <p className="font-semibold">Examples / usage</p>
                       <ul className="list-disc space-y-1 pl-5 text-muted">
-                        {item.long.map((line, idx) => (
-                          <li key={idx}>{line}</li>
+                        {item.examples.map((ex, idx) => (
+                          <li key={idx}>{ex}</li>
                         ))}
                       </ul>
                     </div>
-                    {item.examples.length > 0 && (
-                      <div className="space-y-1">
-                        <p className="font-semibold">Examples / usage</p>
-                        <ul className="list-disc space-y-1 pl-5 text-muted">
-                          {item.examples.map((ex, idx) => (
-                            <li key={idx}>{ex}</li>
-                          ))}
-                        </ul>
+                  )}
+                  {item.stages.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="font-semibold">Stages / context</p>
+                      <div className="flex flex-wrap gap-2">
+                        {item.stages.map((stage) => (
+                          <Pill key={stage} tone="muted" size="xs">
+                            {stage}
+                          </Pill>
+                        ))}
                       </div>
-                    )}
-                    {item.stages.length > 0 && (
-                      <div className="space-y-1">
-                        <p className="font-semibold">Stages / context</p>
-                        <div className="flex flex-wrap gap-2">
-                          {item.stages.map((stage) => (
-                            <Pill key={stage} tone="muted" size="xs">
-                              {stage}
-                            </Pill>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {item.related.length > 0 && (
-                      <div className="space-y-1">
-                        <p className="font-semibold">Related terms</p>
-                        <div className="flex flex-wrap gap-2">
-                          {item.related.map((rel) => (
-                            <Pill key={rel} tone="muted" size="xs">
-                              {rel}
-                            </Pill>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {item.links.length > 0 && (
-                      <div className="space-y-1">
-                        <p className="font-semibold">Links</p>
-                        <div className="flex flex-wrap gap-2">
-                          {item.links.map((link) => (
-                            <Pill
-                              key={link.url}
-                              as="a"
-                              tone="primary"
-                              size="xs"
-                              className="hover:border-primary"
-                              href={link.url}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              {link.label}
-                            </Pill>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    <div className="text-xs text-muted">
-                      Source: {item.source}
                     </div>
-                  </CardContent>
-                )}
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </AppPage>
+                  )}
+                  {item.related.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="font-semibold">Related terms</p>
+                      <div className="flex flex-wrap gap-2">
+                        {item.related.map((rel) => (
+                          <Pill key={rel} tone="muted" size="xs">
+                            {rel}
+                          </Pill>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {item.links.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="font-semibold">Links</p>
+                      <div className="flex flex-wrap gap-2">
+                        {item.links.map((link) => (
+                          <Pill
+                            key={link.url}
+                            as="a"
+                            tone="primary"
+                            size="xs"
+                            className="hover:border-primary"
+                            href={link.url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {link.label}
+                          </Pill>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div className="text-xs text-muted">
+                    Source: {item.source}
+                  </div>
+                </CardContent>
+              )}
+            </Card>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
 

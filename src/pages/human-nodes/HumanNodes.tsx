@@ -12,7 +12,7 @@ import { Select } from "@/components/primitives/select";
 import { Badge } from "@/components/primitives/badge";
 import { HintLabel } from "@/components/Hint";
 import { SearchBar } from "@/components/SearchBar";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 import { StatTile } from "@/components/StatTile";
 import { Kicker } from "@/components/Kicker";
 import { TierLabel } from "@/components/TierLabel";
@@ -57,7 +57,8 @@ const HumanNodes: React.FC = () => {
   }, [search, sortBy, tierFilter]);
 
   return (
-    <AppPage pageId="human-nodes" variant="stack6">
+    <div className="flex flex-col gap-6">
+      <PageHint pageId="human-nodes" />
       <SearchBar
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -263,7 +264,7 @@ const HumanNodes: React.FC = () => {
           )}
         </CardContent>
       </Card>
-    </AppPage>
+    </div>
   );
 };
 

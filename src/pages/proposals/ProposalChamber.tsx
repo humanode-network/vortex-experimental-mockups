@@ -11,7 +11,7 @@ import { HintLabel } from "@/components/Hint";
 import ProposalStageBar from "@/components/ProposalStageBar";
 import { Surface } from "@/components/Surface";
 import { StatTile } from "@/components/StatTile";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 import { AttachmentList } from "@/components/AttachmentList";
 import { VoteButton } from "@/components/VoteButton";
 import { TitledSurface } from "@/components/TitledSurface";
@@ -37,7 +37,8 @@ const ProposalChamber: React.FC = () => {
   ) => <ProposalStageBar current={current} />;
 
   return (
-    <AppPage pageId="proposals">
+    <div className="flex flex-col gap-6">
+      <PageHint pageId="proposals" />
       <Surface
         as="section"
         variant="panel"
@@ -272,7 +273,7 @@ const ProposalChamber: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </AppPage>
+    </div>
   );
 };
 

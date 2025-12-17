@@ -10,7 +10,7 @@ import { Badge } from "@/components/primitives/badge";
 import { Button } from "@/components/primitives/button";
 import { HintLabel } from "@/components/Hint";
 import { Surface } from "@/components/Surface";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 import { chambers as chamberDirectory } from "@/data/mock/chambers";
 
 const CMPanel: React.FC = () => {
@@ -35,7 +35,8 @@ const CMPanel: React.FC = () => {
   const nonMemberSuggestions = chambers.filter((c) => !c.member);
 
   return (
-    <AppPage pageId="cm-panel">
+    <div className="flex flex-col gap-6">
+      <PageHint pageId="cm-panel" />
       <Card>
         <CardHeader className="pb-2">
           <CardTitle>Overview</CardTitle>
@@ -99,7 +100,7 @@ const CMPanel: React.FC = () => {
           Submit suggestions
         </Button>
       </div>
-    </AppPage>
+    </div>
   );
 };
 

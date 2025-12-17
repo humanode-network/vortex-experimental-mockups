@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/primitives/card";
-import { AppPage } from "@/components/AppPage";
 import { PageHeader } from "@/components/PageHeader";
 import { ToggleGroup } from "@/components/ToggleGroup";
 import { getStoredTheme, setTheme, type Theme } from "@/lib/theme";
@@ -21,7 +20,7 @@ const General: React.FC = () => {
   }, [theme]);
 
   return (
-    <AppPage>
+    <div className="flex flex-col gap-6">
       <PageHeader
         title="General"
         description="Global preferences and account options."
@@ -50,7 +49,7 @@ const General: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </AppPage>
+    </div>
   );
 };
 

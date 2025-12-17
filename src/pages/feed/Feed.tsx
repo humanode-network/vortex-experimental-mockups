@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { Badge } from "@/components/primitives/badge";
 import { cn } from "@/lib/utils";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 import { CardActionsRow } from "@/components/CardActionsRow";
 import { DashedStatItem } from "@/components/DashedStatItem";
 import { ExpandableCard } from "@/components/ExpandableCard";
@@ -30,7 +30,8 @@ const Feed: React.FC = () => {
   };
 
   return (
-    <AppPage pageId="feed" variant="stack4">
+    <div className="flex flex-col gap-4">
+      <PageHint pageId="feed" />
       {/* Governing threshold moved to MyGovernance */}
 
       <section aria-live="polite" className="flex flex-col gap-4">
@@ -92,7 +93,7 @@ const Feed: React.FC = () => {
           </ExpandableCard>
         ))}
       </section>
-    </AppPage>
+    </div>
   );
 };
 

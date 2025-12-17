@@ -5,7 +5,7 @@ import { Button } from "@/components/primitives/button";
 import { Card } from "@/components/primitives/card";
 import { Badge } from "@/components/primitives/badge";
 import { SearchBar } from "@/components/SearchBar";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 import { ExpandableCard } from "@/components/ExpandableCard";
 import { StageDataTile } from "@/components/StageDataTile";
 import { DashedStatItem } from "@/components/DashedStatItem";
@@ -71,7 +71,8 @@ const Proposals: React.FC = () => {
   };
 
   return (
-    <AppPage pageId="proposals">
+    <div className="flex flex-col gap-6">
+      <PageHint pageId="proposals" />
       <div className="flex justify-between gap-2">
         <Button
           asChild
@@ -203,7 +204,7 @@ const Proposals: React.FC = () => {
           </ExpandableCard>
         ))}
       </section>
-    </AppPage>
+    </div>
   );
 };
 

@@ -3,7 +3,6 @@ import { PageHint } from "@/components/PageHint";
 import { SearchBar } from "@/components/SearchBar";
 import { useMemo, useState } from "react";
 import MetricTile from "@/components/MetricTile";
-import BackgroundContainer from "@/components/BackgroundContainer";
 import AppCard from "@/components/AppCard";
 import { Badge } from "@/components/primitives/badge";
 import StatGrid, { makeChamberStats } from "@/components/StatGrid";
@@ -39,6 +38,7 @@ const Chambers: React.FC = () => {
           term.length === 0 ||
           chamber.name.toLowerCase().includes(term) ||
           chamber.stats.governors.toLowerCase().includes(term) ||
+          chamber.stats.acm.toLowerCase().includes(term) ||
           chamber.stats.mcm.toLowerCase().includes(term) ||
           chamber.stats.lcm.toLowerCase().includes(term) ||
           String(chamber.multiplier).toLowerCase().includes(term);
@@ -55,14 +55,14 @@ const Chambers: React.FC = () => {
             parseInt(b.stats.governors, 10) - parseInt(a.stats.governors, 10)
           );
         return (
-          parseInt(b.stats.mcm.replace(/[,]/g, ""), 10) -
-          parseInt(a.stats.mcm.replace(/[,]/g, ""), 10)
+          parseInt(b.stats.acm.replace(/[,]/g, ""), 10) -
+          parseInt(a.stats.acm.replace(/[,]/g, ""), 10)
         );
       });
   }, [search, pipelineFilter, sortBy]);
 
   return (
-    <BackgroundContainer>
+    <div className="flex flex-col gap-6">
       <PageHint pageId="chambers" />
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metricCards.map((metric) => {
@@ -119,16 +119,21 @@ const Chambers: React.FC = () => {
         {filtered.map((chamber) => (
           <AppCard
             key={chamber.id}
-            title={chamber.name}
+            title={<span className="text-xl font-bold">{chamber.name}</span>}
             badge={
-              <Badge className="border-none bg-[var(--primary-dim)] text-center text-xs font-semibold whitespace-nowrap text-[var(--primary)] uppercase">
+              <Badge
+                size="md"
+                className="border-none bg-[var(--primary-dim)] px-4 py-1 text-center text-sm font-bold tracking-wide whitespace-nowrap text-[var(--primary)] uppercase"
+              >
                 M × {chamber.multiplier}
               </Badge>
             }
             footer={
-              <Button asChild size="sm" variant="primary" className="w-full">
-                <Link to={`/chambers/${chamber.id}`}>Open chamber</Link>
-              </Button>
+              <div className="flex w-full justify-center">
+                <Button asChild size="md" variant="primary" className="w-56">
+                  <Link to={`/chambers/${chamber.id}`}>Enter</Link>
+                </Button>
+              </div>
             }
           >
             <StatGrid items={makeChamberStats(chamber.stats)} />
@@ -136,7 +141,7 @@ const Chambers: React.FC = () => {
           </AppCard>
         ))}
       </section>
-    </BackgroundContainer>
+    </div>
   );
 };
 

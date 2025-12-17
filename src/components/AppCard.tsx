@@ -25,14 +25,16 @@ export const AppCard: React.FC<AppCardProps> = ({
 }) => {
   return (
     <Card className={cn("h-full", className)}>
-      <CardHeader className="pb-0">
-        <div className="flex min-h-16 items-start justify-between gap-2">
-          <CardTitle className="max-w-[70%] leading-tight">{title}</CardTitle>
-          {badge ? <div className="shrink-0">{badge}</div> : null}
+      <CardHeader className="relative pb-0">
+        {badge ? (
+          <div className="absolute top-4 right-4 z-10">{badge}</div>
+        ) : null}
+        <div className="flex min-h-16 items-center justify-center text-center">
+          <CardTitle className="leading-tight">{title}</CardTitle>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">{children}</CardContent>
+      <CardContent className="space-y-4 pt-2">{children}</CardContent>
 
       {footer ? <CardFooter className="pt-0">{footer}</CardFooter> : null}
     </Card>

@@ -8,7 +8,7 @@ import {
 import { HintLabel } from "@/components/Hint";
 import { SearchBar } from "@/components/SearchBar";
 import { Surface } from "@/components/Surface";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 import { factions as allFactions } from "@/data/mock/factions";
 import { Kicker } from "@/components/Kicker";
 import {
@@ -45,7 +45,8 @@ const Invision: React.FC = () => {
   }, [search, factionSort]);
 
   return (
-    <AppPage pageId="invision" variant="stack5">
+    <div className="flex flex-col gap-5">
+      <PageHint pageId="invision" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Surface
           variant="panelAlt"
@@ -208,7 +209,7 @@ const Invision: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </AppPage>
+    </div>
   );
 };
 

@@ -13,7 +13,7 @@ import { factions } from "@/data/mock/factions";
 import { SearchBar } from "@/components/SearchBar";
 import { MetricTile } from "@/components/MetricTile";
 import { StatTile } from "@/components/StatTile";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 
 const Factions: React.FC = () => {
   const [query, setQuery] = useState("");
@@ -73,7 +73,8 @@ const Factions: React.FC = () => {
   const showResultsOnly = query.trim().length > 0;
 
   return (
-    <AppPage pageId="factions">
+    <div className="flex flex-col gap-6">
+      <PageHint pageId="factions" />
       {!showResultsOnly && (
         <>
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -184,7 +185,7 @@ const Factions: React.FC = () => {
           ))}
         </section>
       )}
-    </AppPage>
+    </div>
   );
 };
 

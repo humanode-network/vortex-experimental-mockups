@@ -8,7 +8,7 @@ import {
 import { Input } from "@/components/primitives/input";
 import { Label } from "@/components/primitives/label";
 import { Button } from "@/components/primitives/button";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 
 const ProposalCreation: React.FC = () => {
   const [form, setForm] = useState({
@@ -29,7 +29,8 @@ const ProposalCreation: React.FC = () => {
     setForm((prev) => ({ ...prev, [key]: value }));
 
   return (
-    <AppPage pageId="proposals">
+    <div className="flex flex-col gap-6">
+      <PageHint pageId="proposals" />
       <Card>
         <CardHeader className="pb-2">
           <CardTitle>Edit proposal</CardTitle>
@@ -157,7 +158,7 @@ const ProposalCreation: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </AppPage>
+    </div>
   );
 };
 

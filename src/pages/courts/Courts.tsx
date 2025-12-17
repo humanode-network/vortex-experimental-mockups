@@ -8,12 +8,12 @@ import {
   CardTitle,
 } from "@/components/primitives/card";
 import { Link } from "react-router";
-import { AppPage } from "@/components/AppPage";
 import { MetricTile } from "@/components/MetricTile";
 import { Kicker } from "@/components/Kicker";
 import { courtCases } from "@/data/mock/courts";
 import type { CourtCase } from "@/data/mock/types";
 import { CourtStatusBadge } from "@/components/CourtStatusBadge";
+import { PageHint } from "@/components/PageHint";
 
 const Courts: React.FC = () => {
   const [search, setSearch] = useState("");
@@ -42,7 +42,8 @@ const Courts: React.FC = () => {
       });
   }, [search, statusFilter, sortBy]);
   return (
-    <AppPage pageId="courts">
+    <div className="flex flex-col gap-6">
+      <PageHint pageId="courts" />
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
           {
@@ -134,7 +135,7 @@ const Courts: React.FC = () => {
           ))}
         </CardContent>
       </Card>
-    </AppPage>
+    </div>
   );
 };
 

@@ -12,7 +12,7 @@ import { factions } from "@/data/mock/factions";
 import { HintLabel } from "@/components/Hint";
 import { Surface } from "@/components/Surface";
 import { AvatarPlaceholder } from "@/components/AvatarPlaceholder";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
 
 const Faction: React.FC = () => {
@@ -21,12 +21,12 @@ const Faction: React.FC = () => {
 
   if (!faction) {
     return (
-      <AppPage variant="stack4">
+      <div className="flex flex-col gap-4">
         <h1 className="text-xl font-semibold text-text">Faction not found</h1>
         <Button asChild size="sm">
           <Link to="/factions">Back to factions</Link>
         </Button>
-      </AppPage>
+      </div>
     );
   }
 
@@ -109,7 +109,8 @@ const Faction: React.FC = () => {
   ];
 
   return (
-    <AppPage pageId="faction">
+    <div className="flex flex-col gap-6">
+      <PageHint pageId="faction" />
       <Surface
         as="section"
         variant="panel"
@@ -268,7 +269,7 @@ const Faction: React.FC = () => {
           ))}
         </CardContent>
       </Card>
-    </AppPage>
+    </div>
   );
 };
 

@@ -8,7 +8,7 @@ import { Badge } from "@/components/primitives/badge";
 import { Button } from "@/components/primitives/button";
 import { useParams } from "react-router";
 import { Surface } from "@/components/Surface";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
 import { courtroomJury as jury } from "@/data/mock/courtroom";
 
@@ -17,7 +17,8 @@ const Courtroom: React.FC = () => {
   const caseTitle = id ? `Courtroom · ${id}` : "Courtroom";
 
   return (
-    <AppPage pageId="courtroom">
+    <div className="flex flex-col gap-6">
+      <PageHint pageId="courtroom" />
       <Card>
         <CardHeader className="pb-2">
           <CardTitle>{caseTitle}</CardTitle>
@@ -127,7 +128,7 @@ const Courtroom: React.FC = () => {
         </Button>
         <Button size="sm">Add note</Button>
       </div>
-    </AppPage>
+    </div>
   );
 };
 

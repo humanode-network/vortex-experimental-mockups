@@ -11,7 +11,7 @@ import { HintLabel } from "@/components/Hint";
 import { Surface } from "@/components/Surface";
 import { AvatarPlaceholder } from "@/components/AvatarPlaceholder";
 import { StatusPill } from "@/components/StatusPill";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
 import { TierLabel } from "@/components/TierLabel";
 import { ToggleGroup } from "@/components/ToggleGroup";
@@ -53,7 +53,8 @@ const HumanNode: React.FC = () => {
   }));
 
   return (
-    <AppPage pageId="human-node">
+    <div className="flex flex-col gap-6">
+      <PageHint pageId="human-node" />
       <Surface
         as="section"
         variant="panel"
@@ -261,7 +262,7 @@ const HumanNode: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </AppPage>
+    </div>
   );
 };
 

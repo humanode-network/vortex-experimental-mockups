@@ -4,7 +4,7 @@ import { Card } from "@/components/primitives/card";
 import { Button } from "@/components/primitives/button";
 import { Badge } from "@/components/primitives/badge";
 import { SearchBar } from "@/components/SearchBar";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
 
 type Draft = {
@@ -72,7 +72,8 @@ const ProposalDrafts: React.FC = () => {
   }, [query, sortBy, chamberFilter]);
 
   return (
-    <AppPage pageId="proposals">
+    <div className="flex flex-col gap-6">
+      <PageHint pageId="proposals" />
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" size="sm">
@@ -137,7 +138,7 @@ const ProposalDrafts: React.FC = () => {
           </Card>
         ))}
       </div>
-    </AppPage>
+    </div>
   );
 };
 

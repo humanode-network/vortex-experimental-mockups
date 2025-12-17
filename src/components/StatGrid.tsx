@@ -15,7 +15,7 @@ type StatGridProps = {
 
 export const StatGrid: React.FC<StatGridProps> = ({ items }) => {
   return (
-    <dl className="grid grid-cols-3 gap-3 text-center text-sm text-text">
+    <dl className="grid grid-cols-2 gap-3 text-center text-sm text-text">
       {items.map((item) => (
         <Surface
           key={typeof item.label === "string" ? item.label : `${item.value}`}
@@ -50,20 +50,26 @@ export const StatGrid: React.FC<StatGridProps> = ({ items }) => {
 
 export const makeChamberStats = (stats: {
   governors: string;
+  acm: string;
   mcm: string;
   lcm: string;
 }): StatItem[] => [
-  { label: "Governors", value: stats.governors, tone: "cool" },
   {
     label: <HintLabel termId="acm">ACM</HintLabel>,
-    value: stats.mcm,
+    value: stats.acm,
     tone: "primary",
+  },
+  {
+    label: <HintLabel termId="mcm">MCM</HintLabel>,
+    value: stats.mcm,
+    tone: "cool",
   },
   {
     label: <HintLabel termId="lcm">LCM</HintLabel>,
     value: stats.lcm,
     tone: "warm",
   },
+  { label: "Governors", value: stats.governors, tone: "neutral" },
 ];
 
 export default StatGrid;

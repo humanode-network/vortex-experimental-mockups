@@ -7,7 +7,7 @@ import { Link } from "react-router";
 import { SearchBar } from "@/components/SearchBar";
 import { MetricTile } from "@/components/MetricTile";
 import { Surface } from "@/components/Surface";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
 import {
   formationMetrics as metrics,
@@ -48,7 +48,8 @@ const Formation: React.FC = () => {
   }, [search, stageFilter, categoryFilter]);
 
   return (
-    <AppPage pageId="formation">
+    <div className="flex flex-col gap-6">
+      <PageHint pageId="formation" />
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
           <div
@@ -174,7 +175,7 @@ const Formation: React.FC = () => {
           </Surface>
         )}
       </section>
-    </AppPage>
+    </div>
   );
 };
 

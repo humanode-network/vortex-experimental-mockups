@@ -4,7 +4,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/primitives/card";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 import { PageHeader } from "@/components/PageHeader";
 import { Kicker } from "@/components/Kicker";
 import { Link, useParams } from "react-router";
@@ -97,7 +97,8 @@ const FullHistory: React.FC = () => {
   const name = id ?? "Human node";
 
   return (
-    <AppPage pageId="human-node">
+    <div className="flex flex-col gap-6">
+      <PageHint pageId="human-node" />
       <PageHeader
         eyebrow="Full history"
         title={name}
@@ -134,7 +135,7 @@ const FullHistory: React.FC = () => {
           ))}
         </CardContent>
       </Card>
-    </AppPage>
+    </div>
   );
 };
 

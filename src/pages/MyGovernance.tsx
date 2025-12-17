@@ -6,13 +6,14 @@ import {
 } from "@/components/primitives/card";
 import { HintLabel } from "@/components/Hint";
 import { Surface } from "@/components/Surface";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
 import { eraActivity } from "@/data/mock/myGovernance";
 
 const MyGovernance: React.FC = () => {
   return (
-    <AppPage pageId="my-governance">
+    <div className="flex flex-col gap-6">
+      <PageHint pageId="my-governance" />
       <Card>
         <CardHeader className="pb-2">
           <CardTitle>
@@ -234,7 +235,7 @@ const MyGovernance: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </AppPage>
+    </div>
   );
 };
 

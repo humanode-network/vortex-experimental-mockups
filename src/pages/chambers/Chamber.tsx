@@ -12,7 +12,7 @@ import { Badge } from "@/components/primitives/badge";
 import { Input } from "@/components/primitives/input";
 import { Kicker } from "@/components/Kicker";
 import { Surface } from "@/components/Surface";
-import { AppPage } from "@/components/AppPage";
+import { PageHint } from "@/components/PageHint";
 import { PageHeader } from "@/components/PageHeader";
 import { TierLabel } from "@/components/TierLabel";
 import {
@@ -53,7 +53,8 @@ const Chamber: React.FC = () => {
   };
 
   return (
-    <AppPage pageId="chamber">
+    <div className="flex flex-col gap-6">
+      <PageHint pageId="chamber" />
       <PageHeader
         eyebrow="Chamber detail"
         title={<span className="capitalize">{chamberTitle}</span>}
@@ -256,7 +257,7 @@ const Chamber: React.FC = () => {
           </Surface>
         </div>
       </Surface>
-    </AppPage>
+    </div>
   );
 };
 
