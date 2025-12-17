@@ -236,3 +236,12 @@ h3 {
     transform: translateY(-8%) scale(1.02);
   }
 }
+
+@keyframes landing-shimmer {
+  0% {
+    transform: translateX(-180%) skewX(-18deg);
+  }
+  100% {
+    transform: translateX(260%) skewX(-18deg);
+  }
+}

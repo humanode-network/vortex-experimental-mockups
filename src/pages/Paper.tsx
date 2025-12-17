@@ -15,13 +15,16 @@ const Paper: React.FC = () => {
           Paper
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-white/75">
-          Drop your PDF at <code className="text-white">public/paper.pdf</code>{" "}
-          (or wire an external URL) and we’ll point this button to it.
+          The Vortex 1.0 paper lives on GitBook.
         </p>
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Button asChild variant="primary" className="min-w-[200px]">
-            <a href="/paper.pdf" target="_blank" rel="noreferrer">
+            <a
+              href="https://gitbook.humanode.io/vortex-1.0"
+              target="_blank"
+              rel="noreferrer"
+            >
               Open paper
             </a>
           </Button>
