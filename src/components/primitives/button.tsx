@@ -4,12 +4,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-full text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none",
   {
     variants: {
       variant: {
         primary:
-          "bg-[var(--primary)] [background-image:var(--btn-primary-grad),var(--btn-sheen)] bg-cover bg-no-repeat text-[var(--primary-foreground)] shadow-[var(--shadow-primary)] border border-[color:var(--glass-border)] hover:bg-[var(--primary-hover)] hover:[background-image:var(--btn-primary-hover-grad),var(--btn-sheen)] hover:shadow-[var(--shadow-popover)] hover:border-[color:var(--glass-border-strong)] focus-visible:ring-[var(--primary)] focus-visible:ring-offset-[var(--panel)]",
+          "bg-[color:var(--btn-primary-bg)] [background-image:var(--btn-primary-grad),var(--btn-sheen)] bg-cover bg-no-repeat text-[var(--primary-foreground)] shadow-[var(--shadow-primary)] border border-[color:var(--glass-border)] ring-1 ring-inset ring-white/10 supports-[backdrop-filter]:backdrop-blur-md supports-[backdrop-filter]:backdrop-saturate-150 hover:bg-[color:var(--btn-primary-hover-bg)] hover:[background-image:var(--btn-primary-hover-grad),var(--btn-sheen)] hover:shadow-[var(--shadow-popover)] hover:border-[color:var(--glass-border-strong)] focus-visible:ring-[var(--primary)] focus-visible:ring-offset-[var(--panel)]",
         ghost:
           "bg-transparent text-[var(--primary)] border border-border shadow-[var(--shadow-control)] hover:bg-[var(--primary-dim)] hover:border-[var(--primary)] focus-visible:ring-[var(--primary)] focus-visible:ring-offset-[var(--panel)]",
         outline:

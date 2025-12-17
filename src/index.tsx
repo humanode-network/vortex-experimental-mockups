@@ -4,6 +4,9 @@ import App from "./app/App";
 
 import "./styles/global.css";
 import "./styles/base.css";
+import { initTheme } from "./lib/theme";
+
+initTheme("sky");
 
 const rootEl = document.getElementById("root");
 if (rootEl === null) {

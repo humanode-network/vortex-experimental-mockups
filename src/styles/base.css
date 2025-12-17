@@ -72,6 +72,9 @@
     rgba(255, 255, 255, 0.32),
     rgba(0, 0, 0, 0.2)
   );
+  /* Glassy button base (tint + transparency) */
+  --btn-primary-bg: rgba(111, 168, 255, 0.78);
+  --btn-primary-hover-bg: rgba(130, 182, 255, 0.84);
   /* Extra “glassy” sheen overlay for primary buttons. */
   --btn-sheen: linear-gradient(
     120deg,
@@ -86,6 +89,66 @@
     BlinkMacSystemFont,
     system-ui,
     sans-serif;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  /* Pure light surfaces. */
+  --bg: #ffffff;
+  --page: #ffffff;
+  --bg-accent: #ffffff;
+  --panel: #ffffff;
+  --panel-alt: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: rgba(17, 24, 39, 0.14);
+  --veil: rgba(17, 24, 39, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.55);
+  --glass-border-strong: rgba(255, 255, 255, 0.72);
+  --shadow-card: 0 18px 44px rgba(17, 24, 39, 0.09);
+  --shadow-popover: 0 22px 60px rgba(17, 24, 39, 0.16);
+  --shadow-tile: 0 14px 34px rgba(17, 24, 39, 0.09);
+  --shadow-control: 0 10px 22px rgba(17, 24, 39, 0.08);
+  --btn-primary-bg: rgba(111, 168, 255, 0.72);
+  --btn-primary-hover-bg: rgba(130, 182, 255, 0.8);
+}
+
+:root[data-theme="night"] {
+  color-scheme: dark;
+  /* Pure dark surfaces. */
+  --bg: #000000;
+  --page: #000000;
+  --bg-accent: #000000;
+  --panel: #000000;
+  --panel-alt: #000000;
+  --text: #f5f5f5;
+  --muted: #a3a3a3;
+  --primary-dim: rgba(111, 168, 255, 0.22);
+  --cool-dim: rgba(91, 194, 181, 0.2);
+  --warm-dim: rgba(244, 179, 127, 0.26);
+  --border: rgba(245, 245, 245, 0.14);
+  --veil: rgba(0, 0, 0, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-border-strong: rgba(255, 255, 255, 0.22);
+  --shadow-card: 0 18px 44px rgba(0, 0, 0, 0.72);
+  --shadow-popover: 0 22px 60px rgba(0, 0, 0, 0.82);
+  --shadow-tile: 0 14px 34px rgba(0, 0, 0, 0.64);
+  --shadow-control: 0 10px 22px rgba(0, 0, 0, 0.5);
+  --shadow-primary: 0 12px 28px rgba(111, 168, 255, 0.24);
+  --btn-primary-bg: rgba(111, 168, 255, 0.38);
+  --btn-primary-hover-bg: rgba(130, 182, 255, 0.46);
+
+  /* Sidebar goes dark only in Night mode. */
+  --sidebar-bg: #000000;
+  --sidebar-border: rgba(245, 245, 245, 0.14);
+  --sidebar-text: #f5f5f5;
+  --sidebar-muted: #a3a3a3;
+  --sidebar-primary: #6fa8ff;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-primary-dim: rgba(111, 168, 255, 0.22);
+  --sidebar-active-bg: rgba(111, 168, 255, 0.18);
+  --sidebar-active-shadow: 0 10px 20px rgba(111, 168, 255, 0.18);
+  --sidebar-active-shadow-strong: 0 14px 28px rgba(111, 168, 255, 0.22);
 }
 
 *,
@@ -180,7 +243,7 @@ h3 {
   justify-content: center;
   gap: 0.4rem;
   padding: 0.65rem 1.5rem;
-  border-radius: 999px;
+  border-radius: 0.5rem;
   font-weight: 600;
   border: 1px solid transparent;
   transition:
@@ -190,18 +253,21 @@ h3 {
 }
 
 .btn--primary {
-  background: var(--primary);
-  background-image: var(--btn-primary-grad);
-  background-blend-mode: overlay;
+  background: var(--btn-primary-bg);
+  background-image: var(--btn-primary-grad), var(--btn-sheen);
+  background-repeat: no-repeat;
+  background-size: cover;
   color: var(--primary-foreground);
+  border-color: var(--glass-border);
   box-shadow: var(--shadow-primary);
 }
 
 .btn--primary:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-popover);
-  background: var(--primary-hover);
-  background-image: var(--btn-primary-hover-grad);
+  background: var(--btn-primary-hover-bg);
+  background-image: var(--btn-primary-hover-grad), var(--btn-sheen);
+  border-color: var(--glass-border-strong);
 }
 
 .btn--ghost {

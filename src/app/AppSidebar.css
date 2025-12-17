@@ -36,6 +36,10 @@
   animation: sidebar-logo-float 6s ease-in-out infinite;
 }
 
+:root[data-theme="night"] .sidebar__logo {
+  display: none;
+}
+
 .sidebar__nav {
   display: flex;
   flex-direction: column;

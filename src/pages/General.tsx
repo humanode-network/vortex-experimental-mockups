@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import {
   Card,
   CardContent,
@@ -6,8 +8,18 @@ import {
 } from "@/components/primitives/card";
 import { AppPage } from "@/components/AppPage";
 import { PageHeader } from "@/components/PageHeader";
+import { ToggleGroup } from "@/components/ToggleGroup";
+import { getStoredTheme, setTheme, type Theme } from "@/lib/theme";
 
 const General: React.FC = () => {
+  const [theme, setThemeState] = useState<Theme>(
+    () => getStoredTheme() ?? "sky",
+  );
+
+  useEffect(() => {
+    setTheme(theme);
+  }, [theme]);
+
   return (
     <AppPage>
       <PageHeader
@@ -18,8 +30,24 @@ const General: React.FC = () => {
         <CardHeader className="pb-2">
           <CardTitle>Preferences</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-muted">
-          Configure your experience here.
+        <CardContent className="space-y-4 text-sm text-muted">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="space-y-1">
+              <p className="font-semibold text-text">Theme</p>
+              <p className="text-sm text-muted">
+                Sky/Light affect the main UI; Night also darkens the sidebar.
+              </p>
+            </div>
+            <ToggleGroup
+              value={theme}
+              onValueChange={(val) => setThemeState(val as Theme)}
+              options={[
+                { value: "sky", label: "Sky" },
+                { value: "light", label: "Light" },
+                { value: "night", label: "Night" },
+              ]}
+            />
+          </div>
         </CardContent>
       </Card>
     </AppPage>
