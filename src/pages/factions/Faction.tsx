@@ -24,7 +24,7 @@ const Faction: React.FC = () => {
       <div className="flex flex-col gap-4">
         <h1 className="text-xl font-semibold text-text">Faction not found</h1>
         <Button asChild size="sm">
-          <Link to="/factions">Back to factions</Link>
+          <Link to="/app/factions">Back to factions</Link>
         </Button>
       </div>
     );

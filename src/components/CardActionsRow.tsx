@@ -33,7 +33,7 @@ export function CardActionsRow({
     >
       {proposer && proposerId ? (
         <Link
-          to={`/human-nodes/${proposerId}`}
+          to={`/app/human-nodes/${proposerId}`}
           className="text-sm font-semibold text-primary"
         >
           Proposer: {proposer}

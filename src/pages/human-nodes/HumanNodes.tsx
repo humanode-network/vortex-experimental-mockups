@@ -212,7 +212,9 @@ const HumanNodes: React.FC = () => {
                     </CardContent>
                     <CardFooter className="justify-end gap-2 pt-0">
                       <Button asChild size="sm">
-                        <Link to={`/human-nodes/${node.id}`}>Open profile</Link>
+                        <Link to={`/app/human-nodes/${node.id}`}>
+                          Open profile
+                        </Link>
                       </Button>
                     </CardFooter>
                   </Card>
@@ -253,7 +255,7 @@ const HumanNodes: React.FC = () => {
                       </div>
                       <div className="ml-auto">
                         <Button asChild size="sm">
-                          <Link to={`/human-nodes/${node.id}`}>Open</Link>
+                          <Link to={`/app/human-nodes/${node.id}`}>Open</Link>
                         </Button>
                       </div>
                     </div>

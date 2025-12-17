@@ -37,17 +37,17 @@ const AppSidebar: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const navItems: NavItem[] = [
-    { to: "/feed", label: "Feed", Icon: Activity },
-    { to: "/my-governance", label: "My governance", Icon: Gavel },
-    { to: "/proposals", label: "Proposals", Icon: FileText },
-    { to: "/chambers", label: "Chambers", Icon: Lightbulb },
-    { to: "/human-nodes", label: "Human nodes", Icon: Users },
-    { to: "/formation", label: "Formation", Icon: Rocket },
-    { to: "/factions", label: "Factions", Icon: Flag },
-    { to: "/cm", label: "CM panel", Icon: Scale },
-    { to: "/invision", label: "Invision", Icon: Eye },
-    { to: "/courts", label: "Courts", Icon: Landmark },
-    { to: "/vortexopedia", label: "Vortexopedia", Icon: BookOpen },
+    { to: "/app/feed", label: "Feed", Icon: Activity },
+    { to: "/app/my-governance", label: "My governance", Icon: Gavel },
+    { to: "/app/proposals", label: "Proposals", Icon: FileText },
+    { to: "/app/chambers", label: "Chambers", Icon: Lightbulb },
+    { to: "/app/human-nodes", label: "Human nodes", Icon: Users },
+    { to: "/app/formation", label: "Formation", Icon: Rocket },
+    { to: "/app/factions", label: "Factions", Icon: Flag },
+    { to: "/app/cm", label: "CM panel", Icon: Scale },
+    { to: "/app/invision", label: "Invision", Icon: Eye },
+    { to: "/app/courts", label: "Courts", Icon: Landmark },
+    { to: "/app/vortexopedia", label: "Vortexopedia", Icon: BookOpen },
   ];
 
   return (
@@ -76,11 +76,11 @@ const AppSidebar: React.FC<React.PropsWithChildren> = ({ children }) => {
         </button>
         {settingsOpen && (
           <div className="pt-1 pl-4">
-            <NavLink className={nestedNavClass} to="/settings">
+            <NavLink className={nestedNavClass} to="/app/settings">
               <SlidersHorizontal className="sidebar__icon" aria-hidden="true" />
               <span>General</span>
             </NavLink>
-            <NavLink className={nestedNavClass} to="/profile">
+            <NavLink className={nestedNavClass} to="/app/profile">
               <User className="sidebar__icon" aria-hidden="true" />
               <span>My profile</span>
             </NavLink>

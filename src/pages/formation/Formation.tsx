@@ -157,7 +157,9 @@ const Formation: React.FC = () => {
                   </span>
                 </span>
                 <Button asChild size="sm">
-                  <Link to={`/proposals/${project.id ?? "project"}/formation`}>
+                  <Link
+                    to={`/app/proposals/${project.id ?? "project"}/formation`}
+                  >
                     Open project
                   </Link>
                 </Button>

@@ -77,11 +77,11 @@ const ProposalDrafts: React.FC = () => {
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" size="sm">
-            <Link to="/proposals">Back to proposals</Link>
+            <Link to="/app/proposals">Back to proposals</Link>
           </Button>
         </div>
         <Button asChild size="sm">
-          <Link to="/proposals/new">Edit proposal</Link>
+          <Link to="/app/proposals/new">Edit proposal</Link>
         </Button>
       </div>
 
@@ -132,7 +132,7 @@ const ProposalDrafts: React.FC = () => {
             <div className="mt-3 flex items-center justify-between text-sm text-muted">
               <span>Tier: {draft.tier}</span>
               <Button asChild size="sm" variant="ghost">
-                <Link to={`/proposals/drafts/${draft.id}`}>Open draft</Link>
+                <Link to={`/app/proposals/drafts/${draft.id}`}>Open draft</Link>
               </Button>
             </div>
           </Card>

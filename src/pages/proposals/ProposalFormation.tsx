@@ -279,14 +279,14 @@ const ProposalFormation: React.FC = () => {
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Link
-              to={`/human-nodes/${project.proposerId}`}
+              to={`/app/human-nodes/${project.proposerId}`}
               className="text-sm font-semibold text-primary"
             >
               Proposer: {project.proposer}
             </Link>
             <div className="flex flex-wrap gap-2">
               <Button asChild size="sm">
-                <Link to="/formation">Open project</Link>
+                <Link to="/app/formation">Open project</Link>
               </Button>
               <Button size="sm" variant="ghost">
                 Ping team

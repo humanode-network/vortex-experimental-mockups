@@ -149,7 +149,7 @@ const Factions: React.FC = () => {
                     />
                   </div>
                   <Button asChild size="sm" className="w-full">
-                    <Link to={`/factions/${faction.id}`}>View faction</Link>
+                    <Link to={`/app/factions/${faction.id}`}>View faction</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -178,7 +178,7 @@ const Factions: React.FC = () => {
                   <Badge variant="outline">Members: {faction.members}</Badge>
                 </div>
                 <Button asChild size="sm">
-                  <Link to={`/factions/${faction.id}`}>Open</Link>
+                  <Link to={`/app/factions/${faction.id}`}>Open</Link>
                 </Button>
               </CardContent>
             </Card>

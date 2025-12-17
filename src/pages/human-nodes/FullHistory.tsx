@@ -109,7 +109,7 @@ const FullHistory: React.FC = () => {
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle>All actions</CardTitle>
-            <ButtonLink to={`/human-nodes/${id ?? ""}`}>
+            <ButtonLink to={`/app/human-nodes/${id ?? ""}`}>
               Back to profile
             </ButtonLink>
           </div>

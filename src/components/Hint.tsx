@@ -192,7 +192,7 @@ export const Hint: React.FC<HintProps> = ({
             title={term.name}
             description={term.short}
             stable={overlay.stable}
-            onNavigate={() => navigate(`/vortexopedia?term=${term.id}`)}
+            onNavigate={() => navigate(`/app/vortexopedia?term=${term.id}`)}
           />
         </div>
       </OverlayPortal>

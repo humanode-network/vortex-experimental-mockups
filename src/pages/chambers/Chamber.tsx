@@ -179,7 +179,7 @@ const Chamber: React.FC = () => {
                     </p>
                   </div>
                   <Button asChild size="sm" variant="ghost">
-                    <Link to={`/human-nodes/${gov.name}`}>Profile</Link>
+                    <Link to={`/app/human-nodes/${gov.name}`}>Profile</Link>
                   </Button>
                 </Surface>
               ))}

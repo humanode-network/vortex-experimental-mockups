@@ -255,14 +255,16 @@ const ProposalChamber: React.FC = () => {
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Link
-              to={`/human-nodes/${proposal.proposerId}`}
+              to={`/app/human-nodes/${proposal.proposerId}`}
               className="text-sm font-semibold text-primary"
             >
               Proposer: {proposal.proposer}
             </Link>
             <div className="flex flex-wrap gap-2">
               <Button asChild size="sm">
-                <Link to={`/proposals/${id ?? "adaptive-fee-shaping"}/chamber`}>
+                <Link
+                  to={`/app/proposals/${id ?? "adaptive-fee-shaping"}/chamber`}
+                >
                   Open proposal
                 </Link>
               </Button>

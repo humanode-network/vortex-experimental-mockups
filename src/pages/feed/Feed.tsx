@@ -87,7 +87,7 @@ const Feed: React.FC = () => {
             <CardActionsRow
               proposer={item.proposer}
               proposerId={item.proposerId}
-              primaryHref={item.href}
+              primaryHref={`/app${item.href}`}
               primaryLabel={item.ctaPrimary}
             />
           </ExpandableCard>

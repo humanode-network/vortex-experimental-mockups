@@ -187,7 +187,7 @@ const HumanNode: React.FC = () => {
             <div className="flex items-center justify-between gap-3">
               <CardTitle>Governance activity</CardTitle>
               <Link
-                to={`/human-nodes/${id ?? ""}/history`}
+                to={`/app/human-nodes/${id ?? ""}/history`}
                 className="text-sm font-semibold text-primary hover:underline"
               >
                 View full history

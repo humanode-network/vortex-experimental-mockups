@@ -128,7 +128,7 @@ const Courts: React.FC = () => {
                   </span>
                 </div>
                 <Button asChild size="sm">
-                  <Link to={`/courts/${courtCase.id}`}>Open courtroom</Link>
+                  <Link to={`/app/courts/${courtCase.id}`}>Open courtroom</Link>
                 </Button>
               </CardContent>
             </Card>

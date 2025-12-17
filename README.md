@@ -7,7 +7,7 @@ Experimental Vortex interface built with React + Rsbuild, Tailwind-like utility 
 - React with React Router
 - Rsbuild
 - Yarn (see `.node-version` for Node version)
-- UI primitives in `src/components/ui`
+- UI primitives in `src/components/primitives`
 - Tailwind-style utilities via PostCSS
 
 ## Getting Started
@@ -20,16 +20,19 @@ yarn dev
 
 Dev server: http://localhost:3000
 
+Landing: http://localhost:3000/
+App: http://localhost:3000/app
+
 ## Scripts
 
 - `yarn dev` – start the dev server
 - `yarn build` – build the app
-- `yarn tsc --noEmit` – type-check
+- `yarn exec tsc --noEmit` – type-check
 
 ## Project Structure
 
 - `src/app` – App shell, routes, sidebar
-- `src/components` – shared UI (Hint, PageHint, SearchBar) and primitives under `ui/`
+- `src/components` – shared UI (Hint, PageHint, SearchBar) and primitives under `primitives/`
 - `src/data` – glossary (vortexopedia), page hints/tutorial content
 - `src/pages` – feature pages (proposals, human-nodes, formations, chambers, factions, courts, feed, profile, invision, etc.)
 - `src/styles` – base/global styles

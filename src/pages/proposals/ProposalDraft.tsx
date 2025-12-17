@@ -28,12 +28,12 @@ const ProposalDraft: React.FC = () => {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" size="sm">
-            <Link to="/proposals/drafts">Back to drafts</Link>
+            <Link to="/app/proposals/drafts">Back to drafts</Link>
           </Button>
         </div>
         <div className="flex items-center gap-2">
           <Button asChild size="sm" variant="ghost">
-            <Link to="/proposals/new">Edit proposal</Link>
+            <Link to="/app/proposals/new">Edit proposal</Link>
           </Button>
           <Button size="sm">Submit to pool</Button>
         </div>

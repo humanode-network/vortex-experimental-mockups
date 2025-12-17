@@ -80,11 +80,11 @@ const Proposals: React.FC = () => {
           variant="outline"
           className="rounded-full px-4"
         >
-          <Link to="/proposals/drafts">Drafts</Link>
+          <Link to="/app/proposals/drafts">Drafts</Link>
         </Button>
         <div className="flex items-center gap-2">
           <Button asChild size="sm" className="rounded-full px-4">
-            <Link to="/proposals/new">Create proposal</Link>
+            <Link to="/app/proposals/new">Create proposal</Link>
           </Button>
         </div>
       </div>
@@ -190,12 +190,12 @@ const Proposals: React.FC = () => {
               proposerId={proposal.proposerId}
               primaryHref={
                 proposal.stage === "pool"
-                  ? `/proposals/${proposal.id}/pp`
+                  ? `/app/proposals/${proposal.id}/pp`
                   : proposal.stage === "vote"
-                    ? `/proposals/${proposal.id}/chamber`
+                    ? `/app/proposals/${proposal.id}/chamber`
                     : proposal.stage === "build"
-                      ? `/proposals/${proposal.id}/formation`
-                      : `/proposals/${proposal.id}/pp`
+                      ? `/app/proposals/${proposal.id}/formation`
+                      : `/app/proposals/${proposal.id}/pp`
               }
               primaryLabel={proposal.ctaPrimary}
               secondaryLabel={proposal.ctaSecondary}

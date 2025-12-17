@@ -131,7 +131,7 @@ const Chambers: React.FC = () => {
             footer={
               <div className="flex w-full justify-center">
                 <Button asChild size="md" variant="primary" className="w-56">
-                  <Link to={`/chambers/${chamber.id}`}>Enter</Link>
+                  <Link to={`/app/chambers/${chamber.id}`}>Enter</Link>
                 </Button>
               </div>
             }
