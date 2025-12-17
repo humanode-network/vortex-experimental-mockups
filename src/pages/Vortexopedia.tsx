@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
 import { SearchBar } from "@/components/SearchBar";
 import { vortexopediaTerms } from "@/data/vortexopedia";
 import { cn } from "@/lib/utils";

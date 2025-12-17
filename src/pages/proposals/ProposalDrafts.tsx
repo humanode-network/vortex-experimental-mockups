@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/primitives/card";
+import { Button } from "@/components/primitives/button";
+import { Badge } from "@/components/primitives/badge";
 import { SearchBar } from "@/components/SearchBar";
 import { AppPage } from "@/components/AppPage";
 import { Kicker } from "@/components/Kicker";

@@ -1,8 +1,13 @@
 import { useMemo } from "react";
 import { Link, useParams } from "react-router";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/primitives/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
 import { factions } from "@/data/mock/factions";
 import { HintLabel } from "@/components/Hint";
 import { Surface } from "@/components/Surface";

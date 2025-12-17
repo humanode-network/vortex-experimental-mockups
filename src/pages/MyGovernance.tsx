@@ -1,4 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
 import { HintLabel } from "@/components/Hint";
 import { Surface } from "@/components/Surface";
 import { AppPage } from "@/components/AppPage";

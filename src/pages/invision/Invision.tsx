@@ -1,5 +1,10 @@
 import { useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
 import { HintLabel } from "@/components/Hint";
 import { SearchBar } from "@/components/SearchBar";
 import { Surface } from "@/components/Surface";

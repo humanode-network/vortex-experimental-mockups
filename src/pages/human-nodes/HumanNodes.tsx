@@ -1,15 +1,15 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/primitives/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+} from "@/components/primitives/card";
+import { Label } from "@/components/primitives/label";
+import { Select } from "@/components/primitives/select";
+import { Badge } from "@/components/primitives/badge";
 import { HintLabel } from "@/components/Hint";
 import { SearchBar } from "@/components/SearchBar";
 import { AppPage } from "@/components/AppPage";

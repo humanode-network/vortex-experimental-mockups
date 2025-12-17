@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/primitives/badge";
 import type { CourtCase } from "@/data/mock/types";
 
 const statusClasses: Record<CourtCase["status"], string> = {

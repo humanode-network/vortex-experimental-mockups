@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/primitives/button";
+import { Card, CardContent, CardHeader } from "@/components/primitives/card";
+import { Badge } from "@/components/primitives/badge";
 import { Link } from "react-router";
 import { SearchBar } from "@/components/SearchBar";
 import { MetricTile } from "@/components/MetricTile";

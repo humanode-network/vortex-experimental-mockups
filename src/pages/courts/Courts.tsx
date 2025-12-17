@@ -1,7 +1,12 @@
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/primitives/button";
 import { SearchBar } from "@/components/SearchBar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
 import { Link } from "react-router";
 import { AppPage } from "@/components/AppPage";
 import { MetricTile } from "@/components/MetricTile";

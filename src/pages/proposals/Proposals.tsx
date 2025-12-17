@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/primitives/button";
+import { Card } from "@/components/primitives/card";
+import { Badge } from "@/components/primitives/badge";
 import { SearchBar } from "@/components/SearchBar";
 import { AppPage } from "@/components/AppPage";
 import { ExpandableCard } from "@/components/ExpandableCard";

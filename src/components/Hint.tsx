@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
+import { Button } from "@/components/primitives/button";
 import { cn } from "@/lib/utils";
 import { getVortexopediaTerm } from "@/data/vortexopediaLookup";
 import "./Hint.css";

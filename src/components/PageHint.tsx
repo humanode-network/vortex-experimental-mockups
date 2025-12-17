@@ -1,6 +1,11 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/primitives/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
 import { pageHints } from "@/data/pageHints";
 import { X, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";

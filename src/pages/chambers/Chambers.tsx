@@ -5,10 +5,10 @@ import { useMemo, useState } from "react";
 import MetricTile from "@/components/MetricTile";
 import BackgroundContainer from "@/components/BackgroundContainer";
 import AppCard from "@/components/AppCard";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/primitives/badge";
 import StatGrid, { makeChamberStats } from "@/components/StatGrid";
 import PipelineList from "@/components/PipelineList";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/primitives/button";
 import { Link } from "react-router";
 import { chambers } from "@/data/mock/chambers";
 

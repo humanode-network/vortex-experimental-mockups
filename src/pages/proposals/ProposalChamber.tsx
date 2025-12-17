@@ -1,6 +1,11 @@
 import { Link, useParams } from "react-router";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
+import { Button } from "@/components/primitives/button";
 import { cn } from "@/lib/utils";
 import { HintLabel } from "@/components/Hint";
 import ProposalStageBar from "@/components/ProposalStageBar";

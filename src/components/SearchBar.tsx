@@ -6,9 +6,9 @@ import type {
 } from "react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Select } from "@/components/ui/select";
+import { Input } from "@/components/primitives/input";
+import { Button } from "@/components/primitives/button";
+import { Select } from "@/components/primitives/select";
 import { Surface } from "@/components/Surface";
 import { Kicker } from "@/components/Kicker";
 

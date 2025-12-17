@@ -1,10 +1,15 @@
 import { type FormEvent, useMemo, useState } from "react";
 import { useParams, Link } from "react-router";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/primitives/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
+import { Badge } from "@/components/primitives/badge";
+import { Input } from "@/components/primitives/input";
 import { Kicker } from "@/components/Kicker";
 import { Surface } from "@/components/Surface";
 import { AppPage } from "@/components/AppPage";

@@ -1,4 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
 import { AppPage } from "@/components/AppPage";
 import { PageHeader } from "@/components/PageHeader";
 import { Kicker } from "@/components/Kicker";

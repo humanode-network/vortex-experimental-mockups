@@ -1,6 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
+import { Badge } from "@/components/primitives/badge";
+import { Button } from "@/components/primitives/button";
 import { useParams } from "react-router";
 import { Surface } from "@/components/Surface";
 import { AppPage } from "@/components/AppPage";

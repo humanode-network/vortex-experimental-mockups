@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { ChevronDown } from "lucide-react";
 
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/primitives/card";
 import { Kicker } from "@/components/Kicker";
 import { cn } from "@/lib/utils";
 
