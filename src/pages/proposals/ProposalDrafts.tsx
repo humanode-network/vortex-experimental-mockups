@@ -81,7 +81,7 @@ const ProposalDrafts: React.FC = () => {
           </Button>
         </div>
         <Button asChild size="sm">
-          <Link to="/app/proposals/new">Edit proposal</Link>
+          <Link to="/app/proposals/new">New proposal</Link>
         </Button>
       </div>
 

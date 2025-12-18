@@ -10,3 +10,8 @@ export const eraActivity = {
   ],
   timeLeft: "22d 14h",
 } as const;
+
+export const myChamberIds = [
+  "protocol-engineering",
+  "security-council",
+] as const;

@@ -1374,4 +1374,179 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
     source: "Proposition rights",
     updated: "2025-12-04",
   },
+  {
+    ref: 51,
+    id: "governing_status_ahead",
+    name: "Ahead",
+    category: "governance",
+    short:
+      "You are comfortably above the governing threshold pace for the current era. Status scale: Ahead → Stable → Falling behind → At risk → Losing status.",
+    long: [
+      "Ahead means you have already met (or are well on track to exceed) the era’s action threshold early, leaving a buffer for the rest of the era.",
+      "Staying Ahead typically requires continuing normal participation (votes/upvotes/court actions) while maintaining node uptime.",
+      "This status is based on your completed actions vs required actions for the current governing era, not on proposal outcomes.",
+    ],
+    tags: ["status", "governance", "threshold", "governor", "activity"],
+    related: [
+      "governing_threshold",
+      "governing_era",
+      "proof_of_governance_pog",
+      "governing_status_stable",
+      "governing_status_falling_behind",
+      "governing_status_at_risk",
+      "governing_status_losing_status",
+    ],
+    examples: [
+      "If the era requires 18 actions and you have already completed 20, you’re Ahead.",
+    ],
+    stages: ["global"],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
+    source: "App UX: governing status scale",
+    updated: "2025-12-18",
+  },
+  {
+    ref: 52,
+    id: "governing_status_stable",
+    name: "Stable",
+    category: "governance",
+    short:
+      "You are on pace to meet the governing threshold for the era. Status scale: Ahead → Stable → Falling behind → At risk → Losing status.",
+    long: [
+      "Stable means your completed actions are at or near the required threshold pace, and you are not currently trending toward inactivity for the next era.",
+      "If you stay Stable through the era (and maintain uptime), you remain counted as an active governor for quorum calculations in the next era.",
+      "This status summarizes action progress for the current era; it can change as time passes and requirements are assessed.",
+    ],
+    tags: ["status", "governance", "threshold", "governor", "activity"],
+    related: [
+      "governing_threshold",
+      "governing_era",
+      "proof_of_governance_pog",
+      "governing_status_ahead",
+      "governing_status_falling_behind",
+      "governing_status_at_risk",
+      "governing_status_losing_status",
+    ],
+    examples: [
+      "If the era requires 18 actions and you have completed 18, you’re Stable.",
+    ],
+    stages: ["global"],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
+    source: "App UX: governing status scale",
+    updated: "2025-12-18",
+  },
+  {
+    ref: 53,
+    id: "governing_status_falling_behind",
+    name: "Falling behind",
+    category: "governance",
+    short:
+      "You are below the desired pace for the era’s governing threshold, but can still recover by completing more actions. Status scale: Ahead → Stable → Falling behind → At risk → Losing status.",
+    long: [
+      "Falling behind indicates you are not yet at the target action pace for the current era, but your deficit is still manageable.",
+      "To move back toward Stable, complete additional required actions (e.g., proposal pool votes, chamber votes, court actions) before the era ends.",
+      "This status is meant to prompt action early enough to avoid becoming At risk.",
+    ],
+    tags: ["status", "governance", "threshold", "governor", "activity"],
+    related: [
+      "governing_threshold",
+      "governing_era",
+      "proof_of_governance_pog",
+      "governing_status_ahead",
+      "governing_status_stable",
+      "governing_status_at_risk",
+      "governing_status_losing_status",
+    ],
+    examples: [
+      "If the era requires 18 actions and you have completed 14 with little time left, you may be Falling behind.",
+    ],
+    stages: ["global"],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
+    source: "App UX: governing status scale",
+    updated: "2025-12-18",
+  },
+  {
+    ref: 54,
+    id: "governing_status_at_risk",
+    name: "At risk",
+    category: "governance",
+    short:
+      "You are unlikely to meet the governing threshold without immediate additional actions. Status scale: Ahead → Stable → Falling behind → At risk → Losing status.",
+    long: [
+      "At risk means your current action count is far enough below the era requirement that you may lose active governor status for the next era if you do not act.",
+      "To improve: complete additional required actions (pool votes, chamber votes, court actions, proposals) before the era ends and maintain node uptime.",
+      "This status summarizes your action deficit; it does not imply slashing or permanent removal—only loss of active quorum eligibility in the next era.",
+    ],
+    tags: ["status", "governance", "threshold", "governor", "activity"],
+    related: [
+      "governing_threshold",
+      "governing_era",
+      "proof_of_governance_pog",
+      "governing_status_ahead",
+      "governing_status_stable",
+      "governing_status_falling_behind",
+      "governing_status_losing_status",
+    ],
+    examples: [
+      "If the era requires 18 actions and you have completed 11, you are At risk unless you catch up.",
+    ],
+    stages: ["global"],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
+    source: "App UX: governing status scale",
+    updated: "2025-12-18",
+  },
+  {
+    ref: 55,
+    id: "governing_status_losing_status",
+    name: "Losing status",
+    category: "governance",
+    short:
+      "You are on course to lose active governor status for the next era unless you substantially increase participation now. Status scale: Ahead → Stable → Falling behind → At risk → Losing status.",
+    long: [
+      "Losing status indicates a severe shortfall against the era action threshold and/or insufficient remaining time to realistically catch up.",
+      "If this remains at era close, you may not be counted as an active governor for quorum calculations in the next era.",
+      "To recover, complete the highest-impact required actions immediately and maintain node uptime; otherwise you transition out of active quorum eligibility.",
+    ],
+    tags: ["status", "governance", "threshold", "governor", "activity"],
+    related: [
+      "governing_threshold",
+      "governing_era",
+      "proof_of_governance_pog",
+      "governing_status_ahead",
+      "governing_status_stable",
+      "governing_status_falling_behind",
+      "governing_status_at_risk",
+    ],
+    examples: [
+      "If the era requires 18 actions and you have completed 4 near the end of the era, you are Losing status.",
+    ],
+    stages: ["global"],
+    links: [
+      {
+        label: "Docs",
+        url: "https://gitbook.humanode.io/vortex-1.0",
+      },
+    ],
+    source: "App UX: governing status scale",
+    updated: "2025-12-18",
+  },
 ];

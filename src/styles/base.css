@@ -20,6 +20,8 @@
   --muted-foreground: var(--muted);
   --destructive: #ef4444;
   --destructive-foreground: var(--primary-foreground);
+  --ok: #22c55e;
+  --danger: var(--destructive);
   --primary-dim: rgba(111, 168, 255, 0.18);
   --cool-dim: rgba(91, 194, 181, 0.18);
   --warm-dim: rgba(244, 179, 127, 0.24);
@@ -95,6 +97,8 @@
   --btn-primary-bg: rgba(111, 168, 255, 0.52);
   --btn-primary-hover-bg: rgba(111, 168, 255, 0.9);
   --btn-primary-active-bg: rgba(111, 168, 255, 1);
+  --ok: #22c55e;
+  --danger: var(--destructive);
 }
 
 :root[data-theme="night"] {
@@ -118,6 +122,8 @@
   --shadow-popover: 0 22px 60px rgba(0, 0, 0, 0.82);
   --shadow-tile: 0 14px 34px rgba(0, 0, 0, 0.64);
   --shadow-control: 0 10px 22px rgba(0, 0, 0, 0.5);
+  --ok: #22c55e;
+  --danger: var(--destructive);
   --shadow-primary: 0 12px 28px rgba(111, 168, 255, 0.24);
   --btn-primary-bg: rgba(111, 168, 255, 0.3);
   --btn-primary-hover-bg: rgba(111, 168, 255, 0.72);

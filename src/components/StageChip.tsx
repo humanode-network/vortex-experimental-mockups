@@ -40,7 +40,7 @@ export function StageChip({ stage, label, className }: StageChipProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase",
+        "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide",
         chipClasses[kind],
         className,
       )}

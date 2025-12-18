@@ -33,7 +33,7 @@ const ProposalDraft: React.FC = () => {
         </div>
         <div className="flex items-center gap-2">
           <Button asChild size="sm" variant="ghost">
-            <Link to="/app/proposals/new">Edit proposal</Link>
+            <Link to="/app/proposals/new">New proposal</Link>
           </Button>
           <Button size="sm">Submit to pool</Button>
         </div>

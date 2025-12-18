@@ -63,10 +63,14 @@
 }
 
 .sidebar__icon {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
   opacity: 0.9;
+}
+
+.sidebar__link > span {
+  white-space: nowrap;
 }
 
 .sidebar__link--active {
