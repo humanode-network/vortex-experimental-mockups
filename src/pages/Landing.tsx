@@ -21,8 +21,27 @@ const Landing: React.FC = () => {
   const prefersReducedMotion = usePrefersReducedMotion();
   const [videoFailed, setVideoFailed] = React.useState(false);
   const [videoReady, setVideoReady] = React.useState(false);
-  const [autoplayBlocked, setAutoplayBlocked] = React.useState(false);
+  const [posterSrc, setPosterSrc] = React.useState("/landing/poster.png");
+  const [videoSrc, setVideoSrc] = React.useState("/landing/Loop.mp4");
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
+
+  React.useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const res = await fetch("/landing/config.json", { cache: "no-store" });
+        if (!res.ok) return;
+        const json = (await res.json()) as Partial<{
+          posterSrc: string;
+          videoSrc: string;
+        }>;
+        if (json.posterSrc) setPosterSrc(json.posterSrc);
+        if (json.videoSrc) setVideoSrc(json.videoSrc);
+      } catch {
+        // Optional config; ignore failures.
+      }
+    };
+    void loadConfig();
+  }, []);
 
   React.useEffect(() => {
     if (prefersReducedMotion) return;
@@ -33,10 +52,9 @@ const Landing: React.FC = () => {
     const attempt = async () => {
       try {
         await video.play();
-        setAutoplayBlocked(false);
         setVideoReady(true);
       } catch {
-        setAutoplayBlocked(true);
+        // Autoplay might be blocked; keep the poster visible.
       }
     };
 
@@ -48,7 +66,7 @@ const Landing: React.FC = () => {
       {(!videoReady || prefersReducedMotion || videoFailed) && (
         <img
           className="pointer-events-none absolute inset-0 h-full w-full scale-[1.06] object-cover blur-md brightness-[0.72] saturate-125 select-none"
-          src="/landing/poster.png"
+          src={posterSrc}
           alt=""
           aria-hidden="true"
         />
@@ -62,14 +80,16 @@ const Landing: React.FC = () => {
           muted
           playsInline
           preload="auto"
-          poster="/landing/poster.png"
+          poster={posterSrc}
           aria-hidden="true"
           onError={() => setVideoFailed(true)}
           onCanPlay={() => setVideoReady(true)}
           onPlaying={() => setVideoReady(true)}
           ref={videoRef}
         >
-          <source src="/landing/loop.mp4" type="video/mp4" />
+          <source src={videoSrc} />
+          <source src="/landing/loop.mp4" />
+          <source src="/landing/Loop.mp4" />
         </video>
       )}
 
@@ -123,25 +143,6 @@ const Landing: React.FC = () => {
         <footer className="absolute right-0 bottom-0 left-0 px-6 pt-4 pb-6 text-center text-xs text-white/70">
           2021 – 2026 Humanode.io
         </footer>
-
-        {autoplayBlocked && (
-          <div className="absolute right-6 bottom-6 left-6 flex justify-center">
-            <button
-              type="button"
-              className="rounded-full border border-white/15 bg-black/35 px-3 py-1 text-[11px] font-medium tracking-wide text-white/70 supports-[backdrop-filter]:backdrop-blur-md"
-              onClick={() => {
-                const video = videoRef.current;
-                if (!video) return;
-                void video.play().then(() => {
-                  setAutoplayBlocked(false);
-                  setVideoReady(true);
-                });
-              }}
-            >
-              Play background
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
