@@ -55,7 +55,7 @@ export const proposals: ProposalListItem[] = [
       {
         title: "Attention quorum",
         description: "20% active or ≥10% upvotes",
-        value: "In progress · 15% engaged",
+        value: "Met · 16% engaged",
       },
       { title: "Votes casted", description: "Backing seats", value: "18" },
     ],
@@ -102,7 +102,7 @@ export const proposals: ProposalListItem[] = [
       {
         title: "Attention quorum",
         description: "20% active or ≥10% upvotes",
-        value: "Met · 28% engaged",
+        value: "Met · 34% engaged",
         tone: "ok",
       },
       { title: "Votes casted", description: "Backing seats", value: "44" },
@@ -146,7 +146,7 @@ export const proposals: ProposalListItem[] = [
       {
         title: "Voting quorum",
         description: "Strict 33% active governors",
-        value: "Met · 38%",
+        value: "Met · 39%",
         tone: "ok",
       },
       {
@@ -178,7 +178,7 @@ export const proposals: ProposalListItem[] = [
       "vortex-1.0",
     ],
     date: "2026-01-07",
-    votes: 45,
+    votes: 58,
     activityScore: 84,
     ctaPrimary: "Open proposal",
     ctaSecondary: "Watch",
@@ -253,7 +253,8 @@ export const proposals: ProposalListItem[] = [
       {
         title: "Attention quorum",
         description: "20% active or ≥10% upvotes",
-        value: "In progress · 16% engaged",
+        value: "Met · 20% engaged",
+        tone: "ok",
       },
       { title: "Votes casted", description: "Backing seats", value: "22" },
     ],
@@ -302,7 +303,8 @@ export const proposals: ProposalListItem[] = [
       {
         title: "Attention quorum",
         description: "20% active or ≥10% upvotes",
-        value: "In progress · 17% engaged",
+        value: "Met · 19% engaged",
+        tone: "ok",
       },
       { title: "Votes casted", description: "Backing seats", value: "21" },
     ],
@@ -402,7 +404,8 @@ export const proposals: ProposalListItem[] = [
       {
         title: "Attention quorum",
         description: "20% active or ≥10% upvotes",
-        value: "In progress · 18% engaged",
+        value: "Met · 25% engaged",
+        tone: "ok",
       },
       { title: "Votes casted", description: "Backing seats", value: "28" },
     ],
@@ -476,7 +479,7 @@ export const proposals: ProposalListItem[] = [
       "non-plutocratic",
     ],
     date: "2026-01-03",
-    votes: 60,
+    votes: 62,
     activityScore: 89,
     ctaPrimary: "Open proposal",
     ctaSecondary: "Watch",
@@ -493,7 +496,7 @@ export const proposals: ProposalListItem[] = [
       {
         title: "Voting quorum",
         description: "Strict 33% active governors",
-        value: "Met · 42%",
+        value: "Met · 35%",
         tone: "ok",
       },
       {
@@ -521,7 +524,7 @@ export const proposals: ProposalListItem[] = [
       "non-plutocratic",
     ],
     date: "2026-01-04",
-    votes: 49,
+    votes: 52,
     activityScore: 88,
     ctaPrimary: "Open proposal",
     ctaSecondary: "Add to agenda",

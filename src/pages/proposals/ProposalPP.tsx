@@ -11,10 +11,13 @@ import ProposalStageBar from "@/components/ProposalStageBar";
 import { Surface } from "@/components/Surface";
 import { StatTile } from "@/components/StatTile";
 import { PageHint } from "@/components/PageHint";
-import { AttachmentList } from "@/components/AttachmentList";
-import { TitledSurface } from "@/components/TitledSurface";
 import { VoteButton } from "@/components/VoteButton";
 import { Modal } from "@/components/Modal";
+import {
+  ProposalInvisionInsightCard,
+  ProposalSummaryCard,
+  ProposalTeamMilestonesCard,
+} from "@/components/ProposalSections";
 import { getPoolProposalPage } from "@/data/mock/proposalPages";
 
 const ProposalPP: React.FC = () => {
@@ -30,12 +33,8 @@ const ProposalPP: React.FC = () => {
   const [pendingAction, setPendingAction] = useState<
     "upvote" | "downvote" | null
   >(null);
-  const { teamLocked, openSlotNeeds, milestonesDetail } = proposal;
 
   const engaged = proposal.upvotes + proposal.downvotes;
-  const attentionNeeded = Math.ceil(
-    proposal.activeGovernors * proposal.attentionQuorum,
-  );
   const attentionPercent = Math.round(
     (engaged / proposal.activeGovernors) * 100,
   );
@@ -126,10 +125,10 @@ const ProposalPP: React.FC = () => {
             </CardHeader>
             <CardContent className="grid gap-3 text-sm text-text sm:grid-cols-2 lg:grid-cols-2">
               <StatTile
-                label="Governors"
+                label="Attention quorum (%)"
                 value={
                   <>
-                    {engaged} / {attentionNeeded}
+                    {attentionPercent}% / {attentionNeededPercent}%
                   </>
                 }
                 variant="panel"
@@ -137,38 +136,14 @@ const ProposalPP: React.FC = () => {
                 valueClassName="text-2xl font-semibold whitespace-nowrap"
               />
               <StatTile
-                label="Upvotes"
+                label="Upvote floor (%)"
                 value={
                   <>
-                    {proposal.upvotes} / {proposal.upvoteFloor}
+                    {upvoteCurrentPercent}% / {upvoteFloorPercent}%
                   </>
                 }
                 variant="panel"
                 className="flex min-h-[96px] flex-col items-center justify-center gap-1 py-4"
-                valueClassName="text-2xl font-semibold whitespace-nowrap"
-              />
-              <StatTile
-                label="Governors (%)"
-                value={
-                  <>
-                    {attentionPercent} / {attentionNeededPercent}
-                  </>
-                }
-                variant="panel"
-                className="flex min-h-[96px] flex-col items-center justify-center gap-1 py-4"
-                labelClassName="whitespace-nowrap"
-                valueClassName="text-2xl font-semibold whitespace-nowrap"
-              />
-              <StatTile
-                label="Upvotes (%)"
-                value={
-                  <>
-                    {upvoteCurrentPercent} / {upvoteFloorPercent}
-                  </>
-                }
-                variant="panel"
-                className="flex min-h-[96px] flex-col items-center justify-center gap-1 py-4"
-                labelClassName="whitespace-nowrap"
                 valueClassName="text-2xl font-semibold whitespace-nowrap"
               />
             </CardContent>
@@ -176,110 +151,34 @@ const ProposalPP: React.FC = () => {
         </div>
       </Surface>
 
-      <Card className="h-full">
-        <CardHeader className="pb-2">
-          <CardTitle>Summary</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted">
-          <p>{proposal.summary}</p>
-          <div className="grid gap-3 text-sm text-text sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { label: "Budget ask", value: proposal.budget },
-              {
-                label: "Formation",
-                value: proposal.formationEligible ? "Yes" : "No",
-              },
-              {
-                label: "Team slots",
-                value: `${proposal.teamSlots} (open: ${openSlots})`,
-              },
-              {
-                label: "Milestones",
-                value: `${proposal.milestones} milestones planned`,
-              },
-            ].map((item) => (
-              <StatTile
-                key={item.label}
-                label={item.label}
-                value={item.value}
-              />
-            ))}
-          </div>
-          <div className="space-y-4 text-text">
-            <TitledSurface title="Proposal overview">
-              <p className="text-sm leading-relaxed text-muted">
-                {proposal.overview}
-              </p>
-            </TitledSurface>
-            <TitledSurface title="Execution plan">
-              <ul className="list-disc space-y-1 pl-5 text-sm text-muted">
-                {proposal.executionPlan.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </TitledSurface>
-            <TitledSurface title="Budget & scope">
-              <p className="text-sm text-muted">{proposal.budgetScope}</p>
-            </TitledSurface>
-            <div className="grid gap-3 lg:grid-cols-2">
-              <TitledSurface title="Team (locked)">
-                <ul className="space-y-2 text-sm text-muted">
-                  {teamLocked.map((member) => (
-                    <Surface
-                      key={member.name}
-                      as="li"
-                      variant="panel"
-                      radius="xl"
-                      shadow="control"
-                      className="flex items-center justify-between px-3 py-2"
-                    >
-                      <span className="font-semibold text-text">
-                        {member.name}
-                      </span>
-                      <span className="text-xs text-muted">{member.role}</span>
-                    </Surface>
-                  ))}
-                </ul>
-              </TitledSurface>
-              <TitledSurface title="Open slots (positions)">
-                <ul className="space-y-2 text-sm text-muted">
-                  {openSlotNeeds.map((slot) => (
-                    <Surface
-                      key={slot.title}
-                      as="li"
-                      variant="panel"
-                      radius="xl"
-                      shadow="control"
-                      className="px-3 py-2"
-                    >
-                      <p className="font-semibold text-text">{slot.title}</p>
-                      <p className="text-xs text-muted">{slot.desc}</p>
-                    </Surface>
-                  ))}
-                </ul>
-              </TitledSurface>
-            </div>
-            <TitledSurface title="Milestones">
-              <ul className="space-y-2 text-sm text-muted">
-                {milestonesDetail.map((ms) => (
-                  <Surface
-                    key={ms.title}
-                    as="li"
-                    variant="panel"
-                    radius="xl"
-                    shadow="control"
-                    className="px-3 py-2"
-                  >
-                    <p className="font-semibold text-text">{ms.title}</p>
-                    <p className="text-xs text-muted">{ms.desc}</p>
-                  </Surface>
-                ))}
-              </ul>
-            </TitledSurface>
-            <AttachmentList items={proposal.attachments} />
-          </div>
-        </CardContent>
-      </Card>
+      <ProposalSummaryCard
+        summary={proposal.summary}
+        stats={[
+          { label: "Budget ask", value: proposal.budget },
+          {
+            label: "Formation",
+            value: proposal.formationEligible ? "Yes" : "No",
+          },
+          {
+            label: "Team slots",
+            value: `${proposal.teamSlots} (open: ${openSlots})`,
+          },
+          {
+            label: "Milestones",
+            value: `${proposal.milestones} milestones planned`,
+          },
+        ]}
+        overview={proposal.overview}
+        executionPlan={proposal.executionPlan}
+        budgetScope={proposal.budgetScope}
+        attachments={proposal.attachments}
+      />
+
+      <ProposalTeamMilestonesCard
+        teamLocked={proposal.teamLocked}
+        openSlots={proposal.openSlotNeeds}
+        milestonesDetail={proposal.milestonesDetail}
+      />
 
       <Modal
         open={showRules}
@@ -355,21 +254,7 @@ const ProposalPP: React.FC = () => {
         </Surface>
       </Modal>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle>Invision insight</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-text">
-          <p className="text-sm font-semibold text-text">
-            Role: {proposal.invisionInsight.role}
-          </p>
-          <ul className="list-disc space-y-2 pl-5 text-muted">
-            {proposal.invisionInsight.bullets.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+      <ProposalInvisionInsightCard insight={proposal.invisionInsight} />
     </div>
   );
 };

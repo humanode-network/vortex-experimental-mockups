@@ -73,19 +73,27 @@ const Chamber: React.FC = () => {
               role="tablist"
               aria-label="Proposal stages"
             >
-              {proposalStageOptions.map((option) => (
-                <Button
-                  key={option.value}
-                  type="button"
-                  role="tab"
-                  size="sm"
-                  aria-selected={stageFilter === option.value}
-                  variant={stageFilter === option.value ? "primary" : "outline"}
-                  onClick={() => setStageFilter(option.value)}
-                >
-                  {option.label}
-                </Button>
-              ))}
+              {proposalStageOptions.map((option) => {
+                const isSelected = stageFilter === option.value;
+                return (
+                  <Button
+                    key={option.value}
+                    type="button"
+                    role="tab"
+                    size="sm"
+                    aria-selected={isSelected}
+                    variant="ghost"
+                    onClick={() => setStageFilter(option.value)}
+                    className={
+                      isSelected
+                        ? "border-[color:var(--glass-border-strong)] bg-[color:var(--btn-primary-active-bg)] text-[var(--primary-foreground)] shadow-[var(--shadow-primary)] [filter:saturate(1.35)]"
+                        : "border-border bg-[var(--panel)] text-muted hover:text-[var(--primary)]"
+                    }
+                  >
+                    {option.label}
+                  </Button>
+                );
+              })}
             </div>
           </CardHeader>
           <CardContent className="space-y-4">

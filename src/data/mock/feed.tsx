@@ -38,7 +38,7 @@ export const feedItems: FeedItem[] = [
       {
         title: "Voting quorum",
         description: "Strict 33% active governors",
-        value: "Met · 42%",
+        value: "Met · 35%",
         tone: "ok",
       },
       {

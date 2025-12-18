@@ -18,7 +18,7 @@ type Metric = {
 
 const metricCards: Metric[] = [
   { label: "Total chambers", value: "6" },
-  { label: "Active governors", value: "100" },
+  { label: "Active governors", value: "150" },
   { label: "Total ACM", value: "7,600" },
   { label: "Live proposals", value: "9" },
 ];

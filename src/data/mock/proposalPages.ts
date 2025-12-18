@@ -1,7 +1,15 @@
+import { proposals as proposalList } from "@/data/mock/proposals";
+
 export type InvisionInsight = {
   role: string;
   bullets: string[];
 };
+
+const proposalSummaryById: Record<string, string> = Object.fromEntries(
+  proposalList.map((proposal) => [proposal.id, proposal.summary]),
+);
+
+const summaryFor = (id: string) => proposalSummaryById[id] ?? "";
 
 export type PoolProposalPage = {
   title: string;
@@ -38,7 +46,9 @@ export type ChamberProposalPage = {
   proposerId: string;
   chamber: string;
   budget: string;
-  impact: string;
+  formationEligible: boolean;
+  teamSlots: string;
+  milestones: string;
   timeLeft: string;
   votes: { yes: number; no: number; abstain: number };
   attentionQuorum: number;
@@ -46,6 +56,9 @@ export type ChamberProposalPage = {
   engagedGovernors: number;
   activeGovernors: number;
   attachments: { id: string; title: string }[];
+  teamLocked: { name: string; role: string }[];
+  openSlotNeeds: { title: string; desc: string }[];
+  milestonesDetail: { title: string; desc: string }[];
   summary: string;
   overview: string;
   executionPlan: string[];
@@ -59,7 +72,6 @@ export type FormationProposalPage = {
   proposer: string;
   proposerId: string;
   budget: string;
-  impact: string;
   timeLeft: string;
   teamSlots: string;
   milestones: string;
@@ -93,8 +105,8 @@ const poolProposals: Record<string, PoolProposalPage> = {
     upvotes: 18,
     downvotes: 6,
     attentionQuorum: 0.2,
-    activeGovernors: 100,
-    upvoteFloor: 10,
+    activeGovernors: 150,
+    upvoteFloor: 15,
     rules: [
       "20% attention from active governors required.",
       "At least 10% upvotes to move to chamber vote.",
@@ -119,8 +131,7 @@ const poolProposals: Record<string, PoolProposalPage> = {
         desc: "Complete 8–10 artwork set delivered with an asset pack and simple usage notes.",
       },
     ],
-    summary:
-      "Commission 8–10 strange, beautiful artworks that translate Humanode/Vortex ideas into visual lore—culture fertilizer, not explainers.",
+    summary: summaryFor("humanode-dreamscapes-visual-lore"),
     overview:
       "Humanode visuals are often product screenshots or generic graphics. Dreamscapes creates a coherent aesthetic world: symbolic pieces (Vortex engine room, Tier Decay, Proof of Biometric Uniqueness) usable for posters, banners, and community identity.",
     executionPlan: [
@@ -156,8 +167,8 @@ const poolProposals: Record<string, PoolProposalPage> = {
     upvotes: 44,
     downvotes: 7,
     attentionQuorum: 0.2,
-    activeGovernors: 100,
-    upvoteFloor: 10,
+    activeGovernors: 150,
+    upvoteFloor: 15,
     rules: [
       "20% attention from active governors required.",
       "At least 10% upvotes to move to chamber vote.",
@@ -189,8 +200,7 @@ const poolProposals: Record<string, PoolProposalPage> = {
         desc: "Testnet rollout, staged tests, runtime upgrade scheduled, docs published on docs.humanode.io.",
       },
     ],
-    summary:
-      "Implement a small, audited Substrate pallet that lets a verified human rotate keys or recover access via Humanode biometric identity, under strict rules.",
+    summary: summaryFor("biometric-account-recovery"),
     overview:
       "If a user loses or compromises their key today, their account is effectively dead. Humanode can confirm the same human via biometric uniqueness, so keys should be replaceable without breaking “one human” semantics.",
     executionPlan: [
@@ -228,8 +238,8 @@ const poolProposals: Record<string, PoolProposalPage> = {
     upvotes: 22,
     downvotes: 8,
     attentionQuorum: 0.2,
-    activeGovernors: 100,
-    upvoteFloor: 10,
+    activeGovernors: 150,
+    upvoteFloor: 15,
     rules: [
       "20% attention from active governors required.",
       "At least 10% upvotes to move to chamber vote.",
@@ -256,8 +266,7 @@ const poolProposals: Record<string, PoolProposalPage> = {
         desc: "Third video delivered plus asset pack and short usage guide for the ecosystem.",
       },
     ],
-    summary:
-      "Produce three premium-quality AI-powered short videos explaining Humanode and Vortex, optimized for X/TikTok/Shorts, with project files and an asset pack for reuse.",
+    summary: summaryFor("humanode-ai-video-shorts"),
     overview:
       "We need visuals one level above typical AI spam. This proposal funds a cohesive 3-video series with strong hooks, consistent style, proper sound design, and reusable assets for official and community channels.",
     executionPlan: [
@@ -293,8 +302,8 @@ const poolProposals: Record<string, PoolProposalPage> = {
     upvotes: 21,
     downvotes: 7,
     attentionQuorum: 0.2,
-    activeGovernors: 100,
-    upvoteFloor: 10,
+    activeGovernors: 150,
+    upvoteFloor: 15,
     rules: [
       "20% attention from active governors required.",
       "At least 10% upvotes to move to chamber vote.",
@@ -328,8 +337,7 @@ const poolProposals: Record<string, PoolProposalPage> = {
         desc: "Campaign results summarized and a reusable AI video launch playbook produced.",
       },
     ],
-    summary:
-      "A dedicated 6-week pod to distribute Humanode AI videos across channels, reuse assets aggressively, run hook/thumbnail/CTA experiments, and ship a repeatable launch playbook.",
+    summary: summaryFor("ai-video-launch-distribution-sprint"),
     overview:
       "The failure mode is “publish once, then forget”. This proposal funds hands-on distribution: content kits, calendars, coordinated posting, community engagement, and measurement so videos turn into followers, community members, and potential Vortex participants.",
     executionPlan: [
@@ -366,8 +374,8 @@ const poolProposals: Record<string, PoolProposalPage> = {
     upvotes: 28,
     downvotes: 9,
     attentionQuorum: 0.2,
-    activeGovernors: 100,
-    upvoteFloor: 10,
+    activeGovernors: 150,
+    upvoteFloor: 15,
     rules: [
       "20% attention from active governors required.",
       "At least 10% upvotes to move to chamber vote.",
@@ -403,8 +411,7 @@ const poolProposals: Record<string, PoolProposalPage> = {
         desc: "10–15 thinking bounties + rewards + Season 1 report + onboarding map into Vortex.",
       },
     ],
-    summary:
-      "Run a 6-week series of small, weird, highly interactive experiments (puzzles, clinics, micro-bounties) to attract high-signal governance contributors into Vortex.",
+    summary: summaryFor("vortex-field-experiments-s1"),
     overview:
       "Instead of ads or low-signal campaigns, Season 1 uses interactive governance experiments that require thinking and creation, filtering out farmers and pulling in true believers.",
     executionPlan: [
@@ -436,19 +443,41 @@ const chamberProposals: Record<string, ChamberProposalPage> = {
     proposerId: "elena",
     chamber: "Economics chamber",
     budget: "18k HMND",
-    impact: "High",
+    formationEligible: true,
+    teamSlots: "1 / 2",
+    milestones: "3",
     timeLeft: "11h 05m",
-    votes: { yes: 24, no: 15, abstain: 2 },
+    votes: { yes: 36, no: 22, abstain: 4 },
     attentionQuorum: 0.33,
     passingRule: "≥66.6% + 1 yes within quorum",
-    engagedGovernors: 41,
-    activeGovernors: 100,
+    engagedGovernors: 62,
+    activeGovernors: 150,
     attachments: [
       { id: "policy", title: "Spam definition & governance process (draft)" },
       { id: "params", title: "Parameter sheet: stake, slash curve, cooldowns" },
     ],
-    summary:
-      "Introduce a fixed HMND staking requirement for governors and a simple spam slashing curve, keeping 1 human = 1 vote while making spam economically costly.",
+    teamLocked: [{ name: "Elena", role: "Economic design lead / proposer" }],
+    openSlotNeeds: [
+      {
+        title: "Rust / Substrate engineer",
+        desc: "Implement stake gate + lock/unlock + spam-slash hook; write tests; deploy to testnet/mainnet.",
+      },
+    ],
+    milestonesDetail: [
+      {
+        title: "M1 — Spec & Policy Ready",
+        desc: "Stake size, slashing curve, spam definition, and cooldowns documented and approved at policy level.",
+      },
+      {
+        title: "M2 — Implementation & Testnet",
+        desc: "Runtime logic implemented + tests + scenario runs (normal, spam incidents, revoke/re-entry) on testnet.",
+      },
+      {
+        title: "M3 — Mainnet Activation",
+        desc: "Mainnet activation + minimal monitoring + public post-deploy note.",
+      },
+    ],
+    summary: summaryFor("fixed-governor-stake-spam-slashing"),
     overview:
       "Adds a single gate (fixed governor stake) and a slashing hook for repeated spam proposals. Voting power remains equal; stake only enforces eligibility and discipline.",
     executionPlan: [
@@ -477,19 +506,39 @@ const chamberProposals: Record<string, ChamberProposalPage> = {
     proposerId: "maksim",
     chamber: "General chamber",
     budget: "13k HMND",
-    impact: "Medium",
+    formationEligible: true,
+    teamSlots: "2 / 2",
+    milestones: "3",
     timeLeft: "2d 18h",
-    votes: { yes: 27, no: 9, abstain: 2 },
+    votes: { yes: 41, no: 13, abstain: 4 },
     attentionQuorum: 0.33,
     passingRule: "≥66.6% + 1 yes within quorum",
-    engagedGovernors: 38,
-    activeGovernors: 100,
+    engagedGovernors: 58,
+    activeGovernors: 150,
     attachments: [
       { id: "params", title: "Decay thresholds + warnings table (draft)" },
       { id: "shadow", title: "Shadow-mode report template (draft)" },
     ],
-    summary:
-      "Automatic tier decay for long-term inactive governors with warnings and clear re-tiering, keeping proposition rights aligned with real participation.",
+    teamLocked: [
+      { name: "Maksim", role: "Governance design lead / proposer" },
+      { name: "Engineer (TBD)", role: "Backend / data engineer (part-time)" },
+    ],
+    openSlotNeeds: [],
+    milestonesDetail: [
+      {
+        title: "M1 — Tier Decay Spec v1",
+        desc: "Finalize thresholds per tier, warning rules, and re-tiering conditions; publish and incorporate feedback.",
+      },
+      {
+        title: "M2 — Implementation & Shadow Mode",
+        desc: "Implement tracking and run shadow mode for a few eras to validate expected decay outcomes.",
+      },
+      {
+        title: "M3 — Activation & UX",
+        desc: "Enable decay, show tier + decay status in profiles/Invision, and publish a clear explainer.",
+      },
+    ],
+    summary: summaryFor("tier-decay-v1"),
     overview:
       "Tier Decay steps down proposition rights over consecutive inactive eras (Citizen → Consul → Legate → Ecclesiast → Nominee → Inactive), while preserving 1 human = 1 vote.",
     executionPlan: [
@@ -515,18 +564,40 @@ const chamberProposals: Record<string, ChamberProposalPage> = {
     proposerId: "mira",
     chamber: "Governance chamber",
     budget: "16k HMND",
-    impact: "Medium",
+    formationEligible: true,
+    teamSlots: "1 / 2",
+    milestones: "3",
     timeLeft: "3d 12h",
     votes: { yes: 44, no: 6, abstain: 2 },
     attentionQuorum: 0.33,
     passingRule: "≥66.6% + 1 yes within quorum",
     engagedGovernors: 52,
-    activeGovernors: 100,
+    activeGovernors: 150,
     attachments: [
       { id: "spec-v1", title: "Voluntary Commitment Staking Spec v1" },
     ],
-    summary:
-      "Optional HMND commitment staking to signal discipline and opt into self-slashing, without changing governance access or voting power (1 human = 1 vote).",
+    teamLocked: [{ name: "Mira", role: "Economic design lead / proposer" }],
+    openSlotNeeds: [
+      {
+        title: "Rust / Substrate engineer",
+        desc: "Implement optional commitment stake module + tests; add integration hooks for linking stake to pledges.",
+      },
+    ],
+    milestonesDetail: [
+      {
+        title: "M1 — Spec & UX",
+        desc: "Commitment stake spec + UX notes published (amount, pledge linking, self-slash conditions).",
+      },
+      {
+        title: "M2 — Code & Testnet",
+        desc: "Implementation live on testnet with basic tests and an internal trial.",
+      },
+      {
+        title: "M3 — Mainnet & Guidelines",
+        desc: "Mainnet activation + guidelines; insights updated to show stake + self-slash history.",
+      },
+    ],
+    summary: summaryFor("voluntary-commitment-staking"),
     overview:
       "Introduce a voluntary “Commitment Stake” module: humans may stake any amount as a public signal and optionally attach self-slashing conditions tied to milestones or behavior, without gating governance or affecting voting power.",
     executionPlan: [
@@ -558,7 +629,6 @@ const formationProposals: Record<string, FormationProposalPage> = {
     proposer: "Jonas",
     proposerId: "jonas",
     budget: "180k HMND",
-    impact: "High",
     timeLeft: "12w",
     teamSlots: "1 / 3",
     milestones: "1 / 3",
@@ -605,8 +675,7 @@ const formationProposals: Record<string, FormationProposalPage> = {
       },
       { id: "docs-outline", title: "Rough docs outline" },
     ],
-    summary:
-      "Build an EVM dev starter kit + public testing sandbox to reduce friction for new Humanode builders.",
+    summary: summaryFor("evm-dev-starter-kit"),
     overview:
       "Deliver a TypeScript SDK, templates, sandbox + faucet, and full docs so developers can deploy dApps on Humanode in under 30 minutes.",
     executionPlan: [
@@ -632,7 +701,6 @@ const formationProposals: Record<string, FormationProposalPage> = {
     proposer: "defi-synth",
     proposerId: "defi-synth",
     budget: "245k HMND",
-    impact: "High",
     timeLeft: "16w",
     teamSlots: "3 / 5",
     milestones: "2 / 4",
@@ -684,8 +752,7 @@ const formationProposals: Record<string, FormationProposalPage> = {
       { id: "audit", title: "Audit vendor scope (draft)" },
       { id: "launch", title: "Launch kit outline (draft)" },
     ],
-    summary:
-      "Ship a Humanode-native DEX with protected swaps and fee-to-nodes routing, then run a coordinated launch sprint to onboard liquidity and users.",
+    summary: summaryFor("mev-safe-dex-v1-launch-sprint"),
     overview:
       "A DEX launch needs liquidity, trust, and repeated distribution. This project covers contracts + MEV protection + frontend + audit, plus a launch pod to drive adoption.",
     executionPlan: [
