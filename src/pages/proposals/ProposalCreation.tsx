@@ -168,19 +168,7 @@ const ProposalCreation: React.FC = () => {
         Number(item.amount) > 0,
     ) && budgetTotal > 0;
 
-  const step: StepKey = (() => {
-    if (desiredStep === "essentials") return "essentials";
-    if (desiredStep === "plan") return essentialsValid ? "plan" : "essentials";
-    if (desiredStep === "budget") {
-      if (!essentialsValid) return "essentials";
-      if (!planValid) return "plan";
-      return "budget";
-    }
-    if (!essentialsValid) return "essentials";
-    if (!planValid) return "plan";
-    if (!budgetValid) return "budget";
-    return "review";
-  })();
+  const step: StepKey = desiredStep;
 
   const chamberOptions = useMemo(() => {
     return [...chambers]
@@ -201,18 +189,6 @@ const ProposalCreation: React.FC = () => {
     localStorage.setItem(STORAGE_STEP_KEY, step);
   }, [step]);
 
-  const canReach = (target: StepKey) => {
-    if (target === step) return true;
-    const order: StepKey[] = ["essentials", "plan", "budget", "review"];
-    const currentIndex = order.indexOf(step);
-    const targetIndex = order.indexOf(target);
-    if (targetIndex <= currentIndex) return true;
-
-    if (target === "plan") return essentialsValid;
-    if (target === "budget") return essentialsValid && planValid;
-    return essentialsValid && planValid && budgetValid;
-  };
-
   const stepLabel: Record<StepKey, string> = {
     essentials: "Essentials",
     plan: "Plan",
@@ -225,7 +201,6 @@ const ProposalCreation: React.FC = () => {
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary-dim)] focus-visible:ring-offset-2 focus-visible:ring-offset-panel";
 
   const goToStep = (next: StepKey) => {
-    if (!canReach(next)) return;
     setAttemptedNext(false);
     setSearchParams({ step: next }, { replace: true });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -920,8 +895,9 @@ const ProposalCreation: React.FC = () => {
                   </div>
                   {!canSubmit ? (
                     <p className="text-xs text-muted">
-                      Submit unlocks when required fields are filled and both
-                      checkboxes are checked.
+                      You can navigate steps freely. Submit unlocks once
+                      required fields are filled and both checkboxes are
+                      checked.
                     </p>
                   ) : null}
                 </div>
