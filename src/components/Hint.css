@@ -39,6 +39,7 @@
   overflow: hidden;
   text-transform: none;
   letter-spacing: normal;
+  text-align: center;
 }
 
 .hint-card * {
@@ -48,6 +49,7 @@
   color: inherit;
   white-space: normal;
   word-break: break-word;
+  text-align: inherit;
 }
 
 .hint-card.stable {
