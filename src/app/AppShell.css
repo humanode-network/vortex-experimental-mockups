@@ -122,15 +122,27 @@
 
 @media (max-width: 720px) {
   .sidebar {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
     gap: 1rem;
+    padding: 1.25rem 1.25rem;
+  }
+
+  .sidebar__brand {
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.5rem 0;
+  }
+
+  .sidebar__logo {
+    order: 0;
   }
 
   .sidebar__nav {
     flex-direction: row;
     flex-wrap: wrap;
+    justify-content: center;
   }
 }
 
