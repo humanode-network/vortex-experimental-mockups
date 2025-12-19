@@ -17,8 +17,8 @@ const Vortexopedia: React.FC = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filters, setFilters] = useState<{
     category: string;
-    sortBy: "name" | "updated";
-  }>({ category: "any", sortBy: "name" });
+    sortBy: "ref" | "name" | "updated";
+  }>({ category: "any", sortBy: "ref" });
   const { category, sortBy } = filters;
 
   const categories = useMemo(
@@ -46,6 +46,7 @@ const Vortexopedia: React.FC = () => {
         return matchesText && matchesCategory;
       })
       .sort((a, b) => {
+        if (sortBy === "ref") return a.ref - b.ref;
         if (sortBy === "name") return a.name.localeCompare(b.name);
         return b.updated.localeCompare(a.updated);
       });
@@ -93,6 +94,7 @@ const Vortexopedia: React.FC = () => {
               key: "sortBy",
               label: "Sort by",
               options: [
+                { value: "ref", label: "Ref (1 → N)" },
                 { value: "name", label: "Name (A–Z)" },
                 { value: "updated", label: "Updated (newest)" },
               ],

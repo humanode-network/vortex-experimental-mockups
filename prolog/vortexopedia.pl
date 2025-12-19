@@ -504,15 +504,17 @@ vortex_term(
   "cognitocratic_measure",
   "Cognitocratic Measure (CM)",
   governance,
-  "Subjective numeric score received when a proposal is accepted; voters input a score (e.g., 1–10) that averages into CM.",
+  "A subjective contribution score awarded when a chamber accepts a proposal; voters rate it (e.g., 1–10) and the average becomes the CM.",
   [
-    "Assigned to a cognitocrat when a chamber accepts their proposal.",
-    "Voters supply a numeric score; the average becomes the CM for that proposal.",
-    "Intended to signal perceived contribution size; does not directly grant mandate power."
+    "Cognitocratic Measure (CM) is an attempt to objectify contribution of each cognitocrat to the system as a whole.",
+    "A cognitocrat receives CM each time a proposition is accepted by a chamber.",
+    "Instead of only voting “Yes”, voters also input a number (for example, on a 1–10 scale). The average rating becomes the CM received by the proposer.",
+    "CM is still subjective and should not directly empower the mandate of any particular cognitocrat.",
+    "Instead, it signals to others the perceived magnitude of a cognitocrat’s contribution: the larger the CM, the larger the perceived contribution."
   ],
   [cm, score, contribution, governance],
   ["cognitocratic_measure_multiplier", "lcm", "mcm", "acm"],
-  ["A proposal passes with an average score of 8 → proposer receives CM=8."],
+  ["A proposal is accepted with an average rating of 8 → proposer receives CM=8."],
   [chamber],
   [link{label:"Docs", url:"https://gitbook.humanode.io/vortex-1.0"}],
   "Voting, Delegation and Quorum",
@@ -524,15 +526,16 @@ vortex_term(
   "cognitocratic_measure_multiplier",
   "Cognitocratic Measure multiplier",
   governance,
-  "Chamber-specific multiplier to normalize CM across specializations; set collectively by cognitocrats outside that chamber.",
+  "A chamber-specific weight used to compare CM/LCM across specializations by defining proportional “value” between chambers.",
   [
-    "Each chamber has a multiplier to weight CM from that specialization.",
-    "Average multiplier is set by all cognitocrats who have not received LCM in that chamber.",
-    "Prevents direct comparison of raw CM across differing fields."
+    "A cognitocratic system contains multiple specialization chambers, so CM/LCM from different chambers cannot be treated as equal by default.",
+    "A CM of 5 in one chamber can be meaningfully different from a CM of 5 in another depending on what the system values at that time.",
+    "The chamber multiplier defines these proportions between chambers so contributions can be normalized for aggregation.",
+    "In this demo, the multiplier is set collectively by cognitocrats who have not received LCM in that chamber (average of their inputs)."
   ],
   [cm, multiplier, chamber, weighting],
   ["cognitocratic_measure", "lcm", "mcm", "acm"],
-  ["Philosophy chamber multiplier 3 vs Finance chamber multiplier 5; same CM scales differently."],
+  ["Philosophy multiplier 3 vs Finance multiplier 5: the same LCM produces different MCM after weighting."],
   [cm],
   [link{label:"Docs", url:"https://gitbook.humanode.io/vortex-1.0"}],
   "Voting, Delegation and Quorum",
@@ -544,14 +547,14 @@ vortex_term(
   "lcm",
   "Local Cognitocratic Measure (LCM)",
   governance,
-  "CM accrued within a specific chamber before applying that chamber’s multiplier.",
+  "A per-chamber contribution signal: CM accrued within a specific chamber before applying that chamber’s multiplier.",
   [
-    "Represents contribution within a single chamber.",
-    "Used as input to calculate MCM and ACM."
+    "Local Cognitocratic Measure (LCM) subjectively demonstrates the amount of contribution from a cognitocrat in a specific chamber.",
+    "LCM is the input to calculate MCM (after applying the chamber multiplier) and ACM (sum across chambers)."
   ],
   [cm, lcm, chamber],
   ["mcm", "acm", "cognitocratic_measure_multiplier"],
-  ["5 LCM in Philosophy and 10 LCM in Finance before weighting."],
+  ["Bob has 5 LCM in Philosophy and 10 LCM in Finance."],
   [chamber],
   [link{label:"Docs", url:"https://gitbook.humanode.io/vortex-1.0"}],
   "Voting, Delegation and Quorum",
@@ -563,10 +566,10 @@ vortex_term(
   "mcm",
   "Multiplied Cognitocratic Measure (MCM)",
   governance,
-  "LCM multiplied by its chamber’s multiplier.",
+  "LCM multiplied by its chamber multiplier.",
   [
-    "Adjusts LCM by the chamber’s multiplier to reflect specialization value.",
-    "Feeds into ACM."
+    "Multiplied Cognitocratic Measure (MCM) is LCM multiplied by the chamber multiplier.",
+    "This adjusts LCM to reflect the specialization value defined by the multiplier, and feeds into ACM."
   ],
   [cm, mcm, chamber, multiplier],
   ["lcm", "acm", "cognitocratic_measure_multiplier"],
@@ -582,14 +585,15 @@ vortex_term(
   "acm",
   "Absolute Cognitocratic Measure (ACM)",
   governance,
-  "Sum of all MCMs across chambers: ACM = Σ(LCM_chamber × Multiplier_chamber).",
+  "Sum of all MCMs across chambers: ACM = Σ(LCM_chamber(i) × M_chamber(i)).",
   [
-    "Aggregates contribution across all chambers after applying multipliers.",
-    "Used to compare overall perceived contribution of a cognitocrat."
+    "Absolute Cognitocratic Measure (ACM) represents the sum of all MCMs received by a cognitocrat across chambers.",
+    "Formula: ACM = Σ_{i=1..n} (LCM_chamber(i) × M_chamber(i)), where i is a chamber and M is that chamber’s multiplier.",
+    "Example: Bob has 5 LCM in Philosophy (multiplier 3) and 10 LCM in Finance (multiplier 5). ACM = (5×3) + (10×5) = 65."
   ],
   [cm, acm, aggregate, governance],
   ["lcm", "mcm", "cognitocratic_measure_multiplier"],
-  ["Example: (3 LCM in Philosophy ×3) + (10 LCM in Finance ×5) = 65 ACM."],
+  ["Bob: (5×3) + (10×5) = 65 ACM."],
   [cm, chamber],
   [link{label:"Docs", url:"https://gitbook.humanode.io/vortex-1.0"}],
   "Voting, Delegation and Quorum",

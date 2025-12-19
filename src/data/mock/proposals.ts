@@ -140,8 +140,7 @@ export const proposals: ProposalListItem[] = [
     meta: "General chamber · Consul tier",
     stage: "vote",
     summaryPill: "Chamber vote",
-    summary:
-      "Automatic tier decay for inactive governors across Nominee → Ecclesiast → Legate → Consul → Citizen, with warnings and a clear path to climb back via renewed activity.",
+    summary: "Keep high tiers reserved for active governors.",
     stageData: [
       {
         title: "Voting quorum",

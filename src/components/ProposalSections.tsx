@@ -50,10 +50,14 @@ export function ProposalSummaryCard({
   budgetScope,
   attachments,
 }: ProposalSummaryCardProps) {
+  const normalizedSummary = summary.replace(/\s+/g, " ").trim();
+  const normalizedOverview = overview.replace(/\s+/g, " ").trim();
+  const showSummary = normalizedSummary !== normalizedOverview;
+
   return (
     <section className="space-y-3 text-sm text-muted">
       <h2 className="text-lg font-semibold text-text">Summary</h2>
-      <p>{summary}</p>
+      {showSummary && <p>{summary}</p>}
       {stats.length > 0 && (
         <div className="grid gap-2 text-sm text-text sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((item) => (

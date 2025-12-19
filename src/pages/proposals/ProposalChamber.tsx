@@ -1,6 +1,5 @@
 import { useParams } from "react-router";
 import ProposalStageBar from "@/components/ProposalStageBar";
-import { Surface } from "@/components/Surface";
 import { StatTile } from "@/components/StatTile";
 import { PageHint } from "@/components/PageHint";
 import { VoteButton } from "@/components/VoteButton";
@@ -18,13 +17,22 @@ const ProposalChamber: React.FC = () => {
   const yesTotal = proposal.votes.yes;
   const noTotal = proposal.votes.no;
   const abstainTotal = proposal.votes.abstain;
+  const totalVotes = yesTotal + noTotal + abstainTotal;
   const engaged = proposal.engagedGovernors;
   const quorumNeeded = Math.ceil(
     proposal.activeGovernors * proposal.attentionQuorum,
   );
   const quorumPercent = Math.round((engaged / proposal.activeGovernors) * 100);
+  const quorumNeededPercent = Math.round(proposal.attentionQuorum * 100);
   const yesPercentOfQuorum =
     engaged > 0 ? Math.round((yesTotal / engaged) * 100) : 0;
+  const yesPercentOfTotal =
+    totalVotes > 0 ? Math.round((yesTotal / totalVotes) * 100) : 0;
+  const noPercentOfTotal =
+    totalVotes > 0 ? Math.round((noTotal / totalVotes) * 100) : 0;
+  const abstainPercentOfTotal =
+    totalVotes > 0 ? Math.round((abstainTotal / totalVotes) * 100) : 0;
+  const passingNeededPercent = 66.6;
 
   const [filledSlots, totalSlots] = proposal.teamSlots
     .split("/")
@@ -38,86 +46,103 @@ const ProposalChamber: React.FC = () => {
   return (
     <div className="flex flex-col gap-6">
       <PageHint pageId="proposals" />
-      <Surface
-        as="section"
-        variant="panel"
-        radius="2xl"
-        shadow="card"
-        className="p-6"
-      >
-        <div className="grid gap-4">
-          <div className="space-y-4">
-            <h1 className="text-center text-2xl font-semibold text-text">
-              {proposal.title}
-            </h1>
-            {renderStageBar("chamber")}
-            <div className="grid gap-3 sm:grid-cols-2">
-              <StatTile
-                label="Chamber"
-                value={proposal.chamber}
-                radius="2xl"
-                className="px-4 py-4"
-                labelClassName="text-[0.8rem]"
-                valueClassName="text-2xl"
-              />
-              <StatTile
-                label="Proposer"
-                value={proposal.proposer}
-                radius="2xl"
-                className="px-4 py-4"
-                labelClassName="text-[0.8rem]"
-                valueClassName="text-2xl"
-              />
-            </div>
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <VoteButton tone="accent" label="Vote yes" />
-              <VoteButton tone="destructive" label="Vote no" />
-              <VoteButton tone="neutral" label="Abstain" />
-            </div>
-
-            <div className="grid gap-3 text-sm text-text sm:grid-cols-2 lg:grid-cols-4">
-              <StatTile
-                label="Governors"
-                value={
-                  <>
-                    {engaged} / {quorumNeeded}
-                  </>
-                }
-                variant="panel"
-                className="flex min-h-24 flex-col items-center justify-center gap-1 py-4"
-                valueClassName="whitespace-nowrap text-2xl font-semibold"
-              />
-              <StatTile
-                label="Yes / No / Abstain"
-                value={
-                  <>
-                    {yesTotal} / {noTotal} / {abstainTotal}
-                  </>
-                }
-                variant="panel"
-                className="flex min-h-24 flex-col items-center justify-center gap-1 py-4"
-                labelClassName="whitespace-nowrap"
-                valueClassName="whitespace-nowrap text-2xl font-semibold"
-              />
-              <StatTile
-                label="Quorum (%)"
-                value={quorumPercent}
-                variant="panel"
-                className="flex min-h-24 flex-col items-center justify-center gap-1 py-4"
-                labelClassName="whitespace-nowrap"
-                valueClassName="whitespace-nowrap text-2xl font-semibold"
-              />
-              <StatTile
-                label="Passing"
-                value={`${yesPercentOfQuorum}% yes`}
-                variant="panel"
-                className="flex min-h-24 flex-col items-center justify-center gap-1 py-4"
-                valueClassName="whitespace-nowrap text-2xl font-semibold"
-              />
-            </div>
-          </div>
+      <section className="space-y-4">
+        <h1 className="text-center text-2xl font-semibold text-text">
+          {proposal.title}
+        </h1>
+        {renderStageBar("chamber")}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <StatTile
+            label="Chamber"
+            value={proposal.chamber}
+            radius="2xl"
+            className="px-4 py-4"
+            labelClassName="text-[0.8rem]"
+            valueClassName="text-2xl"
+          />
+          <StatTile
+            label="Proposer"
+            value={proposal.proposer}
+            radius="2xl"
+            className="px-4 py-4"
+            labelClassName="text-[0.8rem]"
+            valueClassName="text-2xl"
+          />
         </div>
-      </Surface>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <VoteButton tone="accent" label="Vote yes" />
+          <VoteButton tone="destructive" label="Vote no" />
+          <VoteButton tone="neutral" label="Abstain" />
+        </div>
+
+        <h2 className="text-lg font-semibold text-text">Voting quorum</h2>
+        <div className="grid gap-3 text-sm text-text sm:grid-cols-2 lg:grid-cols-4">
+          <StatTile
+            label="Voting quorum (%)"
+            value={
+              <>
+                <span className="whitespace-nowrap">
+                  {quorumPercent}% / {quorumNeededPercent}%
+                </span>
+                <span className="text-xs font-semibold whitespace-nowrap text-muted">
+                  {engaged} / {quorumNeeded}
+                </span>
+              </>
+            }
+            variant="panel"
+            className="flex min-h-24 flex-col items-center justify-center gap-1 py-4"
+            valueClassName="flex flex-col items-center gap-1 text-2xl font-semibold"
+          />
+          <StatTile
+            label="Vote split (%)"
+            value={
+              <>
+                <span className="whitespace-nowrap">
+                  <span className="text-[var(--accent)]">
+                    {yesPercentOfTotal}%
+                  </span>{" "}
+                  /{" "}
+                  <span className="text-[var(--destructive)]">
+                    {noPercentOfTotal}%
+                  </span>{" "}
+                  / <span className="text-muted">{abstainPercentOfTotal}%</span>
+                </span>
+                <span className="text-xs font-semibold whitespace-nowrap text-muted">
+                  {yesTotal} / {noTotal} / {abstainTotal}
+                </span>
+              </>
+            }
+            variant="panel"
+            className="flex min-h-24 flex-col items-center justify-center gap-1 py-4"
+            labelClassName="whitespace-nowrap"
+            valueClassName="flex flex-col items-center gap-1 text-2xl font-semibold"
+          />
+          <StatTile
+            label="Time left"
+            value={proposal.timeLeft}
+            variant="panel"
+            className="flex min-h-24 flex-col items-center justify-center gap-1 py-4"
+            labelClassName="whitespace-nowrap"
+            valueClassName="whitespace-nowrap text-2xl font-semibold"
+          />
+          <StatTile
+            label="Passing (%)"
+            value={
+              <>
+                <span className="whitespace-nowrap">
+                  {yesPercentOfQuorum}% / {passingNeededPercent}%
+                </span>
+                <span className="text-xs font-semibold whitespace-nowrap text-muted">
+                  Yes within quorum
+                </span>
+              </>
+            }
+            variant="panel"
+            className="flex min-h-24 flex-col items-center justify-center gap-1 py-4"
+            valueClassName="flex flex-col items-center gap-1 text-2xl font-semibold"
+          />
+        </div>
+      </section>
 
       <ProposalSummaryCard
         summary={proposal.summary}
