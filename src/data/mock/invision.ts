@@ -54,17 +54,17 @@ export const invisionChamberProposals = [
     title: "Humanode EVM Dev Starter Kit & Testing Sandbox",
     effect:
       "Starter kit + sandbox to cut time-to-first-dApp to under 30 minutes",
-    sponsors: "Protocol Guard · Mesh Vanguard",
+    sponsors: "Validator subsidies · Formal verification maxis",
   },
   {
     title: "Voluntary Governor Commitment Staking",
     effect:
       "Optional commitment staking with opt-in self-slashing (no voting power impact)",
-    sponsors: "Civic Union · Governance Commons",
+    sponsors: "Local voting adoption movement · Delegation removal supporters",
   },
   {
     title: "Biometric Account Recovery & Key Rotation Pallet",
     effect: "Key rotation + recovery via biometric identity (audited pallet)",
-    sponsors: "Protocol Guard · Guardian Circle",
+    sponsors: "Formal verification maxis · Anti-AI-slop conglomerate",
   },
 ] as const;

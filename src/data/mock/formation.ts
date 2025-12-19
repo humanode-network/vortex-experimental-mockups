@@ -56,4 +56,16 @@ export const formationProjects: FormationProject[] = [
   },
 ];
 
+export const formationStageLabel = (stage: FormationStage): string => {
+  if (stage === "live") return "Live";
+  if (stage === "gathering") return "Gathering";
+  return "Completed";
+};
+
+export const getFormationProjectById = (
+  id: string | undefined,
+): FormationProject | undefined =>
+  (id ? formationProjects.find((project) => project.id === id) : undefined) ??
+  undefined;
+
 export default formationProjects;

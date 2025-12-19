@@ -122,32 +122,32 @@ export const feedItems: FeedItem[] = [
     timestamp: "2025-03-30T05:10:00Z",
   },
   {
-    id: "protocol-keepers-thread",
-    title: "Protocol Keepers Thread",
-    meta: "Faction · Protocol Keepers",
+    id: "formal-verification-thread",
+    title: "Formal verification thread",
+    meta: "Faction · Formal verification maxis",
     stage: "thread",
     summaryPill: "Faction thread",
-    summary: "Privacy sprint planning · new replies.",
+    summary: "Audit checklist proposal · new replies.",
     ctaPrimary: "Open thread",
     ctaSecondary: "Mark read",
-    href: "/app/factions/protocol-keepers",
+    href: "/app/factions/formal-verification-maxis",
     timestamp: "2025-03-26T04:00:00Z",
   },
   {
-    id: "formation-guild",
-    title: "Formation Guild Update",
-    meta: "Faction · Formation Guild",
+    id: "social-media-awareness",
+    title: "Social media awareness update",
+    meta: "Faction · Social media awareness",
     stage: "faction",
     summaryPill: "Slots open",
     summary: (
       <span>
-        Votes: 18 · <HintLabel termId="acm">ACM</HintLabel>: 1,500 · Ops slots
-        open for guild initiatives.
+        Votes: 16 · <HintLabel termId="acm">ACM</HintLabel>: 1,120 · Creator and
+        ops slots open for upcoming campaigns.
       </span>
     ),
     ctaPrimary: "Open faction",
     ctaSecondary: "Follow",
-    href: "/app/factions/formation-guild",
+    href: "/app/factions/social-media-awareness",
     timestamp: "2025-03-20T20:00:00Z",
   },
 ];

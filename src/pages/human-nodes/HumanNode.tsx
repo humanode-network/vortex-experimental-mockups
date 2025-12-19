@@ -235,27 +235,33 @@ const HumanNode: React.FC = () => {
             <CardTitle>Formation projects</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {projects.map((project) => (
-              <div
-                key={project.title}
-                className="rounded-xl border border-border px-4 py-3"
-              >
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm font-semibold text-text">
-                    {project.title}
-                  </p>
-                  <Kicker>{project.status}</Kicker>
+            {projects.length === 0 ? (
+              <p className="text-sm text-muted">
+                Not participating in Formation right now.
+              </p>
+            ) : (
+              projects.map((project) => (
+                <div
+                  key={project.title}
+                  className="rounded-xl border border-border px-4 py-3"
+                >
+                  <div className="flex flex-col gap-1">
+                    <p className="text-sm font-semibold text-text">
+                      {project.title}
+                    </p>
+                    <Kicker>{project.status}</Kicker>
+                  </div>
+                  <p className="text-sm text-muted">{project.summary}</p>
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {project.chips.map((chip) => (
+                      <Badge key={chip} variant="outline">
+                        {chip}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-                <p className="text-sm text-muted">{project.summary}</p>
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {project.chips.map((chip) => (
-                    <Badge key={chip} variant="outline">
-                      {chip}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </CardContent>
         </Card>
       </div>

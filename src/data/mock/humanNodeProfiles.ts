@@ -1,5 +1,11 @@
 import type { HumanNode } from "./humanNodes";
 import { humanNodes } from "./humanNodes";
+import {
+  formationStageLabel,
+  getFormationProjectById,
+  type FormationProject,
+} from "./formation";
+import { getFactionById } from "./factions";
 
 export type ProofKey = "time" | "devotion" | "governance";
 
@@ -140,34 +146,26 @@ const defaultActivity: HistoryItem[] = [
   },
 ];
 
-const defaultProjects: ProjectCard[] = [
-  {
-    title: "EVM Dev Starter Kit",
-    status: "Protocol · Live",
-    summary:
-      "Developer SDK + templates + sandbox so builders can deploy in under 30 minutes.",
-    chips: ["Budget: 180k HMND", "Milestones: 1 / 3", "Team slots: 2 open"],
-  },
-  {
-    title: "Commitment staking UX",
-    status: "Governance · Upcoming",
-    summary:
-      "UI specification for optional stake display and self-slash conditions.",
-    chips: ["Budget: 16k HMND", "Milestones: 0 / 3", "Team slots: 1 open"],
-  },
-  {
-    title: "Governance hub refresh",
-    status: "Product & UX · Proposed",
-    summary:
-      "Design system v1 and UX polish pass for proposals, chambers, and insights.",
-    chips: ["Budget: 20k HMND", "Milestones: 0 / 3", "Team slots: 1 open"],
-  },
-];
+const projectToCard = (project: FormationProject): ProjectCard => ({
+  title: project.title,
+  status: `${project.focus} · ${formationStageLabel(project.stage)}`,
+  summary: project.summary,
+  chips: [
+    `Budget: ${project.budget}`,
+    `Milestones: ${project.milestones}`,
+    `Team slots: ${project.teamSlots}`,
+  ],
+});
+
+const getProjectsForNode = (node: HumanNode | undefined): ProjectCard[] =>
+  (node?.formationProjectIds ?? [])
+    .map((projectId) => getFormationProjectById(projectId))
+    .filter((project): project is FormationProject => Boolean(project))
+    .map(projectToCard);
 
 const createProfile = (input: {
   id: string;
   invisionScore: number;
-  faction: string;
   delegationShare: string;
   proposalsCreated: string;
   governanceSummary: string;
@@ -182,6 +180,9 @@ const createProfile = (input: {
   const tier = node?.tier ?? "nominee";
   const memberSince = node?.memberSince ?? "—";
   const active = node?.active ?? true;
+  const factionName =
+    (node?.factionId ? getFactionById(node.factionId)?.name : undefined) ?? "—";
+  const projects = getProjectsForNode(node);
 
   return {
     id: input.id,
@@ -197,13 +198,13 @@ const createProfile = (input: {
     ],
     quickDetails: [
       { label: "Tier", value: titleCaseTier(tier) },
-      { label: "Faction", value: input.faction },
+      { label: "Faction", value: factionName },
       { label: "Delegation share", value: input.delegationShare },
       { label: "Proposals created", value: input.proposalsCreated },
     ],
     proofSections: input.proofSections,
     governanceActions: defaultGovernanceActions,
-    projects: defaultProjects,
+    projects,
     activity: input.activity ?? defaultActivity,
     history:
       input.history ??
@@ -217,7 +218,6 @@ export const humanNodeProfilesById: Record<string, HumanNodeProfile> = {
   dato: createProfile({
     id: "dato",
     invisionScore: 78,
-    faction: "Independent",
     delegationShare: "2.4%",
     proposalsCreated: "7",
     governanceSummary:
@@ -254,7 +254,6 @@ export const humanNodeProfilesById: Record<string, HumanNodeProfile> = {
   victor: createProfile({
     id: "victor",
     invisionScore: 81,
-    faction: "Independent",
     delegationShare: "1.9%",
     proposalsCreated: "5",
     governanceSummary:
@@ -286,7 +285,6 @@ export const humanNodeProfilesById: Record<string, HumanNodeProfile> = {
   temo: createProfile({
     id: "temo",
     invisionScore: 69,
-    faction: "Independent",
     delegationShare: "0.4%",
     proposalsCreated: "0",
     governanceSummary:
@@ -318,7 +316,6 @@ export const humanNodeProfilesById: Record<string, HumanNodeProfile> = {
   dima: createProfile({
     id: "dima",
     invisionScore: 65,
-    faction: "Independent",
     delegationShare: "0.6%",
     proposalsCreated: "1",
     governanceSummary:
@@ -350,7 +347,6 @@ export const humanNodeProfilesById: Record<string, HumanNodeProfile> = {
   tony: createProfile({
     id: "tony",
     invisionScore: 71,
-    faction: "Independent",
     delegationShare: "0.8%",
     proposalsCreated: "2",
     governanceSummary:
@@ -382,7 +378,6 @@ export const humanNodeProfilesById: Record<string, HumanNodeProfile> = {
   sesh: createProfile({
     id: "sesh",
     invisionScore: 90,
-    faction: "Independent",
     delegationShare: "3.1%",
     proposalsCreated: "9",
     governanceSummary:
@@ -414,7 +409,6 @@ export const humanNodeProfilesById: Record<string, HumanNodeProfile> = {
   petr: createProfile({
     id: "petr",
     invisionScore: 76,
-    faction: "Independent",
     delegationShare: "1.1%",
     proposalsCreated: "4",
     governanceSummary:
@@ -446,7 +440,6 @@ export const humanNodeProfilesById: Record<string, HumanNodeProfile> = {
   shannon: createProfile({
     id: "shannon",
     invisionScore: 88,
-    faction: "Independent",
     delegationShare: "2.2%",
     proposalsCreated: "6",
     governanceSummary:
@@ -478,7 +471,6 @@ export const humanNodeProfilesById: Record<string, HumanNodeProfile> = {
   shahmeer: createProfile({
     id: "shahmeer",
     invisionScore: 94,
-    faction: "Independent",
     delegationShare: "3.8%",
     proposalsCreated: "12",
     governanceSummary:
@@ -510,7 +502,6 @@ export const humanNodeProfilesById: Record<string, HumanNodeProfile> = {
   fiona: createProfile({
     id: "fiona",
     invisionScore: 79,
-    faction: "Independent",
     delegationShare: "1.4%",
     proposalsCreated: "3",
     governanceSummary:
@@ -542,7 +533,6 @@ export const humanNodeProfilesById: Record<string, HumanNodeProfile> = {
   silis: createProfile({
     id: "silis",
     invisionScore: 80,
-    faction: "Independent",
     delegationShare: "1.0%",
     proposalsCreated: "4",
     governanceSummary:
@@ -574,7 +564,6 @@ export const humanNodeProfilesById: Record<string, HumanNodeProfile> = {
   ekko: createProfile({
     id: "ekko",
     invisionScore: 75,
-    faction: "Independent",
     delegationShare: "0.9%",
     proposalsCreated: "2",
     governanceSummary:
@@ -606,7 +595,6 @@ export const humanNodeProfilesById: Record<string, HumanNodeProfile> = {
   andrei: createProfile({
     id: "andrei",
     invisionScore: 86,
-    faction: "Independent",
     delegationShare: "2.7%",
     proposalsCreated: "8",
     governanceSummary:
@@ -638,7 +626,6 @@ export const humanNodeProfilesById: Record<string, HumanNodeProfile> = {
   fares: createProfile({
     id: "fares",
     invisionScore: 84,
-    faction: "Independent",
     delegationShare: "2.0%",
     proposalsCreated: "6",
     governanceSummary:

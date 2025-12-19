@@ -18,6 +18,8 @@ import { Kicker } from "@/components/Kicker";
 import { TierLabel } from "@/components/TierLabel";
 import { ToggleGroup } from "@/components/ToggleGroup";
 import { humanNodes as sampleNodes } from "@/data/mock/humanNodes";
+import { getFactionById } from "@/data/mock/factions";
+import { getFormationProjectById } from "@/data/mock/formation";
 
 const HumanNodes: React.FC = () => {
   const [search, setSearch] = useState("");
@@ -38,11 +40,14 @@ const HumanNodes: React.FC = () => {
     const term = search.toLowerCase();
     return [...sampleNodes]
       .filter((node) => {
+        const factionName =
+          getFactionById(node.factionId)?.name?.toLowerCase() ?? "";
         const matchesTerm =
           node.name.toLowerCase().includes(term) ||
           node.role.toLowerCase().includes(term) ||
           node.tags.some((t) => t.toLowerCase().includes(term)) ||
-          node.chamber.toLowerCase().includes(term);
+          node.chamber.toLowerCase().includes(term) ||
+          factionName.includes(term);
         const matchesTier =
           tierFilter === "all" ? true : node.tier === tierFilter;
         return matchesTerm && matchesTier;
@@ -133,6 +138,18 @@ const HumanNodes: React.FC = () => {
           {view === "cards" ? (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               {filtered.map((node) => {
+                const factionName = getFactionById(node.factionId)?.name ?? "—";
+                const formationProjects = (node.formationProjectIds ?? [])
+                  .map((projectId) => getFormationProjectById(projectId)?.title)
+                  .filter((title): title is string => Boolean(title));
+                const formationProjectLabel =
+                  formationProjects.length === 0
+                    ? "—"
+                    : formationProjects.length === 1
+                      ? formationProjects[0]
+                      : `${formationProjects[0]} + ${
+                          formationProjects.length - 1
+                        }`;
                 const tileItems = [
                   { label: "ACM", value: node.acm.toString() },
                   { label: "MM", value: node.mm.toString() },
@@ -144,6 +161,7 @@ const HumanNodes: React.FC = () => {
                       </TierLabel>
                     ),
                   },
+                  { label: "Faction", value: factionName },
                   {
                     label: "Governor",
                     value: node.active ? "Active" : "Not active",
@@ -159,7 +177,7 @@ const HumanNodes: React.FC = () => {
                   },
                   {
                     label: "Formation project",
-                    value: node.formationProject ?? "—",
+                    value: formationProjectLabel,
                   },
                   {
                     label: "Human node since",
@@ -220,6 +238,9 @@ const HumanNodes: React.FC = () => {
                         <p className="text-sm text-muted">{node.role}</p>
                       </div>
                       <div className="flex flex-wrap gap-2">
+                        <Badge size="sm" variant="outline">
+                          {getFactionById(node.factionId)?.name ?? "—"}
+                        </Badge>
                         <Badge size="sm">
                           <HintLabel termId="acm" className="mr-1">
                             ACM
