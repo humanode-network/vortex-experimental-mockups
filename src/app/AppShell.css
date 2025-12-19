@@ -130,13 +130,8 @@
   }
 
   .sidebar__brand {
-    flex-direction: column;
-    gap: 0.4rem;
-    padding: 0.5rem 0;
-  }
-
-  .sidebar__logo {
-    order: 0;
+    justify-content: space-between;
+    padding: 0.65rem 0.9rem;
   }
 
   .sidebar__nav {
