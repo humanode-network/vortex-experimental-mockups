@@ -133,16 +133,6 @@ const HumanNodes: React.FC = () => {
           {view === "cards" ? (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               {filtered.map((node) => {
-                const sinceDates: Record<string, string> = {
-                  JohnDoe: "11.06.2021",
-                  Raamara: "01.11.2024",
-                  Nyx: "13.01.2022",
-                  Nana: "07.09.2023",
-                  Victor: "02.03.2024",
-                  Tony: "23.12.2024",
-                  Dima: "21.05.2022",
-                  Shannon: "21.06.2024",
-                };
                 const tileItems = [
                   { label: "ACM", value: node.acm.toString() },
                   { label: "MM", value: node.mm.toString() },
@@ -173,9 +163,7 @@ const HumanNodes: React.FC = () => {
                   },
                   {
                     label: "Human node since",
-                    value:
-                      sinceDates[node.id as keyof typeof sinceDates] ??
-                      "01.01.2021",
+                    value: node.memberSince,
                   },
                 ];
                 return (

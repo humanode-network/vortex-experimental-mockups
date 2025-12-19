@@ -9,11 +9,13 @@ import {
   CardTitle,
 } from "@/components/primitives/card";
 import { factions } from "@/data/mock/factions";
+import { proposals } from "@/data/mock/proposals";
 import { HintLabel } from "@/components/Hint";
 import { Surface } from "@/components/Surface";
 import { AvatarPlaceholder } from "@/components/AvatarPlaceholder";
 import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
+import { getHumanNode } from "@/data/mock/humanNodes";
 
 const Faction: React.FC = () => {
   const { id } = useParams();
@@ -49,33 +51,29 @@ const Faction: React.FC = () => {
     },
   ];
 
-  const roster = [
-    {
-      name: "John Doe",
-      role: faction.focus,
-      tag: (
+  const roster = faction.roster.map((member) => {
+    const node = getHumanNode(member.humanNodeId);
+    const name = node?.name ?? member.humanNodeId;
+    const tag =
+      member.tag.kind === "acm" ? (
         <>
           <HintLabel termId="acm" className="mr-1">
             ACM
           </HintLabel>
-          182
+          {member.tag.value}
         </>
-      ),
-    },
-    { name: "Raamara", role: "Ops & delivery", tag: "Votes 52" },
-    {
-      name: "Nyx",
-      role: "Signals & privacy",
-      tag: (
+      ) : member.tag.kind === "mm" ? (
         <>
           <HintLabel termId="meritocratic_measure" className="mr-1">
             MM
           </HintLabel>
-          81
+          {member.tag.value}
         </>
-      ),
-    },
-  ];
+      ) : (
+        member.tag.value
+      );
+    return { name, role: member.role, tag };
+  });
 
   const resources = [
     { label: "Charter & mandate", href: "#" },
@@ -83,34 +81,36 @@ const Faction: React.FC = () => {
     { label: "How to contribute", href: "#" },
   ];
 
-  const initiatives = [
-    {
-      title: "Humanode EVM Dev Starter Kit & Testing Sandbox",
-      stage: <HintLabel termId="proposal_pools">Proposal pool</HintLabel>,
-      location: "Protocol chamber",
-    },
-    {
-      title: "Voluntary Governor Commitment Staking",
-      stage: <HintLabel termId="chamber_vote">Chamber vote</HintLabel>,
-      location: "Governance chamber",
-    },
-    {
-      title: "EVM Sandbox Infrastructure",
-      stage: "Gathering team",
-      location: "Formation",
-    },
-    { title: "Guild ops stack", stage: "Launched", location: "Formation" },
-    {
-      title: "Mentorship cohort",
-      stage: "Gathering team",
-      location: "Formation",
-    },
-    {
-      title: "Privacy sprint",
-      stage: <HintLabel termId="proposal_pools">Proposal pool</HintLabel>,
-      location: "Research chamber",
-    },
-  ];
+  const initiatives = faction.initiatives.map((initiativeTitle) => {
+    const matchingProposal = proposals.find(
+      (proposal) => proposal.title === initiativeTitle,
+    );
+
+    if (!matchingProposal) {
+      return {
+        title: initiativeTitle,
+        stage: "Initiative",
+        location: faction.focus,
+      };
+    }
+
+    const stage =
+      matchingProposal.stage === "pool" ? (
+        <HintLabel termId="proposal_pools">Proposal pool</HintLabel>
+      ) : matchingProposal.stage === "vote" ? (
+        <HintLabel termId="chamber_vote">Chamber vote</HintLabel>
+      ) : matchingProposal.stage === "build" ? (
+        <HintLabel termId="formation">Formation</HintLabel>
+      ) : (
+        "Draft"
+      );
+
+    return {
+      title: initiativeTitle,
+      stage,
+      location: matchingProposal.chamber,
+    };
+  });
 
   return (
     <div className="flex flex-col gap-6">

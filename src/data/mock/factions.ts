@@ -8,6 +8,14 @@ export type Faction = {
   focus: string;
   goals: string[];
   initiatives: string[];
+  roster: {
+    humanNodeId: string;
+    role: string;
+    tag:
+      | { kind: "acm"; value: number }
+      | { kind: "mm"; value: number }
+      | { kind: "text"; value: string };
+  }[];
 };
 
 export const factions: Faction[] = [
@@ -29,6 +37,23 @@ export const factions: Faction[] = [
       "Validator neutrality charter",
       "Cross-shard liveness probes",
     ],
+    roster: [
+      {
+        humanNodeId: "shahmeer",
+        role: "Core protocol",
+        tag: { kind: "acm", value: 184 },
+      },
+      {
+        humanNodeId: "dato",
+        role: "Reliability & ops",
+        tag: { kind: "mm", value: 88 },
+      },
+      {
+        humanNodeId: "andrei",
+        role: "Infra & telemetry",
+        tag: { kind: "text", value: "Votes 52" },
+      },
+    ],
   },
   {
     id: "formation-guild",
@@ -48,6 +73,23 @@ export const factions: Faction[] = [
       "Squad fast-track pilot",
       "Formation mentorship lane",
     ],
+    roster: [
+      {
+        humanNodeId: "shannon",
+        role: "Execution lead",
+        tag: { kind: "acm", value: 173 },
+      },
+      {
+        humanNodeId: "ekko",
+        role: "Delivery ops",
+        tag: { kind: "mm", value: 75 },
+      },
+      {
+        humanNodeId: "petr",
+        role: "Budget ops",
+        tag: { kind: "text", value: "Votes 41" },
+      },
+    ],
   },
   {
     id: "mesh-vanguard",
@@ -65,6 +107,23 @@ export const factions: Faction[] = [
       "Mesh privacy enhancements",
       "Anonymous identity pilot",
       "Telemetry minimisation program",
+    ],
+    roster: [
+      {
+        humanNodeId: "andrei",
+        role: "Reliability",
+        tag: { kind: "acm", value: 170 },
+      },
+      {
+        humanNodeId: "dato",
+        role: "Ops & incident drills",
+        tag: { kind: "mm", value: 88 },
+      },
+      {
+        humanNodeId: "sesh",
+        role: "Security & hardening",
+        tag: { kind: "text", value: "Votes 64" },
+      },
     ],
   },
   {
@@ -85,6 +144,23 @@ export const factions: Faction[] = [
       "Treasury transparency dashboard",
       "Participation-weighted rewards",
     ],
+    roster: [
+      {
+        humanNodeId: "fares",
+        role: "Budget modeling",
+        tag: { kind: "acm", value: 163 },
+      },
+      {
+        humanNodeId: "petr",
+        role: "Reporting cadence",
+        tag: { kind: "mm", value: 77 },
+      },
+      {
+        humanNodeId: "victor",
+        role: "Policy liaison",
+        tag: { kind: "text", value: "Votes 33" },
+      },
+    ],
   },
   {
     id: "guardian-circle",
@@ -104,6 +180,23 @@ export const factions: Faction[] = [
       "Guardian hotline",
       "Onboarding playbooks",
     ],
+    roster: [
+      {
+        humanNodeId: "fiona",
+        role: "Onboarding",
+        tag: { kind: "acm", value: 148 },
+      },
+      {
+        humanNodeId: "tony",
+        role: "Community ops",
+        tag: { kind: "text", value: "Votes 28" },
+      },
+      {
+        humanNodeId: "temo",
+        role: "UX & docs",
+        tag: { kind: "mm", value: 66 },
+      },
+    ],
   },
   {
     id: "research-lab",
@@ -122,6 +215,23 @@ export const factions: Faction[] = [
       "Commitment staking slashing conditions review",
       "Privacy circuit sprint",
       "Threat model atlas",
+    ],
+    roster: [
+      {
+        humanNodeId: "victor",
+        role: "Legal research",
+        tag: { kind: "acm", value: 160 },
+      },
+      {
+        humanNodeId: "silis",
+        role: "Risk analysis",
+        tag: { kind: "mm", value: 81 },
+      },
+      {
+        humanNodeId: "sesh",
+        role: "Threat modeling",
+        tag: { kind: "text", value: "Votes 47" },
+      },
     ],
   },
 ];

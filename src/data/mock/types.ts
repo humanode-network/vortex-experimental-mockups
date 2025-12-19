@@ -18,6 +18,8 @@ export type { HumanNode } from "./humanNodes";
 export type {
   GovernanceAction,
   HeroStat,
+  HistoryItem,
+  HumanNodeProfile,
   ProjectCard,
   ProofKey,
   ProofSection,

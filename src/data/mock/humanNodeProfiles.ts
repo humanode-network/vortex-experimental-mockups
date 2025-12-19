@@ -1,3 +1,6 @@
+import type { HumanNode } from "./humanNodes";
+import { humanNodes } from "./humanNodes";
+
 export type ProofKey = "time" | "devotion" | "governance";
 
 export type ProofSection = {
@@ -10,6 +13,14 @@ export type GovernanceAction = {
   action: string;
   context: string;
   detail: string;
+};
+
+export type HistoryItem = {
+  title: string;
+  action: string;
+  context: string;
+  detail: string;
+  date: string;
 };
 
 export type ProjectCard = {
@@ -25,322 +36,641 @@ export type QuickDetail =
   | { label: "Tier"; value: string }
   | { label: string; value: string };
 
+export type HumanNodeProfile = {
+  id: string;
+  name: string;
+  governorActive: boolean;
+  humanNodeActive: boolean;
+  governanceSummary: string;
+  heroStats: HeroStat[];
+  quickDetails: QuickDetail[];
+  proofSections: Record<ProofKey, ProofSection>;
+  governanceActions: GovernanceAction[];
+  projects: ProjectCard[];
+  activity: HistoryItem[];
+  history: string[];
+};
+
 export const proofToggleOptions: { key: ProofKey; label: string }[] = [
   { key: "time", label: "PoT" },
   { key: "devotion", label: "PoD" },
   { key: "governance", label: "PoG" },
 ];
 
-export const humanNodeProfile = {
-  heroStats: [
-    { label: "ACM", value: "182" },
-    { label: "MM", value: "92" },
-    { label: "Invision score", value: "82 / 100" },
-    { label: "Member since", value: "11.06.2021" },
-  ] satisfies HeroStat[],
-  quickDetails: [
-    { label: "Tier", value: "Legate" },
-    { label: "Faction", value: "Anonymous" },
-    { label: "Delegation share", value: "113 · 3.4%" },
-    { label: "Proposals created", value: "28" },
-  ] satisfies QuickDetail[],
-  proofSections: {
-    time: {
-      title: "Proof-of-Time",
-      items: [
-        { label: "Human node for", value: "3 Y · 4 M" },
-        { label: "Governor for", value: "2 Y · 2 M" },
-      ],
-    },
-    devotion: {
-      title: "Proof-of-Devotion",
-      items: [
-        { label: "Proposal accepted?", value: "Yes" },
-        { label: "Participated in formation?", value: "Yes" },
-      ],
-    },
-    governance: {
-      title: "Proof-of-Governance",
-      items: [
-        { label: "Actively governed", value: "2 Y · 1 M" },
-        { label: "Active governor?", value: "Yes" },
-      ],
-    },
-  } satisfies Record<ProofKey, ProofSection>,
-  governanceActions: [
-    {
-      title: "Reddit brand proposal",
-      action: "Upvoted",
-      context: "Marketing proposal pool",
-      detail:
-        "Flagged key talking points for community roll-out and nudged pool momentum.",
-    },
-    {
-      title: "Update runtime proposal",
-      action: "Casted vote",
-      context: "Protocol chamber",
-      detail: "Left implementation notes on validator staggered restarts.",
-    },
-    {
-      title: "The Smurf project",
-      action: "Left project",
-      context: "Formation",
-      detail: "Transitioned responsibilities to Nana after hand-off retro.",
-    },
-    {
-      title: "Fee telemetry upgrade #225",
-      action: "Authored proposal",
-      context: "Protocol chamber",
-      detail:
-        "Outlined dual-path telemetry for biometric proofs and mesh fees.",
-    },
-    {
-      title: "Treasury split adjustment #883",
-      action: "Presented motion",
-      context: "Economic chamber",
-      detail: "Arbitrated between Formation and Treasury subcommittees.",
-    },
-    {
-      title: "Protocol SSC quorum drill",
-      action: "Coordinated drill",
-      context: "Protocol chamber",
-      detail: "Simulated night shift quorum loss and documented timings.",
-    },
-    {
-      title: "Mesh sequencer redundancy",
-      action: "Reviewed implementation",
-      context: "Formation",
-      detail:
-        "Signed off on milestone 3 safety checklist for redundant sequencers.",
-    },
-    {
-      title: "Budget oversight motion",
-      action: "Co-authored memo",
-      context: "Governance proposal pool",
-      detail: "Drafted memo summarizing risk thresholds for fiscal year.",
-    },
-    {
-      title: "Telemetry SDK handoff",
-      action: "Mentored team",
-      context: "Faction task force",
-      detail: "Recorded screencasts for SDK setup and alert configuration.",
-    },
-    {
-      title: "Chamber audit sync",
-      action: "Hosted session",
-      context: "Security chamber",
-      detail: "Walked through previous incidents and matched to audit trails.",
-    },
-    {
-      title: "Formation handover 12",
-      action: "Signed off",
-      context: "Formation",
-      detail: "Validated milestone artifacts and updated ops board.",
-    },
-    {
-      title: "Governor onboarding brief",
-      action: "Led workshop",
-      context: "Protocol chamber",
-      detail:
-        "Gave quickstart checklist for new governors joining mesh topics.",
-    },
-    {
-      title: "Network health retro",
-      action: "Published report",
-      context: "Protocol council",
-      detail: "Shared dashboard snapshots and postmortem experiments.",
-    },
-    {
-      title: "Mesh redundancy QA",
-      action: "Completed review",
-      context: "Formation logistics",
-      detail: "Filed follow-ups for two flaky sensors before sign-off.",
-    },
-    {
-      title: "EVM sandbox beta drill",
-      action: "Activated standby",
-      context: "Security & infra",
-      detail: "Ran pager playbook and escalated to infra for acknowledgement.",
-    },
-  ] satisfies GovernanceAction[],
-  projects: [
-    {
-      title: "Node Health Kit",
-      status: "Formation Logistics · Live",
-      summary:
-        "Automation bundle for validator diagnostics, recovery, and escalation workflows for operators.",
-      chips: ["Budget: 80k HMND", "Milestones: 6 / 9", "Team slots: 2 open"],
-    },
-    {
-      title: "Identity Risk Lab",
-      status: "Research · Upcoming",
-      summary:
-        "Threat modeling track focused on biometric verification attacks and countermeasures.",
-      chips: ["Budget: 45k HMND", "Milestones: 0 / 5", "Team slots: 3 open"],
-    },
-    {
-      title: "Mesh Telemetry Board",
-      status: "Formation Logistics · Live",
-      summary:
-        "Realtime visualization board for mesh telemetry anomalies and biometric lag spikes.",
-      chips: ["Budget: 52k HMND", "Milestones: 3 / 5", "Team slots: 1 open"],
-    },
-    {
-      title: "Guardian Mentorship Cohort",
-      status: "Social Impact · Live",
-      summary:
-        "Mentorship rotation pairing experienced governors with nominating cohort.",
-      chips: ["Budget: 36k HMND", "Milestones: 4 / 6", "Team slots: 0 open"],
-    },
-    {
-      title: "Formation Guild Ops Stack",
-      status: "Formation Logistics · Upcoming",
-      summary:
-        "Comprehensive ops, payroll, and reporting stack for Formation guild leads.",
-      chips: ["Budget: 90k HMND", "Milestones: 1 / 8", "Team slots: 4 open"],
-    },
-    {
-      title: "Governor Sync Relay",
-      status: "Research · Completed",
-      summary:
-        "Async sync relay specifications for cross-faction governor collaboration.",
-      chips: ["Budget: 28k HMND", "Milestones: 5 / 5", "Team slots: 0 open"],
-    },
-  ] satisfies ProjectCard[],
-} as const;
+const titleCaseTier = (tier: HumanNode["tier"]): string =>
+  tier.charAt(0).toUpperCase() + tier.slice(1);
 
-export const myProfile = {
-  heroStats: [
-    { label: "ACM", value: "168" },
-    { label: "MM", value: "81" },
-    { label: "Invision score", value: "78 / 100" },
-    { label: "Member since", value: "04.03.2020" },
-  ] satisfies HeroStat[],
-  quickDetails: [
-    { label: "Tier", value: "Consul" },
-    { label: "Faction", value: "Anonymous" },
-    { label: "Proposals created", value: "18" },
-    { label: "Delegation share", value: "2.4%" },
-  ] satisfies QuickDetail[],
-  proofSections: {
-    time: {
-      title: "Proof-of-Time",
-      items: [
-        { label: "Human node for", value: "4 Y · 2 M" },
-        { label: "Governor for", value: "3 Y · 4 M" },
-      ],
+const nodeById = (id: string): HumanNode | undefined =>
+  humanNodes.find((node) => node.id === id);
+
+const defaultGovernanceActions: GovernanceAction[] = [
+  {
+    title: "EVM Dev Starter Kit",
+    action: "Reviewed scope",
+    context: "Protocol chamber",
+    detail: "Left notes on SDK ergonomics and sandbox onboarding flow.",
+  },
+  {
+    title: "Commitment staking",
+    action: "Casted vote",
+    context: "Governance chamber",
+    detail: "Suggested UX framing for voluntary vs mandatory stake.",
+  },
+  {
+    title: "Chamber policy refresh",
+    action: "Commented",
+    context: "Legal chamber",
+    detail: "Proposed a short checklist for proposal compliance and clarity.",
+  },
+  {
+    title: "Formation milestone sync",
+    action: "Joined call",
+    context: "Formation",
+    detail: "Reviewed deliverables and helped unblock milestone planning.",
+  },
+  {
+    title: "Spam mitigation debate",
+    action: "Published note",
+    context: "Economics chamber",
+    detail: "Summarized trade-offs of fixed stakes vs voluntary commitments.",
+  },
+  {
+    title: "Governance onboarding",
+    action: "Hosted session",
+    context: "Social Outreach",
+    detail: "Walked new governors through pools, chambers, and Formation.",
+  },
+];
+
+const defaultActivity: HistoryItem[] = [
+  {
+    title: "EVM Dev Starter Kit",
+    action: "Reviewed scope",
+    context: "Protocol chamber",
+    detail: "Left notes on SDK ergonomics and sandbox onboarding flow.",
+    date: "Epoch 214",
+  },
+  {
+    title: "Commitment staking",
+    action: "Casted vote",
+    context: "Governance chamber",
+    detail: "Suggested UX framing for voluntary vs mandatory stake.",
+    date: "Epoch 209",
+  },
+  {
+    title: "Chamber policy refresh",
+    action: "Commented",
+    context: "Legal chamber",
+    detail: "Proposed a short checklist for proposal compliance and clarity.",
+    date: "Epoch 205",
+  },
+  {
+    title: "Spam mitigation debate",
+    action: "Published note",
+    context: "Economics chamber",
+    detail: "Summarized trade-offs of fixed stakes vs voluntary commitments.",
+    date: "Epoch 202",
+  },
+  {
+    title: "Governance onboarding",
+    action: "Hosted session",
+    context: "Social Outreach",
+    detail: "Walked new governors through pools, chambers, and Formation.",
+    date: "Epoch 198",
+  },
+];
+
+const defaultProjects: ProjectCard[] = [
+  {
+    title: "EVM Dev Starter Kit",
+    status: "Protocol · Live",
+    summary:
+      "Developer SDK + templates + sandbox so builders can deploy in under 30 minutes.",
+    chips: ["Budget: 180k HMND", "Milestones: 1 / 3", "Team slots: 2 open"],
+  },
+  {
+    title: "Commitment staking UX",
+    status: "Governance · Upcoming",
+    summary:
+      "UI specification for optional stake display and self-slash conditions.",
+    chips: ["Budget: 16k HMND", "Milestones: 0 / 3", "Team slots: 1 open"],
+  },
+  {
+    title: "Governance hub refresh",
+    status: "Product & UX · Proposed",
+    summary:
+      "Design system v1 and UX polish pass for proposals, chambers, and insights.",
+    chips: ["Budget: 20k HMND", "Milestones: 0 / 3", "Team slots: 1 open"],
+  },
+];
+
+const createProfile = (input: {
+  id: string;
+  invisionScore: number;
+  faction: string;
+  delegationShare: string;
+  proposalsCreated: string;
+  governanceSummary: string;
+  proofSections: Record<ProofKey, ProofSection>;
+  history?: string[];
+  activity?: HistoryItem[];
+}): HumanNodeProfile => {
+  const node = nodeById(input.id);
+  const name = node?.name ?? input.id;
+  const acm = node?.acm ?? 0;
+  const mm = node?.mm ?? 0;
+  const tier = node?.tier ?? "nominee";
+  const memberSince = node?.memberSince ?? "—";
+  const active = node?.active ?? true;
+
+  return {
+    id: input.id,
+    name,
+    governorActive: active,
+    humanNodeActive: active,
+    governanceSummary: input.governanceSummary,
+    heroStats: [
+      { label: "ACM", value: acm.toString() },
+      { label: "MM", value: mm.toString() },
+      { label: "Invision score", value: `${input.invisionScore} / 100` },
+      { label: "Member since", value: memberSince },
+    ],
+    quickDetails: [
+      { label: "Tier", value: titleCaseTier(tier) },
+      { label: "Faction", value: input.faction },
+      { label: "Delegation share", value: input.delegationShare },
+      { label: "Proposals created", value: input.proposalsCreated },
+    ],
+    proofSections: input.proofSections,
+    governanceActions: defaultGovernanceActions,
+    projects: defaultProjects,
+    activity: input.activity ?? defaultActivity,
+    history:
+      input.history ??
+      (input.activity ?? defaultActivity)
+        .slice(0, 3)
+        .map((item) => `${item.date} · ${item.action} ${item.title}`),
+  };
+};
+
+export const humanNodeProfilesById: Record<string, HumanNodeProfile> = {
+  dato: createProfile({
+    id: "dato",
+    invisionScore: 78,
+    faction: "Independent",
+    delegationShare: "2.4%",
+    proposalsCreated: "7",
+    governanceSummary:
+      "Operator-minded governor focused on protocol readiness, observability, and keeping milestone execution predictable across chambers.",
+    proofSections: {
+      time: {
+        title: "Proof-of-Time",
+        items: [
+          { label: "Human node for", value: "3 Y · 3 M" },
+          { label: "Governor for", value: "2 Y · 7 M" },
+        ],
+      },
+      devotion: {
+        title: "Proof-of-Devotion",
+        items: [
+          { label: "Proposal accepted?", value: "Yes" },
+          { label: "Participated in formation?", value: "Yes" },
+        ],
+      },
+      governance: {
+        title: "Proof-of-Governance",
+        items: [
+          { label: "Actively governed", value: "2 Y · 4 M" },
+          { label: "Active governor?", value: "Yes" },
+        ],
+      },
     },
-    devotion: {
-      title: "Proof-of-Devotion",
-      items: [
-        { label: "Proposal accepted?", value: "Yes" },
-        { label: "Participated in formation?", value: "Yes" },
-      ],
+    history: [
+      "Epoch 214 · Reviewed EVM sandbox milestone scope",
+      "Epoch 209 · Voted on commitment staking proposal",
+      "Epoch 205 · Hosted governance onboarding session",
+    ],
+  }),
+  victor: createProfile({
+    id: "victor",
+    invisionScore: 81,
+    faction: "Independent",
+    delegationShare: "1.9%",
+    proposalsCreated: "5",
+    governanceSummary:
+      "Legal-focused governor translating protocol changes into clear rules, summaries, and policies that chambers can enforce consistently.",
+    proofSections: {
+      time: {
+        title: "Proof-of-Time",
+        items: [
+          { label: "Human node for", value: "2 Y · 10 M" },
+          { label: "Governor for", value: "2 Y · 1 M" },
+        ],
+      },
+      devotion: {
+        title: "Proof-of-Devotion",
+        items: [
+          { label: "Proposal accepted?", value: "Yes" },
+          { label: "Participated in formation?", value: "No" },
+        ],
+      },
+      governance: {
+        title: "Proof-of-Governance",
+        items: [
+          { label: "Actively governed", value: "1 Y · 9 M" },
+          { label: "Active governor?", value: "Yes" },
+        ],
+      },
     },
-    governance: {
-      title: "Proof-of-Governance",
-      items: [
-        { label: "Actively governed", value: "3 Y · 1 M" },
-        { label: "Active governor?", value: "Yes" },
-      ],
+  }),
+  temo: createProfile({
+    id: "temo",
+    invisionScore: 69,
+    faction: "Independent",
+    delegationShare: "0.4%",
+    proposalsCreated: "0",
+    governanceSummary:
+      "Early-stage governor with a product/UX lens, focused on making proposals and chambers easier to scan and understand.",
+    proofSections: {
+      time: {
+        title: "Proof-of-Time",
+        items: [
+          { label: "Human node for", value: "0 Y · 9 M" },
+          { label: "Governor for", value: "0 Y · 6 M" },
+        ],
+      },
+      devotion: {
+        title: "Proof-of-Devotion",
+        items: [
+          { label: "Proposal accepted?", value: "No" },
+          { label: "Participated in formation?", value: "No" },
+        ],
+      },
+      governance: {
+        title: "Proof-of-Governance",
+        items: [
+          { label: "Actively governed", value: "0 Y · 5 M" },
+          { label: "Active governor?", value: "Yes" },
+        ],
+      },
     },
-  } satisfies Record<ProofKey, ProofSection>,
-  governanceActions: [
-    {
-      title: "Mesh redundancy QA",
-      action: "Upvoted",
-      context: "Formation Logistics",
-      detail: "Supported final QA milestone with notes on redundant probes.",
+  }),
+  dima: createProfile({
+    id: "dima",
+    invisionScore: 65,
+    faction: "Independent",
+    delegationShare: "0.6%",
+    proposalsCreated: "1",
+    governanceSummary:
+      "Security apprentice governor contributing audits, incident playbooks, and review notes for high-risk proposals.",
+    proofSections: {
+      time: {
+        title: "Proof-of-Time",
+        items: [
+          { label: "Human node for", value: "2 Y · 7 M" },
+          { label: "Governor for", value: "1 Y · 2 M" },
+        ],
+      },
+      devotion: {
+        title: "Proof-of-Devotion",
+        items: [
+          { label: "Proposal accepted?", value: "No" },
+          { label: "Participated in formation?", value: "No" },
+        ],
+      },
+      governance: {
+        title: "Proof-of-Governance",
+        items: [
+          { label: "Actively governed", value: "1 Y · 0 M" },
+          { label: "Active governor?", value: "Yes" },
+        ],
+      },
     },
-    {
-      title: "Budget oversight motion",
-      action: "Authored proposal",
-      context: "Economics chamber",
-      detail: "Outlined oversight cadence for mesh treasury replenishment.",
+  }),
+  tony: createProfile({
+    id: "tony",
+    invisionScore: 71,
+    faction: "Independent",
+    delegationShare: "0.8%",
+    proposalsCreated: "2",
+    governanceSummary:
+      "Community-facing governor focused on onboarding, comms clarity, and getting more humans from reading to voting.",
+    proofSections: {
+      time: {
+        title: "Proof-of-Time",
+        items: [
+          { label: "Human node for", value: "3 Y · 1 M" },
+          { label: "Governor for", value: "1 Y · 6 M" },
+        ],
+      },
+      devotion: {
+        title: "Proof-of-Devotion",
+        items: [
+          { label: "Proposal accepted?", value: "Yes" },
+          { label: "Participated in formation?", value: "Yes" },
+        ],
+      },
+      governance: {
+        title: "Proof-of-Governance",
+        items: [
+          { label: "Actively governed", value: "0 Y · 10 M" },
+          { label: "Active governor?", value: "No" },
+        ],
+      },
     },
-    {
-      title: "Protocol SSC drill",
-      action: "Coordinated drill",
-      context: "Protocol chamber",
-      detail: "Ran simulated failover scenario during APAC shift.",
+  }),
+  sesh: createProfile({
+    id: "sesh",
+    invisionScore: 90,
+    faction: "Independent",
+    delegationShare: "3.1%",
+    proposalsCreated: "9",
+    governanceSummary:
+      "Security council lead with a bias for hardening: threat models, incident response, and ruthless clarity in proposal scope.",
+    proofSections: {
+      time: {
+        title: "Proof-of-Time",
+        items: [
+          { label: "Human node for", value: "4 Y · 6 M" },
+          { label: "Governor for", value: "3 Y · 2 M" },
+        ],
+      },
+      devotion: {
+        title: "Proof-of-Devotion",
+        items: [
+          { label: "Proposal accepted?", value: "Yes" },
+          { label: "Participated in formation?", value: "Yes" },
+        ],
+      },
+      governance: {
+        title: "Proof-of-Governance",
+        items: [
+          { label: "Actively governed", value: "3 Y · 0 M" },
+          { label: "Active governor?", value: "Yes" },
+        ],
+      },
     },
-    {
-      title: "Telemetry SDK handoff",
-      action: "Mentored team",
-      context: "Faction task force",
-      detail: "Gave onboarding session to task force maintainers.",
+  }),
+  petr: createProfile({
+    id: "petr",
+    invisionScore: 76,
+    faction: "Independent",
+    delegationShare: "1.1%",
+    proposalsCreated: "4",
+    governanceSummary:
+      "Treasury operations governor focused on budget readability, reporting cadence, and keeping Formation tranches accountable.",
+    proofSections: {
+      time: {
+        title: "Proof-of-Time",
+        items: [
+          { label: "Human node for", value: "1 Y · 9 M" },
+          { label: "Governor for", value: "1 Y · 2 M" },
+        ],
+      },
+      devotion: {
+        title: "Proof-of-Devotion",
+        items: [
+          { label: "Proposal accepted?", value: "Yes" },
+          { label: "Participated in formation?", value: "Yes" },
+        ],
+      },
+      governance: {
+        title: "Proof-of-Governance",
+        items: [
+          { label: "Actively governed", value: "0 Y · 9 M" },
+          { label: "Active governor?", value: "No" },
+        ],
+      },
     },
-    {
-      title: "Guardian mentorship cohort",
-      action: "Hosted sync",
-      context: "Social Outreach",
-      detail: "Facilitated feedback retro for mentors and mentees.",
+  }),
+  shannon: createProfile({
+    id: "shannon",
+    invisionScore: 88,
+    faction: "Independent",
+    delegationShare: "2.2%",
+    proposalsCreated: "6",
+    governanceSummary:
+      "Formation logistics consul keeping squads aligned, milestones realistic, and the execution layer moving without drama.",
+    proofSections: {
+      time: {
+        title: "Proof-of-Time",
+        items: [
+          { label: "Human node for", value: "0 Y · 11 M" },
+          { label: "Governor for", value: "0 Y · 11 M" },
+        ],
+      },
+      devotion: {
+        title: "Proof-of-Devotion",
+        items: [
+          { label: "Proposal accepted?", value: "Yes" },
+          { label: "Participated in formation?", value: "Yes" },
+        ],
+      },
+      governance: {
+        title: "Proof-of-Governance",
+        items: [
+          { label: "Actively governed", value: "0 Y · 10 M" },
+          { label: "Active governor?", value: "Yes" },
+        ],
+      },
     },
-    {
-      title: "Node health kit",
-      action: "Reviewed implementation",
-      context: "Formation",
-      detail: "Approved automation scripts for validator health checks.",
+  }),
+  shahmeer: createProfile({
+    id: "shahmeer",
+    invisionScore: 94,
+    faction: "Independent",
+    delegationShare: "3.8%",
+    proposalsCreated: "12",
+    governanceSummary:
+      "Protocol steward with long-range perspective, focused on stability, upgrades, and keeping Vortex rules legible as the network scales.",
+    proofSections: {
+      time: {
+        title: "Proof-of-Time",
+        items: [
+          { label: "Human node for", value: "4 Y · 2 M" },
+          { label: "Governor for", value: "3 Y · 6 M" },
+        ],
+      },
+      devotion: {
+        title: "Proof-of-Devotion",
+        items: [
+          { label: "Proposal accepted?", value: "Yes" },
+          { label: "Participated in formation?", value: "Yes" },
+        ],
+      },
+      governance: {
+        title: "Proof-of-Governance",
+        items: [
+          { label: "Actively governed", value: "3 Y · 2 M" },
+          { label: "Active governor?", value: "Yes" },
+        ],
+      },
     },
-    {
-      title: "Liveness sentinel retrofit",
-      action: "Casted vote",
-      context: "Security chamber",
-      detail:
-        "Logged concerns about roll-out pacing but still backed the upgrade.",
+  }),
+  fiona: createProfile({
+    id: "fiona",
+    invisionScore: 79,
+    faction: "Independent",
+    delegationShare: "1.4%",
+    proposalsCreated: "3",
+    governanceSummary:
+      "Community builder pushing clear guides, better onboarding, and practical rituals that keep governors active across eras.",
+    proofSections: {
+      time: {
+        title: "Proof-of-Time",
+        items: [
+          { label: "Human node for", value: "2 Y · 4 M" },
+          { label: "Governor for", value: "1 Y · 8 M" },
+        ],
+      },
+      devotion: {
+        title: "Proof-of-Devotion",
+        items: [
+          { label: "Proposal accepted?", value: "Yes" },
+          { label: "Participated in formation?", value: "Yes" },
+        ],
+      },
+      governance: {
+        title: "Proof-of-Governance",
+        items: [
+          { label: "Actively governed", value: "1 Y · 6 M" },
+          { label: "Active governor?", value: "Yes" },
+        ],
+      },
     },
-    {
-      title: "Formation guild ops",
-      action: "Opened proposal",
-      context: "Formation Council",
-      detail: "Requested budget for guild-specific ops tooling.",
+  }),
+  silis: createProfile({
+    id: "silis",
+    invisionScore: 80,
+    faction: "Independent",
+    delegationShare: "1.0%",
+    proposalsCreated: "4",
+    governanceSummary:
+      "Legal ops legate focused on risk framing, clear proposal requirements, and reducing ambiguity that causes chamber churn.",
+    proofSections: {
+      time: {
+        title: "Proof-of-Time",
+        items: [
+          { label: "Human node for", value: "2 Y · 5 M" },
+          { label: "Governor for", value: "1 Y · 11 M" },
+        ],
+      },
+      devotion: {
+        title: "Proof-of-Devotion",
+        items: [
+          { label: "Proposal accepted?", value: "Yes" },
+          { label: "Participated in formation?", value: "No" },
+        ],
+      },
+      governance: {
+        title: "Proof-of-Governance",
+        items: [
+          { label: "Actively governed", value: "0 Y · 10 M" },
+          { label: "Active governor?", value: "No" },
+        ],
+      },
     },
-    {
-      title: "Mesh telemetry board",
-      action: "Filed bug",
-      context: "Formation logistics",
-      detail: "Documented slow query causing alert lag.",
+  }),
+  ekko: createProfile({
+    id: "ekko",
+    invisionScore: 75,
+    faction: "Independent",
+    delegationShare: "0.9%",
+    proposalsCreated: "2",
+    governanceSummary:
+      "Formation coordinator keeping projects on track and translating chamber decisions into clean milestone checklists.",
+    proofSections: {
+      time: {
+        title: "Proof-of-Time",
+        items: [
+          { label: "Human node for", value: "2 Y · 11 M" },
+          { label: "Governor for", value: "1 Y · 5 M" },
+        ],
+      },
+      devotion: {
+        title: "Proof-of-Devotion",
+        items: [
+          { label: "Proposal accepted?", value: "Yes" },
+          { label: "Participated in formation?", value: "Yes" },
+        ],
+      },
+      governance: {
+        title: "Proof-of-Governance",
+        items: [
+          { label: "Actively governed", value: "1 Y · 1 M" },
+          { label: "Active governor?", value: "Yes" },
+        ],
+      },
     },
-    {
-      title: "Governor onboarding brief",
-      action: "Led workshop",
-      context: "Protocol chamber",
-      detail: "Shared best practices for new mesh governors.",
+  }),
+  andrei: createProfile({
+    id: "andrei",
+    invisionScore: 86,
+    faction: "Independent",
+    delegationShare: "2.7%",
+    proposalsCreated: "8",
+    governanceSummary:
+      "Infra-first consul focused on monitoring, reliability, and turning protocol goals into measurable operating standards.",
+    proofSections: {
+      time: {
+        title: "Proof-of-Time",
+        items: [
+          { label: "Human node for", value: "3 Y · 7 M" },
+          { label: "Governor for", value: "2 Y · 5 M" },
+        ],
+      },
+      devotion: {
+        title: "Proof-of-Devotion",
+        items: [
+          { label: "Proposal accepted?", value: "Yes" },
+          { label: "Participated in formation?", value: "Yes" },
+        ],
+      },
+      governance: {
+        title: "Proof-of-Governance",
+        items: [
+          { label: "Actively governed", value: "2 Y · 2 M" },
+          { label: "Active governor?", value: "Yes" },
+        ],
+      },
     },
-  ] satisfies GovernanceAction[],
-  projects: [
-    {
-      title: "Node Health Kit",
-      status: "Formation Logistics · Live",
-      summary:
-        "Automation bundle for validator diagnostics and recovery workflows.",
-      chips: ["Budget: 80k HMND", "Milestones: 6 / 9", "Team slots: 2 open"],
+  }),
+  fares: createProfile({
+    id: "fares",
+    invisionScore: 84,
+    faction: "Independent",
+    delegationShare: "2.0%",
+    proposalsCreated: "6",
+    governanceSummary:
+      "Economics legate focused on budgets, incentives, and keeping proposal asks aligned with measurable outcomes.",
+    proofSections: {
+      time: {
+        title: "Proof-of-Time",
+        items: [
+          { label: "Human node for", value: "3 Y · 9 M" },
+          { label: "Governor for", value: "2 Y · 0 M" },
+        ],
+      },
+      devotion: {
+        title: "Proof-of-Devotion",
+        items: [
+          { label: "Proposal accepted?", value: "Yes" },
+          { label: "Participated in formation?", value: "Yes" },
+        ],
+      },
+      governance: {
+        title: "Proof-of-Governance",
+        items: [
+          { label: "Actively governed", value: "1 Y · 10 M" },
+          { label: "Active governor?", value: "Yes" },
+        ],
+      },
     },
-    {
-      title: "Identity Risk Lab",
-      status: "Research · Upcoming",
-      summary:
-        "Threat modeling track focused on biometric verification attacks.",
-      chips: ["Budget: 45k HMND", "Milestones: 0 / 5", "Team slots: 3 open"],
-    },
-    {
-      title: "Mesh Telemetry Board",
-      status: "Formation Logistics · Live",
-      summary:
-        "Visualization board for mesh telemetry anomalies and lag spikes.",
-      chips: ["Budget: 52k HMND", "Milestones: 3 / 5", "Team slots: 1 open"],
-    },
-    {
-      title: "Guardian Mentorship",
-      status: "Social Impact · Live",
-      summary:
-        "Mentorship rotation pairing experienced governors with nominees.",
-      chips: ["Budget: 36k HMND", "Milestones: 4 / 6", "Team slots: 0 open"],
-    },
-  ] satisfies ProjectCard[],
-  history: [
-    "Epoch 214 · Proposed mesh redundancy telemetry board",
-    "Epoch 209 · Presented budget oversight motion",
-    "Epoch 205 · Led guardian mentorship sync",
-  ],
-} as const;
+  }),
+};
+
+export const myProfileId = "dato";
+export const myProfile = humanNodeProfilesById[myProfileId];
+
+export const getHumanNodeProfile = (id: string | undefined): HumanNodeProfile =>
+  (id ? humanNodeProfilesById[id] : undefined) ?? myProfile;

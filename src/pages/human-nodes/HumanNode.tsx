@@ -16,7 +16,7 @@ import { Kicker } from "@/components/Kicker";
 import { TierLabel } from "@/components/TierLabel";
 import { ToggleGroup } from "@/components/ToggleGroup";
 import {
-  humanNodeProfile,
+  getHumanNodeProfile,
   proofToggleOptions,
   type ProofKey,
   type ProofSection,
@@ -25,16 +25,18 @@ import {
 const HumanNode: React.FC = () => {
   const { id } = useParams();
   const [activeProof, setActiveProof] = useState<ProofKey | "">("");
+  const profile = getHumanNodeProfile(id);
   const {
+    name,
+    governorActive,
+    humanNodeActive,
+    governanceSummary,
     heroStats,
     quickDetails,
     proofSections,
     governanceActions,
     projects,
-  } = humanNodeProfile;
-  const name = id ?? "Unknown";
-  const governorActive = true;
-  const humanNodeActive = true;
+  } = profile;
   const activeSection: ProofSection | null = activeProof
     ? proofSections[activeProof]
     : null;
@@ -171,12 +173,7 @@ const HumanNode: React.FC = () => {
             <CardTitle>Governance summary</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted">
-            <p>
-              JohnDoe currently leads several operator-focused squads and acts
-              as a liaison for the Governance Council. Recent work focused on
-              telemetry for biometric proofs, redundancy inside the mesh
-              sequencer, and readiness drills for upcoming upgrades.
-            </p>
+            <p>{governanceSummary}</p>
           </CardContent>
         </Card>
       </div>

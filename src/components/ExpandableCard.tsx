@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 type ExpandableCardProps = {
   expanded: boolean;
   onToggle: () => void;
-  meta: ReactNode;
+  meta?: ReactNode;
   title: ReactNode;
   right: ReactNode;
   children: ReactNode;
@@ -35,8 +35,8 @@ export function ExpandableCard({
         aria-expanded={expanded}
         onClick={onToggle}
       >
-        <div className="space-y-1">
-          <Kicker>{meta}</Kicker>
+        <div className={cn(meta ? "space-y-1" : undefined)}>
+          {meta ? <Kicker>{meta}</Kicker> : null}
           <p className="text-lg font-semibold text-text">{title}</p>
         </div>
         <div className="flex flex-col gap-2 text-right sm:flex-row sm:items-center sm:gap-3">

@@ -64,12 +64,12 @@ export const chamberProposals: ChamberProposal[] = [
 ];
 
 export const chamberGovernors: Governor[] = [
-  { id: "johndoe", name: "JohnDoe", tier: "Legate", focus: "Protocol" },
-  { id: "victor", name: "Victor", tier: "Consul", focus: "Economics" },
+  { id: "shahmeer", name: "Shahmeer", tier: "Citizen", focus: "Protocol" },
+  { id: "dato", name: "Dato", tier: "Consul", focus: "Infra" },
+  { id: "andrei", name: "Andrei", tier: "Consul", focus: "Observability" },
+  { id: "victor", name: "Victor", tier: "Legate", focus: "Legal" },
+  { id: "fares", name: "Fares", tier: "Legate", focus: "Economics" },
   { id: "sesh", name: "Sesh", tier: "Legate", focus: "Security" },
-  { id: "nyx", name: "Nyx", tier: "Ecclesiast", focus: "Infra" },
-  { id: "nana", name: "Nana", tier: "Consul", focus: "Formation" },
-  { id: "raamara", name: "Raamara", tier: "Consul", focus: "Treasury" },
 ];
 
 export const chamberThreads: Thread[] = [

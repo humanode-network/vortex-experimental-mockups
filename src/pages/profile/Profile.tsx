@@ -25,6 +25,9 @@ import {
 const Profile: React.FC = () => {
   const [activeProof, setActiveProof] = useState<ProofKey | "">("");
   const {
+    name,
+    governorActive,
+    humanNodeActive,
     heroStats,
     quickDetails,
     proofSections,
@@ -32,9 +35,6 @@ const Profile: React.FC = () => {
     projects,
     history,
   } = myProfile;
-  const name = "JohnDoe";
-  const governorActive = true;
-  const humanNodeActive = true;
   const activeSection: ProofSection | null = activeProof
     ? proofSections[activeProof]
     : null;
@@ -64,7 +64,10 @@ const Profile: React.FC = () => {
       >
         <div className="grid items-center gap-6 lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <div className="flex justify-center lg:justify-start">
-            <AvatarPlaceholder initials="MP" size="lg" />
+            <AvatarPlaceholder
+              initials={name.substring(0, 2).toUpperCase()}
+              size="lg"
+            />
           </div>
           <div className="flex flex-col items-center text-center">
             <Kicker align="center">My profile</Kicker>

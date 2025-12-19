@@ -11,10 +11,20 @@ import { Surface } from "@/components/Surface";
 import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
 import { courtroomJury as jury } from "@/data/mock/courtroom";
+import { courtCases } from "@/data/mock/courts";
 
 const Courtroom: React.FC = () => {
   const { id } = useParams();
-  const caseTitle = id ? `Courtroom · ${id}` : "Courtroom";
+  const courtCase = id ? courtCases.find((c) => c.id === id) : undefined;
+  const caseTitle =
+    courtCase?.title ?? (id ? `Courtroom · ${id}` : "Courtroom");
+  const statusLabel = (() => {
+    if (!courtCase) return "Jury";
+    if (courtCase.status === "jury") return "Jury";
+    if (courtCase.status === "deliberating") return "Deliberating";
+    return "Closed";
+  })();
+  const juryCount = courtCase?.juryCount ?? 12;
 
   return (
     <div className="flex flex-col gap-6">
@@ -23,14 +33,16 @@ const Courtroom: React.FC = () => {
         <CardHeader className="pb-2">
           <CardTitle>{caseTitle}</CardTitle>
           <p className="text-sm text-muted">
-            Delegation Dispute · Jury of 12 governors
+            {courtCase?.subject ?? "Case"} · Jury of {juryCount} governors
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
-            <Badge variant="outline">Status: Jury</Badge>
-            <Badge variant="outline">Opened: 02/04/2025</Badge>
-            <Badge variant="outline">Reports: 18</Badge>
+            <Badge variant="outline">Status: {statusLabel}</Badge>
+            <Badge variant="outline">Opened: {courtCase?.opened ?? "—"}</Badge>
+            <Badge variant="outline">
+              Reports: {courtCase?.reports ?? "—"}
+            </Badge>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
             <Surface
@@ -41,7 +53,7 @@ const Courtroom: React.FC = () => {
             >
               <Kicker>Subject</Kicker>
               <p className="text-sm font-semibold text-text">
-                Delegation dispute on Protocol Keepers
+                {courtCase?.subject ?? "—"}
               </p>
             </Surface>
             <Surface
@@ -52,7 +64,7 @@ const Courtroom: React.FC = () => {
             >
               <Kicker>Trigger</Kicker>
               <p className="text-sm font-semibold text-text">
-                18 reports · Delegation shift
+                {courtCase?.triggeredBy ?? "—"}
               </p>
             </Surface>
           </div>
@@ -64,7 +76,7 @@ const Courtroom: React.FC = () => {
           <CardTitle>Jury</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {jury.map((member) => (
+          {jury.slice(0, juryCount).map((member) => (
             <Surface
               key={member}
               variant="panelAlt"

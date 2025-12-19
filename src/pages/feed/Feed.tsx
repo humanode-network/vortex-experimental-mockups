@@ -5,7 +5,6 @@ import { PageHint } from "@/components/PageHint";
 import { CardActionsRow } from "@/components/CardActionsRow";
 import { DashedStatItem } from "@/components/DashedStatItem";
 import { ExpandableCard } from "@/components/ExpandableCard";
-import { Pill } from "@/components/Pill";
 import { StageChip } from "@/components/StageChip";
 import { StageDataTile } from "@/components/StageDataTile";
 import { feedItems } from "@/data/mock/feed";
@@ -46,9 +45,6 @@ const Feed: React.FC = () => {
             right={
               <>
                 <StageChip stage={item.stage} />
-                <Pill size="sm" tone="muted" className="whitespace-nowrap">
-                  {item.summaryPill}
-                </Pill>
               </>
             }
           >

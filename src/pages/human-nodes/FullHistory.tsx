@@ -8,93 +8,13 @@ import { PageHint } from "@/components/PageHint";
 import { PageHeader } from "@/components/PageHeader";
 import { Kicker } from "@/components/Kicker";
 import { Link, useParams } from "react-router";
-
-type HistoryItem = {
-  title: string;
-  action: string;
-  context: string;
-  detail: string;
-  date: string;
-};
-
-const activity: HistoryItem[] = [
-  {
-    title: "Fee telemetry upgrade #225",
-    action: "Authored proposal",
-    context: "Protocol chamber",
-    detail:
-      "Outlined dual-path telemetry for biometric proofs and mesh fee reporting.",
-    date: "Epoch 192",
-  },
-  {
-    title: "Treasury split adjustment #883",
-    action: "Presented motion",
-    context: "Economic chamber",
-    detail: "Balanced Formation vs. treasury disbursements.",
-    date: "Epoch 188",
-  },
-  {
-    title: "Protocol SSC quorum drill",
-    action: "Coordinated drill",
-    context: "Protocol chamber",
-    detail: "Simulated quorum loss and documented timings.",
-    date: "Epoch 186",
-  },
-  {
-    title: "Mesh sequencer redundancy",
-    action: "Reviewed implementation",
-    context: "Formation",
-    detail:
-      "Signed off on milestone 3 safety checklist for redundant sequencers.",
-    date: "Epoch 183",
-  },
-  {
-    title: "Budget oversight motion",
-    action: "Co-authored memo",
-    context: "Governance proposal pool",
-    detail: "Drafted memo summarizing risk thresholds for fiscal year.",
-    date: "Epoch 181",
-  },
-  {
-    title: "Chamber audit sync",
-    action: "Hosted session",
-    context: "Security chamber",
-    detail: "Reviewed incidents and matched to audit trails.",
-    date: "Epoch 179",
-  },
-  {
-    title: "Formation handover 12",
-    action: "Signed off",
-    context: "Formation",
-    detail: "Validated milestone artifacts and updated ops board.",
-    date: "Epoch 177",
-  },
-  {
-    title: "Governor onboarding brief",
-    action: "Led workshop",
-    context: "Protocol chamber",
-    detail: "Quickstart checklist for new governors joining mesh topics.",
-    date: "Epoch 175",
-  },
-  {
-    title: "Network health retro",
-    action: "Published report",
-    context: "Protocol council",
-    detail: "Shared dashboard snapshots and postmortem experiments.",
-    date: "Epoch 173",
-  },
-  {
-    title: "EVM sandbox beta drill",
-    action: "Activated standby",
-    context: "Security & infra",
-    detail: "Ran pager playbook and escalated to infra for acknowledgement.",
-    date: "Epoch 171",
-  },
-];
+import { getHumanNodeProfile } from "@/data/mock/humanNodeProfiles";
 
 const FullHistory: React.FC = () => {
   const { id } = useParams();
-  const name = id ?? "Human node";
+  const profile = getHumanNodeProfile(id);
+  const name = profile.name;
+  const activity = profile.activity;
 
   return (
     <div className="flex flex-col gap-6">
