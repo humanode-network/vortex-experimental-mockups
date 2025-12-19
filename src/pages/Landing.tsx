@@ -140,6 +140,19 @@ const Landing: React.FC = () => {
           </div>
         </div>
 
+        <div className="absolute right-0 bottom-12 left-0 px-6 text-center text-xs text-white/70">
+          These are demonstration mockups, not the final Vortex UI. It's all
+          WIP, so leave your feedback{" "}
+          <a
+            href="http://link.humanode.io/chat/vortex-experimental-mockups-feedback"
+            target="_blank"
+            rel="noreferrer"
+            className="pointer-events-auto underline underline-offset-4 hover:text-white"
+          >
+            here
+          </a>
+          . Welcome to testing.
+        </div>
         <footer className="absolute right-0 bottom-0 left-0 px-6 pt-4 pb-6 text-center text-xs text-white/70">
           2021 – 2026 Humanode.io
         </footer>
