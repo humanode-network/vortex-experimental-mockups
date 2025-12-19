@@ -147,7 +147,7 @@ const Landing: React.FC = () => {
             href="http://link.humanode.io/chat/vortex-experimental-mockups-feedback"
             target="_blank"
             rel="noreferrer"
-            className="pointer-events-auto underline underline-offset-4 hover:text-white"
+            className="pointer-events-auto font-semibold text-[color:var(--pagehint)] underline decoration-[color:var(--pagehint)] underline-offset-4 hover:text-white hover:decoration-white"
           >
             here
           </a>

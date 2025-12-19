@@ -1,10 +1,4 @@
 import { useParams } from "react-router";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/primitives/card";
 import ProposalStageBar from "@/components/ProposalStageBar";
 import { Surface } from "@/components/Surface";
 import { StatTile } from "@/components/StatTile";
@@ -80,13 +74,8 @@ const ProposalChamber: React.FC = () => {
               <VoteButton tone="destructive" label="Vote no" />
               <VoteButton tone="neutral" label="Abstain" />
             </div>
-          </div>
 
-          <Card className="h-full">
-            <CardHeader className="pb-2">
-              <CardTitle>Voting quorum</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-3 text-sm text-text sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 text-sm text-text sm:grid-cols-2 lg:grid-cols-4">
               <StatTile
                 label="Governors"
                 value={
@@ -96,7 +85,7 @@ const ProposalChamber: React.FC = () => {
                 }
                 variant="panel"
                 className="flex min-h-24 flex-col items-center justify-center gap-1 py-4"
-                valueClassName="text-2xl font-semibold whitespace-nowrap"
+                valueClassName="whitespace-nowrap text-2xl font-semibold"
               />
               <StatTile
                 label="Yes / No / Abstain"
@@ -108,7 +97,7 @@ const ProposalChamber: React.FC = () => {
                 variant="panel"
                 className="flex min-h-24 flex-col items-center justify-center gap-1 py-4"
                 labelClassName="whitespace-nowrap"
-                valueClassName="text-2xl font-semibold whitespace-nowrap"
+                valueClassName="whitespace-nowrap text-2xl font-semibold"
               />
               <StatTile
                 label="Quorum (%)"
@@ -116,17 +105,17 @@ const ProposalChamber: React.FC = () => {
                 variant="panel"
                 className="flex min-h-24 flex-col items-center justify-center gap-1 py-4"
                 labelClassName="whitespace-nowrap"
-                valueClassName="text-2xl font-semibold whitespace-nowrap"
+                valueClassName="whitespace-nowrap text-2xl font-semibold"
               />
               <StatTile
                 label="Passing"
                 value={`${yesPercentOfQuorum}% yes`}
                 variant="panel"
                 className="flex min-h-24 flex-col items-center justify-center gap-1 py-4"
-                valueClassName="text-2xl font-semibold whitespace-nowrap"
+                valueClassName="whitespace-nowrap text-2xl font-semibold"
               />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </Surface>
 
