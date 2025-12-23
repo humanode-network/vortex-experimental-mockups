@@ -6,7 +6,10 @@ Notes:
 
 - These are **DTOs** (network-safe JSON), not React UI models.
 - Anywhere the UI currently uses `ReactNode` in `src/data/mock/*`, the API will return **strings** (plain text or Markdown) and the UI will render them.
-- This contract is defined now, but most read endpoints are not implemented yet. In Phase 2c/4 we will initially serve these DTOs from the `read_models` table seeded by `scripts/db-seed.ts`.
+- These endpoints are implemented in Phase 2c in two modes:
+  - DB mode: reads from Postgres `read_models` (seeded by `scripts/db-seed.ts`).
+  - Inline mode: `READ_MODELS_INLINE=true` serves the same payloads from the in-repo seed builder (`db/seed/readModels.ts`) for local dev/tests without a DB.
+- For local dev/tests without a DB, we currently support `READ_MODELS_INLINE=true` to serve the same payloads from the in-repo seed builder (`db/seed/readModels.ts`).
 
 ## Conventions
 
@@ -30,6 +33,8 @@ Eligibility (v1):
 - The backend checks Humanode mainnet RPC and considers an address eligible if it is **active in `im_online`**.
 
 ## Read endpoints (to implement next)
+
+These endpoints are implemented under `functions/api/*` and currently read from `read_models` (DB mode) or the inline seed (inline mode).
 
 ### Chambers
 

@@ -10,6 +10,19 @@ This repo uses **Cloudflare Pages** for hosting. Backend endpoints live in **Pag
 - `POST /api/auth/logout`
 - `GET /api/me`
 - `GET /api/gate/status`
+- Read endpoints (Phase 2c/4 bridge; backed by `read_models`):
+  - `GET /api/chambers`
+  - `GET /api/chambers/:id`
+  - `GET /api/proposals?stage=...`
+  - `GET /api/proposals/:id/pool`
+  - `GET /api/proposals/:id/chamber`
+  - `GET /api/proposals/:id/formation`
+  - `GET /api/courts`
+  - `GET /api/courts/:id`
+  - `GET /api/humans`
+  - `GET /api/humans/:id`
+- `GET /api/clock` (simulation time snapshot)
+- `POST /api/clock/advance-era` (admin-only; increments era by 1)
 
 ## Required env vars
 
@@ -17,6 +30,7 @@ Pages Functions run server-side; configure these via `wrangler pages dev` (local
 
 - `SESSION_SECRET` (required): used to sign `vortex_nonce` and `vortex_session` cookies.
 - `DATABASE_URL` (required for Phase 2c+): Postgres connection string (v1 expects Neon-compatible serverless Postgres).
+- `ADMIN_SECRET` (required for admin endpoints): must be provided via `x-admin-secret` header (unless `DEV_BYPASS_ADMIN=true`).
 
 ## Dev-only toggles
 
@@ -26,6 +40,8 @@ Until signature verification and chain gating are implemented:
 - `DEV_BYPASS_GATE=true` to mark any signed-in user as eligible.
 - `DEV_ELIGIBLE_ADDRESSES=addr1,addr2,...` allowlist for eligibility when `DEV_BYPASS_GATE` is false.
 - `DEV_INSECURE_COOKIES=true` to allow auth cookies over plain HTTP (local dev only).
+- `READ_MODELS_INLINE=true` to serve read endpoints from the in-repo mock seed (no DB required).
+- `DEV_BYPASS_ADMIN=true` to allow admin endpoints locally without `ADMIN_SECRET`.
 
 ## Running locally (recommended)
 

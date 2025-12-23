@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { buildReadModelSeed } from "../scripts/db-seed.ts";
+import { buildReadModelSeed } from "../db/seed/readModels.ts";
 
 function stableStringify(value) {
   if (value === null || typeof value !== "object") return JSON.stringify(value);

@@ -16,4 +16,6 @@ This file records the **locked v1 decisions** from Phase 0 so later implementati
 ## Current v1 progress checkpoints
 
 - Phase 2 (backend scaffold) exists in the repo (`functions/`, DB schema/migrations under `db/`, seed script under `scripts/`).
-- Read endpoints are not wired to Postgres yet; the first implementation will serve from `read_models` to match the API contract.
+- Read endpoints exist and are wired to either:
+  - Postgres-backed reads from `read_models` (requires `DATABASE_URL` + `yarn db:migrate && yarn db:seed`), or
+  - Inline seed reads via `READ_MODELS_INLINE=true` (no DB required).

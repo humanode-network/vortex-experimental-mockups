@@ -101,9 +101,12 @@ Eligibility source (v1):
 - `GET /api/chambers`
 - `GET /api/chambers/:id`
 - `GET /api/proposals?stage=...`
-- `GET /api/proposals/:id`
+- `GET /api/proposals/:id/pool`
+- `GET /api/proposals/:id/chamber`
+- `GET /api/proposals/:id/formation`
 - `GET /api/courts`
 - `GET /api/courts/:id`
+- `GET /api/humans`
 - `GET /api/humans/:id`
 - `GET /api/me` (profile + eligibility snapshot)
 

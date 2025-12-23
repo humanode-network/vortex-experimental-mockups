@@ -31,6 +31,7 @@ Implemented (backend skeleton):
   - Schema: `db/schema.ts`
   - Initial migration: `db/migrations/0000_nosy_mastermind.sql`
   - Seed script: `scripts/db-seed.ts` (writes mock-equivalent payloads into `read_models`)
+  - Read endpoints (Phase 2c/4 bridge): `functions/api/chambers/*`, `functions/api/proposals/*`, `functions/api/courts/*`, `functions/api/humans/*`
   - DB scripts: `yarn db:generate`, `yarn db:migrate`, `yarn db:seed`
   - Seed tests: `tests/db-seed.test.js`, `tests/migrations.test.js`
 
@@ -38,8 +39,8 @@ Not implemented yet:
 
 - Real signature verification (Proof A)
 - Real on-chain eligibility verification (Proof B) via RPC (`im_online`)
-- Any read endpoints backed by Postgres (`GET /api/chambers`, `GET /api/proposals`, etc.)
-- Event log + domain state machines + any write commands
+- Feed reads (`GET /api/feed`) and event log + domain state machines + any write commands
+- Normalized tables/projections beyond the transitional `read_models` bridge
 
 ## Guiding principles
 
@@ -162,16 +163,24 @@ Implemented so far:
    - `db/schema.ts`
    - generated migration under `db/migrations/`
 2. Seed-from-mocks into `read_models`:
+   - `db/seed/readModels.ts` (pure seed builder)
    - `scripts/db-seed.ts`
    - `yarn db:seed` (requires `DATABASE_URL`)
 3. Tests:
    - `tests/migrations.test.js` asserts core tables are present in the migration.
    - `tests/db-seed.test.js` asserts the seed is deterministic, unique-keyed, and JSON-safe.
+4. Transitional read endpoints (Phase 2c/4 bridge):
+   - Read-model store: `functions/_lib/readModelsStore.ts` (DB mode via `DATABASE_URL` + inline mode via `READ_MODELS_INLINE=true`)
+   - Endpoints: `GET /api/chambers`, `GET /api/proposals`, `GET /api/courts`, `GET /api/humans` (+ per-entity detail routes)
+5. Simulation clock (admin-only for advancement):
+   - `GET /api/clock`
+   - `POST /api/clock/advance-era` (requires `ADMIN_SECRET` via `x-admin-secret`, unless `DEV_BYPASS_ADMIN=true`)
 
-Still to implement in Phase 2c:
+Ops checklist (to validate Phase 2c against a real DB):
 
-- Apply migrations to a real Postgres instance as part of a repeatable setup.
-- Add the clock bootstrap (`clock_state` row) and admin “advance era” endpoint.
+- Create a Postgres DB (v1: Neon) and set `DATABASE_URL`.
+- Run: `yarn db:migrate && yarn db:seed`.
+- Verify reads are served from Postgres by unsetting `READ_MODELS_INLINE`.
 
 Deliverable: deployed API that responds and can connect to the DB.
 

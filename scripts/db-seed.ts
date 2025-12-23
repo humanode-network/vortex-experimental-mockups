@@ -4,25 +4,10 @@ import { pathToFileURL } from "node:url";
 
 import { readModels } from "../db/schema.ts";
 
-import { chambers } from "../src/data/mock/chambers.ts";
 import {
-  chamberChatLog,
-  chamberGovernors,
-  chamberProposals,
-  chamberThreads,
-  proposalStageOptions,
-} from "../src/data/mock/chamberDetail.ts";
-import { courtCases } from "../src/data/mock/courts.ts";
-import { humanNodes } from "../src/data/mock/humanNodes.ts";
-import { humanNodeProfilesById } from "../src/data/mock/humanNodeProfiles.ts";
-import { proposals } from "../src/data/mock/proposals.ts";
-import {
-  chamberProposalPageById,
-  formationProposalPageById,
-  poolProposalPageById,
-} from "../src/data/mock/proposalPages.ts";
-
-export type ReadModelSeedEntry = { key: string; payload: unknown };
+  buildReadModelSeed,
+  type ReadModelSeedEntry,
+} from "../db/seed/readModels.ts";
 
 function requireEnv(key: string): string {
   const value = process.env[key];
@@ -45,48 +30,7 @@ async function upsertReadModel(
     });
 }
 
-export function buildReadModelSeed(): ReadModelSeedEntry[] {
-  const entries: ReadModelSeedEntry[] = [];
-
-  entries.push({ key: "chambers:list", payload: { items: chambers } });
-  entries.push({
-    key: "chambers:engineering",
-    payload: {
-      proposals: chamberProposals,
-      governors: chamberGovernors,
-      threads: chamberThreads,
-      chatLog: chamberChatLog,
-      stageOptions: proposalStageOptions,
-    },
-  });
-
-  entries.push({ key: "proposals:list", payload: { items: proposals } });
-  entries.push({ key: "courts:list", payload: { items: courtCases } });
-  entries.push({ key: "humans:list", payload: { items: humanNodes } });
-
-  for (const [id, profile] of Object.entries(humanNodeProfilesById)) {
-    entries.push({ key: `humans:${id}`, payload: profile });
-  }
-
-  for (const proposal of proposals) {
-    const id = proposal.id;
-    const poolPage = poolProposalPageById(id);
-    const chamberPage = chamberProposalPageById(id);
-    const formationPage = formationProposalPageById(id);
-
-    if (poolPage)
-      entries.push({ key: `proposals:${id}:pool`, payload: poolPage });
-    if (chamberPage)
-      entries.push({ key: `proposals:${id}:chamber`, payload: chamberPage });
-    if (formationPage)
-      entries.push({
-        key: `proposals:${id}:formation`,
-        payload: formationPage,
-      });
-  }
-
-  return entries;
-}
+export { buildReadModelSeed };
 
 async function main() {
   const databaseUrl = requireEnv("DATABASE_URL");
