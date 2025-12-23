@@ -18,14 +18,27 @@ Implemented (backend skeleton):
 - Dev toggles for local progress:
   - `DEV_BYPASS_SIGNATURE`, `DEV_BYPASS_GATE`, `DEV_ELIGIBLE_ADDRESSES`, `DEV_INSECURE_COOKIES`
 - Local dev notes: `docs/vortex-simulation-local-dev.md`
+- Test harness + CI:
+  - `yarn test` (Node’s built-in test runner)
+  - CI runs `yarn test` via `.github/workflows/code.yml`
+  - API tests: `tests/api-*.test.js`
+- v1 decisions + contracts:
+  - v1 constants: `docs/vortex-simulation-v1-constants.md`
+  - API contract: `docs/vortex-simulation-api-contract.md`
+  - DTO types: `src/types/api.ts`
+- Postgres scaffolding (Phase 2c started):
+  - Drizzle config: `drizzle.config.ts`
+  - Schema: `db/schema.ts`
+  - Initial migration: `db/migrations/0000_nosy_mastermind.sql`
+  - Seed script: `scripts/db-seed.ts` (writes mock-equivalent payloads into `read_models`)
+  - DB scripts: `yarn db:generate`, `yarn db:migrate`, `yarn db:seed`
+  - Seed tests: `tests/db-seed.test.js`, `tests/migrations.test.js`
 
 Not implemented yet:
 
-- Phase 0 decisions (DB choice, “active Human Node” rule, gating source)
-- Phase 1 API contracts (explicit DTOs matching the UI mocks)
-- DB schema/migrations/seeding
 - Real signature verification (Proof A)
-- Real on-chain eligibility verification (Proof B)
+- Real on-chain eligibility verification (Proof B) via RPC (`im_online`)
+- Any read endpoints backed by Postgres (`GET /api/chambers`, `GET /api/proposals`, etc.)
 - Event log + domain state machines + any write commands
 
 ## Guiding principles
@@ -59,11 +72,11 @@ Tooling note:
 
 This is the order we’ll follow from now on, based on what’s already landed.
 
-1. **Phase 0 — Lock v1 decisions**
-2. **Phase 1 — Freeze API contracts (DTOs) to match `src/data/mock/*`**
+1. **Phase 0 — Lock v1 decisions (DONE)**
+2. **Phase 1 — Freeze API contracts (DTOs) to match `src/data/mock/*` (DONE)**
 3. **Phase 2a — API skeleton (DONE)**
-4. **Phase 2b — Test harness for API + domain**
-5. **Phase 2c — DB skeleton + migrations + seed-from-mocks**
+4. **Phase 2b — Test harness for API + domain (DONE)**
+5. **Phase 2c — DB skeleton + migrations + seed-from-mocks (IN PROGRESS)**
 6. **Phase 3 — Auth + eligibility gate (real Proof A + Proof B)**
 7. **Phase 4 — Read models first (Chambers/Proposals/Feed)**
 8. **Phase 5 — Event log backbone**
@@ -76,13 +89,12 @@ This is the order we’ll follow from now on, based on what’s already landed.
 
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
 
-1. Decide database now: **Postgres (recommended)** or **D1**.
-2. Decide gating source priority: **RPC first** with **Subscan fallback**.
-3. Decide what “active Human Node” means for v1:
-   - “In current validator set”, or
-   - “Bioauth epochs 42/42 last week”, or
-   - a composite rule.
-4. Decide era length for simulation rollups (e.g. 1 week) and where it’s configured.
+Locked for v1 (based on current decisions):
+
+1. Database: **Postgres** (Neon/Supabase).
+2. Gating source: **Humanode mainnet RPC** (no Subscan dependency for v1).
+3. Active Human Node rule: **active via the chain’s `im_online` pallet** (online reporting / heartbeat).
+4. Era length: **configured by us off-chain** (a simulation constant), not a chain parameter.
 
 Deliverable: a short “v1 constants” section committed to docs or config.
 
@@ -93,6 +105,11 @@ Tests:
 ## Phase 1 — Define contracts that mirror the UI (1–2 days)
 
 The UI is currently driven by `src/data/mock/*` (e.g. proposals list cards, proposal pages, chamber detail). Start by freezing the “API contract” so backend and frontend can meet in the middle.
+
+Contract location:
+
+- `docs/vortex-simulation-api-contract.md` (human-readable source of truth)
+- `src/types/api.ts` (TS source of truth for DTOs)
 
 1. Define response DTOs that match the current UI needs:
    - Chambers directory card: id/name/multiplier + stats + pipeline.
@@ -118,7 +135,7 @@ Delivered in this repo:
 - Cookie-signed nonce/session (requires `SESSION_SECRET`)
 - Dev bypass knobs while we build real auth/gate
 
-Tests (to add in Phase 2b):
+Tests (implemented):
 
 - `GET /api/health` returns `{ ok: true }`.
 - `POST /api/auth/nonce` returns a nonce and sets a `vortex_nonce` cookie.
@@ -128,23 +145,33 @@ Tests (to add in Phase 2b):
 - `GET /api/me` reflects authentication state
 - `GET /api/gate/status` returns `not_authenticated` when logged out
 
-## Phase 2b — Test harness for API + domain (1–2 days)
+## Phase 2b — Test harness for API + domain (DONE)
 
-1. Add a `tests/` folder and a `yarn test` script.
-2. Pick a runner:
-   - Minimal: Node’s built-in `node:test` for pure JS tests.
-   - Recommended (for TS + Workers): Vitest + Workers pool (adds dev deps).
-3. Add helpers to invoke Pages Functions handlers with fake `Request` + `env`.
+Implementation:
 
-Deliverable: `yarn test` runs locally and in CI.
+- `tests/` folder + `yarn test` script are in place.
+- Tests import Pages Functions handlers directly and exercise them with synthetic `Request` objects.
+- CI runs `yarn test` (see `.github/workflows/code.yml`).
 
 ## Phase 2c — DB skeleton (1–3 days)
 
-1. Create API worker entry (Cloudflare Worker / Pages Function).
-2. Add DB migrations + Drizzle schema (minimal tables first).
-3. Add `GET /api/health`.
-4. Add a `clock_state` row and an admin-only `POST /api/clock/advance-era` stub (no rollup logic yet).
-5. Add a small “seed” script/job that imports today’s `src/data/mock/*` into DB tables (so the first backend responses can match the UI immediately).
+Implemented so far:
+
+1. Drizzle config + Postgres schema:
+   - `drizzle.config.ts`
+   - `db/schema.ts`
+   - generated migration under `db/migrations/`
+2. Seed-from-mocks into `read_models`:
+   - `scripts/db-seed.ts`
+   - `yarn db:seed` (requires `DATABASE_URL`)
+3. Tests:
+   - `tests/migrations.test.js` asserts core tables are present in the migration.
+   - `tests/db-seed.test.js` asserts the seed is deterministic, unique-keyed, and JSON-safe.
+
+Still to implement in Phase 2c:
+
+- Apply migrations to a real Postgres instance as part of a repeatable setup.
+- Add the clock bootstrap (`clock_state` row) and admin “advance era” endpoint.
 
 Deliverable: deployed API that responds and can connect to the DB.
 
@@ -165,7 +192,7 @@ Tests:
    - create session cookie/JWT
 3. `GET /api/gate/status`:
    - read session address
-   - query eligibility via RPC/Subscan
+   - query eligibility via RPC (`im_online` in v1)
    - cache result with TTL (`eligibility_cache`)
 4. Frontend wiring:
    - add “Connect wallet / Verify” UI (even a simple modal is enough)

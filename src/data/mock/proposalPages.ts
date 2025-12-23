@@ -1,4 +1,4 @@
-import { proposals as proposalList } from "@/data/mock/proposals";
+import { proposals as proposalList } from "./proposals.ts";
 
 export type InvisionInsight = {
   role: string;
@@ -778,6 +778,10 @@ export function getPoolProposalPage(id?: string) {
   return (id ? poolProposals[id] : undefined) ?? first;
 }
 
+export function poolProposalPageById(id: string): PoolProposalPage | undefined {
+  return poolProposals[id];
+}
+
 export function getChamberProposalPage(id?: string) {
   return (
     (id ? chamberProposals[id] : undefined) ??
@@ -785,7 +789,19 @@ export function getChamberProposalPage(id?: string) {
   );
 }
 
+export function chamberProposalPageById(
+  id: string,
+): ChamberProposalPage | undefined {
+  return chamberProposals[id];
+}
+
 export function getFormationProposalPage(id?: string) {
   const first = Object.values(formationProposals)[0];
   return (id ? formationProposals[id] : undefined) ?? first;
+}
+
+export function formationProposalPageById(
+  id: string,
+): FormationProposalPage | undefined {
+  return formationProposals[id];
 }

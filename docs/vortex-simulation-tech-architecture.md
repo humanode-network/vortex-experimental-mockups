@@ -18,8 +18,12 @@ This document maps the domain workflows in `docs/vortex-simulation-processes.md`
 
 ### Database
 
-- **Primary (recommended): Postgres** (Neon or Supabase) for “proper” user history, analytics, and relational integrity.
-- **Alternative (v1-only): Cloudflare D1** if you want Cloudflare-only deployment; migrate to Postgres when scale/queries require.
+- **Chosen for v1: Postgres** (Neon or Supabase) for “proper” user history, analytics, and relational integrity.
+- Optional later: D1 can be used for Cloudflare-only prototypes, but v1 should start on Postgres to avoid a DB migration during the community simulation.
+
+Important: because the API runtime is Cloudflare Workers/Pages Functions (edge), v1 should use a Postgres provider that supports **serverless/HTTP connectivity** from edge runtimes.
+
+- Recommended: **Neon Postgres** (works with `@neondatabase/serverless` + Drizzle).
 
 ### Libraries / tools
 
@@ -30,7 +34,7 @@ This document maps the domain workflows in `docs/vortex-simulation-processes.md`
 
 ### External reads (gating)
 
-- Humanode mainnet via **RPC** (preferred) and/or **Subscan API** (fallback).
+- Humanode mainnet via **RPC** (v1).
 
 ## 2) High-level architecture
 
@@ -63,9 +67,11 @@ All state-changing actions go through the API and are validated against:
 
 This repo is currently a single frontend app. The backend can live alongside it as:
 
-- `src/server/worker/*` (Workers entry + routes)
-- `src/server/domain/*` (shared domain engine)
-- `src/server/db/*` (Drizzle schema + queries)
+- `functions/api/*` (Pages Functions routes)
+- `functions/_lib/*` (shared server helpers)
+- `db/*` (Drizzle schema + migrations)
+- `scripts/*` (seed/import jobs)
+- `src/server/domain/*` (future: shared domain engine)
 
 If you later split into a monorepo, these become:
 
@@ -84,6 +90,10 @@ If you later split into a monorepo, these become:
 ### Gating
 
 - `GET /api/gate/status` → `{ eligible: boolean, reason?: string, expiresAt: string }`
+
+Eligibility source (v1):
+
+- Query Humanode mainnet RPC for online status via the chain’s **`im_online` pallet**.
 
 ### Reads
 
@@ -133,9 +143,17 @@ These tables support the workflows and auditability; you can start lean and expa
   - `address`
   - `isActiveHumanNode` (boolean)
   - `checkedAt`, `checkedAtBlock?`
-  - `source` (`rpc` | `subscan`)
+  - `source` (`rpc`)
   - `expiresAt`
   - `reasonCode?`
+
+### Transitional read models (Phase 2c → Phase 4 bridge)
+
+To avoid rewriting the UI while we build normalized tables + an event log, we seed mock-equivalent payloads into a single table:
+
+- `read_models`: `{ key, payload (jsonb), updatedAt }`
+
+This allows early `GET /api/...` endpoints to serve the exact DTOs expected by `docs/vortex-simulation-api-contract.md` while we progressively replace `read_models` with real projections.
 
 ### Governance time
 

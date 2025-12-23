@@ -1,11 +1,11 @@
-import type { HumanNode } from "./humanNodes";
-import { humanNodes } from "./humanNodes";
+import type { HumanNode } from "./humanNodes.ts";
+import { humanNodes } from "./humanNodes.ts";
 import {
   formationStageLabel,
   getFormationProjectById,
   type FormationProject,
-} from "./formation";
-import { getFactionById } from "./factions";
+} from "./formation.ts";
+import { getFactionById } from "./factions.ts";
 
 export type ProofKey = "time" | "devotion" | "governance";
 

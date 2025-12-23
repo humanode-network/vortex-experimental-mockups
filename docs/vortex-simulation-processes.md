@@ -43,7 +43,7 @@ Simulation requirements:
 - Uniqueness constraint: one “Human” → one “active identity” at a time.
 - Identity statuses: verified, pending, restricted, revoked (for courts scenarios).
 - Authentication: users authenticate by signing a nonce with the **same wallet they run their Human Node with**.
-- Eligibility gating: anyone can browse, but action buttons are blocked unless the user is an **active Human Node** (verified via mainnet RPC and/or Humanode Subscan data).
+- Eligibility gating: anyone can browse, but action buttons are blocked unless the user is an **active Human Node** (verified via mainnet RPC).
 
 #### Account vs eligibility
 
@@ -53,7 +53,20 @@ Simulation requirements:
 Recommended modeling:
 
 - `user` (account): `id`, `address`, `createdAt`, profile fields.
-- `eligibility` (cached claim): `address`, `isActiveHumanNode`, `checkedAt`, `source` (RPC/Subscan), `expiresAt`, and optional reason codes.
+- `eligibility` (cached claim): `address`, `isActiveHumanNode`, `checkedAt`, `source` (`rpc`), `expiresAt`, and optional reason codes.
+
+#### v1 eligibility source (RPC)
+
+For v1 we use **Humanode mainnet RPC only** (no Subscan dependency).
+
+Eligibility rule (v1): an address is an **active Human Node** if it appears as active in the chain’s **`im_online` pallet** (online reporting / heartbeat).
+
+Implication:
+
+- Browsing is open to everyone.
+- Any state-changing action requires:
+  1. proof of address control (wallet signature session), and
+  2. a fresh “active via `im_online`” eligibility check (cached with TTL).
 
 ### 1.2 Governance time
 
@@ -228,15 +241,13 @@ Login:
 
 Eligibility check (authoritative gating):
 
-- Backend checks Humanode mainnet data via:
-  - RPC queries, and/or
-  - Humanode Subscan API ingestion.
+- Backend checks Humanode mainnet data via **RPC queries** (v1).
 - Backend caches the eligibility result with a short TTL (e.g. 10–30 minutes) and re-checks on demand.
 
 Two proofs (explicit):
 
 - Proof A: “User controls address X” (nonce + signature; SIWE-style but chain-agnostic).
-- Proof B: “Address X is an active Human Node / validator” (mainnet read; RPC/Subscan).
+- Proof B: “Address X is an active Human Node” (mainnet read via RPC; `im_online` pallet).
 
 Eligibility claim (cached):
 

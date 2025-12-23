@@ -16,6 +16,7 @@ This repo uses **Cloudflare Pages** for hosting. Backend endpoints live in **Pag
 Pages Functions run server-side; configure these via `wrangler pages dev` (local) or Pages project settings (deploy).
 
 - `SESSION_SECRET` (required): used to sign `vortex_nonce` and `vortex_session` cookies.
+- `DATABASE_URL` (required for Phase 2c+): Postgres connection string (v1 expects Neon-compatible serverless Postgres).
 
 ## Dev-only toggles
 
@@ -39,3 +40,13 @@ Notes:
 
 - `rsbuild dev` does not run Pages Functions; use `wrangler pages dev` for API work.
 - Prefer `wrangler pages dev ... --local-protocol=https` for local dev so cookies behave like production.
+- If `wrangler` fails with a permissions error writing under `~/.config/.wrangler`, run with a writable config dir, e.g.:
+  - `XDG_CONFIG_HOME=$(pwd)/.config wrangler pages dev ...`
+
+## DB (Phase 2c)
+
+Once you have a Postgres DB, you can generate migrations and seed read-model payloads from today’s mocks:
+
+- Generate migrations: `yarn db:generate`
+- Apply migrations: `yarn db:migrate` (requires `DATABASE_URL`)
+- Seed from mocks into `read_models`: `yarn db:seed` (requires `DATABASE_URL`)
