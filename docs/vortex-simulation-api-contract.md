@@ -1,15 +1,14 @@
-# Vortex Simulation Backend — API Contract v1 (Phase 1)
+# Vortex Simulation Backend — API Contract v1
 
-This document freezes the **JSON contracts** the backend must serve so the current mock-driven UI can migrate to API reads with minimal churn.
+This document freezes the **JSON contracts** the backend serves so the mock-driven UI can migrate to API reads with minimal churn.
 
 Notes:
 
 - These are **DTOs** (network-safe JSON), not React UI models.
 - Anywhere the UI currently uses `ReactNode` in `src/data/mock/*`, the API will return **strings** (plain text or Markdown) and the UI will render them.
-- These endpoints are implemented in Phase 2c in two modes:
+- Read endpoints are served in two modes:
   - DB mode: reads from Postgres `read_models` (seeded by `scripts/db-seed.ts`).
   - Inline mode: `READ_MODELS_INLINE=true` serves the same payloads from the in-repo seed builder (`db/seed/readModels.ts`) for local dev/tests without a DB.
-- For local dev/tests without a DB, we currently support `READ_MODELS_INLINE=true` to serve the same payloads from the in-repo seed builder (`db/seed/readModels.ts`).
 
 ## Conventions
 
@@ -30,11 +29,11 @@ Already implemented in `functions/api/*`:
 
 Eligibility (v1):
 
-- The backend checks Humanode mainnet RPC and considers an address eligible if it is **active in `im_online`**.
+- The backend checks Humanode mainnet RPC and considers an address eligible if it is **an active validator** (v1 reads `Session::Validators`).
 
-## Read endpoints (to implement next)
+## Read endpoints
 
-These endpoints are implemented under `functions/api/*` and currently read from `read_models` (DB mode) or the inline seed (inline mode).
+These endpoints are implemented under `functions/api/*` and read from `read_models` (DB mode) or the inline seed (inline mode).
 
 ### Chambers
 

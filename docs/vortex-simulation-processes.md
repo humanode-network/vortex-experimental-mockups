@@ -1,6 +1,6 @@
 # Vortex Simulation Backend — Processes to Model
 
-This document defines the **domain processes** a Vortex backend simulation should model to match the UI mockups in this repo. This is **not** an on-chain implementation; it emulates “how Vortex would work” with deterministic rules + simulated time.
+This document defines the domain processes the Vortex simulation backend models to match the UI mockups in this repo. This is not an on-chain implementation; it emulates “how Vortex would work” off-chain with deterministic rules + simulated time.
 
 ## 0.1) On-chain vs off-chain boundary (proto-vortex architecture)
 
@@ -59,14 +59,14 @@ Recommended modeling:
 
 For v1 we use **Humanode mainnet RPC only** (no Subscan dependency).
 
-Eligibility rule (v1): an address is an **active Human Node** if it appears as active in the chain’s **`im_online` pallet** (online reporting / heartbeat).
+Eligibility rule (v1): an address is an **active Human Node** if it is an **active validator** on mainnet (v1 reads the validator set via `Session::Validators`).
 
 Implication:
 
 - Browsing is open to everyone.
 - Any state-changing action requires:
   1. proof of address control (wallet signature session), and
-  2. a fresh “active via `im_online`” eligibility check (cached with TTL).
+  2. a fresh “active validator” eligibility check (cached with TTL).
 
 ### 1.2 Governance time
 
@@ -144,7 +144,7 @@ Simulation requirements:
 
 - Tier progression rules (PoT / PoD / PoG–like requirements).
 - Tier decay + statuses (Ahead / Stable / Falling behind / At risk / Losing status).
-- Eligibility gating (what you can propose/do by tier).
+- Eligibility gating (what actions are available by tier).
 
 ### 1.6 Delegation
 
@@ -247,7 +247,7 @@ Eligibility check (authoritative gating):
 Two proofs (explicit):
 
 - Proof A: “User controls address X” (nonce + signature; SIWE-style but chain-agnostic).
-- Proof B: “Address X is an active Human Node” (mainnet read via RPC; `im_online` pallet).
+- Proof B: “Address X is an active Human Node” (mainnet read via RPC; v1 reads `Session::Validators`).
 
 Eligibility claim (cached):
 
@@ -466,7 +466,7 @@ Simulation requirements:
 
 ### 4.3 Determinism knobs
 
-- Seeded random generator for “simulated activity” (if you want autopopulation).
+- Seeded random generator for “simulated activity” (optional autopopulation).
 - Manual override controls for testing scenarios (force quorum met, force court verdict, etc.).
 
 ## 5) Next step: pick “v1 processes”

@@ -8,6 +8,17 @@ export const users = pgTable("users", {
     .defaultNow(),
 });
 
+export const authNonces = pgTable("auth_nonces", {
+  nonce: text("nonce").primaryKey(),
+  address: text("address").notNull(),
+  requestIp: text("request_ip"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+});
+
 export const eligibilityCache = pgTable("eligibility_cache", {
   address: text("address").primaryKey(),
   isActiveHumanNode: integer("is_active_human_node").notNull(), // 0/1 for portability

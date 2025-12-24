@@ -1,6 +1,6 @@
-# Vortex Simulation Backend — Tech Architecture (Mapped to Processes)
+# Vortex Simulation Backend — Tech Architecture
 
-This document maps the domain workflows in `docs/vortex-simulation-processes.md` onto an implementable technical architecture.
+This document maps `docs/vortex-simulation-processes.md` onto a technical architecture that fits this repo (React app + Cloudflare Pages Functions).
 
 ## 1) Stack (recommended)
 
@@ -28,8 +28,8 @@ Important: because the API runtime is Cloudflare Workers/Pages Functions (edge),
 ### Libraries / tools
 
 - **Drizzle ORM** (Postgres; can also target D1 if needed).
-- **zod** (request validation).
-- **viem** (or ethers) for signature verification and RPC reads.
+- **zod** (request validation; used as needed).
+- **@polkadot/util-crypto** (+ **@polkadot/keyring** in tests) for Substrate signature verification and SS58 address handling.
 - **wrangler** for Workers deployment (already in repo).
 
 ### External reads (gating)
@@ -73,7 +73,7 @@ This repo is currently a single frontend app. The backend can live alongside it 
 - `scripts/*` (seed/import jobs)
 - `src/server/domain/*` (future: shared domain engine)
 
-If you later split into a monorepo, these become:
+If the repo is later split into a monorepo, these become:
 
 - `packages/domain`
 - `apps/api`
@@ -93,7 +93,7 @@ If you later split into a monorepo, these become:
 
 Eligibility source (v1):
 
-- Query Humanode mainnet RPC for online status via the chain’s **`im_online` pallet**.
+- Query Humanode mainnet RPC for active validator status (v1 reads the current validator set via `Session::Validators`).
 
 ### Reads
 
@@ -132,7 +132,7 @@ Examples:
 
 ## 5) Data model (tables) — minimal set
 
-These tables support the workflows and auditability; you can start lean and expand.
+These tables support the workflows and auditability; the system starts lean and expands as features move off the `read_models` bridge.
 
 ### Identity / auth
 
@@ -162,7 +162,7 @@ This allows early `GET /api/...` endpoints to serve the exact DTOs expected by `
 
 - `clock_state`: `currentEpoch`, `currentEra`, `updatedAt`
 - `era_snapshots`: per-era aggregates (active governors, quorum baselines, etc.)
-- `epoch_uptime`: optional (per address, per epoch/week) if you want Bioauth modeling
+- `epoch_uptime`: optional (per address, per epoch/week) if Bioauth uptime is modeled in v1/v2
 
 ### Chambers + membership
 
@@ -281,7 +281,7 @@ This section maps each workflow from `docs/vortex-simulation-processes.md` to co
 - **Module:** `chambers` (read models)
 - **API:** `GET /api/chambers`, `GET /api/chambers/:id`
 - **Tables:** `chambers`, `chamber_membership`, `era_snapshots`, `cm_lcm`, plus proposal aggregates
-- **Events:** none required (derived), but can emit `chamber.stats_updated` on rollup if you materialize.
+- **Events:** none required (derived), but `chamber.stats_updated` can be emitted on rollup if stats are materialized.
 
 ### 2.10 Invision insights
 
@@ -292,7 +292,7 @@ This section maps each workflow from `docs/vortex-simulation-processes.md` to co
 
 ## 7) Concurrency + integrity (why Durable Objects may be needed)
 
-If multiple users vote at once, you must prevent:
+If multiple users vote at once, race conditions must be prevented:
 
 - double-voting
 - inconsistent quorum counters
@@ -306,14 +306,14 @@ Two approaches:
 Recommendation:
 
 - Start with DB constraints + transactions.
-- Add DOs for high-contention entities (popular proposals) or if you want simpler correctness in Worker code.
+- Add DOs for high-contention entities (popular proposals) or for simpler correctness in Worker code.
 
 ## 8) Anti-abuse controls (even for eligible human nodes)
 
 - Per-era action limits (proposal submissions, reports, etc.)
 - Idempotency keys for commands (client retries)
 - Rate limiting per address (Worker middleware)
-- Court/report spam prevention (minimum stake is out-of-scope unless you later add it as a simulated rule)
+- Court/report spam prevention (minimum stake is out-of-scope unless added as a simulated rule)
 
 ## 9) Migration path from today’s mock data
 

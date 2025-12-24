@@ -1,21 +1,21 @@
-# Vortex Simulation Backend — v1 Constants (Locked Decisions)
+# Vortex Simulation Backend — v1 Constants
 
-This file records the **locked v1 decisions** from Phase 0 so later implementation and tests can treat them as source-of-truth.
+This file records the v1 decisions used by the simulation backend so implementation and tests share the same assumptions.
 
 ## Stack decisions
 
 - **Database:** Postgres (v1 recommendation: **Neon**, for edge/serverless connectivity)
 - **On-chain read source:** Humanode mainnet RPC (no Subscan dependency for v1)
-- **Eligibility (“active Human Node”):** active via the chain’s `im_online` pallet (online reporting / heartbeat)
+- **Eligibility (“active Human Node”):** active validator via mainnet RPC (v1 reads `Session::Validators`)
 
 ## Simulation time decisions
 
 - **Era length:** configured off-chain by the simulation (not a chain parameter)
-  - v1 value: **TBD** (we will set it as a constant/env var when adding the clock/rollups)
+  - v1 value: **TBD** (the clock is advanced manually via `/api/clock/advance-era`)
 
 ## Current v1 progress checkpoints
 
-- Phase 2 (backend scaffold) exists in the repo (`functions/`, DB schema/migrations under `db/`, seed script under `scripts/`).
+- Backend exists in the repo (`functions/`, DB schema/migrations under `db/`, seed script under `scripts/`).
 - Read endpoints exist and are wired to either:
   - Postgres-backed reads from `read_models` (requires `DATABASE_URL` + `yarn db:migrate && yarn db:seed`), or
   - Inline seed reads via `READ_MODELS_INLINE=true` (no DB required).

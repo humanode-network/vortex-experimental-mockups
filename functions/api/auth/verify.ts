@@ -1,6 +1,9 @@
 import { issueSession, verifyNonceCookie } from "../../_lib/auth.ts";
 import { envBoolean } from "../../_lib/env.ts";
+import { createNonceStore } from "../../_lib/nonceStore.ts";
+import { verifySubstrateSignature } from "../../_lib/signatures.ts";
 import { errorResponse, jsonResponse, readJson } from "../../_lib/http.ts";
+import { upsertUser } from "../../_lib/userStore.ts";
 
 type Body = {
   address?: string;
@@ -33,14 +36,29 @@ export const onRequestPost: PagesFunction = async (context) => {
     return errorResponse(401, "Nonce was issued for a different address");
   if (nonceToken.nonce !== nonce) return errorResponse(401, "Nonce mismatch");
 
+  const nonceStore = createNonceStore(context.env);
+  const consume = await nonceStore.consume({ address, nonce });
+  if (!consume.ok) {
+    const message =
+      consume.reason === "expired"
+        ? "Nonce expired; call /api/auth/nonce again"
+        : consume.reason === "used"
+          ? "Nonce already used; call /api/auth/nonce again"
+          : "Nonce invalid; call /api/auth/nonce again";
+    return errorResponse(401, message, { reason: consume.reason });
+  }
+
   if (!envBoolean(context.env, "DEV_BYPASS_SIGNATURE")) {
-    return errorResponse(
-      501,
-      "Signature verification is not implemented yet; set DEV_BYPASS_SIGNATURE=true to continue locally.",
-    );
+    const ok = await verifySubstrateSignature({
+      address,
+      message: nonce,
+      signature,
+    });
+    if (!ok) return errorResponse(401, "Invalid signature");
   }
 
   const headers = new Headers();
   await issueSession(headers, context.env, context.request.url, address);
+  await upsertUser(context.env, { address });
   return jsonResponse({ ok: true, address }, { headers });
 };

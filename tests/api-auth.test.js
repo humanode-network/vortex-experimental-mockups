@@ -32,12 +32,13 @@ function makeContext({ url, method, env, body, cookie }) {
 
 test("auth flow: nonce -> verify (bypass) -> me -> logout", async () => {
   const baseEnv = { SESSION_SECRET: "test-secret" };
+  const address = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
 
   const nonceCtx = makeContext({
     url: "https://local.test/api/auth/nonce",
     method: "POST",
     env: baseEnv,
-    body: { address: "0xabc" },
+    body: { address },
   });
   const nonceRes = await noncePost(nonceCtx);
   assert.equal(nonceRes.status, 200);
@@ -49,21 +50,11 @@ test("auth flow: nonce -> verify (bypass) -> me -> logout", async () => {
   assert.ok(nonceSetCookie?.startsWith("vortex_nonce="));
   const nonceCookie = cookiePair(nonceSetCookie);
 
-  const verifyNoBypassCtx = makeContext({
-    url: "https://local.test/api/auth/verify",
-    method: "POST",
-    env: baseEnv,
-    body: { address: "0xabc", nonce: nonceJson.nonce, signature: "0xsig" },
-    cookie: nonceCookie,
-  });
-  const verifyNoBypassRes = await verifyPost(verifyNoBypassCtx);
-  assert.equal(verifyNoBypassRes.status, 501);
-
   const verifyCtx = makeContext({
     url: "https://local.test/api/auth/verify",
     method: "POST",
     env: { ...baseEnv, DEV_BYPASS_SIGNATURE: "true", DEV_BYPASS_GATE: "true" },
-    body: { address: "0xabc", nonce: nonceJson.nonce, signature: "0xsig" },
+    body: { address, nonce: nonceJson.nonce, signature: "0xsig" },
     cookie: nonceCookie,
   });
   const verifyRes = await verifyPost(verifyCtx);
@@ -82,7 +73,7 @@ test("auth flow: nonce -> verify (bypass) -> me -> logout", async () => {
   assert.equal(meRes.status, 200);
   const meJson = await meRes.json();
   assert.equal(meJson.authenticated, true);
-  assert.equal(meJson.address, "0xabc");
+  assert.equal(meJson.address, address);
   assert.equal(meJson.gate.eligible, true);
 
   const logoutCtx = makeContext({
@@ -107,4 +98,31 @@ test("auth/nonce rejects missing address", async () => {
   });
   const res = await noncePost(ctx);
   assert.equal(res.status, 400);
+});
+
+test("auth/verify rejects invalid signature (no bypass)", async () => {
+  const env = { SESSION_SECRET: "test-secret" };
+  const address = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
+
+  const nonceRes = await noncePost(
+    makeContext({
+      url: "https://local.test/api/auth/nonce",
+      method: "POST",
+      env,
+      body: { address },
+    }),
+  );
+  const nonceJson = await nonceRes.json();
+  const nonceCookie = cookiePair(getSetCookies(nonceRes)[0]);
+
+  const verifyRes = await verifyPost(
+    makeContext({
+      url: "https://local.test/api/auth/verify",
+      method: "POST",
+      env,
+      body: { address, nonce: nonceJson.nonce, signature: "0xsig" },
+      cookie: nonceCookie,
+    }),
+  );
+  assert.equal(verifyRes.status, 401);
 });

@@ -1,6 +1,6 @@
-# Vortex Simulation Backend — Implementation Plan (Step-by-step, aligned to current UI)
+# Vortex Simulation Backend — Implementation Plan
 
-This plan turns `docs/vortex-simulation-processes.md` + `docs/vortex-simulation-tech-architecture.md` into an executable roadmap.
+This plan turns `docs/vortex-simulation-processes.md` + `docs/vortex-simulation-tech-architecture.md` into an executable roadmap that stays aligned with the current UI.
 
 ## Current status (what exists in the repo right now)
 
@@ -10,10 +10,10 @@ Implemented (backend skeleton):
 - Minimal API routes:
   - `GET /api/health`
   - `POST /api/auth/nonce` (sets `vortex_nonce` cookie)
-  - `POST /api/auth/verify` (sets `vortex_session` cookie; real signature verification not implemented yet)
+  - `POST /api/auth/verify` (sets `vortex_session` cookie; Substrate signature verification is supported in Phase 3)
   - `POST /api/auth/logout`
   - `GET /api/me`
-  - `GET /api/gate/status` (eligibility is dev-stubbed for now)
+  - `GET /api/gate/status` (dev bypass available; real RPC gating supported in Phase 3)
 - Cookie-signed nonce + session helpers (requires `SESSION_SECRET`)
 - Dev toggles for local progress:
   - `DEV_BYPASS_SIGNATURE`, `DEV_BYPASS_GATE`, `DEV_ELIGIBLE_ADDRESSES`, `DEV_INSECURE_COOKIES`
@@ -34,11 +34,10 @@ Implemented (backend skeleton):
   - Read endpoints (Phase 2c/4 bridge): `functions/api/chambers/*`, `functions/api/proposals/*`, `functions/api/courts/*`, `functions/api/humans/*`
   - DB scripts: `yarn db:generate`, `yarn db:migrate`, `yarn db:seed`
   - Seed tests: `tests/db-seed.test.js`, `tests/migrations.test.js`
+  - Phase 3 tests: `tests/api-auth-signature.test.js`, `tests/api-gate-rpc.test.js`
 
-Not implemented yet:
+Not implemented:
 
-- Real signature verification (Proof A)
-- Real on-chain eligibility verification (Proof B) via RPC (`im_online`)
 - Feed reads (`GET /api/feed`) and event log + domain state machines + any write commands
 - Normalized tables/projections beyond the transitional `read_models` bridge
 
@@ -52,9 +51,9 @@ Not implemented yet:
 
 ## Testing requirement (applies to every phase)
 
-We treat every phase as “done” only when tests are added and run.
+Each phase is considered “done” only when tests are added and run.
 
-Testing layers we’ll use:
+Testing layers:
 
 1. **Unit tests** (pure TS): state machines, invariants, calculations (quorums, passing rules, tier rules).
 2. **API integration tests**: call Pages Functions handlers with `Request` objects and assert status/JSON/cookies.
@@ -65,11 +64,9 @@ Test execution policy:
 - Add a `yarn test` script and run it after each feature batch.
 - Keep CI in sync (extend `.github/workflows/code.yml` to run `yarn test` and `yarn build` once tests exist).
 
-Tooling note:
+Tooling note: Pages Functions handlers are tested directly via `Request` objects (no browser/manual flow needed for API testing).
 
-- We will add a minimal test harness early (next phases) so we can test Pages Functions without relying on manual clicking.
-
-## Execution sequence (the phases we will implement, in order)
+## Execution sequence (phases in order)
 
 This is the order we’ll follow from now on, based on what’s already landed.
 
@@ -77,8 +74,8 @@ This is the order we’ll follow from now on, based on what’s already landed.
 2. **Phase 1 — Freeze API contracts (DTOs) to match `src/data/mock/*` (DONE)**
 3. **Phase 2a — API skeleton (DONE)**
 4. **Phase 2b — Test harness for API + domain (DONE)**
-5. **Phase 2c — DB skeleton + migrations + seed-from-mocks (IN PROGRESS)**
-6. **Phase 3 — Auth + eligibility gate (real Proof A + Proof B)**
+5. **Phase 2c — DB skeleton + migrations + seed-from-mocks (DONE)**
+6. **Phase 3 — Auth + eligibility gate (DONE for backend; UI wiring pending)**
 7. **Phase 4 — Read models first (Chambers/Proposals/Feed)**
 8. **Phase 5 — Event log backbone**
 9. **Phase 6 — First write slice (pool voting)**
@@ -94,7 +91,7 @@ Locked for v1 (based on current decisions):
 
 1. Database: **Postgres** (Neon/Supabase).
 2. Gating source: **Humanode mainnet RPC** (no Subscan dependency for v1).
-3. Active Human Node rule: **active via the chain’s `im_online` pallet** (online reporting / heartbeat).
+3. Active Human Node rule: active validator via RPC (v1 reads `Session::Validators`).
 4. Era length: **configured by us off-chain** (a simulation constant), not a chain parameter.
 
 Deliverable: a short “v1 constants” section committed to docs or config.
@@ -141,8 +138,8 @@ Tests (implemented):
 - `GET /api/health` returns `{ ok: true }`.
 - `POST /api/auth/nonce` returns a nonce and sets a `vortex_nonce` cookie.
 - `POST /api/auth/verify`:
-  - fails with 501 if `DEV_BYPASS_SIGNATURE` is false
-  - succeeds and sets `vortex_session` if bypass is enabled
+  - rejects invalid signatures when bypass is disabled
+  - succeeds and sets `vortex_session` for valid signatures (or when bypass is enabled)
 - `GET /api/me` reflects authentication state
 - `GET /api/gate/status` returns `not_authenticated` when logged out
 
@@ -201,10 +198,10 @@ Tests:
    - create session cookie/JWT
 3. `GET /api/gate/status`:
    - read session address
-   - query eligibility via RPC (`im_online` in v1)
+   - query eligibility via RPC (v1 reads `Session::Validators`)
    - cache result with TTL (`eligibility_cache`)
 4. Frontend wiring:
-   - add “Connect wallet / Verify” UI (even a simple modal is enough)
+   - add “Connect wallet / Verify” UI
    - disable all write buttons unless eligible (and show a short reason on hover)
    - allow non-eligible users to browse everything
 

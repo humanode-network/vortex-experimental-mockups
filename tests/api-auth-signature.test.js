@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { onRequestGet as gateGet } from "../functions/api/gate/status.ts";
+import { Keyring } from "@polkadot/keyring";
+import { cryptoWaitReady } from "@polkadot/util-crypto";
+import { u8aToHex } from "@polkadot/util";
+
 import { onRequestPost as noncePost } from "../functions/api/auth/nonce.ts";
 import { onRequestPost as verifyPost } from "../functions/api/auth/verify.ts";
 
@@ -28,52 +31,55 @@ function makeContext({ url, method, env, body, cookie }) {
   return { request, env };
 }
 
-test("gate/status: unauthenticated vs authenticated eligible", async () => {
-  const env = { SESSION_SECRET: "test-secret", DEV_BYPASS_SIGNATURE: "true" };
-  const address = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
+test("auth/verify: valid Substrate signature succeeds and nonce is single-use", async () => {
+  await cryptoWaitReady();
+  const keyring = new Keyring({ type: "sr25519" });
+  const pair = keyring.addFromUri("//Alice");
 
-  const unauthRes = await gateGet(
-    makeContext({
-      url: "https://local.test/api/gate/status",
-      method: "GET",
-      env,
-    }),
-  );
-  assert.equal(unauthRes.status, 200);
-  const unauthJson = await unauthRes.json();
-  assert.equal(unauthJson.eligible, false);
-  assert.equal(unauthJson.reason, "not_authenticated");
+  const env = { SESSION_SECRET: "test-secret", DEV_BYPASS_GATE: "true" };
 
   const nonceRes = await noncePost(
     makeContext({
       url: "https://local.test/api/auth/nonce",
       method: "POST",
       env,
-      body: { address },
+      body: { address: pair.address },
     }),
   );
+  assert.equal(nonceRes.status, 200);
   const nonceJson = await nonceRes.json();
   const nonceCookie = cookiePair(getSetCookies(nonceRes)[0]);
+
+  const messageBytes = new TextEncoder().encode(nonceJson.nonce);
+  const signatureHex = u8aToHex(pair.sign(messageBytes));
 
   const verifyRes = await verifyPost(
     makeContext({
       url: "https://local.test/api/auth/verify",
       method: "POST",
-      env: { ...env, DEV_BYPASS_GATE: "true" },
-      body: { address, nonce: nonceJson.nonce, signature: "0xsig" },
+      env,
+      body: {
+        address: pair.address,
+        nonce: nonceJson.nonce,
+        signature: signatureHex,
+      },
       cookie: nonceCookie,
     }),
   );
-  const sessionCookie = cookiePair(getSetCookies(verifyRes)[0]);
+  assert.equal(verifyRes.status, 200);
 
-  const gateRes = await gateGet(
+  const verifyRes2 = await verifyPost(
     makeContext({
-      url: "https://local.test/api/gate/status",
-      method: "GET",
-      env: { ...env, DEV_BYPASS_GATE: "true" },
-      cookie: sessionCookie,
+      url: "https://local.test/api/auth/verify",
+      method: "POST",
+      env,
+      body: {
+        address: pair.address,
+        nonce: nonceJson.nonce,
+        signature: signatureHex,
+      },
+      cookie: nonceCookie,
     }),
   );
-  const gateJson = await gateRes.json();
-  assert.equal(gateJson.eligible, true);
+  assert.equal(verifyRes2.status, 401);
 });

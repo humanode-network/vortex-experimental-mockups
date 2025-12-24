@@ -8,6 +8,13 @@
       "when": 1766509637223,
       "tag": "0000_nosy_mastermind",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1766533489857,
+      "tag": "0001_bitter_oracle",
+      "breakpoints": true
     }
   ]
 }
