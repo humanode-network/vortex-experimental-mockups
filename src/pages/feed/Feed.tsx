@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { PageHint } from "@/components/PageHint";
@@ -7,7 +7,6 @@ import { DashedStatItem } from "@/components/DashedStatItem";
 import { ExpandableCard } from "@/components/ExpandableCard";
 import { StageChip } from "@/components/StageChip";
 import { StageDataTile } from "@/components/StageDataTile";
-import { feedItems } from "@/data/mock/feed";
 import { Surface } from "@/components/Surface";
 import {
   getChamberProposalPage,
@@ -17,6 +16,8 @@ import {
 import { proposals as proposalList } from "@/data/mock/proposals";
 import { courtCases } from "@/data/mock/courts";
 import { CourtStatusBadge } from "@/components/CourtStatusBadge";
+import { apiFeed } from "@/lib/apiClient";
+import type { FeedItemDto } from "@/types/api";
 
 const formatDate = (iso: string) => {
   const d = new Date(iso);
@@ -28,9 +29,34 @@ const formatDate = (iso: string) => {
 };
 
 const Feed: React.FC = () => {
-  const sortedFeed = [...feedItems].sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-  );
+  const [feedItems, setFeedItems] = useState<FeedItemDto[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await apiFeed();
+        if (!active) return;
+        setFeedItems(res.items);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setFeedItems([]);
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const sortedFeed = useMemo(() => {
+    return [...(feedItems ?? [])].sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+    );
+  }, [feedItems]);
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const toggle = (id: string) => {
@@ -53,6 +79,27 @@ const Feed: React.FC = () => {
     <div className="flex flex-col gap-4">
       <PageHint pageId="feed" />
       {/* Governing threshold moved to MyGovernance */}
+
+      {feedItems === null ? (
+        <Surface
+          variant="panelAlt"
+          radius="2xl"
+          shadow="tile"
+          className="px-5 py-4 text-sm text-muted"
+        >
+          Loading feed…
+        </Surface>
+      ) : null}
+      {loadError ? (
+        <Surface
+          variant="panelAlt"
+          radius="2xl"
+          shadow="tile"
+          className="px-5 py-4 text-sm text-[var(--destructive)]"
+        >
+          Feed unavailable: {loadError}
+        </Surface>
+      ) : null}
 
       <section aria-live="polite" className="flex flex-col gap-4">
         {sortedFeed.map((item, index) => {

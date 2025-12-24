@@ -63,6 +63,7 @@ function resolveRoute(pathname) {
       /^\/api\/proposals$/,
       () => import("../functions/api/proposals/index.ts"),
     ],
+    ["GET", /^\/api\/feed$/, () => import("../functions/api/feed/index.ts")],
     [
       "GET",
       /^\/api\/proposals\/([^/]+)\/pool$/,

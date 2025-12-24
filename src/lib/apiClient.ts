@@ -1,3 +1,5 @@
+import type { GetFeedResponse } from "@/types/api";
+
 export type ApiError = {
   error: {
     message: string;
@@ -70,4 +72,15 @@ export async function apiVerify(input: {
     "/api/auth/verify",
     input,
   );
+}
+
+export async function apiFeed(input?: {
+  stage?: string;
+  cursor?: string;
+}): Promise<GetFeedResponse> {
+  const params = new URLSearchParams();
+  if (input?.stage) params.set("stage", input.stage);
+  if (input?.cursor) params.set("cursor", input.cursor);
+  const qs = params.size ? `?${params.toString()}` : "";
+  return await apiGet<GetFeedResponse>(`/api/feed${qs}`);
 }

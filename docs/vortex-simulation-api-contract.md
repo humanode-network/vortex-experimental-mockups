@@ -349,7 +349,7 @@ type HumanNodeProfileDto = {
 #### `GET /api/feed?cursor=...&stage=...`
 
 ```ts
-type FeedStageDto = "pool" | "vote" | "build" | "courts" | "thread";
+type FeedStageDto = "pool" | "vote" | "build" | "courts" | "thread" | "faction";
 type FeedToneDto = "ok" | "warn";
 
 type FeedStageDatumDto = {

@@ -1,6 +1,6 @@
 # Vortex Simulation Backend — Tech Architecture
 
-This document maps `docs/vortex-simulation-processes.md` onto a technical architecture that fits this repo (React app + Cloudflare Pages Functions).
+This document maps `docs/vortex-simulation-processes.md` onto a technical architecture that fits this repo (React app + Cloudflare Pages Functions in production, with a Node runner for local dev).
 
 ## 1) Stack (recommended)
 

@@ -1,8 +1,10 @@
 // API DTO types for the off-chain Vortex simulation backend.
 // These are JSON-safe (no ReactNode), and are frozen by docs/vortex-simulation-api-contract.md.
 
+import type { FeedStage } from "./stages";
+
 export type ProposalStageDto = "draft" | "pool" | "vote" | "build";
-export type FeedStageDto = "pool" | "vote" | "build" | "courts" | "thread";
+export type FeedStageDto = FeedStage;
 
 export type ToneDto = "ok" | "warn";
 

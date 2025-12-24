@@ -1,6 +1,6 @@
-# Vortex Simulation Backend — Local Dev (Pages Functions)
+# Vortex Simulation Backend — Local Dev (Node API runner + UI proxy)
 
-This repo uses **Cloudflare Pages** for hosting. Backend endpoints live in **Pages Functions** under `functions/`.
+Production deploys the API as **Cloudflare Pages Functions** under `functions/`. Local development runs the same handlers in Node via `scripts/dev-api-node.mjs` so the UI can call `/api/*` without relying on `wrangler pages dev`.
 
 ## Endpoints (current skeleton)
 
@@ -26,7 +26,7 @@ This repo uses **Cloudflare Pages** for hosting. Backend endpoints live in **Pag
 
 ## Required env vars
 
-Pages Functions run server-side; configure these via `wrangler pages dev` (local) or Pages project settings (deploy).
+These env vars are read by the API runtime (Pages Functions in production, Node runner locally).
 
 - `SESSION_SECRET` (required): used to sign `vortex_nonce` and `vortex_session` cookies.
 - `DATABASE_URL` (required for Phase 2c+): Postgres connection string (v1 expects Neon-compatible serverless Postgres).
@@ -79,8 +79,6 @@ Notes:
 - `yarn dev` proxies `/api/*` to `http://127.0.0.1:8788` (config: `rsbuild.config.ts`).
 - If you see `ECONNREFUSED` in the UI dev server logs, the backend is not running on `:8788` (start it with `yarn dev:api`).
 - Real gating uses `DEV_BYPASS_GATE=false` and a bound `HUMANODE_RPC_URL`.
-- If `wrangler` fails with a permissions error writing under `~/.config/.wrangler`, run with a writable config dir, e.g.:
-  - `XDG_CONFIG_HOME=$(pwd)/.config wrangler pages dev ...`
 
 ### Wrangler-based dev (optional)
 

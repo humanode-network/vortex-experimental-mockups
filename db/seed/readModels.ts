@@ -10,6 +10,7 @@ import { courtCases } from "../../src/data/mock/courts.ts";
 import { humanNodes } from "../../src/data/mock/humanNodes.ts";
 import { humanNodeProfilesById } from "../../src/data/mock/humanNodeProfiles.ts";
 import { proposals } from "../../src/data/mock/proposals.ts";
+import { feedItemsApi } from "../../src/data/mock/feedApi.ts";
 import {
   chamberProposalPageById,
   formationProposalPageById,
@@ -35,6 +36,8 @@ export function buildReadModelSeed(): ReadModelSeedEntry[] {
   });
 
   entries.push({ key: "proposals:list", payload: { items: proposals } });
+
+  entries.push({ key: "feed:list", payload: { items: feedItemsApi } });
 
   entries.push({
     key: "courts:list",

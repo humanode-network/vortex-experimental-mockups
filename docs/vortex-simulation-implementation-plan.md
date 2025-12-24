@@ -26,12 +26,12 @@ Implemented (backend skeleton):
   - v1 constants: `docs/vortex-simulation-v1-constants.md`
   - API contract: `docs/vortex-simulation-api-contract.md`
   - DTO types: `src/types/api.ts`
-- Postgres scaffolding (Phase 2c started):
+- Postgres scaffolding (Phase 2c done):
   - Drizzle config: `drizzle.config.ts`
   - Schema: `db/schema.ts`
   - Initial migration: `db/migrations/0000_nosy_mastermind.sql`
   - Seed script: `scripts/db-seed.ts` (writes mock-equivalent payloads into `read_models`)
-  - Read endpoints (Phase 2c/4 bridge): `functions/api/chambers/*`, `functions/api/proposals/*`, `functions/api/courts/*`, `functions/api/humans/*`
+  - Read endpoints (Phase 2c/4 bridge): `functions/api/chambers/*`, `functions/api/proposals/*`, `functions/api/feed/*`, `functions/api/courts/*`, `functions/api/humans/*`
   - DB scripts: `yarn db:generate`, `yarn db:migrate`, `yarn db:seed`
   - Seed tests: `tests/db-seed.test.js`, `tests/migrations.test.js`
 - Phase 3 tests: `tests/api-auth-signature.test.js`, `tests/api-gate-rpc.test.js`
@@ -39,7 +39,7 @@ Implemented (backend skeleton):
 
 Not implemented:
 
-- Feed reads (`GET /api/feed`) and event log + domain state machines + any write commands
+- Event-log powered feed + domain state machines + any write commands
 - Normalized tables/projections beyond the transitional `read_models` bridge
 
 ## Guiding principles
@@ -234,13 +234,12 @@ Goal: replace `src/data/mock/*` progressively with API reads, with minimal UI re
    - return proposal page model for ProposalPP/Chamber/Formation
    - match `src/data/mock/proposalPages.ts` getters first
 4. `GET /api/feed?cursor=...`:
-   - return feed items derived from `events`
-   - match `src/data/mock/feed.tsx` shape first
+   - return feed items from the `read_models` bridge first (`feed:list`)
+   - feed derived from `events` lands in Phase 5
 
 Frontend:
 
-- Create a tiny `src/lib/api.ts` fetch wrapper (base URL, typed helpers, error handling).
-- Add `src/lib/useApiQuery.ts` (simple cache) or adopt TanStack Query later.
+- Use the existing `src/lib/apiClient.ts` wrapper (typed helpers, error handling).
 - Swap one page at a time from mock imports to API reads; keep a dev fallback flag if needed.
 
 Deliverable: app renders from backend reads (at least Chambers + Proposals + Feed).
