@@ -1,6 +1,8 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+import { SIM_AUTH_ENABLED } from "@/lib/featureFlags";
+import { useAuth } from "@/app/auth/AuthContext";
 
 export type VoteButtonTone = "accent" | "destructive" | "neutral";
 export type VoteButtonSize = "sm" | "lg";
@@ -10,6 +12,7 @@ type VoteButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "type"> & {
   label: ReactNode;
   icon?: ReactNode;
   size?: VoteButtonSize;
+  requiresEligibility?: boolean;
 };
 
 const baseClasses =
@@ -34,8 +37,27 @@ export function VoteButton({
   icon,
   size = "sm",
   className,
+  requiresEligibility = true,
+  disabled: disabledProp,
+  title: titleProp,
   ...props
 }: VoteButtonProps) {
+  const auth = useAuth();
+  const gated =
+    SIM_AUTH_ENABLED &&
+    requiresEligibility &&
+    (!auth.authenticated || !auth.eligible);
+  const disabled = Boolean(disabledProp) || gated;
+  const title =
+    titleProp ??
+    (gated
+      ? !auth.authenticated
+        ? "Connect and verify to interact."
+        : auth.gateReason
+          ? `Not eligible: ${auth.gateReason}`
+          : "Not eligible to interact."
+      : undefined);
+
   return (
     <button
       type="button"
@@ -46,6 +68,8 @@ export function VoteButton({
         className,
       )}
       {...props}
+      disabled={disabled}
+      title={title}
     >
       {icon ? (
         <span className={size === "lg" ? "text-2xl leading-none" : ""}>

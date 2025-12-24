@@ -34,7 +34,8 @@ Implemented (backend skeleton):
   - Read endpoints (Phase 2c/4 bridge): `functions/api/chambers/*`, `functions/api/proposals/*`, `functions/api/courts/*`, `functions/api/humans/*`
   - DB scripts: `yarn db:generate`, `yarn db:migrate`, `yarn db:seed`
   - Seed tests: `tests/db-seed.test.js`, `tests/migrations.test.js`
-  - Phase 3 tests: `tests/api-auth-signature.test.js`, `tests/api-gate-rpc.test.js`
+- Phase 3 tests: `tests/api-auth-signature.test.js`, `tests/api-gate-rpc.test.js`
+  - Nonce + rate limit tests: `tests/api-auth-nonce.test.js`
 
 Not implemented:
 
@@ -75,7 +76,7 @@ This is the order we’ll follow from now on, based on what’s already landed.
 3. **Phase 2a — API skeleton (DONE)**
 4. **Phase 2b — Test harness for API + domain (DONE)**
 5. **Phase 2c — DB skeleton + migrations + seed-from-mocks (DONE)**
-6. **Phase 3 — Auth + eligibility gate (DONE for backend; UI wiring pending)**
+6. **Phase 3 — Auth + eligibility gate (DONE)**
 7. **Phase 4 — Read models first (Chambers/Proposals/Feed)**
 8. **Phase 5 — Event log backbone**
 9. **Phase 6 — First write slice (pool voting)**
@@ -91,7 +92,7 @@ Locked for v1 (based on current decisions):
 
 1. Database: **Postgres** (Neon/Supabase).
 2. Gating source: **Humanode mainnet RPC** (no Subscan dependency for v1).
-3. Active Human Node rule: active validator via RPC (v1 reads `Session::Validators`).
+3. Active Human Node rule: “active” derived via RPC reads from `ImOnline::*` (with a safe fallback to `Session::Validators` in v1).
 4. Era length: **configured by us off-chain** (a simulation constant), not a chain parameter.
 
 Deliverable: a short “v1 constants” section committed to docs or config.
@@ -198,21 +199,26 @@ Tests:
    - create session cookie/JWT
 3. `GET /api/gate/status`:
    - read session address
-   - query eligibility via RPC (v1 reads `Session::Validators`)
+   - query eligibility via RPC (`ImOnline::*` with a safe fallback to `Session::Validators` in v1)
    - cache result with TTL (`eligibility_cache`)
 4. Frontend wiring:
-   - add “Connect wallet / Verify” UI
+   - show wallet connect/disconnect + gate status in the sidebar (Polkadot extension)
    - disable all write buttons unless eligible (and show a short reason on hover)
    - allow non-eligible users to browse everything
+
+Frontend flag:
+
+- `VITE_SIM_AUTH` controls the sidebar wallet panel and client-side gating UI (default enabled; set `VITE_SIM_AUTH=false` to disable).
 
 Deliverable: users can log in; the UI knows if they’re eligible; buttons are blocked for non-eligible users.
 
 Tests:
 
 - Nonce expires; nonce is single-use.
+- Nonce issuance is rate-limited per IP.
 - Signature verification passes for valid signatures and fails for invalid ones.
 - Eligibility check caches with TTL and returns consistent `expiresAt`.
-- Every write endpoint fails with 401 (no session) or 403 (not eligible).
+- Write endpoints that change state are introduced in later phases; Phase 3 only gates UI interactions and exposes `/api/me` + `/api/gate/status`.
 
 ## Phase 4 — Read models first (3–8 days)
 

@@ -21,6 +21,97 @@
   width: 100%;
 }
 
+.sidebar__auth {
+  margin-top: -0.75rem;
+  padding: 0.75rem;
+  border-radius: 14px;
+  border: 1px solid var(--sidebar-border);
+  background: var(--sidebar-active-bg);
+  box-shadow: var(--shadow-control);
+}
+
+.sidebar__authRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.sidebar__authKicker {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sidebar-muted);
+}
+
+.sidebar__authValue {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sidebar-text);
+}
+
+.sidebar__authValue--ok {
+  color: var(--sidebar-primary);
+}
+
+.sidebar__authValue--warn {
+  color: var(--sidebar-muted);
+}
+
+.sidebar__authButtons {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.55rem;
+}
+
+.sidebar__authBtn {
+  flex: 1 1 0;
+  padding: 0.45rem 0.55rem;
+  border-radius: 12px;
+  border: 1px solid var(--sidebar-border);
+  background: transparent;
+  color: var(--sidebar-text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.sidebar__authBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--sidebar-primary-dim);
+}
+
+.sidebar__authBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sidebar__authBtn--ghost {
+  opacity: 0.9;
+}
+
+.sidebar__authSelect {
+  margin-top: 0.55rem;
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border-radius: 12px;
+  border: 1px solid var(--sidebar-border);
+  background: rgba(0, 0, 0, 0.12);
+  color: var(--sidebar-text);
+  font-size: 12px;
+}
+
+.sidebar__authError {
+  margin-top: 0.5rem;
+  font-size: 11px;
+  color: var(--sidebar-muted);
+  line-height: 1.35;
+}
+
 .sidebar__logo {
   width: 48px;
   height: 48px;

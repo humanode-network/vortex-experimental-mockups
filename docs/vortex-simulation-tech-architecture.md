@@ -93,7 +93,7 @@ If the repo is later split into a monorepo, these become:
 
 Eligibility source (v1):
 
-- Query Humanode mainnet RPC for active validator status (v1 reads the current validator set via `Session::Validators`).
+- Query Humanode mainnet RPC for “active human node” status via `ImOnline::*` (with a safe fallback to `Session::Validators` in v1).
 
 ### Reads
 

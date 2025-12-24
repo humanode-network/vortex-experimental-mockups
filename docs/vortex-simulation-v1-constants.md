@@ -6,7 +6,7 @@ This file records the v1 decisions used by the simulation backend so implementat
 
 - **Database:** Postgres (v1 recommendation: **Neon**, for edge/serverless connectivity)
 - **On-chain read source:** Humanode mainnet RPC (no Subscan dependency for v1)
-- **Eligibility (“active Human Node”):** active validator via mainnet RPC (v1 reads `Session::Validators`)
+- **Eligibility (“active Human Node”):** derived from mainnet RPC reads of `ImOnline::*` (with a safe fallback to `Session::Validators` in v1)
 
 ## Simulation time decisions
 

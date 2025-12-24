@@ -29,7 +29,7 @@ Already implemented in `functions/api/*`:
 
 Eligibility (v1):
 
-- The backend checks Humanode mainnet RPC and considers an address eligible if it is **an active validator** (v1 reads `Session::Validators`).
+- The backend checks Humanode mainnet RPC and considers an address eligible if it is “active” per `ImOnline::*` (with a safe fallback to `Session::Validators` in v1).
 
 ## Read endpoints
 

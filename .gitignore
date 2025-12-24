@@ -28,6 +28,9 @@ storybook-static
 # local state
 .env
 
+# wrangler local artifacts
+.wrangler
+
 # landing assets (keep large videos out of git history)
 public/landing/*.mp4
 public/landing/*.webm

@@ -13,6 +13,8 @@ import { Tabs } from "@/components/primitives/tabs";
 import { PageHint } from "@/components/PageHint";
 import { Select } from "@/components/primitives/select";
 import { chambers } from "@/data/mock/chambers";
+import { SIM_AUTH_ENABLED } from "@/lib/featureFlags";
+import { useAuth } from "@/app/auth/AuthContext";
 
 type StepKey = "essentials" | "plan" | "budget" | "review";
 
@@ -125,6 +127,7 @@ function isStepKey(value: string): value is StepKey {
 }
 
 const ProposalCreation: React.FC = () => {
+  const auth = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [draft, setDraft] = useState<ProposalDraftForm>(() => loadDraft());
@@ -243,6 +246,8 @@ const ProposalCreation: React.FC = () => {
     budgetValid &&
     draft.agreeRules &&
     draft.confirmBudget;
+  const canAct = !SIM_AUTH_ENABLED || (auth.authenticated && auth.eligible);
+  const submitDisabled = !canSubmit || !canAct;
 
   return (
     <div className="flex flex-col gap-6">
@@ -900,6 +905,11 @@ const ProposalCreation: React.FC = () => {
                       checked.
                     </p>
                   ) : null}
+                  {SIM_AUTH_ENABLED && !canAct ? (
+                    <p className="text-xs text-muted">
+                      Submitting is available only to eligible human nodes.
+                    </p>
+                  ) : null}
                 </div>
               </div>
             ) : null}
@@ -911,7 +921,12 @@ const ProposalCreation: React.FC = () => {
               <div className="flex items-center gap-2">
                 {step === "review" ? (
                   <Button
-                    disabled={!canSubmit}
+                    disabled={submitDisabled}
+                    title={
+                      SIM_AUTH_ENABLED && !canAct
+                        ? "Connect and verify as an eligible human node to submit."
+                        : undefined
+                    }
                     onClick={() => setSubmitted(true)}
                   >
                     Submit proposal (mock)

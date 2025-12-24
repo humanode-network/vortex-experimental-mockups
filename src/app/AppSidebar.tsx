@@ -18,6 +18,7 @@ import {
   Users,
   FileText,
 } from "lucide-react";
+import { AuthSidebarPanel } from "@/app/auth/AuthContext";
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
   clsx("sidebar__link", isActive && "sidebar__link--active");
@@ -56,6 +57,7 @@ const AppSidebar: React.FC<React.PropsWithChildren> = ({ children }) => {
         <span>Vortex</span>
         <span className="sidebar__logo" aria-hidden="true"></span>
       </div>
+      <AuthSidebarPanel />
       <nav className="sidebar__nav" aria-label="Primary">
         {navItems.map(({ to, label, Icon }) => (
           <NavLink key={to} className={navClass} to={to}>

@@ -15,12 +15,16 @@ import { proposalDraftDetails as draftDetails } from "@/data/mock/proposalDraft"
 import { TierLabel } from "@/components/TierLabel";
 import { AttachmentList } from "@/components/AttachmentList";
 import { TitledSurface } from "@/components/TitledSurface";
+import { SIM_AUTH_ENABLED } from "@/lib/featureFlags";
+import { useAuth } from "@/app/auth/AuthContext";
 
 const ProposalDraft: React.FC = () => {
+  const auth = useAuth();
   const [filledSlots, totalSlots] = draftDetails.teamSlots
     .split("/")
     .map((v) => Number(v.trim()));
   const openSlots = Math.max(totalSlots - filledSlots, 0);
+  const canAct = !SIM_AUTH_ENABLED || (auth.authenticated && auth.eligible);
 
   return (
     <div className="flex flex-col gap-6">
@@ -35,7 +39,17 @@ const ProposalDraft: React.FC = () => {
           <Button asChild size="sm" variant="ghost">
             <Link to="/app/proposals/new">New proposal</Link>
           </Button>
-          <Button size="sm">Submit to pool</Button>
+          <Button
+            size="sm"
+            disabled={!canAct}
+            title={
+              SIM_AUTH_ENABLED && !canAct
+                ? "Connect and verify as an eligible human node to submit."
+                : undefined
+            }
+          >
+            Submit to pool
+          </Button>
         </div>
       </div>
 

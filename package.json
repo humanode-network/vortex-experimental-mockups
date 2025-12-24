@@ -5,6 +5,9 @@
   "packageManager": "yarn@4.11.0",
   "scripts": {
     "dev": "rsbuild dev --open",
+    "dev:api": "node --experimental-transform-types scripts/dev-api-node.mjs",
+    "dev:api:wrangler": "yarn build && wrangler pages dev ./dist --compatibility-date=2024-11-01 --port 8788 --binding SESSION_SECRET=dev-secret --binding DEV_BYPASS_SIGNATURE=true --binding DEV_BYPASS_GATE=true --binding DEV_INSECURE_COOKIES=true",
+    "dev:full": "node scripts/dev-full.mjs",
     "build": "rsbuild build",
     "preview": "rsbuild preview",
     "test": "node --test --experimental-transform-types tests/**/*.test.js",

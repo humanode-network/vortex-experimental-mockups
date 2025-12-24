@@ -31,7 +31,13 @@ Pages Functions run server-side; configure these via `wrangler pages dev` (local
 - `SESSION_SECRET` (required): used to sign `vortex_nonce` and `vortex_session` cookies.
 - `DATABASE_URL` (required for Phase 2c+): Postgres connection string (v1 expects Neon-compatible serverless Postgres).
 - `ADMIN_SECRET` (required for admin endpoints): must be provided via `x-admin-secret` header (unless `DEV_BYPASS_ADMIN=true`).
-- `HUMANODE_RPC_URL` (required when `DEV_BYPASS_GATE` is false): JSON-RPC endpoint for Humanode mainnet (used for `Session::Validators` reads in v1).
+- `HUMANODE_RPC_URL` (required when `DEV_BYPASS_GATE` is false): JSON-RPC endpoint for Humanode mainnet (used for `ImOnline::*` reads with a safe fallback to `Session::Validators` in v1).
+
+## Frontend build flags
+
+- `VITE_SIM_AUTH` controls the sidebar wallet panel + client-side gating UI.
+  - Default: enabled (set `VITE_SIM_AUTH=false` to disable).
+  - Requires a Polkadot browser extension (polkadot{.js}) for message signing.
 
 ## Dev-only toggles
 
@@ -44,20 +50,41 @@ Pages Functions run server-side; configure these via `wrangler pages dev` (local
 
 ## Running locally (recommended)
 
-1. Build the frontend: `yarn build`
-2. Serve Pages output + functions:
+### Option A (one command)
 
-`wrangler pages dev ./dist --compatibility-date=2024-11-01 --binding SESSION_SECRET=dev-secret --binding DEV_BYPASS_SIGNATURE=true --binding DEV_BYPASS_GATE=true`
+- `yarn dev:full` (starts a local API server on `:8788`, starts the app on rsbuild dev, and proxies `/api/*`).
+
+### Option B (two terminals)
+
+**Terminal 1 (API)**
+
+1. Start the local API server (default port `8788`):
+
+`yarn dev:api`
+
+`yarn dev:api` starts with real signature verification and real gating by default. For a quick demo mode:
+
+- `DEV_BYPASS_SIGNATURE=true DEV_BYPASS_GATE=true yarn dev:api`
+
+**Terminal 2 (UI)**
+
+2. Run the UI with a dev-server proxy to the API:
+
+`yarn dev`
 
 Open the provided local URL and call endpoints under `/api/*`.
 
 Notes:
 
-- `rsbuild dev` does not run Pages Functions; use `wrangler pages dev` for API work.
-- Prefer `wrangler pages dev ... --local-protocol=https` for local dev so cookies behave like production.
+- `yarn dev` proxies `/api/*` to `http://127.0.0.1:8788` (config: `rsbuild.config.ts`).
+- If you see `ECONNREFUSED` in the UI dev server logs, the backend is not running on `:8788` (start it with `yarn dev:api`).
 - Real gating uses `DEV_BYPASS_GATE=false` and a bound `HUMANODE_RPC_URL`.
 - If `wrangler` fails with a permissions error writing under `~/.config/.wrangler`, run with a writable config dir, e.g.:
   - `XDG_CONFIG_HOME=$(pwd)/.config wrangler pages dev ...`
+
+### Wrangler-based dev (optional)
+
+`yarn dev:api:wrangler` runs `wrangler pages dev` against `./dist` and serves the same `/api/*` routes.
 
 ## DB (Phase 2c)
 
