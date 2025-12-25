@@ -1,20 +1,22 @@
 # Vortex Simulation Backend — API Contract v1
 
-This document freezes the **JSON contracts** the backend serves so the mock-driven UI can migrate to API reads with minimal churn.
+This document freezes the **JSON contracts** the backend serves so the UI can render from `/api/*` responses consistently.
 
 Notes:
 
 - These are **DTOs** (network-safe JSON), not React UI models.
-- Anywhere the UI currently uses `ReactNode` in `src/data/mock/*`, the API will return **strings** (plain text or Markdown) and the UI will render them.
+- All DTOs are JSON-safe (no `ReactNode`, no `Date`, no functions).
 - Read endpoints are served in two modes:
   - DB mode: reads from Postgres `read_models` (seeded by `scripts/db-seed.ts`).
   - Inline mode: `READ_MODELS_INLINE=true` serves the same payloads from the in-repo seed builder (`db/seed/readModels.ts`) for local dev/tests without a DB.
+  - Empty mode: `READ_MODELS_INLINE_EMPTY=true` forces empty/default payloads (used for clean local dev and “no content yet” UX).
 
 ## Conventions
 
 - IDs are stable slugs (e.g. `engineering`, `evm-dev-starter-kit`, `dato`).
 - Timestamps are ISO strings.
 - List endpoints return `{ items: [...] }` and may add cursors later.
+- When the backing read-model entry does not exist, list endpoints return `{ items: [] }` (HTTP 200). Some singleton endpoints return a minimal empty object (documented below).
 
 ## Auth + gating
 
@@ -99,6 +101,124 @@ type GetChamberResponse = {
   threads: ChamberThreadDto[];
   chatLog: ChamberChatMessageDto[];
   stageOptions: ChamberStageOptionDto[];
+};
+```
+
+### Factions
+
+#### `GET /api/factions`
+
+```ts
+type FactionRosterTagDto =
+  | { kind: "acm"; value: number }
+  | { kind: "mm"; value: number }
+  | { kind: "text"; value: string };
+
+type FactionRosterMemberDto = {
+  humanNodeId: string;
+  role: string;
+  tag: FactionRosterTagDto;
+};
+
+type FactionDto = {
+  id: string;
+  name: string;
+  description: string;
+  members: number;
+  votes: string;
+  acm: string;
+  focus: string;
+  goals: string[];
+  initiatives: string[];
+  roster: FactionRosterMemberDto[];
+};
+
+type GetFactionsResponse = { items: FactionDto[] };
+```
+
+#### `GET /api/factions/:id`
+
+Returns `FactionDto`.
+
+### Formation
+
+#### `GET /api/formation`
+
+```ts
+type FormationMetricDto = { label: string; value: string; dataAttr: string };
+type FormationCategoryDto = "all" | "research" | "development" | "social";
+type FormationStageDto = "live" | "gathering" | "completed";
+
+type FormationProjectDto = {
+  id: string;
+  title: string;
+  focus: string;
+  proposer: string;
+  summary: string;
+  category: FormationCategoryDto;
+  stage: FormationStageDto;
+  budget: string;
+  milestones: string;
+  teamSlots: string;
+};
+
+type GetFormationResponse = {
+  metrics: FormationMetricDto[];
+  projects: FormationProjectDto[];
+};
+```
+
+### Invision
+
+#### `GET /api/invision`
+
+```ts
+type InvisionGovernanceMetricDto = { label: string; value: string };
+type InvisionGovernanceStateDto = {
+  label: string;
+  metrics: InvisionGovernanceMetricDto[];
+};
+type InvisionEconomicIndicatorDto = {
+  label: string;
+  value: string;
+  detail: string;
+};
+type InvisionRiskSignalDto = { title: string; status: string; detail: string };
+type InvisionChamberProposalDto = {
+  title: string;
+  effect: string;
+  sponsors: string;
+};
+
+type GetInvisionResponse = {
+  governanceState: InvisionGovernanceStateDto;
+  economicIndicators: InvisionEconomicIndicatorDto[];
+  riskSignals: InvisionRiskSignalDto[];
+  chamberProposals: InvisionChamberProposalDto[];
+};
+```
+
+### My governance
+
+#### `GET /api/my-governance`
+
+```ts
+type MyGovernanceEraActionDto = {
+  label: string;
+  done: number;
+  required: number;
+};
+type MyGovernanceEraActivityDto = {
+  era: string;
+  required: number;
+  completed: number;
+  actions: MyGovernanceEraActionDto[];
+  timeLeft: string;
+};
+
+type GetMyGovernanceResponse = {
+  eraActivity: MyGovernanceEraActivityDto;
+  myChamberIds: string[];
 };
 ```
 
@@ -242,6 +362,49 @@ type FormationProposalPageDto = {
 };
 ```
 
+### Proposal drafts
+
+#### `GET /api/proposals/drafts`
+
+```ts
+type ProposalDraftListItemDto = {
+  id: string;
+  title: string;
+  chamber: string;
+  tier: string;
+  summary: string;
+  updated: string;
+};
+
+type GetProposalDraftsResponse = { items: ProposalDraftListItemDto[] };
+```
+
+#### `GET /api/proposals/drafts/:id`
+
+```ts
+type ProposalDraftDetailDto = {
+  title: string;
+  proposer: string;
+  chamber: string;
+  focus: string;
+  tier: string;
+  budget: string;
+  formationEligible: boolean;
+  teamSlots: string;
+  milestonesPlanned: string;
+  summary: string;
+  rationale: string;
+  budgetScope: string;
+  invisionInsight: InvisionInsightDto;
+  checklist: string[];
+  milestones: string[];
+  teamLocked: { name: string; role: string }[];
+  openSlotNeeds: { title: string; desc: string }[];
+  milestonesDetail: { title: string; desc: string }[];
+  attachments: { title: string; href: string }[];
+};
+```
+
 ### Courts
 
 #### `GET /api/courts`
@@ -298,7 +461,7 @@ type GetHumansResponse = { items: HumanNodeDto[] };
 
 #### `GET /api/humans/:id`
 
-Mirrors `src/data/mock/humanNodeProfiles.ts` but remains JSON-safe.
+Mirrors `db/seed/fixtures/humanNodeProfiles.ts` but remains JSON-safe.
 
 ```ts
 type ProofKeyDto = "time" | "devotion" | "governance";

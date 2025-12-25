@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
 import {
@@ -17,11 +17,51 @@ import {
   ProposalSummaryCard,
   ProposalTeamMilestonesCard,
 } from "@/components/ProposalSections";
-import { getPoolProposalPage } from "@/data/mock/proposalPages";
+import { apiProposalPoolPage } from "@/lib/apiClient";
+import type { PoolProposalPageDto } from "@/types/api";
 
 const ProposalPP: React.FC = () => {
   const { id } = useParams();
-  const proposal = getPoolProposalPage(id);
+  const [proposal, setProposal] = useState<PoolProposalPageDto | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    let active = true;
+    (async () => {
+      try {
+        const page = await apiProposalPoolPage(id);
+        if (!active) return;
+        setProposal(page);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setProposal(null);
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  if (!proposal) {
+    return (
+      <div className="flex flex-col gap-6">
+        <PageHint pageId="proposals" />
+        <Surface
+          variant="panelAlt"
+          radius="2xl"
+          shadow="tile"
+          className="px-5 py-4 text-sm text-muted"
+        >
+          {loadError
+            ? `Proposal unavailable: ${loadError}`
+            : "Loading proposal…"}
+        </Surface>
+      </div>
+    );
+  }
 
   const [filledSlots, totalSlots] = proposal.teamSlots
     .split("/")

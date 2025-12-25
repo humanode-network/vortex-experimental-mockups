@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import ProposalStageBar from "@/components/ProposalStageBar";
 import { Surface } from "@/components/Surface";
@@ -8,11 +9,51 @@ import {
   ProposalSummaryCard,
   ProposalTeamMilestonesCard,
 } from "@/components/ProposalSections";
-import { getFormationProposalPage } from "@/data/mock/proposalPages";
+import { apiProposalFormationPage } from "@/lib/apiClient";
+import type { FormationProposalPageDto } from "@/types/api";
 
 const ProposalFormation: React.FC = () => {
   const { id } = useParams();
-  const project = getFormationProposalPage(id);
+  const [project, setProject] = useState<FormationProposalPageDto | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    let active = true;
+    (async () => {
+      try {
+        const page = await apiProposalFormationPage(id);
+        if (!active) return;
+        setProject(page);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setProject(null);
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  if (!project) {
+    return (
+      <div className="flex flex-col gap-6">
+        <PageHint pageId="proposals" />
+        <Surface
+          variant="panelAlt"
+          radius="2xl"
+          shadow="tile"
+          className="px-5 py-4 text-sm text-muted"
+        >
+          {loadError
+            ? `Proposal unavailable: ${loadError}`
+            : "Loading proposal…"}
+        </Surface>
+      </div>
+    );
+  }
 
   const renderStageBar = (
     current: "draft" | "pool" | "chamber" | "formation",

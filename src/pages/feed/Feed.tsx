@@ -8,15 +8,15 @@ import { ExpandableCard } from "@/components/ExpandableCard";
 import { StageChip } from "@/components/StageChip";
 import { StageDataTile } from "@/components/StageDataTile";
 import { Surface } from "@/components/Surface";
-import {
-  getChamberProposalPage,
-  getFormationProposalPage,
-  getPoolProposalPage,
-} from "@/data/mock/proposalPages";
-import { proposals as proposalList } from "@/data/mock/proposals";
-import { courtCases } from "@/data/mock/courts";
 import { CourtStatusBadge } from "@/components/CourtStatusBadge";
-import { apiFeed } from "@/lib/apiClient";
+import { NoDataYetBar } from "@/components/NoDataYetBar";
+import {
+  apiCourt,
+  apiFeed,
+  apiProposalChamberPage,
+  apiProposalFormationPage,
+  apiProposalPoolPage,
+} from "@/lib/apiClient";
 import type { FeedItemDto } from "@/types/api";
 
 const formatDate = (iso: string) => {
@@ -31,6 +31,18 @@ const formatDate = (iso: string) => {
 const Feed: React.FC = () => {
   const [feedItems, setFeedItems] = useState<FeedItemDto[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [poolPagesById, setPoolPagesById] = useState<
+    Record<string, import("@/types/api").PoolProposalPageDto | undefined>
+  >({});
+  const [chamberPagesById, setChamberPagesById] = useState<
+    Record<string, import("@/types/api").ChamberProposalPageDto | undefined>
+  >({});
+  const [formationPagesById, setFormationPagesById] = useState<
+    Record<string, import("@/types/api").FormationProposalPageDto | undefined>
+  >({});
+  const [courtCasesById, setCourtCasesById] = useState<
+    Record<string, import("@/types/api").CourtCaseDetailDto | undefined>
+  >({});
 
   useEffect(() => {
     let active = true;
@@ -75,6 +87,43 @@ const Feed: React.FC = () => {
     return match?.[1] ?? null;
   };
 
+  useEffect(() => {
+    if (!expanded || !feedItems) return;
+    const item = feedItems.find((p) => p.id === expanded);
+    if (!item) return;
+
+    if (item.stage === "pool" && poolPagesById[item.id] === undefined) {
+      void apiProposalPoolPage(item.id).then((page) => {
+        setPoolPagesById((curr) => ({ ...curr, [item.id]: page }));
+      });
+    }
+    if (item.stage === "vote" && chamberPagesById[item.id] === undefined) {
+      void apiProposalChamberPage(item.id).then((page) => {
+        setChamberPagesById((curr) => ({ ...curr, [item.id]: page }));
+      });
+    }
+    if (item.stage === "build" && formationPagesById[item.id] === undefined) {
+      void apiProposalFormationPage(item.id).then((page) => {
+        setFormationPagesById((curr) => ({ ...curr, [item.id]: page }));
+      });
+    }
+    if (item.stage === "courts") {
+      const caseId = courtCaseIdFromHref(item.href);
+      if (caseId && courtCasesById[caseId] === undefined) {
+        void apiCourt(caseId).then((page) => {
+          setCourtCasesById((curr) => ({ ...curr, [caseId]: page }));
+        });
+      }
+    }
+  }, [
+    expanded,
+    feedItems,
+    poolPagesById,
+    chamberPagesById,
+    formationPagesById,
+    courtCasesById,
+  ]);
+
   return (
     <div className="flex flex-col gap-4">
       <PageHint pageId="feed" />
@@ -101,21 +150,18 @@ const Feed: React.FC = () => {
         </Surface>
       ) : null}
 
+      {feedItems !== null && feedItems.length === 0 && !loadError ? (
+        <NoDataYetBar label="feed activity" />
+      ) : null}
+
       <section aria-live="polite" className="flex flex-col gap-4">
         {sortedFeed.map((item, index) => {
-          const isProposal = proposalList.some((p) => p.id === item.id);
           const poolPage =
-            isProposal && item.stage === "pool"
-              ? getPoolProposalPage(item.id)
-              : null;
+            item.stage === "pool" ? poolPagesById[item.id] : null;
           const chamberPage =
-            isProposal && item.stage === "vote"
-              ? getChamberProposalPage(item.id)
-              : null;
+            item.stage === "vote" ? chamberPagesById[item.id] : null;
           const formationPage =
-            isProposal && item.stage === "build"
-              ? getFormationProposalPage(item.id)
-              : null;
+            item.stage === "build" ? formationPagesById[item.id] : null;
 
           const poolStats =
             item.stage === "pool" && poolPage
@@ -178,7 +224,7 @@ const Feed: React.FC = () => {
                     engaged > 0 ? Math.round((yesTotal / engaged) * 100) : 0;
 
                   const meetsQuorum = engaged >= quorumNeeded;
-                  const meetsPassing = yesPercentOfQuorum >= 67;
+                  const meetsPassing = yesPercentOfQuorum >= 66.6;
 
                   const yesWidth = totalVotes
                     ? (yesTotal / totalVotes) * 100
@@ -240,9 +286,7 @@ const Feed: React.FC = () => {
             item.stage === "courts"
               ? (() => {
                   const caseId = courtCaseIdFromHref(item.href);
-                  return caseId
-                    ? courtCases.find((c) => c.id === caseId)
-                    : null;
+                  return caseId ? (courtCasesById[caseId] ?? null) : null;
                 })()
               : null;
 

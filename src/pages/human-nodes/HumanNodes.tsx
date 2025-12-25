@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { Button } from "@/components/primitives/button";
 import {
@@ -17,12 +17,33 @@ import { StatTile } from "@/components/StatTile";
 import { Kicker } from "@/components/Kicker";
 import { TierLabel } from "@/components/TierLabel";
 import { ToggleGroup } from "@/components/ToggleGroup";
-import { humanNodes as sampleNodes } from "@/data/mock/humanNodes";
-import { getFactionById } from "@/data/mock/factions";
-import { getFormationProjectById } from "@/data/mock/formation";
-import { getChamberById } from "@/data/mock/chambers";
+import { NoDataYetBar } from "@/components/NoDataYetBar";
+import {
+  apiChambers,
+  apiFactions,
+  apiFormation,
+  apiHumans,
+} from "@/lib/apiClient";
+import type {
+  ChamberDto,
+  FactionDto,
+  FormationProjectDto,
+  HumanNodeDto,
+} from "@/types/api";
 
 const HumanNodes: React.FC = () => {
+  const [nodes, setNodes] = useState<HumanNodeDto[] | null>(null);
+  const [factionsById, setFactionsById] = useState<Record<string, FactionDto>>(
+    {},
+  );
+  const [chambersById, setChambersById] = useState<Record<string, ChamberDto>>(
+    {},
+  );
+  const [formationProjectsById, setFormationProjectsById] = useState<
+    Record<string, FormationProjectDto>
+  >({});
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<{
     sortBy: "acm-desc" | "acm-asc" | "tier" | "name";
@@ -37,17 +58,59 @@ const HumanNodes: React.FC = () => {
   const { sortBy, tierFilter } = filters;
   const [view, setView] = useState<"cards" | "list">("cards");
 
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const [humansRes, factionsRes, chambersRes, formationRes] =
+          await Promise.all([
+            apiHumans(),
+            apiFactions(),
+            apiChambers(),
+            apiFormation(),
+          ]);
+        if (!active) return;
+        setNodes(humansRes.items);
+        setFactionsById(
+          Object.fromEntries(factionsRes.items.map((f) => [f.id, f] as const)),
+        );
+        setChambersById(
+          Object.fromEntries(chambersRes.items.map((c) => [c.id, c] as const)),
+        );
+        setFormationProjectsById(
+          Object.fromEntries(
+            formationRes.projects.map((p) => [p.id, p] as const),
+          ),
+        );
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setNodes([]);
+        setFactionsById({});
+        setChambersById({});
+        setFormationProjectsById({});
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const filtered = useMemo(() => {
     const term = search.toLowerCase();
-    return [...sampleNodes]
+    return [...(nodes ?? [])]
       .filter((node) => {
         const factionName =
-          getFactionById(node.factionId)?.name?.toLowerCase() ?? "";
+          factionsById[node.factionId]?.name?.toLowerCase() ?? "";
+        const chamberName =
+          chambersById[node.chamber]?.name?.toLowerCase() ?? "";
         const matchesTerm =
           node.name.toLowerCase().includes(term) ||
           node.role.toLowerCase().includes(term) ||
           node.tags.some((t) => t.toLowerCase().includes(term)) ||
           node.chamber.toLowerCase().includes(term) ||
+          chamberName.includes(term) ||
           factionName.includes(term);
         const matchesTier =
           tierFilter === "all" ? true : node.tier === tierFilter;
@@ -60,11 +123,24 @@ const HumanNodes: React.FC = () => {
         const order = ["nominee", "ecclesiast", "legate", "consul", "citizen"];
         return order.indexOf(a.tier) - order.indexOf(b.tier);
       });
-  }, [search, sortBy, tierFilter]);
+  }, [nodes, factionsById, chambersById, search, sortBy, tierFilter]);
 
   return (
     <div className="flex flex-col gap-6">
       <PageHint pageId="human-nodes" />
+      {nodes === null ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-muted">
+          Loading human nodes…
+        </Card>
+      ) : null}
+      {loadError ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-[var(--destructive)]">
+          Human nodes unavailable: {loadError}
+        </Card>
+      ) : null}
+      {nodes !== null && nodes.length === 0 && !loadError ? (
+        <NoDataYetBar label="human nodes" />
+      ) : null}
       <SearchBar
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -139,9 +215,9 @@ const HumanNodes: React.FC = () => {
           {view === "cards" ? (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               {filtered.map((node) => {
-                const factionName = getFactionById(node.factionId)?.name ?? "—";
+                const factionName = factionsById[node.factionId]?.name ?? "—";
                 const formationProjects = (node.formationProjectIds ?? [])
-                  .map((projectId) => getFormationProjectById(projectId)?.title)
+                  .map((projectId) => formationProjectsById[projectId]?.title)
                   .filter((title): title is string => Boolean(title));
                 const formationProjectLabel =
                   formationProjects.length === 0
@@ -173,7 +249,7 @@ const HumanNodes: React.FC = () => {
                   },
                   {
                     label: "Main chamber",
-                    value: getChamberById(node.chamber)?.name ?? node.chamber,
+                    value: chambersById[node.chamber]?.name ?? node.chamber,
                   },
                   {
                     label: "Formation member",
@@ -243,7 +319,7 @@ const HumanNodes: React.FC = () => {
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <Badge size="sm" variant="outline">
-                          {getFactionById(node.factionId)?.name ?? "—"}
+                          {factionsById[node.factionId]?.name ?? "—"}
                         </Badge>
                         <Badge size="sm">
                           <HintLabel termId="acm" className="mr-1">

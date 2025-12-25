@@ -1,7 +1,8 @@
+import { useEffect, useMemo, useState } from "react";
+
 import { HintLabel } from "@/components/Hint";
 import { PageHint } from "@/components/PageHint";
 import { SearchBar } from "@/components/SearchBar";
-import { useMemo, useState } from "react";
 import MetricTile from "@/components/MetricTile";
 import AppCard from "@/components/AppCard";
 import { Badge } from "@/components/primitives/badge";
@@ -9,8 +10,11 @@ import StatGrid, { makeChamberStats } from "@/components/StatGrid";
 import PipelineList from "@/components/PipelineList";
 import { Button } from "@/components/primitives/button";
 import { Link } from "react-router";
-import { chambers } from "@/data/mock/chambers";
 import { InlineHelp } from "@/components/InlineHelp";
+import { NoDataYetBar } from "@/components/NoDataYetBar";
+import { apiChambers } from "@/lib/apiClient";
+import type { ChamberDto } from "@/types/api";
+import { Surface } from "@/components/Surface";
 
 type Metric = {
   label: string;
@@ -25,15 +29,37 @@ const metricCards: Metric[] = [
 ];
 
 const Chambers: React.FC = () => {
+  const [chambers, setChambers] = useState<ChamberDto[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<{
     pipelineFilter: "any" | "pool" | "vote" | "build";
     sortBy: "name" | "governors" | "acm";
   }>({ pipelineFilter: "any", sortBy: "name" });
   const { pipelineFilter, sortBy } = filters;
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await apiChambers();
+        if (!active) return;
+        setChambers(res.items);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setChambers([]);
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    return [...chambers]
+    return [...(chambers ?? [])]
       .filter((chamber) => {
         const matchesTerm =
           term.length === 0 ||
@@ -60,14 +86,32 @@ const Chambers: React.FC = () => {
           parseInt(a.stats.acm.replace(/[,]/g, ""), 10)
         );
       });
-  }, [search, pipelineFilter, sortBy]);
+  }, [chambers, search, pipelineFilter, sortBy]);
+
+  const computedMetrics = useMemo((): Metric[] => {
+    if (!chambers) return metricCards;
+    const totalAcm = chambers.reduce((sum, chamber) => {
+      const parsed = Number(chamber.stats.acm.replace(/,/g, ""));
+      return sum + (Number.isFinite(parsed) ? parsed : 0);
+    }, 0);
+    const live = chambers.reduce(
+      (sum, chamber) => sum + (chamber.pipeline.vote ?? 0),
+      0,
+    );
+    return [
+      { label: "Total chambers", value: String(chambers.length) },
+      { label: "Active governors", value: "150" },
+      { label: "Total ACM", value: totalAcm.toLocaleString() },
+      { label: "Live proposals", value: String(live) },
+    ];
+  }, [chambers]);
 
   return (
     <div className="flex flex-col gap-6">
       <PageHint pageId="chambers" />
       <section className="space-y-2">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {metricCards.map((metric) => {
+          {computedMetrics.map((metric) => {
             const label =
               metric.label === "Total ACM" ? (
                 <>
@@ -88,6 +132,27 @@ const Chambers: React.FC = () => {
         </div>
         <InlineHelp pageId="chambers" sectionId="metrics" />
       </section>
+
+      {chambers === null ? (
+        <Surface
+          variant="panelAlt"
+          radius="2xl"
+          shadow="tile"
+          className="px-5 py-4 text-sm text-muted"
+        >
+          Loading chambers…
+        </Surface>
+      ) : null}
+      {loadError ? (
+        <Surface
+          variant="panelAlt"
+          radius="2xl"
+          shadow="tile"
+          className="px-5 py-4 text-sm text-[var(--destructive)]"
+        >
+          Chambers unavailable: {loadError}
+        </Surface>
+      ) : null}
 
       <SearchBar
         value={search}
@@ -120,6 +185,10 @@ const Chambers: React.FC = () => {
         onFiltersChange={setFilters}
       />
       <InlineHelp pageId="chambers" sectionId="filters" />
+
+      {chambers !== null && chambers.length === 0 && !loadError ? (
+        <NoDataYetBar label="chambers" />
+      ) : null}
 
       <InlineHelp pageId="chambers" sectionId="cards" />
       <section

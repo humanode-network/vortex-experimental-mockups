@@ -1,4 +1,5 @@
-import { Link } from "react-router";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router";
 
 import { Button } from "@/components/primitives/button";
 import {
@@ -11,20 +12,69 @@ import ProposalStageBar from "@/components/ProposalStageBar";
 import { Surface } from "@/components/Surface";
 import { StatTile } from "@/components/StatTile";
 import { PageHint } from "@/components/PageHint";
-import { proposalDraftDetails as draftDetails } from "@/data/mock/proposalDraft";
 import { TierLabel } from "@/components/TierLabel";
 import { AttachmentList } from "@/components/AttachmentList";
 import { TitledSurface } from "@/components/TitledSurface";
 import { SIM_AUTH_ENABLED } from "@/lib/featureFlags";
 import { useAuth } from "@/app/auth/AuthContext";
+import { apiProposalDraft } from "@/lib/apiClient";
+import type { ProposalDraftDetailDto } from "@/types/api";
 
 const ProposalDraft: React.FC = () => {
   const auth = useAuth();
-  const [filledSlots, totalSlots] = draftDetails.teamSlots
+  const { id } = useParams();
+  const [draftDetails, setDraftDetails] =
+    useState<ProposalDraftDetailDto | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [filledSlots, totalSlots] = (draftDetails?.teamSlots ?? "0 / 0")
     .split("/")
     .map((v) => Number(v.trim()));
-  const openSlots = Math.max(totalSlots - filledSlots, 0);
+  const openSlots = Math.max((totalSlots || 0) - (filledSlots || 0), 0);
   const canAct = !SIM_AUTH_ENABLED || (auth.authenticated && auth.eligible);
+
+  useEffect(() => {
+    if (!id) return;
+    let active = true;
+    (async () => {
+      try {
+        const res = await apiProposalDraft(id);
+        if (!active) return;
+        setDraftDetails(res);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setDraftDetails(null);
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  if (!draftDetails) {
+    return (
+      <div className="flex flex-col gap-6">
+        <PageHint pageId="proposals" />
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm">
+              <Link to="/app/proposals/drafts">Back to drafts</Link>
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button asChild size="sm" variant="ghost">
+              <Link to="/app/proposals/new">New proposal</Link>
+            </Button>
+          </div>
+        </div>
+
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-muted">
+          {loadError ? `Draft unavailable: ${loadError}` : "Loading draft…"}
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6">

@@ -38,8 +38,8 @@ export const clockState = pgTable("clock_state", {
     .defaultNow(),
 });
 
-// Temporary storage for mock-equivalent page payloads during Phase 4 migration.
-// This lets us seed from `src/data/mock/*` while we build normalized tables + event log.
+// Temporary storage for page read models during Phase 4 migration.
+// Seed fixtures live in `db/seed/fixtures/*` while normalized tables + event log are built out.
 export const readModels = pgTable("read_models", {
   key: text("key").primaryKey(),
   payload: jsonb("payload").notNull(),

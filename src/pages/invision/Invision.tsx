@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,24 +9,48 @@ import { HintLabel } from "@/components/Hint";
 import { SearchBar } from "@/components/SearchBar";
 import { Surface } from "@/components/Surface";
 import { PageHint } from "@/components/PageHint";
-import { factions as allFactions } from "@/data/mock/factions";
 import { Kicker } from "@/components/Kicker";
-import {
-  invisionChamberProposals as chamberProposals,
-  invisionEconomicIndicators as economicIndicators,
-  invisionGovernanceState as governanceState,
-  invisionRiskSignals as riskSignals,
-} from "@/data/mock/invision";
+import { NoDataYetBar } from "@/components/NoDataYetBar";
+import { apiFactions, apiInvision } from "@/lib/apiClient";
+import type { FactionDto, GetInvisionResponse } from "@/types/api";
 
 const Invision: React.FC = () => {
+  const [invision, setInvision] = useState<GetInvisionResponse | null>(null);
+  const [factions, setFactions] = useState<FactionDto[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<{
     factionSort: "members" | "votes" | "acm";
   }>({ factionSort: "members" });
   const { factionSort } = filters;
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const [invRes, factionsRes] = await Promise.all([
+          apiInvision(),
+          apiFactions(),
+        ]);
+        if (!active) return;
+        setInvision(invRes);
+        setFactions(factionsRes.items);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setInvision(null);
+        setFactions([]);
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const filteredFactions = useMemo(() => {
     const term = search.trim().toLowerCase();
-    return [...allFactions]
+    return [...(factions ?? [])]
       .filter(
         (f) =>
           term.length === 0 ||
@@ -42,11 +66,27 @@ const Invision: React.FC = () => {
           parseInt(a.acm.replace(/[,]/g, ""), 10)
         );
       });
-  }, [search, factionSort]);
+  }, [factions, search, factionSort]);
 
   return (
     <div className="flex flex-col gap-5">
       <PageHint pageId="invision" />
+      {invision === null ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-muted">
+          Loading Invision…
+        </Card>
+      ) : null}
+      {loadError ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-[var(--destructive)]">
+          Invision unavailable: {loadError}
+        </Card>
+      ) : null}
+      {invision !== null &&
+      factions !== null &&
+      factions.length === 0 &&
+      !loadError ? (
+        <NoDataYetBar label="Invision data" />
+      ) : null}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Surface
           variant="panelAlt"
@@ -54,10 +94,10 @@ const Invision: React.FC = () => {
         >
           <Kicker align="center">Governance model</Kicker>
           <h1 className="text-2xl font-semibold text-text">
-            {governanceState.label}
+            {invision?.governanceState.label ?? "—"}
           </h1>
         </Surface>
-        {governanceState.metrics.map((metric) => (
+        {(invision?.governanceState.metrics ?? []).map((metric) => (
           <Surface
             key={metric.label}
             variant="panel"
@@ -152,7 +192,7 @@ const Invision: React.FC = () => {
             <CardTitle>Treasury & economy</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-text">
-            {economicIndicators.map((indicator) => (
+            {(invision?.economicIndicators ?? []).map((indicator) => (
               <div
                 key={indicator.label}
                 className="rounded-xl border border-border px-3 py-2"
@@ -174,7 +214,7 @@ const Invision: React.FC = () => {
             <CardTitle>Risk dashboard</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 text-sm text-text sm:grid-cols-2">
-            {riskSignals.map((signal) => (
+            {(invision?.riskSignals ?? []).map((signal) => (
               <div
                 key={signal.title}
                 className="rounded-xl border border-border px-3 py-3"
@@ -194,7 +234,7 @@ const Invision: React.FC = () => {
             <CardTitle>General chamber proposals</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-text">
-            {chamberProposals.map((proposal) => (
+            {(invision?.chamberProposals ?? []).map((proposal) => (
               <div
                 key={proposal.title}
                 className="rounded-xl border border-border px-3 py-3"

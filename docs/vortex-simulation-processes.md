@@ -459,7 +459,7 @@ Simulation requirements:
 ### 4.3 Back-end stack (practical)
 
 - API: Cloudflare Workers (or Pages Functions)
-- DB: Postgres (Neon/Supabase) or Cloudflare D1 (v1 OK)
+- DB: Postgres (v1: Neon-compatible serverless Postgres)
 - Event log: append-only `events` table (feed + audit trail)
 - Jobs: Cron triggers for era rollups
 - Optional: Durable Objects for race-free updates (double-vote prevention, counters, quorum snapshots)

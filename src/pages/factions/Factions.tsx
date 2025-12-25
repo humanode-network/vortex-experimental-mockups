@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { Button } from "@/components/primitives/button";
 import {
@@ -9,13 +9,17 @@ import {
 } from "@/components/primitives/card";
 import { Badge } from "@/components/primitives/badge";
 import { HintLabel } from "@/components/Hint";
-import { factions } from "@/data/mock/factions";
 import { SearchBar } from "@/components/SearchBar";
 import { MetricTile } from "@/components/MetricTile";
 import { StatTile } from "@/components/StatTile";
 import { PageHint } from "@/components/PageHint";
+import { NoDataYetBar } from "@/components/NoDataYetBar";
+import { apiFactions } from "@/lib/apiClient";
+import type { FactionDto } from "@/types/api";
 
 const Factions: React.FC = () => {
+  const [factions, setFactions] = useState<FactionDto[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<{
     focusFilter: string;
@@ -23,13 +27,30 @@ const Factions: React.FC = () => {
   }>({ focusFilter: "any", sortBy: "members" });
   const { focusFilter, sortBy } = filters;
 
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await apiFactions();
+        if (!active) return;
+        setFactions(res.items);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setFactions([]);
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const totals = useMemo(() => {
-    const totalMembers = factions.reduce((sum, f) => sum + f.members, 0);
-    const totalVotes = factions.reduce(
-      (sum, f) => sum + parseInt(f.votes, 10),
-      0,
-    );
-    const totalAcm = factions.reduce(
+    const list = factions ?? [];
+    const totalMembers = list.reduce((sum, f) => sum + f.members, 0);
+    const totalVotes = list.reduce((sum, f) => sum + parseInt(f.votes, 10), 0);
+    const totalAcm = list.reduce(
       (sum, f) => sum + parseInt(f.acm.replace(/[,]/g, ""), 10),
       0,
     );
@@ -37,18 +58,18 @@ const Factions: React.FC = () => {
       totalMembers,
       totalVotes,
       totalAcm,
-      totalFactions: factions.length,
+      totalFactions: list.length,
     };
-  }, []);
+  }, [factions]);
 
   const focusOptions = useMemo(
-    () => Array.from(new Set(factions.map((f) => f.focus))),
-    [],
+    () => Array.from(new Set((factions ?? []).map((f) => f.focus))),
+    [factions],
   );
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
-    return [...factions]
+    return [...(factions ?? [])]
       .filter((f) => {
         const matchesTerm =
           term.length === 0 ||
@@ -68,13 +89,26 @@ const Factions: React.FC = () => {
           parseInt(a.acm.replace(/[,]/g, ""), 10)
         );
       });
-  }, [query, focusFilter, sortBy]);
+  }, [factions, query, focusFilter, sortBy]);
 
   const showResultsOnly = query.trim().length > 0;
 
   return (
     <div className="flex flex-col gap-6">
       <PageHint pageId="factions" />
+      {factions === null ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-muted">
+          Loading factions…
+        </Card>
+      ) : null}
+      {loadError ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-[var(--destructive)]">
+          Factions unavailable: {loadError}
+        </Card>
+      ) : null}
+      {factions !== null && factions.length === 0 && !loadError ? (
+        <NoDataYetBar label="factions" />
+      ) : null}
       {!showResultsOnly && (
         <>
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -119,7 +153,7 @@ const Factions: React.FC = () => {
             className="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
             aria-live="polite"
           >
-            {factions.map((faction) => (
+            {(factions ?? []).map((faction) => (
               <Card key={faction.id} className="h-full">
                 <CardHeader className="pb-2">
                   <CardTitle>{faction.name}</CardTitle>

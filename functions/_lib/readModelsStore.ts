@@ -12,6 +12,9 @@ export type ReadModelsStore = {
 export async function createReadModelsStore(
   env: Env,
 ): Promise<ReadModelsStore> {
+  if (env.READ_MODELS_INLINE_EMPTY === "true") {
+    return { get: async () => null };
+  }
   if (env.READ_MODELS_INLINE === "true") {
     const { buildReadModelSeed } = await import("../../db/seed/readModels.ts");
     const map = new Map<string, unknown>(

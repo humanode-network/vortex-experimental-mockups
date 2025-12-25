@@ -6,7 +6,21 @@ function setDefaultEnv() {
   process.env.DEV_BYPASS_SIGNATURE ??= "false";
   process.env.DEV_BYPASS_GATE ??= "false";
   process.env.DEV_INSECURE_COOKIES ??= "true";
-  process.env.READ_MODELS_INLINE ??= "true";
+
+  const hasDb = Boolean(process.env.DATABASE_URL);
+
+  if (hasDb) {
+    process.env.READ_MODELS_INLINE ??= "false";
+    process.env.READ_MODELS_INLINE_EMPTY ??= "false";
+    return;
+  }
+
+  process.env.READ_MODELS_INLINE ??= "false";
+  if (process.env.READ_MODELS_INLINE === "true") {
+    process.env.READ_MODELS_INLINE_EMPTY ??= "false";
+  } else {
+    process.env.READ_MODELS_INLINE_EMPTY ??= "true";
+  }
 }
 
 function readBody(req) {
@@ -63,6 +77,16 @@ function resolveRoute(pathname) {
       /^\/api\/proposals$/,
       () => import("../functions/api/proposals/index.ts"),
     ],
+    [
+      "GET",
+      /^\/api\/proposals\/drafts$/,
+      () => import("../functions/api/proposals/drafts/index.ts"),
+    ],
+    [
+      "GET",
+      /^\/api\/proposals\/drafts\/([^/]+)$/,
+      () => import("../functions/api/proposals/drafts/[id].ts"),
+    ],
     ["GET", /^\/api\/feed$/, () => import("../functions/api/feed/index.ts")],
     [
       "GET",
@@ -98,6 +122,31 @@ function resolveRoute(pathname) {
       "GET",
       /^\/api\/humans\/([^/]+)$/,
       () => import("../functions/api/humans/[id].ts"),
+    ],
+    [
+      "GET",
+      /^\/api\/factions$/,
+      () => import("../functions/api/factions/index.ts"),
+    ],
+    [
+      "GET",
+      /^\/api\/factions\/([^/]+)$/,
+      () => import("../functions/api/factions/[id].ts"),
+    ],
+    [
+      "GET",
+      /^\/api\/formation$/,
+      () => import("../functions/api/formation/index.ts"),
+    ],
+    [
+      "GET",
+      /^\/api\/invision$/,
+      () => import("../functions/api/invision/index.ts"),
+    ],
+    [
+      "GET",
+      /^\/api\/my-governance$/,
+      () => import("../functions/api/my-governance/index.ts"),
     ],
   ];
 

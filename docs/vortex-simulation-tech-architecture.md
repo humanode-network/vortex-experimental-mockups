@@ -18,8 +18,7 @@ This document maps `docs/vortex-simulation-processes.md` onto a technical archit
 
 ### Database
 
-- **Chosen for v1: Postgres** (Neon or Supabase) for “proper” user history, analytics, and relational integrity.
-- Optional later: D1 can be used for Cloudflare-only prototypes, but v1 should start on Postgres to avoid a DB migration during the community simulation.
+- **Chosen for v1: Postgres** (Neon-compatible serverless Postgres) for user history, analytics, and relational integrity.
 
 Important: because the API runtime is Cloudflare Workers/Pages Functions (edge), v1 should use a Postgres provider that supports **serverless/HTTP connectivity** from edge runtimes.
 
@@ -27,7 +26,7 @@ Important: because the API runtime is Cloudflare Workers/Pages Functions (edge),
 
 ### Libraries / tools
 
-- **Drizzle ORM** (Postgres; can also target D1 if needed).
+- **Drizzle ORM** (Postgres).
 - **zod** (request validation; used as needed).
 - **@polkadot/util-crypto** (+ **@polkadot/keyring** in tests) for Substrate signature verification and SS58 address handling.
 - **wrangler** for Workers deployment (already in repo).
@@ -157,6 +156,12 @@ To avoid rewriting the UI while we build normalized tables + an event log, we se
 - `read_models`: `{ key, payload (jsonb), updatedAt }`
 
 This allows early `GET /api/...` endpoints to serve the exact DTOs expected by `docs/vortex-simulation-api-contract.md` while we progressively replace `read_models` with real projections.
+
+Local dev modes for reads:
+
+- DB mode: read from `read_models` using `DATABASE_URL`.
+- Inline fixtures: `READ_MODELS_INLINE=true` (no DB).
+- Clean/empty mode: `READ_MODELS_INLINE_EMPTY=true` (list endpoints return `{ items: [] }` and singleton endpoints return minimal defaults).
 
 ### Governance time
 
@@ -317,7 +322,6 @@ Recommendation:
 
 ## 9) Migration path from today’s mock data
 
-- Keep the frontend pages as-is but replace `src/data/mock/*` reads with API reads incrementally.
-- Start with read-only endpoints (`/api/chambers`, `/api/proposals`, `/api/feed`).
-- Add auth + gate + disable buttons unless eligible.
-- Then enable write commands for pool/vote first (most visible).
+- The frontend renders from `/api/*` reads; mock data is not part of the runtime anymore.
+- Transitional read-model payloads are maintained as seed fixtures in `db/seed/fixtures/*` (and stored in Postgres `read_models` in DB mode).
+- Next migrations are about moving from `read_models` to normalized tables + event log, then turning on write commands (pool/vote first).

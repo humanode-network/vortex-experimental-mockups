@@ -1,4 +1,5 @@
 export const proposalStages = [
+  "draft",
   "pool",
   "vote",
   "build",
@@ -28,10 +29,12 @@ export type StageChipKind =
   | "thread"
   | "courts"
   | "faction"
+  | "draft"
   | "final"
   | "archived";
 
 export const stageToChipKind = {
+  draft: "draft",
   pool: "proposal_pool",
   vote: "chamber_vote",
   build: "formation",
@@ -43,6 +46,7 @@ export const stageToChipKind = {
 } as const satisfies Record<Stage, StageChipKind>;
 
 export const stageLabel = {
+  draft: "Draft",
   pool: "Proposal pool",
   vote: "Chamber vote",
   build: "Formation",

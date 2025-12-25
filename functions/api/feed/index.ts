@@ -27,7 +27,7 @@ export const onRequestGet: PagesFunction = async (context) => {
   try {
     const store = await createReadModelsStore(context.env);
     const payload = await store.get("feed:list");
-    if (!payload) return errorResponse(404, "Missing read model: feed:list");
+    if (!payload) return jsonResponse({ items: [] });
 
     const url = new URL(context.request.url);
     const stage = url.searchParams.get("stage");

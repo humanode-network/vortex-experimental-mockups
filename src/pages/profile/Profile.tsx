@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -15,46 +15,101 @@ import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
 import { TierLabel } from "@/components/TierLabel";
 import { ToggleGroup } from "@/components/ToggleGroup";
-import {
-  myProfile,
-  proofToggleOptions,
-  type ProofKey,
-  type ProofSection,
-} from "@/data/mock/humanNodeProfiles";
+import { apiHuman, apiHumans } from "@/lib/apiClient";
+import type { HumanNodeProfileDto, ProofKeyDto } from "@/types/api";
+import { useAuth } from "@/app/auth/AuthContext";
 
 const Profile: React.FC = () => {
-  const [activeProof, setActiveProof] = useState<ProofKey | "">("");
-  const {
-    name,
-    governorActive,
-    humanNodeActive,
-    heroStats,
-    quickDetails,
-    proofSections,
-    governanceActions,
-    projects,
-    history,
-  } = myProfile;
-  const activeSection: ProofSection | null = activeProof
-    ? proofSections[activeProof]
-    : null;
-  const proofOptions = proofToggleOptions.map((option) => ({
-    value: option.key,
-    label:
-      option.label === "PoT" ? (
-        <HintLabel termId="proof_of_time_pot">{option.label}</HintLabel>
-      ) : option.label === "PoD" ? (
-        <HintLabel termId="proof_of_devotion_pod">{option.label}</HintLabel>
-      ) : option.label === "PoG" ? (
-        <HintLabel termId="proof_of_governance_pog">{option.label}</HintLabel>
-      ) : (
-        option.label
-      ),
-  }));
+  const auth = useAuth();
+  const [activeProof, setActiveProof] = useState<ProofKeyDto | "">("");
+  const [profile, setProfile] = useState<HumanNodeProfileDto | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!auth.enabled || !auth.authenticated || !auth.address) {
+      setProfile(null);
+      setLoadError(null);
+      return;
+    }
+
+    let active = true;
+    (async () => {
+      try {
+        const humans = await apiHumans();
+        const list = humans.items;
+        if (!list.length) {
+          if (!active) return;
+          setProfile(null);
+          setLoadError("No human nodes are available.");
+          return;
+        }
+
+        const address = auth.address;
+        if (!address) {
+          if (!active) return;
+          setProfile(null);
+          setLoadError("Wallet address is missing.");
+          return;
+        }
+        const hash = Array.from(address).reduce(
+          (acc, ch) => acc + ch.charCodeAt(0),
+          0,
+        );
+        const selected = list[hash % list.length];
+        const res = await apiHuman(selected.id);
+        if (!active) return;
+        setProfile(res);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setProfile(null);
+        setLoadError((error as Error).message);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [auth.address, auth.authenticated, auth.enabled]);
+
+  const proofOptions = useMemo(
+    () => [
+      {
+        value: "time",
+        label: <HintLabel termId="proof_of_time_pot">PoT</HintLabel>,
+      },
+      {
+        value: "devotion",
+        label: <HintLabel termId="proof_of_devotion_pod">PoD</HintLabel>,
+      },
+      {
+        value: "governance",
+        label: <HintLabel termId="proof_of_governance_pog">PoG</HintLabel>,
+      },
+    ],
+    [],
+  );
+
+  const activeSection =
+    profile && activeProof ? profile.proofSections[activeProof] : null;
 
   return (
     <div className="flex flex-col gap-6">
       <PageHint pageId="profile" />
+      {!auth.enabled ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-muted">
+          Auth is disabled in this build.
+        </Card>
+      ) : !auth.authenticated ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-muted">
+          Connect a wallet to view the profile mock.
+        </Card>
+      ) : profile === null ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-muted">
+          {loadError ? `Profile unavailable: ${loadError}` : "Loading profile…"}
+        </Card>
+      ) : null}
+
       <Surface
         as="section"
         variant="panel"
@@ -65,13 +120,15 @@ const Profile: React.FC = () => {
         <div className="grid items-center gap-6 lg:grid-cols-[auto_minmax(0,1fr)_auto]">
           <div className="flex justify-center lg:justify-start">
             <AvatarPlaceholder
-              initials={name.substring(0, 2).toUpperCase()}
+              initials={profile?.name?.substring(0, 2).toUpperCase() ?? "—"}
               size="lg"
             />
           </div>
           <div className="flex flex-col items-center text-center">
             <Kicker align="center">My profile</Kicker>
-            <h1 className="text-3xl font-semibold text-text">{name}</h1>
+            <h1 className="text-3xl font-semibold text-text">
+              {profile?.name ?? "—"}
+            </h1>
           </div>
           <div className="flex flex-col items-center gap-2 text-sm lg:items-end">
             <Button variant="outline" size="sm">
@@ -79,20 +136,20 @@ const Profile: React.FC = () => {
             </Button>
             <StatusPill
               label="Governor"
-              value={governorActive ? "Active" : "Not active"}
-              active={governorActive}
+              value={profile?.governorActive ? "Active" : "Not active"}
+              active={profile?.governorActive ?? false}
             />
             <StatusPill
               label="Human node"
-              value={humanNodeActive ? "Active" : "Not active"}
-              active={humanNodeActive}
+              value={profile?.humanNodeActive ? "Active" : "Not active"}
+              active={profile?.humanNodeActive ?? false}
             />
           </div>
         </div>
       </Surface>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {heroStats.map((stat) => (
+        {(profile?.heroStats ?? []).map((stat) => (
           <Card key={stat.label} className="h-full">
             <CardContent className="space-y-1 p-4 text-center">
               <Kicker align="center">
@@ -117,12 +174,7 @@ const Profile: React.FC = () => {
               <CardTitle>Governance summary</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted">
-              <p>
-                Mesh-first operator who liaises with validator squadrons and the
-                Governance Council. Recent cycles focused on redundancy
-                telemetry, guardian mentorship, and bringing quorum rituals to
-                night shift governors.
-              </p>
+              <p>{profile?.governanceSummary ?? "—"}</p>
             </CardContent>
           </Card>
 
@@ -132,7 +184,7 @@ const Profile: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="grid max-h-72 grid-cols-1 gap-3 overflow-y-scroll pr-2 sm:grid-cols-2 xl:grid-cols-3">
-                {governanceActions.map((action) => (
+                {(profile?.governanceActions ?? []).map((action) => (
                   <div key={action.title} className="group relative">
                     <Surface
                       variant="panelAlt"
@@ -174,7 +226,7 @@ const Profile: React.FC = () => {
               <CardTitle>Formation projects</CardTitle>
             </CardHeader>
             <CardContent className="max-h-96 space-y-4 overflow-y-auto pr-1">
-              {projects.map((project) => (
+              {(profile?.projects ?? []).map((project) => (
                 <Surface
                   key={project.title}
                   variant="panelAlt"
@@ -210,7 +262,7 @@ const Profile: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-3 text-center sm:grid-cols-2">
-                {quickDetails.map((detail) => (
+                {(profile?.quickDetails ?? []).map((detail) => (
                   <div
                     key={detail.label}
                     className="flex h-20 flex-col items-center justify-between rounded-xl border border-border px-3 py-3"
@@ -229,7 +281,9 @@ const Profile: React.FC = () => {
               <div className="space-y-3 text-center">
                 <ToggleGroup
                   value={activeProof}
-                  onValueChange={(val) => setActiveProof(val as ProofKey | "")}
+                  onValueChange={(val) =>
+                    setActiveProof(val as ProofKeyDto | "")
+                  }
                   options={proofOptions}
                   allowDeselect
                 />
@@ -264,7 +318,7 @@ const Profile: React.FC = () => {
               <CardTitle>History</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {history.map((entry) => (
+              {(profile?.history ?? []).map((entry) => (
                 <div
                   key={entry}
                   className="rounded-xl border border-border px-3 py-2 text-center text-sm text-text"

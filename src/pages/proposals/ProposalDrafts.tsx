@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { Card } from "@/components/primitives/card";
 import { Button } from "@/components/primitives/button";
@@ -6,42 +6,46 @@ import { Badge } from "@/components/primitives/badge";
 import { SearchBar } from "@/components/SearchBar";
 import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
-
-type Draft = {
-  id: string;
-  title: string;
-  chamber: string;
-  tier: string;
-  summary: string;
-  updated: string;
-};
-
-const drafts: Draft[] = [
-  {
-    id: "draft-vortex-ux-v1",
-    title: "Vortex Governance Hub UX Refresh & Design System v1",
-    chamber: "Product & UX chamber",
-    tier: "Ecclesiast",
-    summary:
-      "UX audit + design system + redesigned core flows, delivered as dev-ready Figma and basic tokens.",
-    updated: "2026-01-09",
-  },
-];
+import { NoDataYetBar } from "@/components/NoDataYetBar";
+import { apiProposalDrafts } from "@/lib/apiClient";
+import type { ProposalDraftListItemDto } from "@/types/api";
 
 const ProposalDrafts: React.FC = () => {
+  const [drafts, setDrafts] = useState<ProposalDraftListItemDto[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<{
     sortBy: "updated" | "chamber";
     chamberFilter: string;
   }>({ sortBy: "updated", chamberFilter: "any" });
   const { sortBy, chamberFilter } = filters;
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await apiProposalDrafts();
+        if (!active) return;
+        setDrafts(res.items);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setDrafts([]);
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const chambers = useMemo(
-    () => Array.from(new Set(drafts.map((d) => d.chamber))),
-    [],
+    () => Array.from(new Set((drafts ?? []).map((d) => d.chamber))),
+    [drafts],
   );
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
-    return [...drafts]
+    return [...(drafts ?? [])]
       .filter(
         (d) =>
           (term.length === 0 ||
@@ -54,7 +58,7 @@ const ProposalDrafts: React.FC = () => {
         if (sortBy === "chamber") return a.chamber.localeCompare(b.chamber);
         return b.updated.localeCompare(a.updated);
       });
-  }, [query, sortBy, chamberFilter]);
+  }, [drafts, query, sortBy, chamberFilter]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -100,6 +104,20 @@ const ProposalDrafts: React.FC = () => {
           onFiltersChange={setFilters}
         />
       </div>
+
+      {drafts === null ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-muted">
+          Loading drafts…
+        </Card>
+      ) : null}
+      {loadError ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-[var(--destructive)]">
+          Drafts unavailable: {loadError}
+        </Card>
+      ) : null}
+      {drafts !== null && drafts.length === 0 && !loadError ? (
+        <NoDataYetBar label="drafts" />
+      ) : null}
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {filtered.map((draft) => (

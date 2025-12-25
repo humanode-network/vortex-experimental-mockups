@@ -17,10 +17,17 @@ Production deploys the API as **Cloudflare Pages Functions** under `functions/`.
   - `GET /api/proposals/:id/pool`
   - `GET /api/proposals/:id/chamber`
   - `GET /api/proposals/:id/formation`
+  - `GET /api/proposals/drafts`
+  - `GET /api/proposals/drafts/:id`
   - `GET /api/courts`
   - `GET /api/courts/:id`
   - `GET /api/humans`
   - `GET /api/humans/:id`
+  - `GET /api/factions`
+  - `GET /api/factions/:id`
+  - `GET /api/formation`
+  - `GET /api/invision`
+  - `GET /api/my-governance`
 - `GET /api/clock` (simulation time snapshot)
 - `POST /api/clock/advance-era` (admin-only; increments era by 1)
 
@@ -45,7 +52,8 @@ These env vars are read by the API runtime (Pages Functions in production, Node 
 - `DEV_BYPASS_GATE=true` to mark any signed-in user as eligible (demo/dev mode).
 - `DEV_ELIGIBLE_ADDRESSES=addr1,addr2,...` allowlist for eligibility when `DEV_BYPASS_GATE` is false.
 - `DEV_INSECURE_COOKIES=true` to allow auth cookies over plain HTTP (local dev only).
-- `READ_MODELS_INLINE=true` to serve read endpoints from the in-repo mock seed (no DB required).
+- `READ_MODELS_INLINE=true` to serve read endpoints from the in-repo seed builder (no DB required).
+- `READ_MODELS_INLINE_EMPTY=true` to force an empty read-model store (useful for “clean UI” local dev without touching a DB).
 - `DEV_BYPASS_ADMIN=true` to allow admin endpoints locally without `ADMIN_SECRET`.
 
 ## Running locally (recommended)
@@ -79,6 +87,9 @@ Notes:
 - `yarn dev` proxies `/api/*` to `http://127.0.0.1:8788` (config: `rsbuild.config.ts`).
 - If you see `ECONNREFUSED` in the UI dev server logs, the backend is not running on `:8788` (start it with `yarn dev:api`).
 - Real gating uses `DEV_BYPASS_GATE=false` and a bound `HUMANODE_RPC_URL`.
+- The Node API runner defaults to **empty read models** when `DATABASE_URL` is not set (the UI should show “No … yet” on content pages).
+- To use the seeded fixtures locally (no DB), run with `READ_MODELS_INLINE=true`.
+- To force empty reads even if something is seeding locally, run with `READ_MODELS_INLINE_EMPTY=true`.
 
 ### Wrangler-based dev (optional)
 
@@ -86,8 +97,21 @@ Notes:
 
 ## DB (Phase 2c)
 
-DB setup uses the read-model bridge seeded from today’s mocks:
+DB setup uses the read-model bridge seeded from `db/seed/fixtures/*`:
 
 - Generate migrations: `yarn db:generate`
 - Apply migrations: `yarn db:migrate` (requires `DATABASE_URL`)
-- Seed from mocks into `read_models`: `yarn db:seed` (requires `DATABASE_URL`)
+- Seed into `read_models`: `yarn db:seed` (requires `DATABASE_URL`)
+
+### Clearing all data (keep schema)
+
+To wipe the simulation data without dropping tables:
+
+- `yarn db:clear` (requires `DATABASE_URL`)
+
+This truncates the simulation tables and leaves the schema/migrations intact.
+
+### Clean-by-default vs seeded content
+
+- Clean-by-default: run without `READ_MODELS_INLINE` and without running `yarn db:seed` (or wipe a seeded DB via `yarn db:clear`).
+- Seeded content: run `yarn db:seed` (DB mode) or `READ_MODELS_INLINE=true` (no DB).

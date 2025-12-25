@@ -30,8 +30,9 @@ Implemented (backend skeleton):
   - Drizzle config: `drizzle.config.ts`
   - Schema: `db/schema.ts`
   - Initial migration: `db/migrations/0000_nosy_mastermind.sql`
-  - Seed script: `scripts/db-seed.ts` (writes mock-equivalent payloads into `read_models`)
+  - Seed script: `scripts/db-seed.ts` (writes read-model payloads into `read_models`)
   - Read endpoints (Phase 2c/4 bridge): `functions/api/chambers/*`, `functions/api/proposals/*`, `functions/api/feed/*`, `functions/api/courts/*`, `functions/api/humans/*`
+  - Additional read endpoints (Phase 4 coverage): `functions/api/factions/*`, `functions/api/formation/*`, `functions/api/invision/*`, `functions/api/my-governance/*`, `functions/api/proposals/drafts/*`
   - DB scripts: `yarn db:generate`, `yarn db:migrate`, `yarn db:seed`
   - Seed tests: `tests/db-seed.test.js`, `tests/migrations.test.js`
 - Phase 3 tests: `tests/api-auth-signature.test.js`, `tests/api-gate-rpc.test.js`
@@ -48,7 +49,7 @@ Not implemented:
 - Keep domain logic **pure and shared** (state machine + events). The API is a thin adapter.
 - Prefer **deterministic**, testable transitions; avoid “magic UI-only numbers”.
 - Enforce gating on **every write**: “browse open, write gated”.
-- Minimize UI churn: start by making API responses **match the shapes** currently provided by `src/data/mock/*`, then gradually improve.
+- Minimize UI churn: keep the frozen DTOs (`docs/vortex-simulation-api-contract.md` + `src/types/api.ts`) stable while the backend transitions from `read_models` to normalized tables + an event log.
 
 ## Testing requirement (applies to every phase)
 
@@ -72,12 +73,12 @@ Tooling note: Pages Functions handlers are tested directly via `Request` objects
 This is the order we’ll follow from now on, based on what’s already landed.
 
 1. **Phase 0 — Lock v1 decisions (DONE)**
-2. **Phase 1 — Freeze API contracts (DTOs) to match `src/data/mock/*` (DONE)**
+2. **Phase 1 — Freeze API contracts (DTOs) (DONE)**
 3. **Phase 2a — API skeleton (DONE)**
 4. **Phase 2b — Test harness for API + domain (DONE)**
-5. **Phase 2c — DB skeleton + migrations + seed-from-mocks (DONE)**
+5. **Phase 2c — DB skeleton + migrations + seed-from-fixtures (DONE)**
 6. **Phase 3 — Auth + eligibility gate (DONE)**
-7. **Phase 4 — Read models first (Chambers/Proposals/Feed)**
+7. **Phase 4 — Read models first (all pages, clean-by-default) (DONE)**
 8. **Phase 5 — Event log backbone**
 9. **Phase 6 — First write slice (pool voting)**
 10. **Phase 7 — Chamber vote + CM awarding**
@@ -90,7 +91,7 @@ This is the order we’ll follow from now on, based on what’s already landed.
 
 Locked for v1 (based on current decisions):
 
-1. Database: **Postgres** (Neon/Supabase).
+1. Database: **Postgres** (Neon-compatible serverless Postgres).
 2. Gating source: **Humanode mainnet RPC** (no Subscan dependency for v1).
 3. Active Human Node rule: “active” derived via RPC reads from `ImOnline::*` (with a safe fallback to `Session::Validators` in v1).
 4. Era length: **configured by us off-chain** (a simulation constant), not a chain parameter.
@@ -103,7 +104,7 @@ Tests:
 
 ## Phase 1 — Define contracts that mirror the UI (1–2 days)
 
-The UI is currently driven by `src/data/mock/*` (e.g. proposals list cards, proposal pages, chamber detail). Start by freezing the “API contract” so backend and frontend can meet in the middle.
+The UI renders from `/api/*` reads. The contract is frozen so backend and frontend stay aligned while the implementation evolves.
 
 Contract location:
 
@@ -124,7 +125,7 @@ Deliverable: a short “API contract v1” section (types + endpoint list) that 
 
 Tests:
 
-- Add unit tests that validate DTO shapes against the existing mocks (smoke: “mock data can be encoded into the DTOs without loss”).
+- Add unit tests that validate DTO payload shapes against deterministic seed fixtures (smoke: “fixture data can be encoded into the DTOs without loss”).
 
 ## Phase 2a — API skeleton (DONE)
 
@@ -222,32 +223,48 @@ Tests:
 
 ## Phase 4 — Read models first (3–8 days)
 
-Goal: replace `src/data/mock/*` progressively with API reads, with minimal UI refactor.
+Goal: keep the app fully read-model driven via `/api/*` while the backend transitions from the `read_models` bridge to normalized tables + an event log.
 
-1. `GET /api/chambers`:
-   - return chamber list + multipliers + computed stats
-   - match `src/data/mock/chambers.ts` shape first
-2. `GET /api/proposals?stage=...`:
-   - return proposal list cards for the Proposals page
-   - match `src/data/mock/proposals.ts` shape first
-3. `GET /api/proposals/:id`:
-   - return proposal page model for ProposalPP/Chamber/Formation
-   - match `src/data/mock/proposalPages.ts` getters first
-4. `GET /api/feed?cursor=...`:
-   - return feed items from the `read_models` bridge first (`feed:list`)
-   - feed derived from `events` lands in Phase 5
+Read endpoints covered in this phase:
+
+1. Chambers
+   - `GET /api/chambers`
+   - `GET /api/chambers/:id`
+2. Proposals
+   - `GET /api/proposals?stage=...`
+   - `GET /api/proposals/:id/pool`
+   - `GET /api/proposals/:id/chamber`
+   - `GET /api/proposals/:id/formation`
+   - `GET /api/proposals/drafts`
+   - `GET /api/proposals/drafts/:id`
+3. Feed
+   - `GET /api/feed?cursor=...&stage=...` (cursor can land later; stage filtering is already supported)
+4. Courts
+   - `GET /api/courts`
+   - `GET /api/courts/:id`
+5. Human nodes
+   - `GET /api/humans`
+   - `GET /api/humans/:id`
+6. Factions
+   - `GET /api/factions`
+   - `GET /api/factions/:id`
+7. Singletons/dashboards
+   - `GET /api/formation`
+   - `GET /api/invision`
+   - `GET /api/my-governance`
 
 Frontend:
 
 - Use the existing `src/lib/apiClient.ts` wrapper (typed helpers, error handling).
-- Swap one page at a time from mock imports to API reads; keep a dev fallback flag if needed.
+- Keep visuals stable; the data source remains `/api/*`.
+- Empty-by-default UX: when the backend returns an empty list, pages show “No … yet” (no fixture fallbacks).
 
-Deliverable: app renders from backend reads (at least Chambers + Proposals + Feed).
+Deliverable: app renders from backend reads across all pages, with clean empty-state behavior by default.
 
 Tests:
 
-- DTO compatibility snapshot tests (API payload matches mock-driven shape).
-- Pagination cursors stable (no duplicates/missing items across pages).
+- API contract stability checks (seeded inline mode returns DTO-shaped payloads).
+- Empty-mode checks: list endpoints return `{ items: [] }` and singleton endpoints return minimal defaults when the read-model store is empty (`READ_MODELS_INLINE_EMPTY=true`).
 
 ## Phase 5 — Event log (feed) as the backbone (2–6 days)
 
@@ -257,6 +274,7 @@ Tests:
    - basic derived feed cards from events
    - cursors for pagination
 4. Backfill initial events from seeded mock data (so the feed isn’t empty on day 1).
+   - Use `db/seed/fixtures/*` as the deterministic starting point for the initial backfill.
 
 Deliverable: feed is powered by real events; pages can also show histories from the event stream.
 
@@ -394,5 +412,4 @@ Minimum viable proto-vortex for community:
 
 - The UI already has the key surfaces for v1:
   - `ProposalCreation` wizard (draft), ProposalPP (pool), ProposalChamber (vote), ProposalFormation (formation), Courts/Courtroom (courts).
-- Start by returning API payloads that match the existing mock getters (`src/data/mock/proposalPages.ts`, etc.) to avoid rewriting UI components.
-- Migrate page-by-page: keep visuals stable while the data source shifts from `src/data/mock/*` to `/api/*`.
+- Keep returning API payloads that match the frozen DTOs so UI components remain stable.

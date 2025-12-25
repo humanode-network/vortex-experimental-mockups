@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import ProposalStageBar from "@/components/ProposalStageBar";
 import { StatTile } from "@/components/StatTile";
@@ -8,11 +9,52 @@ import {
   ProposalSummaryCard,
   ProposalTeamMilestonesCard,
 } from "@/components/ProposalSections";
-import { getChamberProposalPage } from "@/data/mock/proposalPages";
+import { Surface } from "@/components/Surface";
+import { apiProposalChamberPage } from "@/lib/apiClient";
+import type { ChamberProposalPageDto } from "@/types/api";
 
 const ProposalChamber: React.FC = () => {
   const { id } = useParams();
-  const proposal = getChamberProposalPage(id);
+  const [proposal, setProposal] = useState<ChamberProposalPageDto | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    let active = true;
+    (async () => {
+      try {
+        const page = await apiProposalChamberPage(id);
+        if (!active) return;
+        setProposal(page);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setProposal(null);
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  if (!proposal) {
+    return (
+      <div className="flex flex-col gap-6">
+        <PageHint pageId="proposals" />
+        <Surface
+          variant="panelAlt"
+          radius="2xl"
+          shadow="tile"
+          className="px-5 py-4 text-sm text-muted"
+        >
+          {loadError
+            ? `Proposal unavailable: ${loadError}`
+            : "Loading proposal…"}
+        </Surface>
+      </div>
+    );
+  }
 
   const yesTotal = proposal.votes.yes;
   const noTotal = proposal.votes.no;

@@ -1,4 +1,23 @@
-import type { GetFeedResponse } from "@/types/api";
+import type {
+  ChamberProposalPageDto,
+  CourtCaseDetailDto,
+  FactionDto,
+  FormationProposalPageDto,
+  GetFactionsResponse,
+  GetChamberResponse,
+  GetChambersResponse,
+  GetCourtsResponse,
+  GetFeedResponse,
+  GetFormationResponse,
+  GetHumansResponse,
+  GetInvisionResponse,
+  GetMyGovernanceResponse,
+  GetProposalDraftsResponse,
+  GetProposalsResponse,
+  HumanNodeProfileDto,
+  ProposalDraftDetailDto,
+  PoolProposalPageDto,
+} from "@/types/api";
 
 export type ApiError = {
   error: {
@@ -83,4 +102,87 @@ export async function apiFeed(input?: {
   if (input?.cursor) params.set("cursor", input.cursor);
   const qs = params.size ? `?${params.toString()}` : "";
   return await apiGet<GetFeedResponse>(`/api/feed${qs}`);
+}
+
+export async function apiChambers(): Promise<GetChambersResponse> {
+  return await apiGet<GetChambersResponse>("/api/chambers");
+}
+
+export async function apiChamber(id: string): Promise<GetChamberResponse> {
+  return await apiGet<GetChamberResponse>(`/api/chambers/${id}`);
+}
+
+export async function apiProposals(input?: {
+  stage?: string;
+}): Promise<GetProposalsResponse> {
+  const params = new URLSearchParams();
+  if (input?.stage) params.set("stage", input.stage);
+  const qs = params.size ? `?${params.toString()}` : "";
+  return await apiGet<GetProposalsResponse>(`/api/proposals${qs}`);
+}
+
+export async function apiProposalPoolPage(
+  id: string,
+): Promise<PoolProposalPageDto> {
+  return await apiGet<PoolProposalPageDto>(`/api/proposals/${id}/pool`);
+}
+
+export async function apiProposalChamberPage(
+  id: string,
+): Promise<ChamberProposalPageDto> {
+  return await apiGet<ChamberProposalPageDto>(`/api/proposals/${id}/chamber`);
+}
+
+export async function apiProposalFormationPage(
+  id: string,
+): Promise<FormationProposalPageDto> {
+  return await apiGet<FormationProposalPageDto>(
+    `/api/proposals/${id}/formation`,
+  );
+}
+
+export async function apiCourts(): Promise<GetCourtsResponse> {
+  return await apiGet<GetCourtsResponse>("/api/courts");
+}
+
+export async function apiCourt(id: string): Promise<CourtCaseDetailDto> {
+  return await apiGet<CourtCaseDetailDto>(`/api/courts/${id}`);
+}
+
+export async function apiHumans(): Promise<GetHumansResponse> {
+  return await apiGet<GetHumansResponse>("/api/humans");
+}
+
+export async function apiHuman(id: string): Promise<HumanNodeProfileDto> {
+  return await apiGet<HumanNodeProfileDto>(`/api/humans/${id}`);
+}
+
+export async function apiFactions(): Promise<GetFactionsResponse> {
+  return await apiGet<GetFactionsResponse>("/api/factions");
+}
+
+export async function apiFaction(id: string): Promise<FactionDto> {
+  return await apiGet<FactionDto>(`/api/factions/${id}`);
+}
+
+export async function apiFormation(): Promise<GetFormationResponse> {
+  return await apiGet<GetFormationResponse>("/api/formation");
+}
+
+export async function apiInvision(): Promise<GetInvisionResponse> {
+  return await apiGet<GetInvisionResponse>("/api/invision");
+}
+
+export async function apiMyGovernance(): Promise<GetMyGovernanceResponse> {
+  return await apiGet<GetMyGovernanceResponse>("/api/my-governance");
+}
+
+export async function apiProposalDrafts(): Promise<GetProposalDraftsResponse> {
+  return await apiGet<GetProposalDraftsResponse>("/api/proposals/drafts");
+}
+
+export async function apiProposalDraft(
+  id: string,
+): Promise<ProposalDraftDetailDto> {
+  return await apiGet<ProposalDraftDetailDto>(`/api/proposals/drafts/${id}`);
 }

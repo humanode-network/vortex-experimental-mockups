@@ -23,11 +23,26 @@ Dev server: http://localhost:3000
 Landing: http://localhost:3000/
 App: http://localhost:3000/app
 
+## Simulation API (local)
+
+The UI reads from `/api/*` (Cloudflare Pages Functions). For local development, run the API locally so the UI can reach it:
+
+- One command: `yarn dev:full` (API on `:8788` + UI on `:3000` + `/api/*` proxy)
+- Two terminals:
+  - Terminal 1: `yarn dev:api`
+  - Terminal 2: `yarn dev`
+
+If only `yarn dev` runs, `/api/*` is not available and auth/gating/read pages will show an “API is not available” error.
+
 ## Scripts
 
 - `yarn dev` – start the dev server
+- `yarn dev:api` – run the Pages Functions API locally (Node runner)
+- `yarn dev:full` – run UI + API together (recommended)
+- `yarn dev:api:wrangler` – run the API via `wrangler pages dev` against `./dist`
 - `yarn build` – build the app
-- `yarn exec tsc --noEmit` – type-check
+- `yarn test` – run API/unit tests
+- `yarn prettier:check` / `yarn prettier:fix`
 
 ## Project Structure
 

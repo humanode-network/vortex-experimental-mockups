@@ -26,6 +26,11 @@ test("db seed: produces deterministic, unique keys and JSON-safe payloads", () =
     "proposals:list",
     "courts:list",
     "humans:list",
+    "factions:list",
+    "formation:directory",
+    "invision:dashboard",
+    "my-governance:summary",
+    "proposals:drafts:list",
   ]) {
     assert.ok(uniqueKeys.has(required), `missing seed entry: ${required}`);
   }

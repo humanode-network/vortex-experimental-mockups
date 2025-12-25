@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 
 import { Button } from "@/components/primitives/button";
@@ -8,23 +8,64 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/primitives/card";
-import { factions } from "@/data/mock/factions";
-import { proposals } from "@/data/mock/proposals";
 import { HintLabel } from "@/components/Hint";
 import { Surface } from "@/components/Surface";
 import { AvatarPlaceholder } from "@/components/AvatarPlaceholder";
 import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
-import { getHumanNode } from "@/data/mock/humanNodes";
+import { apiFaction, apiHumans, apiProposals } from "@/lib/apiClient";
+import type {
+  FactionDto,
+  HumanNodeDto,
+  ProposalListItemDto,
+} from "@/types/api";
 
 const Faction: React.FC = () => {
   const { id } = useParams();
-  const faction = useMemo(() => factions.find((f) => f.id === id), [id]);
+  const [faction, setFaction] = useState<FactionDto | null>(null);
+  const [humansById, setHumansById] = useState<Record<string, HumanNodeDto>>(
+    {},
+  );
+  const [proposals, setProposals] = useState<ProposalListItemDto[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    let active = true;
+    (async () => {
+      try {
+        const [factionRes, humansRes, proposalsRes] = await Promise.all([
+          apiFaction(id),
+          apiHumans(),
+          apiProposals(),
+        ]);
+        if (!active) return;
+        setFaction(factionRes);
+        setHumansById(
+          Object.fromEntries(humansRes.items.map((h) => [h.id, h] as const)),
+        );
+        setProposals(proposalsRes.items);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setFaction(null);
+        setHumansById({});
+        setProposals([]);
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [id]);
 
   if (!faction) {
     return (
       <div className="flex flex-col gap-4">
         <h1 className="text-xl font-semibold text-text">Faction not found</h1>
+        {loadError ? (
+          <p className="text-sm text-[var(--destructive)]">{loadError}</p>
+        ) : null}
         <Button asChild size="sm">
           <Link to="/app/factions">Back to factions</Link>
         </Button>
@@ -56,7 +97,7 @@ const Faction: React.FC = () => {
   ];
 
   const roster = faction.roster.map((member) => {
-    const node = getHumanNode(member.humanNodeId);
+    const node = humansById[member.humanNodeId];
     const name = node?.name ?? member.humanNodeId;
     const tag =
       member.tag.kind === "acm" ? (

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 
 import { Button } from "@/components/primitives/button";
@@ -12,15 +12,26 @@ import { DashedStatItem } from "@/components/DashedStatItem";
 import { StageChip } from "@/components/StageChip";
 import type { ProposalStage } from "@/types/stages";
 import { CardActionsRow } from "@/components/CardActionsRow";
-import { proposals as proposalData } from "@/data/mock/proposals";
 import { Surface } from "@/components/Surface";
+import { NoDataYetBar } from "@/components/NoDataYetBar";
 import {
-  getChamberProposalPage,
-  getFormationProposalPage,
-  getPoolProposalPage,
-} from "@/data/mock/proposalPages";
+  apiProposalChamberPage,
+  apiProposalFormationPage,
+  apiProposalPoolPage,
+  apiProposals,
+} from "@/lib/apiClient";
+import type {
+  ChamberProposalPageDto,
+  FormationProposalPageDto,
+  PoolProposalPageDto,
+  ProposalListItemDto,
+} from "@/types/api";
 
 const Proposals: React.FC = () => {
+  const [proposalData, setProposalData] = useState<
+    ProposalListItemDto[] | null
+  >(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [filters, setFilters] = useState<{
@@ -34,10 +45,73 @@ const Proposals: React.FC = () => {
   });
   const { stageFilter, chamberFilter, sortBy } = filters;
 
+  const [poolPagesById, setPoolPagesById] = useState<
+    Record<string, PoolProposalPageDto | undefined>
+  >({});
+  const [chamberPagesById, setChamberPagesById] = useState<
+    Record<string, ChamberProposalPageDto | undefined>
+  >({});
+  const [formationPagesById, setFormationPagesById] = useState<
+    Record<string, FormationProposalPageDto | undefined>
+  >({});
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await apiProposals();
+        if (!active) return;
+        setProposalData(res.items);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setProposalData([]);
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!expanded || !proposalData) return;
+    const proposal = proposalData.find((p) => p.id === expanded);
+    if (!proposal) return;
+
+    if (proposal.stage === "pool" && poolPagesById[proposal.id] === undefined) {
+      void apiProposalPoolPage(proposal.id).then((page) => {
+        setPoolPagesById((curr) => ({ ...curr, [proposal.id]: page }));
+      });
+    }
+    if (
+      proposal.stage === "vote" &&
+      chamberPagesById[proposal.id] === undefined
+    ) {
+      void apiProposalChamberPage(proposal.id).then((page) => {
+        setChamberPagesById((curr) => ({ ...curr, [proposal.id]: page }));
+      });
+    }
+    if (
+      proposal.stage === "build" &&
+      formationPagesById[proposal.id] === undefined
+    ) {
+      void apiProposalFormationPage(proposal.id).then((page) => {
+        setFormationPagesById((curr) => ({ ...curr, [proposal.id]: page }));
+      });
+    }
+  }, [
+    expanded,
+    proposalData,
+    poolPagesById,
+    chamberPagesById,
+    formationPagesById,
+  ]);
+
   const filteredProposals = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return proposalData
+    return (proposalData ?? [])
       .filter((proposal) => {
         const matchesTerm = term
           ? proposal.title.toLowerCase().includes(term) ||
@@ -70,17 +144,17 @@ const Proposals: React.FC = () => {
         }
         return 0;
       });
-  }, [search, stageFilter, chamberFilter, sortBy]);
+  }, [proposalData, search, stageFilter, chamberFilter, sortBy]);
 
   const chamberOptions = useMemo(() => {
-    const unique = Array.from(new Set(proposalData.map((p) => p.chamber))).sort(
-      (a, b) => a.localeCompare(b),
-    );
+    const unique = Array.from(
+      new Set((proposalData ?? []).map((p) => p.chamber)),
+    ).sort((a, b) => a.localeCompare(b));
     return [
       { value: "All chambers", label: "All chambers" },
       ...unique.map((chamber) => ({ value: chamber, label: chamber })),
     ];
-  }, []);
+  }, [proposalData]);
 
   const toggleProposal = (id: string) => {
     setExpanded((current) => (current === id ? null : id));
@@ -143,12 +217,39 @@ const Proposals: React.FC = () => {
         onFiltersChange={setFilters}
       />
 
+      {proposalData === null ? (
+        <Surface
+          variant="panelAlt"
+          radius="2xl"
+          shadow="tile"
+          className="px-5 py-4 text-sm text-muted"
+        >
+          Loading proposals…
+        </Surface>
+      ) : null}
+      {loadError ? (
+        <Surface
+          variant="panelAlt"
+          radius="2xl"
+          shadow="tile"
+          className="px-5 py-4 text-sm text-[var(--destructive)]"
+        >
+          Proposals unavailable: {loadError}
+        </Surface>
+      ) : null}
+
+      {proposalData !== null && proposalData.length === 0 && !loadError ? (
+        <NoDataYetBar label="proposals" />
+      ) : null}
+
       <section aria-live="polite" className="flex flex-col gap-4">
-        {filteredProposals.length === 0 && (
-          <Card className="border-dashed px-5 py-6 text-center text-sm text-muted">
-            No proposals match the current search.
-          </Card>
-        )}
+        {proposalData !== null &&
+          proposalData.length > 0 &&
+          filteredProposals.length === 0 && (
+            <Card className="border-dashed px-5 py-6 text-center text-sm text-muted">
+              No proposals match the current search.
+            </Card>
+          )}
 
         {filteredProposals.map((proposal) =>
           // Collapsed state stays lightweight; expanded state is stage-aware.
@@ -156,16 +257,12 @@ const Proposals: React.FC = () => {
           // keep the same "card skeleton": summary + stage module + key stats.
           (() => {
             const poolPage =
-              proposal.stage === "pool"
-                ? getPoolProposalPage(proposal.id)
-                : null;
+              proposal.stage === "pool" ? poolPagesById[proposal.id] : null;
             const chamberPage =
-              proposal.stage === "vote"
-                ? getChamberProposalPage(proposal.id)
-                : null;
+              proposal.stage === "vote" ? chamberPagesById[proposal.id] : null;
             const formationPage =
               proposal.stage === "build"
-                ? getFormationProposalPage(proposal.id)
+                ? formationPagesById[proposal.id]
                 : null;
 
             const poolStats =
@@ -244,7 +341,7 @@ const Proposals: React.FC = () => {
                     const openSlots = Math.max(totalSlots - filledSlots, 0);
 
                     const meetsQuorum = engaged >= quorumNeeded;
-                    const meetsPassing = yesPercentOfQuorum >= 67;
+                    const meetsPassing = yesPercentOfQuorum >= 66.6;
 
                     const yesWidth = totalVotes
                       ? (yesTotal / totalVotes) * 100

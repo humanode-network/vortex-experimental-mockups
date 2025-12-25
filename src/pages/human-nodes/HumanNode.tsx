@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router";
 import {
   Card,
@@ -15,17 +15,48 @@ import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
 import { TierLabel } from "@/components/TierLabel";
 import { ToggleGroup } from "@/components/ToggleGroup";
-import {
-  getHumanNodeProfile,
-  proofToggleOptions,
-  type ProofKey,
-  type ProofSection,
-} from "@/data/mock/humanNodeProfiles";
+import { apiHuman } from "@/lib/apiClient";
+import type { HumanNodeProfileDto, ProofKeyDto } from "@/types/api";
 
 const HumanNode: React.FC = () => {
   const { id } = useParams();
-  const [activeProof, setActiveProof] = useState<ProofKey | "">("");
-  const profile = getHumanNodeProfile(id);
+  const [activeProof, setActiveProof] = useState<ProofKeyDto | "">("");
+  const [profile, setProfile] = useState<HumanNodeProfileDto | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    let active = true;
+    (async () => {
+      try {
+        const res = await apiHuman(id);
+        if (!active) return;
+        setProfile(res);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setProfile(null);
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  if (!profile) {
+    return (
+      <div className="flex flex-col gap-6">
+        <PageHint pageId="human-node" />
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-muted">
+          {loadError
+            ? `Human profile unavailable: ${loadError}`
+            : "Loading profile…"}
+        </Card>
+      </div>
+    );
+  }
+
   const {
     name,
     governorActive,
@@ -37,22 +68,21 @@ const HumanNode: React.FC = () => {
     governanceActions,
     projects,
   } = profile;
-  const activeSection: ProofSection | null = activeProof
-    ? proofSections[activeProof]
-    : null;
-  const proofOptions = proofToggleOptions.map((option) => ({
-    value: option.key,
-    label:
-      option.label === "PoT" ? (
-        <HintLabel termId="proof_of_time_pot">{option.label}</HintLabel>
-      ) : option.label === "PoD" ? (
-        <HintLabel termId="proof_of_devotion_pod">{option.label}</HintLabel>
-      ) : option.label === "PoG" ? (
-        <HintLabel termId="proof_of_governance_pog">{option.label}</HintLabel>
-      ) : (
-        option.label
-      ),
-  }));
+  const activeSection = activeProof ? proofSections[activeProof] : null;
+  const proofOptions: Array<{ value: ProofKeyDto; label: ReactNode }> = [
+    {
+      value: "time",
+      label: <HintLabel termId="proof_of_time_pot">PoT</HintLabel>,
+    },
+    {
+      value: "devotion",
+      label: <HintLabel termId="proof_of_devotion_pod">PoD</HintLabel>,
+    },
+    {
+      value: "governance",
+      label: <HintLabel termId="proof_of_governance_pog">PoG</HintLabel>,
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-6">
@@ -136,7 +166,7 @@ const HumanNode: React.FC = () => {
             <div className="space-y-3 text-center">
               <ToggleGroup
                 value={activeProof}
-                onValueChange={(val) => setActiveProof(val as ProofKey | "")}
+                onValueChange={(val) => setActiveProof(val as ProofKeyDto | "")}
                 options={proofOptions}
                 allowDeselect
               />

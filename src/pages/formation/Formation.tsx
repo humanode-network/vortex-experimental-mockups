@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/primitives/button";
 import { Card, CardContent, CardHeader } from "@/components/primitives/card";
@@ -9,12 +9,14 @@ import { MetricTile } from "@/components/MetricTile";
 import { Surface } from "@/components/Surface";
 import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
-import {
-  formationMetrics as metrics,
-  formationProjects as projects,
-  type FormationCategory as Category,
-  type FormationStage as Stage,
-} from "@/data/mock/formation";
+import { NoDataYetBar } from "@/components/NoDataYetBar";
+import { apiFormation } from "@/lib/apiClient";
+import type {
+  FormationCategoryDto as Category,
+  FormationProjectDto,
+  FormationStageDto as Stage,
+  GetFormationResponse,
+} from "@/types/api";
 
 const stageLabel: Record<Stage, string> = {
   live: "Live",
@@ -23,13 +25,35 @@ const stageLabel: Record<Stage, string> = {
 };
 
 const Formation: React.FC = () => {
+  const [data, setData] = useState<GetFormationResponse | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<{
     stageFilter: Stage | "any";
-    categoryFilter: Category | "all";
+    categoryFilter: Category;
   }>({ stageFilter: "any", categoryFilter: "all" });
   const { stageFilter, categoryFilter } = filters;
 
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await apiFormation();
+        if (!active) return;
+        setData(res);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setData({ metrics: [], projects: [] });
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const projects: FormationProjectDto[] = data?.projects ?? [];
   const filteredProjects = useMemo(() => {
     const term = search.trim().toLowerCase();
     return projects.filter((project) => {
@@ -45,13 +69,26 @@ const Formation: React.FC = () => {
         categoryFilter === "all" ? true : project.category === categoryFilter;
       return matchesSearch && matchesStage && matchesCategory;
     });
-  }, [search, stageFilter, categoryFilter]);
+  }, [projects, search, stageFilter, categoryFilter]);
 
   return (
     <div className="flex flex-col gap-6">
       <PageHint pageId="formation" />
+      {data === null ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-muted">
+          Loading Formation…
+        </Card>
+      ) : null}
+      {loadError ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-[var(--destructive)]">
+          Formation unavailable: {loadError}
+        </Card>
+      ) : null}
+      {data !== null && projects.length === 0 && !loadError ? (
+        <NoDataYetBar label="Formation projects" />
+      ) : null}
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {metrics.map((metric) => (
+        {(data?.metrics ?? []).map((metric) => (
           <div
             key={metric.label}
             data-metric={metric.dataAttr}
@@ -167,7 +204,7 @@ const Formation: React.FC = () => {
             </CardContent>
           </Card>
         ))}
-        {filteredProjects.length === 0 && (
+        {projects.length > 0 && filteredProjects.length === 0 && (
           <Surface
             variant="panel"
             borderStyle="dashed"

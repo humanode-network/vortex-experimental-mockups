@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,30 +11,74 @@ import { Button } from "@/components/primitives/button";
 import { HintLabel } from "@/components/Hint";
 import { Surface } from "@/components/Surface";
 import { PageHint } from "@/components/PageHint";
-import { chambers as chamberDirectory } from "@/data/mock/chambers";
+import { NoDataYetBar } from "@/components/NoDataYetBar";
+import { apiChambers } from "@/lib/apiClient";
+import type { ChamberDto } from "@/types/api";
 
 const CMPanel: React.FC = () => {
-  const [chambers, setChambers] = useState(
-    chamberDirectory.map((chamber) => ({
-      id: chamber.id,
-      name: chamber.name,
-      current: chamber.multiplier,
-      suggested: chamber.multiplier,
-      member: chamber.id === "engineering" || chamber.id === "product",
-    })),
-  );
+  const [chambers, setChambers] = useState<Array<
+    Pick<ChamberDto, "id" | "name" | "multiplier"> & {
+      current: number;
+      suggested: number;
+      member: boolean;
+    }
+  > | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await apiChambers();
+        if (!active) return;
+        setChambers(
+          res.items.map((chamber) => ({
+            id: chamber.id,
+            name: chamber.name,
+            multiplier: chamber.multiplier,
+            current: chamber.multiplier,
+            suggested: chamber.multiplier,
+            member: chamber.id === "engineering" || chamber.id === "product",
+          })),
+        );
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setChambers([]);
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const updateSuggestion = (id: string, value: number) => {
     setChambers((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, suggested: value } : c)),
+      prev
+        ? prev.map((c) => (c.id === id ? { ...c, suggested: value } : c))
+        : prev,
     );
   };
 
-  const nonMemberSuggestions = chambers.filter((c) => !c.member);
+  const nonMemberSuggestions = (chambers ?? []).filter((c) => !c.member);
 
   return (
     <div className="flex flex-col gap-6">
       <PageHint pageId="cm-panel" />
+      {loadError ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-[var(--destructive)]">
+          CM panel unavailable: {loadError}
+        </Card>
+      ) : null}
+      {chambers === null && !loadError ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-muted">
+          Loading chambers…
+        </Card>
+      ) : null}
+      {chambers !== null && chambers.length === 0 && !loadError ? (
+        <NoDataYetBar label="chambers" />
+      ) : null}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle>Overview</CardTitle>
@@ -51,7 +95,7 @@ const CMPanel: React.FC = () => {
           <CardTitle>Multipliers</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {chambers.map((chamber) => (
+          {(chambers ?? []).map((chamber) => (
             <Surface
               key={chamber.id}
               variant="panelAlt"

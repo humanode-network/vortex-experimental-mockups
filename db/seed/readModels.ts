@@ -1,21 +1,31 @@
-import { chambers } from "../../src/data/mock/chambers.ts";
+import { chambers } from "./fixtures/chambers.ts";
 import {
   chamberChatLog,
   chamberGovernors,
   chamberProposals,
   chamberThreads,
   proposalStageOptions,
-} from "../../src/data/mock/chamberDetail.ts";
-import { courtCases } from "../../src/data/mock/courts.ts";
-import { humanNodes } from "../../src/data/mock/humanNodes.ts";
-import { humanNodeProfilesById } from "../../src/data/mock/humanNodeProfiles.ts";
-import { proposals } from "../../src/data/mock/proposals.ts";
-import { feedItemsApi } from "../../src/data/mock/feedApi.ts";
+} from "./fixtures/chamberDetail.ts";
+import { courtCases } from "./fixtures/courts.ts";
+import { factions } from "./fixtures/factions.ts";
+import { formationMetrics, formationProjects } from "./fixtures/formation.ts";
+import { humanNodes } from "./fixtures/humanNodes.ts";
+import { humanNodeProfilesById } from "./fixtures/humanNodeProfiles.ts";
+import {
+  invisionChamberProposals,
+  invisionEconomicIndicators,
+  invisionGovernanceState,
+  invisionRiskSignals,
+} from "./fixtures/invision.ts";
+import { eraActivity, myChamberIds } from "./fixtures/myGovernance.ts";
+import { proposalDraftDetails } from "./fixtures/proposalDraft.ts";
+import { proposals } from "./fixtures/proposals.ts";
+import { feedItemsApi } from "./fixtures/feedApi.ts";
 import {
   chamberProposalPageById,
   formationProposalPageById,
   poolProposalPageById,
-} from "../../src/data/mock/proposalPages.ts";
+} from "./fixtures/proposalPages.ts";
 
 export type ReadModelSeedEntry = { key: string; payload: unknown };
 
@@ -38,6 +48,51 @@ export function buildReadModelSeed(): ReadModelSeedEntry[] {
   entries.push({ key: "proposals:list", payload: { items: proposals } });
 
   entries.push({ key: "feed:list", payload: { items: feedItemsApi } });
+
+  entries.push({ key: "factions:list", payload: { items: factions } });
+  for (const faction of factions) {
+    entries.push({ key: `factions:${faction.id}`, payload: faction });
+  }
+
+  entries.push({
+    key: "formation:directory",
+    payload: { metrics: formationMetrics, projects: formationProjects },
+  });
+
+  entries.push({
+    key: "invision:dashboard",
+    payload: {
+      governanceState: invisionGovernanceState,
+      economicIndicators: invisionEconomicIndicators,
+      riskSignals: invisionRiskSignals,
+      chamberProposals: invisionChamberProposals,
+    },
+  });
+
+  entries.push({
+    key: "my-governance:summary",
+    payload: { eraActivity, myChamberIds },
+  });
+
+  entries.push({
+    key: "proposals:drafts:list",
+    payload: {
+      items: [
+        {
+          id: "draft-vortex-ux-v1",
+          title: proposalDraftDetails.title,
+          chamber: proposalDraftDetails.chamber,
+          tier: proposalDraftDetails.tier,
+          summary: proposalDraftDetails.summary,
+          updated: "2026-01-09",
+        },
+      ],
+    },
+  });
+  entries.push({
+    key: "proposals:drafts:draft-vortex-ux-v1",
+    payload: proposalDraftDetails,
+  });
 
   entries.push({
     key: "courts:list",

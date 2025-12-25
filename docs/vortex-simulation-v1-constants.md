@@ -19,3 +19,5 @@ This file records the v1 decisions used by the simulation backend so implementat
 - Read endpoints exist and are wired to either:
   - Postgres-backed reads from `read_models` (requires `DATABASE_URL` + `yarn db:migrate && yarn db:seed`), or
   - Inline seed reads via `READ_MODELS_INLINE=true` (no DB required).
+  - Empty reads via `READ_MODELS_INLINE_EMPTY=true` (clean UI; list endpoints return `{ items: [] }`).
+- DB can be wiped without dropping schema via `yarn db:clear` (requires `DATABASE_URL`).

@@ -12,9 +12,10 @@ import { Button } from "@/components/primitives/button";
 import { Tabs } from "@/components/primitives/tabs";
 import { PageHint } from "@/components/PageHint";
 import { Select } from "@/components/primitives/select";
-import { chambers } from "@/data/mock/chambers";
 import { SIM_AUTH_ENABLED } from "@/lib/featureFlags";
 import { useAuth } from "@/app/auth/AuthContext";
+import { apiChambers } from "@/lib/apiClient";
+import type { ChamberDto } from "@/types/api";
 
 type StepKey = "essentials" | "plan" | "budget" | "review";
 
@@ -83,17 +84,8 @@ function loadDraft(): ProposalDraftForm {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_DRAFT;
     const parsed = JSON.parse(raw) as Partial<ProposalDraftForm>;
-    const legacyChamber = (parsed as { chamber?: unknown }).chamber;
     const chamberId =
-      typeof parsed.chamberId === "string"
-        ? parsed.chamberId
-        : typeof legacyChamber === "string"
-          ? (chambers.find((c) => c.id === legacyChamber)?.id ??
-            chambers.find(
-              (c) => c.name.toLowerCase() === legacyChamber.toLowerCase(),
-            )?.id ??
-            "")
-          : "";
+      typeof parsed.chamberId === "string" ? parsed.chamberId : "";
     return {
       ...DEFAULT_DRAFT,
       ...parsed,
@@ -134,6 +126,7 @@ const ProposalCreation: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
   const [attemptedNext, setAttemptedNext] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [chambers, setChambers] = useState<ChamberDto[]>([]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
@@ -178,11 +171,28 @@ const ProposalCreation: React.FC = () => {
       .slice()
       .sort((a, b) => a.name.localeCompare(b.name))
       .map((chamber) => ({ value: chamber.id, label: chamber.name }));
-  }, []);
+  }, [chambers]);
 
   const selectedChamber = useMemo(() => {
     return chambers.find((c) => c.id === draft.chamberId) ?? null;
-  }, [draft.chamberId]);
+  }, [chambers, draft.chamberId]);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await apiChambers();
+        if (!active) return;
+        setChambers(res.items);
+      } catch {
+        if (!active) return;
+        setChambers([]);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     setSearchParams({ step }, { replace: true });

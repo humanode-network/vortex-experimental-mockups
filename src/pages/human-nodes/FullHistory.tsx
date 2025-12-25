@@ -8,13 +8,37 @@ import { PageHint } from "@/components/PageHint";
 import { PageHeader } from "@/components/PageHeader";
 import { Kicker } from "@/components/Kicker";
 import { Link, useParams } from "react-router";
-import { getHumanNodeProfile } from "@/data/mock/humanNodeProfiles";
+import { useEffect, useState } from "react";
+import { apiHuman } from "@/lib/apiClient";
+import type { HumanNodeProfileDto } from "@/types/api";
 
 const FullHistory: React.FC = () => {
   const { id } = useParams();
-  const profile = getHumanNodeProfile(id);
-  const name = profile.name;
-  const activity = profile.activity;
+  const [profile, setProfile] = useState<HumanNodeProfileDto | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    let active = true;
+    (async () => {
+      try {
+        const res = await apiHuman(id);
+        if (!active) return;
+        setProfile(res);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setProfile(null);
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  const name = profile?.name ?? id ?? "Human node";
+  const activity = profile?.activity ?? [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -24,6 +48,12 @@ const FullHistory: React.FC = () => {
         title={name}
         titleClassName="text-2xl text-foreground"
       />
+
+      {profile === null ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-muted">
+          {loadError ? `History unavailable: ${loadError}` : "Loading history…"}
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader className="pb-2">

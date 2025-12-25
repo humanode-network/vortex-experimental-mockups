@@ -4,19 +4,48 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/primitives/card";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router";
 import { Surface } from "@/components/Surface";
 import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
-import { courtCases } from "@/data/mock/courts";
-import { getHumanNode } from "@/data/mock/humanNodes";
 import { CourtStatusBadge } from "@/components/CourtStatusBadge";
 import { VoteButton } from "@/components/VoteButton";
+import { apiCourt, apiHumans } from "@/lib/apiClient";
+import type { CourtCaseDetailDto, HumanNodeDto } from "@/types/api";
 
 const Courtroom: React.FC = () => {
   const { id } = useParams();
-  const courtCase = id ? courtCases.find((c) => c.id === id) : undefined;
+  const [courtCase, setCourtCase] = useState<CourtCaseDetailDto | null>(null);
+  const [humansById, setHumansById] = useState<Record<string, HumanNodeDto>>(
+    {},
+  );
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    let active = true;
+    (async () => {
+      try {
+        const [court, humans] = await Promise.all([apiCourt(id), apiHumans()]);
+        if (!active) return;
+        setCourtCase(court);
+        setHumansById(
+          Object.fromEntries(humans.items.map((h) => [h.id, h] as const)),
+        );
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        setCourtCase(null);
+        setHumansById({});
+        setLoadError((error as Error).message);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
   const caseTitle =
     courtCase?.subject ?? (id ? `Courtroom · ${id}` : "Courtroom");
 
@@ -24,7 +53,7 @@ const Courtroom: React.FC = () => {
   const votingEnabled = courtCase?.status === "live";
 
   const juryMembers = (courtCase?.juryIds ?? []).map((memberId) => {
-    const node = getHumanNode(memberId);
+    const node = humansById[memberId];
     return {
       id: memberId,
       name: node?.name ?? memberId,
@@ -35,14 +64,14 @@ const Courtroom: React.FC = () => {
 
   const parties = useMemo(() => {
     return (courtCase?.parties ?? []).map((party) => {
-      const node = getHumanNode(party.humanId);
+      const node = humansById[party.humanId];
       return {
         ...party,
         name: node?.name ?? party.humanId,
         tier: node?.tier,
       };
     });
-  }, [courtCase?.parties]);
+  }, [courtCase?.parties, humansById]);
 
   const renderInlineCode = (text: string) =>
     text.split(/`([^`]+)`/g).map((part, idx) => {
@@ -62,6 +91,18 @@ const Courtroom: React.FC = () => {
   return (
     <div className="flex flex-col gap-6">
       <PageHint pageId="courtroom" />
+
+      {id && courtCase === null && !loadError ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-muted">
+          Loading courtroom…
+        </Card>
+      ) : null}
+      {loadError ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-[var(--destructive)]">
+          Courtroom unavailable: {loadError}
+        </Card>
+      ) : null}
+
       <Card>
         <CardHeader className="pb-2">
           <div className="flex flex-wrap items-start justify-between gap-3">
