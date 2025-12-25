@@ -21,3 +21,4 @@ This file records the v1 decisions used by the simulation backend so implementat
   - Inline seed reads via `READ_MODELS_INLINE=true` (no DB required).
   - Empty reads via `READ_MODELS_INLINE_EMPTY=true` (clean UI; list endpoints return `{ items: [] }`).
 - DB can be wiped without dropping schema via `yarn db:clear` (requires `DATABASE_URL`).
+- Event log scaffold exists as `events` (append-only table) and `GET /api/feed` can be backed by it in DB mode.

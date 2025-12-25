@@ -15,6 +15,13 @@
       "when": 1766533489857,
       "tag": "0001_bitter_oracle",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1766670704887,
+      "tag": "0002_dear_betty_ross",
+      "breakpoints": true
     }
   ]
 }

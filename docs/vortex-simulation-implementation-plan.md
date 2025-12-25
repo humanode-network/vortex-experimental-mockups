@@ -37,6 +37,12 @@ Implemented (backend skeleton):
   - Seed tests: `tests/db-seed.test.js`, `tests/migrations.test.js`
 - Phase 3 tests: `tests/api-auth-signature.test.js`, `tests/api-gate-rpc.test.js`
   - Nonce + rate limit tests: `tests/api-auth-nonce.test.js`
+- Event log scaffold (Phase 5 started):
+  - `events` table migration: `db/migrations/0002_dear_betty_ross.sql`
+  - Event payload schema: `functions/_lib/eventSchemas.ts`
+  - DB-backed feed listing: `functions/_lib/eventsStore.ts`
+  - Seed fixtures for events: `db/seed/events.ts` (used by `yarn db:seed`)
+  - Seed test: `tests/events-seed.test.js`
 
 Not implemented:
 

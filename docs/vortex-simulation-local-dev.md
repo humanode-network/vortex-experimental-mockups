@@ -101,7 +101,7 @@ DB setup uses the read-model bridge seeded from `db/seed/fixtures/*`:
 
 - Generate migrations: `yarn db:generate`
 - Apply migrations: `yarn db:migrate` (requires `DATABASE_URL`)
-- Seed into `read_models`: `yarn db:seed` (requires `DATABASE_URL`)
+- Seed into `read_models` and the `events` table: `yarn db:seed` (requires `DATABASE_URL`)
 
 ### Clearing all data (keep schema)
 

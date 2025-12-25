@@ -1,13 +1,15 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
+import { sql } from "drizzle-orm";
 import { pathToFileURL } from "node:url";
 
-import { readModels } from "../db/schema.ts";
+import { events, readModels } from "../db/schema.ts";
 
 import {
   buildReadModelSeed,
   type ReadModelSeedEntry,
 } from "../db/seed/readModels.ts";
+import { buildEventSeed } from "../db/seed/events.ts";
 
 function requireEnv(key: string): string {
   const value = process.env[key];
@@ -34,14 +36,30 @@ export { buildReadModelSeed };
 
 async function main() {
   const databaseUrl = requireEnv("DATABASE_URL");
-  const sql = neon(databaseUrl);
-  const db = drizzle(sql);
+  const client = neon(databaseUrl);
+  const db = drizzle(client);
 
   for (const entry of buildReadModelSeed()) {
     await upsertReadModel(db, entry.key, entry.payload);
   }
 
-  console.log("Seeded read models into Postgres.");
+  const eventSeed = buildEventSeed();
+  await db.execute(sql`TRUNCATE TABLE events RESTART IDENTITY`);
+  if (eventSeed.length > 0) {
+    await db.insert(events).values(
+      eventSeed.map((event) => ({
+        type: event.type,
+        stage: event.stage,
+        actorAddress: event.actorAddress,
+        entityType: event.entityType,
+        entityId: event.entityId,
+        payload: event.payload,
+        createdAt: event.createdAt,
+      })),
+    );
+  }
+
+  console.log("Seeded read models and events into Postgres.");
 }
 
 const isMain = import.meta.url === pathToFileURL(process.argv[1] ?? "").href;

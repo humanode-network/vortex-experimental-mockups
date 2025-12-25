@@ -213,6 +213,8 @@ Local dev modes for reads:
 - `events` (append-only):
   - `id`, `type`, `actorUserId?`, `entityType`, `entityId`, `payloadJson`, `createdAt`
 
+In the current repo implementation, `events` exists as an append-only Postgres table and `GET /api/feed` can be served from it in DB mode.
+
 ## 6) Mapping: processes → modules → APIs → tables/events
 
 This section maps each workflow from `docs/vortex-simulation-processes.md` to concrete tech.

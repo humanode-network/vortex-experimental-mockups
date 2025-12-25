@@ -17,6 +17,7 @@ Notes:
 - Timestamps are ISO strings.
 - List endpoints return `{ items: [...] }` and may add cursors later.
 - When the backing read-model entry does not exist, list endpoints return `{ items: [] }` (HTTP 200). Some singleton endpoints return a minimal empty object (documented below).
+- Cursors are opaque and may be backed by different underlying stores (read models vs event log). Clients should treat `nextCursor` as an opaque string and pass it back unchanged.
 
 ## Auth + gating
 

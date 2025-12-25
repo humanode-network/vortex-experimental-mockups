@@ -1,23 +1,36 @@
 import { createReadModelsStore } from "../../_lib/readModelsStore.ts";
 import { errorResponse, jsonResponse } from "../../_lib/http.ts";
 import { base64UrlDecode, base64UrlEncode } from "../../_lib/base64url.ts";
+import { listFeedEventsPage } from "../../_lib/eventsStore.ts";
 
 const DEFAULT_PAGE_SIZE = 25;
 
-function decodeCursor(input: string): { ts: string; id: string } | null {
+type Cursor =
+  | { kind: "read_models"; ts: string; id: string }
+  | { kind: "events"; seq: number };
+
+function decodeCursor(input: string): Cursor | null {
   try {
     const bytes = base64UrlDecode(input);
     const raw = new TextDecoder().decode(bytes);
-    const parsed = JSON.parse(raw) as { ts?: unknown; id?: unknown };
-    if (typeof parsed.ts !== "string" || typeof parsed.id !== "string")
-      return null;
-    return { ts: parsed.ts, id: parsed.id };
+    const parsed = JSON.parse(raw) as {
+      ts?: unknown;
+      id?: unknown;
+      seq?: unknown;
+    };
+    if (typeof parsed.seq === "number" && Number.isFinite(parsed.seq)) {
+      return { kind: "events", seq: parsed.seq };
+    }
+    if (typeof parsed.ts === "string" && typeof parsed.id === "string") {
+      return { kind: "read_models", ts: parsed.ts, id: parsed.id };
+    }
+    return null;
   } catch {
     return null;
   }
 }
 
-function encodeCursor(input: { ts: string; id: string }): string {
+function encodeCursor(input: { ts: string; id: string } | { seq: number }) {
   const raw = JSON.stringify(input);
   const bytes = new TextEncoder().encode(raw);
   return base64UrlEncode(bytes);
@@ -25,13 +38,40 @@ function encodeCursor(input: { ts: string; id: string }): string {
 
 export const onRequestGet: PagesFunction = async (context) => {
   try {
-    const store = await createReadModelsStore(context.env);
-    const payload = await store.get("feed:list");
-    if (!payload) return jsonResponse({ items: [] });
-
     const url = new URL(context.request.url);
     const stage = url.searchParams.get("stage");
     const cursor = url.searchParams.get("cursor");
+    const decoded = cursor ? decodeCursor(cursor) : null;
+    if (cursor && !decoded) return errorResponse(400, "Invalid cursor");
+
+    const wantsInlineReadModels = context.env.READ_MODELS_INLINE === "true";
+    const hasDatabase = Boolean(context.env.DATABASE_URL);
+
+    if (hasDatabase && !wantsInlineReadModels) {
+      if (decoded && decoded.kind !== "events") {
+        return errorResponse(400, "Invalid cursor");
+      }
+      const beforeSeq = decoded?.seq ?? null;
+      const page = await listFeedEventsPage(context.env, {
+        stage,
+        beforeSeq,
+        limit: DEFAULT_PAGE_SIZE,
+      });
+      const nextCursor =
+        page.nextSeq !== undefined
+          ? encodeCursor({ seq: page.nextSeq })
+          : undefined;
+      return jsonResponse(
+        nextCursor ? { items: page.items, nextCursor } : { items: page.items },
+      );
+    }
+
+    const store = await createReadModelsStore(context.env);
+    const payload = await store.get("feed:list");
+    if (!payload) return jsonResponse({ items: [] });
+    if (decoded && decoded.kind !== "read_models") {
+      return errorResponse(400, "Invalid cursor");
+    }
 
     const typed = payload as {
       items?: { id: string; stage: string; timestamp: string }[];
@@ -45,9 +85,7 @@ export const onRequestGet: PagesFunction = async (context) => {
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
     );
 
-    if (cursor) {
-      const decoded = decodeCursor(cursor);
-      if (!decoded) return errorResponse(400, "Invalid cursor");
+    if (decoded?.kind === "read_models") {
       const idx = items.findIndex(
         (item) => item.timestamp === decoded.ts && item.id === decoded.id,
       );

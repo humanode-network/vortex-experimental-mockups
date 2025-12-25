@@ -1,4 +1,11 @@
-import { integer, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  bigserial,
+  integer,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   address: text("address").primaryKey(),
@@ -44,6 +51,20 @@ export const readModels = pgTable("read_models", {
   key: text("key").primaryKey(),
   payload: jsonb("payload").notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// Append-only event log backbone (Phase 5).
+export const events = pgTable("events", {
+  seq: bigserial("seq", { mode: "number" }).primaryKey(),
+  type: text("type").notNull(),
+  stage: text("stage"),
+  actorAddress: text("actor_address"),
+  entityType: text("entity_type").notNull(),
+  entityId: text("entity_id").notNull(),
+  payload: jsonb("payload").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
 });
