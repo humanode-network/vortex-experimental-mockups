@@ -56,6 +56,7 @@ function resolveRoute(pathname) {
       /^\/api\/auth\/logout$/,
       () => import("../functions/api/auth/logout.ts"),
     ],
+    ["POST", /^\/api\/command$/, () => import("../functions/api/command.ts")],
     ["GET", /^\/api\/clock$/, () => import("../functions/api/clock/index.ts")],
     [
       "POST",

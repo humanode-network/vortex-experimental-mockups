@@ -2,6 +2,7 @@ import {
   bigserial,
   integer,
   jsonb,
+  primaryKey,
   pgTable,
   text,
   timestamp,
@@ -64,6 +65,34 @@ export const events = pgTable("events", {
   entityType: text("entity_type").notNull(),
   entityId: text("entity_id").notNull(),
   payload: jsonb("payload").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const poolVotes = pgTable(
+  "pool_votes",
+  {
+    proposalId: text("proposal_id").notNull(),
+    voterAddress: text("voter_address").notNull(),
+    direction: integer("direction").notNull(), // 1 (upvote) or -1 (downvote)
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.proposalId, t.voterAddress] }),
+  }),
+);
+
+export const idempotencyKeys = pgTable("idempotency_keys", {
+  key: text("key").primaryKey(),
+  address: text("address").notNull(),
+  request: jsonb("request").notNull(),
+  response: jsonb("response").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

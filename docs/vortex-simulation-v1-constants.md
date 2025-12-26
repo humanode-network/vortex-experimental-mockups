@@ -22,3 +22,7 @@ This file records the v1 decisions used by the simulation backend so implementat
   - Empty reads via `READ_MODELS_INLINE_EMPTY=true` (clean UI; list endpoints return `{ items: [] }`).
 - DB can be wiped without dropping schema via `yarn db:clear` (requires `DATABASE_URL`).
 - Event log scaffold exists as `events` (append-only table) and `GET /api/feed` can be backed by it in DB mode.
+- Phase 6 write slice exists:
+  - `POST /api/command` supports `pool.vote` (auth + gate + idempotency).
+  - `pool_votes` stores one vote per address per proposal and `GET /api/proposals/:id/pool` overlays live counts.
+  - Pool quorum evaluation exists (`evaluatePoolQuorum`) and proposals auto-advance from pool → vote by updating the `proposals:list` read model.

@@ -40,14 +40,24 @@ Implemented (backend skeleton):
 - Event log scaffold (Phase 5 started):
   - `events` table migration: `db/migrations/0002_dear_betty_ross.sql`
   - Event payload schema: `functions/_lib/eventSchemas.ts`
+  - Feed projector: `functions/_lib/feedEventProjector.ts`
   - DB-backed feed listing: `functions/_lib/eventsStore.ts`
   - Seed fixtures for events: `db/seed/events.ts` (used by `yarn db:seed`)
   - Seed test: `tests/events-seed.test.js`
+  - Projector test: `tests/feed-event-projector.test.js`
+- Phase 6 write slice (pool voting started):
+  - `pool_votes` + `idempotency_keys` migration: `db/migrations/0003_cultured_supreme_intelligence.sql`
+  - Command endpoint: `POST /api/command` (`functions/api/command.ts`)
+  - Pool vote storage + counts: `functions/_lib/poolVotesStore.ts`
+  - Idempotency storage: `functions/_lib/idempotencyStore.ts`
+  - Pool page overlays live counts: `functions/api/proposals/[id]/pool.ts`
+  - UI wiring: Proposal pool votes call the API (`src/pages/proposals/ProposalPP.tsx`)
+  - Tests: `tests/api-command-pool-vote.test.js`
 
 Not implemented:
 
-- Event-log powered feed + domain state machines + any write commands
-- Normalized tables/projections beyond the transitional `read_models` bridge
+- Full domain state machines (proposal stage transitions, chamber vote, formation, courts)
+- Event-driven read projections beyond the transitional `read_models` bridge
 
 ## Guiding principles
 
@@ -85,8 +95,8 @@ This is the order we’ll follow from now on, based on what’s already landed.
 5. **Phase 2c — DB skeleton + migrations + seed-from-fixtures (DONE)**
 6. **Phase 3 — Auth + eligibility gate (DONE)**
 7. **Phase 4 — Read models first (all pages, clean-by-default) (DONE)**
-8. **Phase 5 — Event log backbone**
-9. **Phase 6 — First write slice (pool voting)**
+8. **Phase 5 — Event log backbone (DONE)**
+9. **Phase 6 — First write slice (pool voting) (IN PROGRESS)**
 10. **Phase 7 — Chamber vote + CM awarding**
 11. **Phase 8 — Formation v1**
 12. **Phase 9 — Courts v1**
@@ -296,13 +306,27 @@ Tests:
    - gating required (`isActiveHumanNode`)
    - idempotency key support
 2. Implement `pool.vote` command:
-   - write pool vote with unique constraint (proposalId + userId)
-   - emit `pool.vote_cast`
-   - update/compute pool metrics
-   - if gates met, emit `proposal.moved_to_vote` + transition record
+   - write pool vote with unique constraint (proposalId + voter address)
+   - return updated upvote/downvote counts
+   - overlay live counts in `GET /api/proposals/:id/pool`
+   - compute quorum thresholds and stage transitions (pool → vote)
 3. Frontend:
    - ProposalPP page upvote/downvote calls API
    - optimistic UI optional (but must reconcile)
+
+Current status:
+
+- Implemented:
+  - `POST /api/command` + `pool.vote` with idempotency
+  - `pool_votes` storage (DB mode) with in-memory fallback for tests/dev without a DB
+  - Proposal pool page reads overlay the live vote counts
+  - Pool quorum evaluator (`evaluatePoolQuorum`) and pool → vote auto-advance when thresholds are met
+    - the proposal stage is advanced by updating the `proposals:list` read model
+    - if the chamber page read model is missing, it is created from the pool page payload
+  - Pool voting is rejected when a proposal is no longer in the pool stage (HTTP 409)
+  - ProposalPP UI calls `pool.vote` and refetches the pool page on success
+- Not implemented yet:
+  - writing normalized proposal state transitions (beyond the UI read models)
 
 Deliverable: users can perform one real action (pool vote) and see it in metrics + feed.
 

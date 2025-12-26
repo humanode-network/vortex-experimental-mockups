@@ -17,13 +17,17 @@ import {
   ProposalSummaryCard,
   ProposalTeamMilestonesCard,
 } from "@/components/ProposalSections";
-import { apiProposalPoolPage } from "@/lib/apiClient";
+import { apiPoolVote, apiProposalPoolPage } from "@/lib/apiClient";
 import type { PoolProposalPageDto } from "@/types/api";
+import { useAuth } from "@/app/auth/AuthContext";
 
 const ProposalPP: React.FC = () => {
   const { id } = useParams();
   const [proposal, setProposal] = useState<PoolProposalPageDto | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [voteError, setVoteError] = useState<string | null>(null);
+  const [voteSubmitting, setVoteSubmitting] = useState(false);
+  const auth = useAuth();
 
   useEffect(() => {
     if (!id) return;
@@ -72,6 +76,9 @@ const ProposalPP: React.FC = () => {
   const [pendingAction, setPendingAction] = useState<
     "upvote" | "downvote" | null
   >(null);
+
+  const votingAllowed =
+    !auth.enabled || (auth.authenticated && auth.eligible && !auth.loading);
 
   const engaged = proposal.upvotes + proposal.downvotes;
   const attentionPercent = Math.round(
@@ -122,9 +129,18 @@ const ProposalPP: React.FC = () => {
               tone="accent"
               icon="▲"
               label="Upvote"
+              disabled={!votingAllowed}
+              title={
+                votingAllowed
+                  ? undefined
+                  : auth.enabled && !auth.authenticated
+                    ? "Connect your wallet to vote."
+                    : (auth.gateReason ?? "Only active human nodes can vote.")
+              }
               onClick={() => {
                 setPendingAction("upvote");
                 setRulesChecked(false);
+                setVoteError(null);
                 setShowRules(true);
               }}
             />
@@ -133,9 +149,18 @@ const ProposalPP: React.FC = () => {
               tone="destructive"
               icon="▼"
               label="Downvote"
+              disabled={!votingAllowed}
+              title={
+                votingAllowed
+                  ? undefined
+                  : auth.enabled && !auth.authenticated
+                    ? "Connect your wallet to vote."
+                    : (auth.gateReason ?? "Only active human nodes can vote.")
+              }
               onClick={() => {
                 setPendingAction("downvote");
                 setRulesChecked(false);
+                setVoteError(null);
                 setShowRules(true);
               }}
             />
@@ -267,21 +292,48 @@ const ProposalPP: React.FC = () => {
             </button>
             <button
               type="button"
-              disabled={!rulesChecked}
+              disabled={!rulesChecked || voteSubmitting || !pendingAction}
               className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
-                !rulesChecked
+                !rulesChecked || voteSubmitting || !pendingAction
                   ? "cursor-not-allowed bg-muted text-[var(--primary-foreground)] opacity-60"
                   : pendingAction === "downvote"
                     ? "border-2 border-[var(--destructive)] bg-[var(--destructive)] text-[var(--destructive-foreground)] hover:opacity-95"
                     : "border-2 border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)] hover:opacity-95"
               }`}
-              onClick={() => setShowRules(false)}
+              onClick={async () => {
+                if (!id || !pendingAction) return;
+                setVoteSubmitting(true);
+                setVoteError(null);
+                try {
+                  await apiPoolVote({
+                    proposalId: id,
+                    direction: pendingAction === "upvote" ? "up" : "down",
+                    idempotencyKey: crypto.randomUUID(),
+                  });
+                  const next = await apiProposalPoolPage(id);
+                  setProposal(next);
+                  setShowRules(false);
+                } catch (error) {
+                  setVoteError((error as Error).message);
+                } finally {
+                  setVoteSubmitting(false);
+                }
+              }}
             >
               {pendingAction === "downvote"
-                ? "Confirm downvote"
-                : "Confirm upvote"}
+                ? voteSubmitting
+                  ? "Submitting…"
+                  : "Confirm downvote"
+                : voteSubmitting
+                  ? "Submitting…"
+                  : "Confirm upvote"}
             </button>
           </div>
+          {voteError ? (
+            <p className="mt-3 text-sm text-[var(--destructive)]">
+              {voteError}
+            </p>
+          ) : null}
         </Surface>
       </Modal>
 

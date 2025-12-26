@@ -127,6 +127,32 @@ export async function apiProposalPoolPage(
   return await apiGet<PoolProposalPageDto>(`/api/proposals/${id}/pool`);
 }
 
+export type PoolVoteDirection = "up" | "down";
+
+export async function apiPoolVote(input: {
+  proposalId: string;
+  direction: PoolVoteDirection;
+  idempotencyKey?: string;
+}): Promise<{
+  ok: true;
+  type: "pool.vote";
+  proposalId: string;
+  direction: PoolVoteDirection;
+  counts: { upvotes: number; downvotes: number };
+}> {
+  return await apiPost(
+    "/api/command",
+    {
+      type: "pool.vote",
+      payload: { proposalId: input.proposalId, direction: input.direction },
+      idempotencyKey: input.idempotencyKey,
+    },
+    input.idempotencyKey
+      ? { headers: { "idempotency-key": input.idempotencyKey } }
+      : undefined,
+  );
+}
+
 export async function apiProposalChamberPage(
   id: string,
 ): Promise<ChamberProposalPageDto> {

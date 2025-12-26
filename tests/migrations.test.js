@@ -16,6 +16,8 @@ test("db migrations: contain core tables", () => {
     "clock_state",
     "read_models",
     "events",
+    "pool_votes",
+    "idempotency_keys",
   ]) {
     assert.match(sql, new RegExp(`CREATE TABLE\\s+\\"${table}\\"`));
   }

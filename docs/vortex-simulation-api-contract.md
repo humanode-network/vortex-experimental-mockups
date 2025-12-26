@@ -34,6 +34,52 @@ Eligibility (v1):
 
 - The backend checks Humanode mainnet RPC and considers an address eligible if it is “active” per `ImOnline::*` (with a safe fallback to `Session::Validators` in v1).
 
+## Write endpoints (Phase 6+)
+
+### `POST /api/command`
+
+All state-changing operations are routed through a single command endpoint. Each command requires:
+
+- a valid session cookie (`vortex_session`)
+- eligibility (active human node via RPC gating), unless dev bypass is enabled
+
+Idempotency:
+
+- Clients may pass an `Idempotency-Key` (or `idempotency-key`) header.
+- If the same key is sent again with the same request body, the stored response is returned.
+- If the same key is re-used with a different request body, the API returns HTTP `409`.
+
+#### Command: `pool.vote`
+
+Request:
+
+```ts
+type PoolVoteDirection = "up" | "down";
+type PoolVoteCommand = {
+  type: "pool.vote";
+  payload: { proposalId: string; direction: PoolVoteDirection };
+  idempotencyKey?: string;
+};
+```
+
+Response:
+
+```ts
+type PoolVoteResponse = {
+  ok: true;
+  type: "pool.vote";
+  proposalId: string;
+  direction: PoolVoteDirection;
+  counts: { upvotes: number; downvotes: number };
+};
+```
+
+Notes:
+
+- If the proposal is not currently in the pool stage, the API returns HTTP `409` (the pool phase is closed once the proposal advances).
+- When pool quorum thresholds are met, the backend auto-advances the proposal from **pool → vote** by updating the `proposals:list` read model.
+  - If `proposals:${proposalId}:chamber` does not exist yet, it is created from the pool page payload as a minimal placeholder so the UI can render the chamber vote view.
+
 ## Read endpoints
 
 These endpoints are implemented under `functions/api/*` and read from `read_models` (DB mode) or the inline seed (inline mode).

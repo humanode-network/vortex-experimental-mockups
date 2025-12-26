@@ -27,9 +27,10 @@ Production deploys the API as **Cloudflare Pages Functions** under `functions/`.
   - `GET /api/factions/:id`
   - `GET /api/formation`
   - `GET /api/invision`
-  - `GET /api/my-governance`
+- `GET /api/my-governance`
 - `GET /api/clock` (simulation time snapshot)
 - `POST /api/clock/advance-era` (admin-only; increments era by 1)
+- `POST /api/command` (write commands; gated)
 
 ## Required env vars
 
@@ -102,6 +103,7 @@ DB setup uses the read-model bridge seeded from `db/seed/fixtures/*`:
 - Generate migrations: `yarn db:generate`
 - Apply migrations: `yarn db:migrate` (requires `DATABASE_URL`)
 - Seed into `read_models` and the `events` table: `yarn db:seed` (requires `DATABASE_URL`)
+  - Also truncates `pool_votes` and `idempotency_keys` so repeated seeds stay deterministic.
 
 ### Clearing all data (keep schema)
 

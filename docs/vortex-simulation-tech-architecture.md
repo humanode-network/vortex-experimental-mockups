@@ -138,6 +138,7 @@ These tables support the workflows and auditability; the system starts lean and 
 - `users` (account): `id`, `address`, `displayName`, `createdAt`
 - `auth_nonces`: `address`, `nonce`, `expiresAt`, `usedAt`
 - `sessions` (if not JWT-only): `id`, `userId`, `expiresAt`
+- `idempotency_keys`: stores request/response pairs for `POST /api/command` retries
 
 ### Eligibility cache (mainnet gating)
 
@@ -187,6 +188,11 @@ Local dev modes for reads:
 - `chamber_votes`: `proposalId`, `userId`, `vote` (yes/no/abstain), `cmScore?`, `createdAt`
 - `proposal_stage_transitions`: `proposalId`, `fromStage`, `toStage`, `atEra`, `atTime`
 - `proposal_attachments`: `proposalId`, `title`, `href`
+
+Current repo status:
+
+- `pool_votes` exists and is written via `POST /api/command` (`pool.vote`).
+- Pool read pages (`GET /api/proposals/:id/pool`) overlay live upvote/downvote counts from `pool_votes`.
 
 ### Formation
 

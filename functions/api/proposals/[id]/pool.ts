@@ -1,5 +1,6 @@
 import { createReadModelsStore } from "../../../_lib/readModelsStore.ts";
 import { errorResponse, jsonResponse } from "../../../_lib/http.ts";
+import { getPoolVoteCounts } from "../../../_lib/poolVotesStore.ts";
 
 export const onRequestGet: PagesFunction = async (context) => {
   try {
@@ -9,7 +10,13 @@ export const onRequestGet: PagesFunction = async (context) => {
     const payload = await store.get(`proposals:${id}:pool`);
     if (!payload)
       return errorResponse(404, `Missing read model: proposals:${id}:pool`);
-    return jsonResponse(payload);
+    const counts = await getPoolVoteCounts(context.env, id);
+    const patched = {
+      ...(payload as Record<string, unknown>),
+      upvotes: counts.upvotes,
+      downvotes: counts.downvotes,
+    };
+    return jsonResponse(patched);
   } catch (error) {
     return errorResponse(500, (error as Error).message);
   }

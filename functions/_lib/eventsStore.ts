@@ -18,6 +18,7 @@ export async function listFeedEventsPage(
   const db = createDb(env);
 
   const conditions = [];
+  conditions.push(eq(events.type, "feed.item.v1"));
   if (input.stage) conditions.push(eq(events.stage, input.stage));
   if (input.beforeSeq)
     conditions.push(lt(events.seq, Math.max(0, input.beforeSeq)));
