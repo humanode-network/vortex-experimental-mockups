@@ -4,18 +4,28 @@ import ProposalStageBar from "@/components/ProposalStageBar";
 import { Surface } from "@/components/Surface";
 import { StatTile } from "@/components/StatTile";
 import { PageHint } from "@/components/PageHint";
+import { Button } from "@/components/primitives/button";
 import {
   ProposalInvisionInsightCard,
   ProposalSummaryCard,
   ProposalTeamMilestonesCard,
 } from "@/components/ProposalSections";
-import { apiProposalFormationPage } from "@/lib/apiClient";
+import {
+  apiFormationJoin,
+  apiFormationMilestoneRequestUnlock,
+  apiFormationMilestoneSubmit,
+  apiProposalFormationPage,
+} from "@/lib/apiClient";
+import { useAuth } from "@/app/auth/AuthContext";
 import type { FormationProposalPageDto } from "@/types/api";
 
 const ProposalFormation: React.FC = () => {
   const { id } = useParams();
   const [project, setProject] = useState<FormationProposalPageDto | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionBusy, setActionBusy] = useState(false);
+  const auth = useAuth();
 
   useEffect(() => {
     if (!id) return;
@@ -59,6 +69,37 @@ const ProposalFormation: React.FC = () => {
     current: "draft" | "pool" | "chamber" | "formation",
   ) => <ProposalStageBar current={current} />;
 
+  const parseRatio = (value: string): { filled: number; total: number } => {
+    const parts = value.split("/").map((p) => p.trim());
+    if (parts.length !== 2) return { filled: 0, total: 0 };
+    const filled = Number(parts[0]);
+    const total = Number(parts[1]);
+    return {
+      filled: Number.isFinite(filled) ? filled : 0,
+      total: Number.isFinite(total) ? total : 0,
+    };
+  };
+
+  const milestones = parseRatio(project.milestones);
+  const nextMilestone =
+    milestones.total > 0 ? milestones.filled + 1 : undefined;
+
+  const runAction = async (fn: () => Promise<void>) => {
+    setActionError(null);
+    setActionBusy(true);
+    try {
+      await fn();
+      if (id) {
+        const next = await apiProposalFormationPage(id);
+        setProject(next);
+      }
+    } catch (error) {
+      setActionError((error as Error).message);
+    } finally {
+      setActionBusy(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <PageHint pageId="proposals" />
@@ -85,6 +126,94 @@ const ProposalFormation: React.FC = () => {
             valueClassName="text-2xl"
           />
         </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold text-text">Formation actions</h2>
+        <Surface
+          variant="panelAlt"
+          radius="2xl"
+          shadow="tile"
+          className="space-y-3 p-4"
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <Button
+              type="button"
+              size="lg"
+              disabled={!auth.authenticated || !auth.eligible || actionBusy}
+              onClick={() =>
+                void runAction(async () => {
+                  if (!id) return;
+                  await apiFormationJoin({ proposalId: id });
+                })
+              }
+            >
+              Join project
+            </Button>
+
+            <Button
+              type="button"
+              size="lg"
+              variant="outline"
+              disabled={
+                !auth.authenticated ||
+                !auth.eligible ||
+                actionBusy ||
+                !nextMilestone ||
+                nextMilestone > milestones.total
+              }
+              onClick={() =>
+                void runAction(async () => {
+                  if (!id || !nextMilestone) return;
+                  await apiFormationMilestoneSubmit({
+                    proposalId: id,
+                    milestoneIndex: nextMilestone,
+                  });
+                })
+              }
+            >
+              Submit M{nextMilestone ?? "—"}
+            </Button>
+
+            <Button
+              type="button"
+              size="lg"
+              variant="outline"
+              disabled={
+                !auth.authenticated ||
+                !auth.eligible ||
+                actionBusy ||
+                !nextMilestone ||
+                nextMilestone > milestones.total
+              }
+              onClick={() =>
+                void runAction(async () => {
+                  if (!id || !nextMilestone) return;
+                  await apiFormationMilestoneRequestUnlock({
+                    proposalId: id,
+                    milestoneIndex: nextMilestone,
+                  });
+                })
+              }
+            >
+              Unlock M{nextMilestone ?? "—"}
+            </Button>
+          </div>
+
+          {!auth.authenticated ? (
+            <p className="text-xs text-muted">Connect a wallet to act.</p>
+          ) : auth.authenticated && !auth.eligible ? (
+            <p className="text-xs text-muted">
+              Wallet is connected, but not active (gated).
+            </p>
+          ) : null}
+
+          {actionError ? (
+            <p className="text-xs text-muted" role="status">
+              {actionError}
+            </p>
+          ) : null}
+        </Surface>
       </section>
 
       <section className="space-y-3">

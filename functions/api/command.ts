@@ -17,6 +17,12 @@ import {
 } from "../_lib/chamberVotesStore.ts";
 import { evaluateChamberQuorum } from "../_lib/chamberQuorum.ts";
 import { awardCmOnce } from "../_lib/cmAwardsStore.ts";
+import {
+  joinFormationProject,
+  ensureFormationSeed,
+  requestFormationMilestoneUnlock,
+  submitFormationMilestone,
+} from "../_lib/formationStore.ts";
 
 const poolVoteSchema = z.object({
   type: z.literal("pool.vote"),
@@ -37,9 +43,40 @@ const chamberVoteSchema = z.object({
   idempotencyKey: z.string().min(8).optional(),
 });
 
+const formationJoinSchema = z.object({
+  type: z.literal("formation.join"),
+  payload: z.object({
+    proposalId: z.string().min(1),
+    role: z.string().min(1).optional(),
+  }),
+  idempotencyKey: z.string().min(8).optional(),
+});
+
+const formationMilestoneSubmitSchema = z.object({
+  type: z.literal("formation.milestone.submit"),
+  payload: z.object({
+    proposalId: z.string().min(1),
+    milestoneIndex: z.number().int().min(1),
+    note: z.string().min(1).optional(),
+  }),
+  idempotencyKey: z.string().min(8).optional(),
+});
+
+const formationMilestoneUnlockSchema = z.object({
+  type: z.literal("formation.milestone.requestUnlock"),
+  payload: z.object({
+    proposalId: z.string().min(1),
+    milestoneIndex: z.number().int().min(1),
+  }),
+  idempotencyKey: z.string().min(8).optional(),
+});
+
 const commandSchema = z.discriminatedUnion("type", [
   poolVoteSchema,
   chamberVoteSchema,
+  formationJoinSchema,
+  formationMilestoneSubmitSchema,
+  formationMilestoneUnlockSchema,
 ]);
 
 type CommandInput = z.infer<typeof commandSchema>;
@@ -89,7 +126,12 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   const readModels = await createReadModelsStore(context.env).catch(() => null);
   if (readModels) {
-    const requiredStage = input.type === "pool.vote" ? "pool" : "vote";
+    const requiredStage =
+      input.type === "pool.vote"
+        ? "pool"
+        : input.type === "chamber.vote"
+          ? "vote"
+          : "build";
     const stage = await getProposalStage(readModels, input.payload.proposalId);
     if (!stage) return errorResponse(404, "Unknown proposal");
     if (stage !== requiredStage) {
@@ -182,6 +224,206 @@ export const onRequestPost: PagesFunction = async (context) => {
     }
 
     return jsonResponse(response);
+  }
+
+  if (input.type === "formation.join") {
+    if (!readModels) return errorResponse(500, "Read models store unavailable");
+    let summary;
+    try {
+      summary = await joinFormationProject(context.env, readModels, {
+        proposalId: input.payload.proposalId,
+        memberAddress: session.address,
+        role: input.payload.role ?? null,
+      });
+    } catch (error) {
+      const message = (error as Error).message;
+      if (message === "team_full")
+        return errorResponse(409, "Formation team is full");
+      return errorResponse(400, "Unable to join formation project", {
+        code: message,
+      });
+    }
+
+    const response = {
+      ok: true as const,
+      type: input.type,
+      proposalId: input.payload.proposalId,
+      teamSlots: { filled: summary.teamFilled, total: summary.teamTotal },
+    };
+
+    if (idempotencyKey) {
+      await storeIdempotencyResponse(context.env, {
+        key: idempotencyKey,
+        address: session.address,
+        request: requestForIdem,
+        response,
+      });
+    }
+
+    await appendFeedItemEvent(context.env, {
+      stage: "build",
+      actorAddress: session.address,
+      entityType: "proposal",
+      entityId: input.payload.proposalId,
+      payload: {
+        id: `formation-join:${input.payload.proposalId}:${session.address}:${Date.now()}`,
+        title: "Joined formation project",
+        meta: "Formation",
+        stage: "build",
+        summaryPill: "Joined",
+        summary: "Joined the formation project team (mock).",
+        stats: [
+          {
+            label: "Team slots",
+            value: `${summary.teamFilled} / ${summary.teamTotal}`,
+          },
+        ],
+        ctaPrimary: "Open proposal",
+        href: `/app/proposals/${input.payload.proposalId}/formation`,
+        timestamp: new Date().toISOString(),
+      },
+    });
+
+    return jsonResponse(response);
+  }
+
+  if (input.type === "formation.milestone.submit") {
+    if (!readModels) return errorResponse(500, "Read models store unavailable");
+    let summary;
+    try {
+      summary = await submitFormationMilestone(context.env, readModels, {
+        proposalId: input.payload.proposalId,
+        milestoneIndex: input.payload.milestoneIndex,
+        actorAddress: session.address,
+        note: input.payload.note ?? null,
+      });
+    } catch (error) {
+      const message = (error as Error).message;
+      if (message === "milestone_out_of_range")
+        return errorResponse(400, "Milestone index is out of range");
+      if (message === "milestone_already_unlocked")
+        return errorResponse(409, "Milestone is already unlocked");
+      return errorResponse(400, "Unable to submit milestone", {
+        code: message,
+      });
+    }
+
+    const response = {
+      ok: true as const,
+      type: input.type,
+      proposalId: input.payload.proposalId,
+      milestoneIndex: input.payload.milestoneIndex,
+      milestones: {
+        completed: summary.milestonesCompleted,
+        total: summary.milestonesTotal,
+      },
+    };
+
+    if (idempotencyKey) {
+      await storeIdempotencyResponse(context.env, {
+        key: idempotencyKey,
+        address: session.address,
+        request: requestForIdem,
+        response,
+      });
+    }
+
+    await appendFeedItemEvent(context.env, {
+      stage: "build",
+      actorAddress: session.address,
+      entityType: "proposal",
+      entityId: input.payload.proposalId,
+      payload: {
+        id: `formation-milestone-submit:${input.payload.proposalId}:${input.payload.milestoneIndex}:${Date.now()}`,
+        title: "Milestone submitted",
+        meta: "Formation",
+        stage: "build",
+        summaryPill: `M${input.payload.milestoneIndex}`,
+        summary: "Submitted a milestone deliverable for review (mock).",
+        stats: [
+          {
+            label: "Milestones",
+            value: `${summary.milestonesCompleted} / ${summary.milestonesTotal}`,
+          },
+        ],
+        ctaPrimary: "Open proposal",
+        href: `/app/proposals/${input.payload.proposalId}/formation`,
+        timestamp: new Date().toISOString(),
+      },
+    });
+
+    return jsonResponse(response);
+  }
+
+  if (input.type === "formation.milestone.requestUnlock") {
+    if (!readModels) return errorResponse(500, "Read models store unavailable");
+    let summary;
+    try {
+      summary = await requestFormationMilestoneUnlock(context.env, readModels, {
+        proposalId: input.payload.proposalId,
+        milestoneIndex: input.payload.milestoneIndex,
+        actorAddress: session.address,
+      });
+    } catch (error) {
+      const message = (error as Error).message;
+      if (message === "milestone_out_of_range")
+        return errorResponse(400, "Milestone index is out of range");
+      if (message === "milestone_not_submitted")
+        return errorResponse(409, "Milestone must be submitted first");
+      if (message === "milestone_already_unlocked")
+        return errorResponse(409, "Milestone is already unlocked");
+      return errorResponse(400, "Unable to request unlock", { code: message });
+    }
+
+    const response = {
+      ok: true as const,
+      type: input.type,
+      proposalId: input.payload.proposalId,
+      milestoneIndex: input.payload.milestoneIndex,
+      milestones: {
+        completed: summary.milestonesCompleted,
+        total: summary.milestonesTotal,
+      },
+    };
+
+    if (idempotencyKey) {
+      await storeIdempotencyResponse(context.env, {
+        key: idempotencyKey,
+        address: session.address,
+        request: requestForIdem,
+        response,
+      });
+    }
+
+    await appendFeedItemEvent(context.env, {
+      stage: "build",
+      actorAddress: session.address,
+      entityType: "proposal",
+      entityId: input.payload.proposalId,
+      payload: {
+        id: `formation-milestone-unlock:${input.payload.proposalId}:${input.payload.milestoneIndex}:${Date.now()}`,
+        title: "Milestone unlocked",
+        meta: "Formation",
+        stage: "build",
+        summaryPill: `M${input.payload.milestoneIndex}`,
+        summary: "Milestone marked as unlocked (mock).",
+        stats: [
+          {
+            label: "Milestones",
+            value: `${summary.milestonesCompleted} / ${summary.milestonesTotal}`,
+          },
+        ],
+        ctaPrimary: "Open proposal",
+        href: `/app/proposals/${input.payload.proposalId}/formation`,
+        timestamp: new Date().toISOString(),
+      },
+    });
+
+    return jsonResponse(response);
+  }
+
+  if (input.type !== "chamber.vote") {
+    return errorResponse(400, "Unsupported command");
   }
 
   if (input.payload.choice !== "yes" && input.payload.score !== undefined) {
@@ -523,6 +765,7 @@ async function maybeAdvanceVoteProposalToBuild(
   if (!Array.isArray(items)) return false;
 
   await ensureFormationProposalPage(store, input.proposalId, chamberPayload);
+  await ensureFormationSeed(env, store, input.proposalId);
 
   let changed = false;
   const nextItems = items.map((item) => {

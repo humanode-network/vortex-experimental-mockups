@@ -98,7 +98,7 @@ This is the order we’ll follow from now on, based on what’s already landed.
 8. **Phase 5 — Event log backbone (DONE)**
 9. **Phase 6 — First write slice (pool voting) (DONE)**
 10. **Phase 7 — Chamber vote + CM awarding (DONE)**
-11. **Phase 8 — Formation v1**
+11. **Phase 8 — Formation v1 (DONE)**
 12. **Phase 9 — Courts v1**
 13. **Phase 10 — Era rollups + tier statuses**
 14. **Phase 11 — Hardening + moderation**
@@ -387,6 +387,19 @@ Tests:
 
 - Team slots cannot exceed total.
 - Milestone unlock rules enforced (cannot unlock before request; cannot double-unlock).
+
+Current status:
+
+- Implemented:
+  - Formation tables: `formation_projects`, `formation_team`, `formation_milestones`, `formation_milestone_events`
+  - Commands:
+    - `formation.join`
+    - `formation.milestone.submit`
+    - `formation.milestone.requestUnlock`
+  - Formation read overlays in `GET /api/proposals/:id/formation` (team slots + milestone counts + progress)
+  - Minimal UI wiring on the Formation proposal page (actions call `/api/command`)
+- Tests:
+  - `tests/api-command-formation.test.js`
 
 ## Phase 9 — Courts v1 (disputes) (5–14 days)
 

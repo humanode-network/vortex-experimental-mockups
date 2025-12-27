@@ -117,6 +117,95 @@ Notes:
   - a CM award record is stored in `cm_awards` (unique per proposal)
   - `/api/humans` and `/api/humans/:id` overlay the derived ACM delta from awards
 
+#### Command: `formation.join`
+
+Request:
+
+```ts
+type FormationJoinCommand = {
+  type: "formation.join";
+  payload: { proposalId: string; role?: string };
+  idempotencyKey?: string;
+};
+```
+
+Response:
+
+```ts
+type FormationJoinResponse = {
+  ok: true;
+  type: "formation.join";
+  proposalId: string;
+  teamSlots: { filled: number; total: number };
+};
+```
+
+Notes:
+
+- If the proposal is not currently in the build stage, the API returns HTTP `409`.
+- If team slots are full, the API returns HTTP `409`.
+- This command emits a feed event (stage: `build`).
+
+#### Command: `formation.milestone.submit`
+
+Request:
+
+```ts
+type FormationMilestoneSubmitCommand = {
+  type: "formation.milestone.submit";
+  payload: { proposalId: string; milestoneIndex: number; note?: string };
+  idempotencyKey?: string;
+};
+```
+
+Response:
+
+```ts
+type FormationMilestoneSubmitResponse = {
+  ok: true;
+  type: "formation.milestone.submit";
+  proposalId: string;
+  milestoneIndex: number;
+  milestones: { completed: number; total: number };
+};
+```
+
+Notes:
+
+- `milestoneIndex` is 1-based.
+- Submitting does not automatically increase `completed` until it is unlocked.
+- This command emits a feed event (stage: `build`).
+
+#### Command: `formation.milestone.requestUnlock`
+
+Request:
+
+```ts
+type FormationMilestoneRequestUnlockCommand = {
+  type: "formation.milestone.requestUnlock";
+  payload: { proposalId: string; milestoneIndex: number };
+  idempotencyKey?: string;
+};
+```
+
+Response:
+
+```ts
+type FormationMilestoneRequestUnlockResponse = {
+  ok: true;
+  type: "formation.milestone.requestUnlock";
+  proposalId: string;
+  milestoneIndex: number;
+  milestones: { completed: number; total: number };
+};
+```
+
+Notes:
+
+- Unlocking requires a prior submit (HTTP `409` if not submitted).
+- Double-unlock is rejected (HTTP `409`).
+- This command emits a feed event (stage: `build`).
+
 ## Read endpoints
 
 These endpoints are implemented under `functions/api/*` and read from `read_models` (DB mode) or the inline seed (inline mode).
@@ -445,6 +534,12 @@ type FormationProposalPageDto = {
   invisionInsight: InvisionInsightDto;
 };
 ```
+
+Notes:
+
+- The read-model payload is overlaid with Formation state:
+  - `teamSlots`, `milestones`, and `progress` are computed from stored Formation state.
+  - joined team members are appended to `lockedTeam` (as short addresses).
 
 ### Proposal drafts
 

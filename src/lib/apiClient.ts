@@ -179,6 +179,88 @@ export async function apiChamberVote(input: {
   );
 }
 
+export async function apiFormationJoin(input: {
+  proposalId: string;
+  role?: string;
+  idempotencyKey?: string;
+}): Promise<{
+  ok: true;
+  type: "formation.join";
+  proposalId: string;
+  teamSlots: { filled: number; total: number };
+}> {
+  return await apiPost(
+    "/api/command",
+    {
+      type: "formation.join",
+      payload: {
+        proposalId: input.proposalId,
+        ...(input.role ? { role: input.role } : {}),
+      },
+      idempotencyKey: input.idempotencyKey,
+    },
+    input.idempotencyKey
+      ? { headers: { "idempotency-key": input.idempotencyKey } }
+      : undefined,
+  );
+}
+
+export async function apiFormationMilestoneSubmit(input: {
+  proposalId: string;
+  milestoneIndex: number;
+  note?: string;
+  idempotencyKey?: string;
+}): Promise<{
+  ok: true;
+  type: "formation.milestone.submit";
+  proposalId: string;
+  milestoneIndex: number;
+  milestones: { completed: number; total: number };
+}> {
+  return await apiPost(
+    "/api/command",
+    {
+      type: "formation.milestone.submit",
+      payload: {
+        proposalId: input.proposalId,
+        milestoneIndex: input.milestoneIndex,
+        ...(input.note ? { note: input.note } : {}),
+      },
+      idempotencyKey: input.idempotencyKey,
+    },
+    input.idempotencyKey
+      ? { headers: { "idempotency-key": input.idempotencyKey } }
+      : undefined,
+  );
+}
+
+export async function apiFormationMilestoneRequestUnlock(input: {
+  proposalId: string;
+  milestoneIndex: number;
+  idempotencyKey?: string;
+}): Promise<{
+  ok: true;
+  type: "formation.milestone.requestUnlock";
+  proposalId: string;
+  milestoneIndex: number;
+  milestones: { completed: number; total: number };
+}> {
+  return await apiPost(
+    "/api/command",
+    {
+      type: "formation.milestone.requestUnlock",
+      payload: {
+        proposalId: input.proposalId,
+        milestoneIndex: input.milestoneIndex,
+      },
+      idempotencyKey: input.idempotencyKey,
+    },
+    input.idempotencyKey
+      ? { headers: { "idempotency-key": input.idempotencyKey } }
+      : undefined,
+  );
+}
+
 export async function apiProposalChamberPage(
   id: string,
 ): Promise<ChamberProposalPageDto> {

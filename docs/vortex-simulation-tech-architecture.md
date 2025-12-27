@@ -183,6 +183,10 @@ Planned:
 - `chamber_votes`: unique (proposalId, voterAddress) → yes/no/abstain + optional `score` (1–10) on yes votes
 - `cm_awards`: CM awards emitted when proposals pass (unique per proposal)
 - `idempotency_keys`: stored responses for idempotent command retries
+- `formation_projects`: per-proposal Formation counters/baselines
+- `formation_team`: extra Formation joiners (beyond seed baseline)
+- `formation_milestones`: per-proposal milestone status (`todo`/`submitted`/`unlocked`)
+- `formation_milestone_events`: append-only milestone submissions/unlock requests
 
 ### Planned normalized domain tables (not implemented yet)
 
@@ -207,10 +211,19 @@ Current repo behavior:
 
 ### Formation
 
-- `formation_projects`: `proposalId`, `stage`, `budgetTotal`, `budgetAllocated`, `teamSlotsTotal`, `teamSlotsFilled`
-- `formation_team`: `proposalId`, `userId`, `role`, `status`
-- `formation_milestones`: `proposalId`, `milestoneId`, `title`, `status`, `unlockAmount`, `acceptanceNotes`
-- `formation_milestone_events`: submissions, disputes, unlock decisions
+Implemented (v1):
+
+- Commands:
+  - `formation.join` fills team slots (capped by total).
+  - `formation.milestone.submit` marks a milestone as submitted (does not increase completion yet).
+  - `formation.milestone.requestUnlock` unlocks a submitted milestone (mock acceptance for v1).
+- Read overlay:
+  - `GET /api/proposals/:id/formation` overlays `teamSlots`, `milestones`, and `progress` from Formation state.
+- Tables:
+  - `formation_projects`: `proposalId`, totals + baselines derived from the Formation read model
+  - `formation_team`: `(proposalId, memberAddress)` join records (beyond the baseline)
+  - `formation_milestones`: `(proposalId, milestoneIndex)` state
+  - `formation_milestone_events`: append-only milestone events
 
 ### Courts
 

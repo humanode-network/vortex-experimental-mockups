@@ -130,3 +130,69 @@ export const cmAwards = pgTable("cm_awards", {
     .notNull()
     .defaultNow(),
 });
+
+export const formationProjects = pgTable("formation_projects", {
+  proposalId: text("proposal_id").primaryKey(),
+  teamSlotsTotal: integer("team_slots_total").notNull(),
+  baseTeamFilled: integer("base_team_filled").notNull().default(0),
+  milestonesTotal: integer("milestones_total").notNull(),
+  baseMilestonesCompleted: integer("base_milestones_completed")
+    .notNull()
+    .default(0),
+  budgetTotalHmnd: integer("budget_total_hmnd"),
+  baseBudgetAllocatedHmnd: integer("base_budget_allocated_hmnd"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const formationTeam = pgTable(
+  "formation_team",
+  {
+    proposalId: text("proposal_id").notNull(),
+    memberAddress: text("member_address").notNull(),
+    role: text("role"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.proposalId, t.memberAddress] }),
+  }),
+);
+
+export const formationMilestones = pgTable(
+  "formation_milestones",
+  {
+    proposalId: text("proposal_id").notNull(),
+    milestoneIndex: integer("milestone_index").notNull(),
+    status: text("status").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.proposalId, t.milestoneIndex] }),
+  }),
+);
+
+export const formationMilestoneEvents = pgTable("formation_milestone_events", {
+  id: bigserial("id", { mode: "number" }).primaryKey(),
+  proposalId: text("proposal_id").notNull(),
+  milestoneIndex: integer("milestone_index").notNull(),
+  type: text("type").notNull(),
+  actorAddress: text("actor_address"),
+  payload: jsonb("payload").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
