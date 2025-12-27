@@ -170,9 +170,10 @@ Current repo:
 
 - `clock_state`: `currentEra`, `updatedAt`
 
-Planned:
+Implemented:
 
-- `era_snapshots`: per-era aggregates (active governors, quorum baselines, etc.)
+- `era_snapshots`: per-era aggregates (v1: `activeGovernors`)
+- `era_user_activity`: per-era counters per address (pool/chamber/courts/formation actions)
 - `epoch_uptime`: optional (per address, per epoch/week) if Bioauth uptime is modeled in v1/v2
 
 ### Current tables (implemented)
@@ -183,6 +184,8 @@ Planned:
 - `chamber_votes`: unique (proposalId, voterAddress) → yes/no/abstain + optional `score` (1–10) on yes votes
 - `cm_awards`: CM awards emitted when proposals pass (unique per proposal)
 - `idempotency_keys`: stored responses for idempotent command retries
+- `era_snapshots`: per-era aggregates (v1: active governors baseline)
+- `era_user_activity`: per-era action counters per address
 - `formation_projects`: per-proposal Formation counters/baselines
 - `formation_team`: extra Formation joiners (beyond seed baseline)
 - `formation_milestones`: per-proposal milestone status (`todo`/`submitted`/`unlocked`)
@@ -285,14 +288,14 @@ Planned:
 
 Current repo:
 
-- **Module:** `clock`
+- **Module:** `clock`, `eraStore`
 - **API:** `GET /api/clock`, `POST /api/clock/advance-era`
-- **Tables:** `clock_state`
+- **Tables:** `clock_state`, `era_snapshots`, `era_user_activity`
 
 Planned:
 
 - **Module:** `governanceTime`, `tiers`, `cm`, `proposals`, `feed`
-- **Tables:** `era_snapshots`, `tiers`, `cm_lcm`, `proposal_stage_transitions`, `events`
+- **Tables:** `tiers` (or equivalent tier status table), proposal aggregates, `events`
 - **Events:** `era.rolled`, `quorum.baseline_updated`, `proposal.advanced`
 
 ### 2.3 Proposal drafting (wizard)
@@ -329,8 +332,8 @@ Planned:
 ### 2.7 Courts (case lifecycle)
 
 - **Module:** `courts`
-- **API:** `POST /api/command` (`court.case.report`, `court.case.verdict`, `court.evidence.add`)
-- **Tables:** `court_cases`, `court_reports`, `court_evidence`, `court_verdicts`, `court_outcomes`
+- **API:** `POST /api/command` (`court.case.report`, `court.case.verdict`)
+- **Tables:** `court_cases`, `court_reports`, `court_verdicts`
 - **Events:** `court.case_opened`, `court.report_added`, `court.session_live`, `court.verdict_cast`, `court.case_closed`
 
 ### 2.8 Delegation management
@@ -342,9 +345,9 @@ Planned:
 
 ### 2.9 Chambers directory + chamber detail
 
-- **Module:** `chambers` (read models)
+- **Module:** `chambers` (read models bridge)
 - **API:** `GET /api/chambers`, `GET /api/chambers/:id`
-- **Tables:** `chambers`, `chamber_membership`, `era_snapshots`, `cm_lcm`, plus proposal aggregates
+- **Tables:** `read_models` (v1; normalized `chambers`/`membership` comes later)
 - **Events:** none required (derived), but `chamber.stats_updated` can be emitted on rollup if stats are materialized.
 
 ### 2.10 Invision insights

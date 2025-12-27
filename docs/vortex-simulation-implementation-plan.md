@@ -100,8 +100,9 @@ This is the order we’ll follow from now on, based on what’s already landed.
 10. **Phase 7 — Chamber vote + CM awarding (DONE)**
 11. **Phase 8 — Formation v1 (DONE)**
 12. **Phase 9 — Courts v1 (DONE)**
-13. **Phase 10 — Era rollups + tier statuses**
-14. **Phase 11 — Hardening + moderation**
+13. **Phase 10a — Era snapshots + activity counters (DONE)**
+14. **Phase 10b — Era rollups + tier statuses**
+15. **Phase 11 — Hardening + moderation**
 
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
 
@@ -433,7 +434,32 @@ Current status:
 - Tests:
   - `tests/api-command-courts.test.js`
 
-## Phase 10 — Era rollups + tier statuses (ongoing)
+## Phase 10a — Era snapshots + activity counters (DONE)
+
+Goal: make “time” and “activity” real, without changing UI contracts.
+
+Implemented:
+
+- Tables:
+  - `era_snapshots` (per-era aggregates, including `activeGovernors`)
+  - `era_user_activity` (per-era counters for actions)
+- Active governors baseline:
+  - `SIM_ACTIVE_GOVERNORS` (or `VORTEX_ACTIVE_GOVERNORS`) sets the default baseline.
+  - Defaults to `150` if unset/invalid.
+- `POST /api/clock/advance-era` ensures the next `era_snapshots` row exists.
+- Proposal page overlays:
+  - `GET /api/proposals/:id/pool` and `GET /api/proposals/:id/chamber` override `activeGovernors` from the current era snapshot.
+- My Governance overlay:
+  - `GET /api/my-governance` returns the base read model for anonymous users.
+  - When authenticated, the response overlays per-era `done` counts from `era_user_activity` (mapped by action label).
+- Era counters are incremented only on first-time actions:
+  - Vote updates do not inflate era activity (e.g. changing an upvote to a downvote stays a single action).
+
+Tests:
+
+- `tests/api-era-activity.test.js` (per-era action counting and reset across `advance-era`).
+
+## Phase 10b — Era rollups + tier statuses (ongoing)
 
 1. Implement cron rollup:
    - freeze era action counts

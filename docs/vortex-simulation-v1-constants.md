@@ -46,3 +46,9 @@ This file records the v1 decisions used by the simulation backend so implementat
     - `court.case.report`
     - `court.case.verdict`
   - `GET /api/courts` and `GET /api/courts/:id` overlay live `reports` and `status`.
+- Phase 10a write slice exists:
+  - Era tracking tables exist:
+    - `era_snapshots` (per-era active governors baseline)
+    - `era_user_activity` (per-era action counters per address)
+  - Active governors baseline defaults to `150` and can be configured via `SIM_ACTIVE_GOVERNORS` (or `VORTEX_ACTIVE_GOVERNORS`).
+  - `GET /api/my-governance` overlays per-era `done` counts for authenticated users.

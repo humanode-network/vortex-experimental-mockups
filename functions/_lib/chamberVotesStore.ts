@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import { chamberVotes } from "../../db/schema.ts";
 import { createDb } from "./db.ts";
@@ -24,25 +24,39 @@ export async function castChamberVote(
     choice: ChamberVoteChoice;
     score?: number | null;
   },
-): Promise<ChamberVoteCounts> {
+): Promise<{ counts: ChamberVoteCounts; created: boolean }> {
   if (!env.DATABASE_URL) {
     const byVoter =
       memoryVotes.get(input.proposalId) ?? new Map<string, StoredChamberVote>();
-    byVoter.set(input.voterAddress.toLowerCase(), {
+    const voterKey = input.voterAddress.toLowerCase();
+    const created = !byVoter.has(voterKey);
+    byVoter.set(voterKey, {
       choice: input.choice,
       score: input.score ?? null,
     });
     memoryVotes.set(input.proposalId, byVoter);
-    return countMemory(input.proposalId);
+    return { counts: countMemory(input.proposalId), created };
   }
 
   const db = createDb(env);
+  const voterAddress = input.voterAddress.toLowerCase();
+  const existing = await db
+    .select({ choice: chamberVotes.choice })
+    .from(chamberVotes)
+    .where(
+      and(
+        eq(chamberVotes.proposalId, input.proposalId),
+        eq(chamberVotes.voterAddress, voterAddress),
+      ),
+    )
+    .limit(1);
+  const created = existing.length === 0;
   const now = new Date();
   await db
     .insert(chamberVotes)
     .values({
       proposalId: input.proposalId,
-      voterAddress: input.voterAddress,
+      voterAddress,
       choice: input.choice,
       score: input.score ?? null,
       createdAt: now,
@@ -53,7 +67,7 @@ export async function castChamberVote(
       set: { choice: input.choice, score: input.score ?? null, updatedAt: now },
     });
 
-  return await getChamberVoteCounts(env, input.proposalId);
+  return { counts: await getChamberVoteCounts(env, input.proposalId), created };
 }
 
 export async function getChamberVoteCounts(

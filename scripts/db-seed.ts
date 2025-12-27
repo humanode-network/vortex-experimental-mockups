@@ -46,7 +46,7 @@ async function main() {
   const eventSeed = buildEventSeed();
   await db.execute(sql`TRUNCATE TABLE events RESTART IDENTITY`);
   await db.execute(
-    sql`TRUNCATE TABLE pool_votes, chamber_votes, cm_awards, idempotency_keys, formation_projects, formation_team, formation_milestones, formation_milestone_events, court_cases, court_reports, court_verdicts RESTART IDENTITY`,
+    sql`TRUNCATE TABLE pool_votes, chamber_votes, cm_awards, idempotency_keys, formation_projects, formation_team, formation_milestones, formation_milestone_events, court_cases, court_reports, court_verdicts, era_snapshots, era_user_activity RESTART IDENTITY`,
   );
   if (eventSeed.length > 0) {
     await db.insert(events).values(

@@ -395,6 +395,12 @@ type GetMyGovernanceResponse = {
 };
 ```
 
+Notes:
+
+- Anonymous users get the base `read_models` payload.
+- When authenticated, the backend overlays `eraActivity.era` and each action’s `done` count from `era_user_activity` for the current era.
+- Per-era action counters are incremented only on first-time actions per entity (e.g. changing a vote does not count as another action).
+
 ### Proposals (list)
 
 #### `GET /api/proposals?stage=pool|vote|build|draft`

@@ -24,6 +24,10 @@ import {
   submitFormationMilestone,
 } from "../_lib/formationStore.ts";
 import { castCourtVerdict, reportCourtCase } from "../_lib/courtsStore.ts";
+import {
+  getActiveGovernorsForCurrentEra,
+  incrementEraUserActivity,
+} from "../_lib/eraStore.ts";
 
 const poolVoteSchema = z.object({
   type: z.literal("pool.vote"),
@@ -145,6 +149,9 @@ export const onRequestPost: PagesFunction = async (context) => {
   }
 
   const readModels = await createReadModelsStore(context.env).catch(() => null);
+  const activeGovernorsBaseline = await getActiveGovernorsForCurrentEra(
+    context.env,
+  ).catch(() => null);
   if (
     readModels &&
     (input.type === "pool.vote" ||
@@ -171,7 +178,7 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   if (input.type === "pool.vote") {
     const direction = input.payload.direction === "up" ? 1 : -1;
-    const counts = await castPoolVote(context.env, {
+    const { counts, created } = await castPoolVote(context.env, {
       proposalId: input.payload.proposalId,
       voterAddress: session.address,
       direction,
@@ -221,6 +228,7 @@ export const onRequestPost: PagesFunction = async (context) => {
       (await maybeAdvancePoolProposalToVote(readModels, {
         proposalId: input.payload.proposalId,
         counts,
+        activeGovernorsBaseline,
       }));
 
     if (advanced) {
@@ -250,18 +258,28 @@ export const onRequestPost: PagesFunction = async (context) => {
       });
     }
 
+    if (created) {
+      await incrementEraUserActivity(context.env, {
+        address: session.address,
+        delta: { poolVotes: 1 },
+      }).catch(() => {});
+    }
+
     return jsonResponse(response);
   }
 
   if (input.type === "formation.join") {
     if (!readModels) return errorResponse(500, "Read models store unavailable");
     let summary;
+    let created = false;
     try {
-      summary = await joinFormationProject(context.env, readModels, {
+      const result = await joinFormationProject(context.env, readModels, {
         proposalId: input.payload.proposalId,
         memberAddress: session.address,
         role: input.payload.role ?? null,
       });
+      summary = result.summary;
+      created = result.created;
     } catch (error) {
       const message = (error as Error).message;
       if (message === "team_full")
@@ -311,19 +329,29 @@ export const onRequestPost: PagesFunction = async (context) => {
       },
     });
 
+    if (created) {
+      await incrementEraUserActivity(context.env, {
+        address: session.address,
+        delta: { formationActions: 1 },
+      }).catch(() => {});
+    }
+
     return jsonResponse(response);
   }
 
   if (input.type === "formation.milestone.submit") {
     if (!readModels) return errorResponse(500, "Read models store unavailable");
     let summary;
+    let created = false;
     try {
-      summary = await submitFormationMilestone(context.env, readModels, {
+      const result = await submitFormationMilestone(context.env, readModels, {
         proposalId: input.payload.proposalId,
         milestoneIndex: input.payload.milestoneIndex,
         actorAddress: session.address,
         note: input.payload.note ?? null,
       });
+      summary = result.summary;
+      created = result.created;
     } catch (error) {
       const message = (error as Error).message;
       if (message === "milestone_out_of_range")
@@ -379,18 +407,32 @@ export const onRequestPost: PagesFunction = async (context) => {
       },
     });
 
+    if (created) {
+      await incrementEraUserActivity(context.env, {
+        address: session.address,
+        delta: { formationActions: 1 },
+      }).catch(() => {});
+    }
+
     return jsonResponse(response);
   }
 
   if (input.type === "formation.milestone.requestUnlock") {
     if (!readModels) return errorResponse(500, "Read models store unavailable");
     let summary;
+    let created = false;
     try {
-      summary = await requestFormationMilestoneUnlock(context.env, readModels, {
-        proposalId: input.payload.proposalId,
-        milestoneIndex: input.payload.milestoneIndex,
-        actorAddress: session.address,
-      });
+      const result = await requestFormationMilestoneUnlock(
+        context.env,
+        readModels,
+        {
+          proposalId: input.payload.proposalId,
+          milestoneIndex: input.payload.milestoneIndex,
+          actorAddress: session.address,
+        },
+      );
+      summary = result.summary;
+      created = result.created;
     } catch (error) {
       const message = (error as Error).message;
       if (message === "milestone_out_of_range")
@@ -446,17 +488,27 @@ export const onRequestPost: PagesFunction = async (context) => {
       },
     });
 
+    if (created) {
+      await incrementEraUserActivity(context.env, {
+        address: session.address,
+        delta: { formationActions: 1 },
+      }).catch(() => {});
+    }
+
     return jsonResponse(response);
   }
 
   if (input.type === "court.case.report") {
     if (!readModels) return errorResponse(500, "Read models store unavailable");
     let overlay;
+    let created = false;
     try {
-      overlay = await reportCourtCase(context.env, readModels, {
+      const result = await reportCourtCase(context.env, readModels, {
         caseId: input.payload.caseId,
         reporterAddress: session.address,
       });
+      overlay = result.overlay;
+      created = result.created;
     } catch (error) {
       const code = (error as Error).message;
       if (code === "court_case_missing")
@@ -500,18 +552,28 @@ export const onRequestPost: PagesFunction = async (context) => {
       },
     });
 
+    if (created) {
+      await incrementEraUserActivity(context.env, {
+        address: session.address,
+        delta: { courtActions: 1 },
+      }).catch(() => {});
+    }
+
     return jsonResponse(response);
   }
 
   if (input.type === "court.case.verdict") {
     if (!readModels) return errorResponse(500, "Read models store unavailable");
     let overlay;
+    let created = false;
     try {
-      overlay = await castCourtVerdict(context.env, readModels, {
+      const result = await castCourtVerdict(context.env, readModels, {
         caseId: input.payload.caseId,
         voterAddress: session.address,
         verdict: input.payload.verdict,
       });
+      overlay = result.overlay;
+      created = result.created;
     } catch (error) {
       const code = (error as Error).message;
       if (code === "court_case_missing")
@@ -565,6 +627,13 @@ export const onRequestPost: PagesFunction = async (context) => {
       },
     });
 
+    if (created) {
+      await incrementEraUserActivity(context.env, {
+        address: session.address,
+        delta: { courtActions: 1 },
+      }).catch(() => {});
+    }
+
     return jsonResponse(response);
   }
 
@@ -578,7 +647,7 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   const choice =
     input.payload.choice === "yes" ? 1 : input.payload.choice === "no" ? -1 : 0;
-  const counts = await castChamberVote(context.env, {
+  const { counts, created } = await castChamberVote(context.env, {
     proposalId: input.payload.proposalId,
     voterAddress: session.address,
     choice,
@@ -636,6 +705,7 @@ export const onRequestPost: PagesFunction = async (context) => {
     (await maybeAdvanceVoteProposalToBuild(context.env, readModels, {
       proposalId: input.payload.proposalId,
       counts,
+      activeGovernorsBaseline,
     }));
 
   if (advanced) {
@@ -673,6 +743,13 @@ export const onRequestPost: PagesFunction = async (context) => {
     });
   }
 
+  if (created) {
+    await incrementEraUserActivity(context.env, {
+      address: session.address,
+      delta: { chamberVotes: 1 },
+    }).catch(() => {});
+  }
+
   return jsonResponse(response);
 };
 
@@ -697,14 +774,21 @@ async function getProposalStage(
 
 async function maybeAdvancePoolProposalToVote(
   store: Awaited<ReturnType<typeof createReadModelsStore>>,
-  input: { proposalId: string; counts: { upvotes: number; downvotes: number } },
+  input: {
+    proposalId: string;
+    counts: { upvotes: number; downvotes: number };
+    activeGovernorsBaseline: number | null;
+  },
 ): Promise<boolean> {
   if (!store.set) return false;
 
   const poolPayload = await store.get(`proposals:${input.proposalId}:pool`);
   if (!isRecord(poolPayload)) return false;
   const attentionQuorum = poolPayload.attentionQuorum;
-  const activeGovernors = poolPayload.activeGovernors;
+  const activeGovernors =
+    typeof input.activeGovernorsBaseline === "number"
+      ? input.activeGovernorsBaseline
+      : poolPayload.activeGovernors;
   const upvoteFloor = poolPayload.upvoteFloor;
   if (
     typeof attentionQuorum !== "number" ||
@@ -874,6 +958,7 @@ async function maybeAdvanceVoteProposalToBuild(
   input: {
     proposalId: string;
     counts: { yes: number; no: number; abstain: number };
+    activeGovernorsBaseline: number | null;
   },
 ): Promise<boolean> {
   if (!store.set) return false;
@@ -884,7 +969,10 @@ async function maybeAdvanceVoteProposalToBuild(
   if (!isRecord(chamberPayload)) return false;
 
   const attentionQuorum = chamberPayload.attentionQuorum;
-  const activeGovernors = chamberPayload.activeGovernors;
+  const activeGovernors =
+    typeof input.activeGovernorsBaseline === "number"
+      ? input.activeGovernorsBaseline
+      : chamberPayload.activeGovernors;
   const formationEligible = chamberPayload.formationEligible;
   if (
     typeof attentionQuorum !== "number" ||

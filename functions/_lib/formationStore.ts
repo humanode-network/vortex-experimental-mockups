@@ -188,31 +188,57 @@ export async function joinFormationProject(
   env: Env,
   readModels: ReadModelsStore,
   input: { proposalId: string; memberAddress: string; role?: string | null },
-): Promise<FormationSummary> {
+): Promise<{ summary: FormationSummary; created: boolean }> {
   const seed = await ensureFormationSeed(env, readModels, input.proposalId);
   const address = input.memberAddress.toLowerCase();
 
   if (!env.DATABASE_URL) {
     const team = memoryTeam.get(input.proposalId) ?? new Map();
-    if (!team.has(address)) {
+    const created = !team.has(address);
+    if (created) {
       const current = seed.baseTeamFilled + team.size;
       if (current >= seed.teamSlotsTotal) throw new Error("team_full");
       team.set(address, { role: input.role ?? null });
       memoryTeam.set(input.proposalId, team);
     }
-    return await getFormationSummary(env, readModels, input.proposalId);
+    return {
+      summary: await getFormationSummary(env, readModels, input.proposalId),
+      created,
+    };
   }
 
   const db = createDb(env);
-  const summary = await getFormationSummary(env, readModels, input.proposalId);
-  if (summary.teamFilled >= summary.teamTotal) throw new Error("team_full");
+  const existing = await db
+    .select({ memberAddress: formationTeam.memberAddress })
+    .from(formationTeam)
+    .where(
+      and(
+        eq(formationTeam.proposalId, input.proposalId),
+        eq(formationTeam.memberAddress, address),
+      ),
+    )
+    .limit(1);
+  if (existing.length > 0) {
+    return {
+      summary: await getFormationSummary(env, readModels, input.proposalId),
+      created: false,
+    };
+  }
+
+  const currentSummary = await getFormationSummary(
+    env,
+    readModels,
+    input.proposalId,
+  );
+  if (currentSummary.teamFilled >= currentSummary.teamTotal)
+    throw new Error("team_full");
 
   const now = new Date();
   await db
     .insert(formationTeam)
     .values({
       proposalId: input.proposalId,
-      memberAddress: input.memberAddress,
+      memberAddress: address,
       role: input.role ?? null,
       createdAt: now,
       updatedAt: now,
@@ -221,7 +247,10 @@ export async function joinFormationProject(
       target: [formationTeam.proposalId, formationTeam.memberAddress],
     });
 
-  return await getFormationSummary(env, readModels, input.proposalId);
+  return {
+    summary: await getFormationSummary(env, readModels, input.proposalId),
+    created: true,
+  };
 }
 
 export async function submitFormationMilestone(
@@ -233,7 +262,7 @@ export async function submitFormationMilestone(
     actorAddress: string;
     note?: string | null;
   },
-): Promise<FormationSummary> {
+): Promise<{ summary: FormationSummary; created: boolean }> {
   const seed = await ensureFormationSeed(env, readModels, input.proposalId);
   if (input.milestoneIndex < 1 || input.milestoneIndex > seed.milestonesTotal) {
     throw new Error("milestone_out_of_range");
@@ -244,8 +273,12 @@ export async function submitFormationMilestone(
     if (!milestones) throw new Error("milestones_missing");
     const current = milestones.get(input.milestoneIndex) ?? "todo";
     if (current === "unlocked") throw new Error("milestone_already_unlocked");
-    milestones.set(input.milestoneIndex, "submitted");
-    return await getFormationSummary(env, readModels, input.proposalId);
+    const created = current !== "submitted";
+    if (created) milestones.set(input.milestoneIndex, "submitted");
+    return {
+      summary: await getFormationSummary(env, readModels, input.proposalId),
+      created,
+    };
   }
 
   const db = createDb(env);
@@ -262,6 +295,7 @@ export async function submitFormationMilestone(
     .limit(1);
   const current = rows[0]?.status;
   if (current === "unlocked") throw new Error("milestone_already_unlocked");
+  const created = current !== "submitted";
 
   await db
     .insert(formationMilestones)
@@ -289,7 +323,10 @@ export async function submitFormationMilestone(
     createdAt: now,
   });
 
-  return await getFormationSummary(env, readModels, input.proposalId);
+  return {
+    summary: await getFormationSummary(env, readModels, input.proposalId),
+    created,
+  };
 }
 
 export async function requestFormationMilestoneUnlock(
@@ -300,7 +337,7 @@ export async function requestFormationMilestoneUnlock(
     milestoneIndex: number;
     actorAddress: string;
   },
-): Promise<FormationSummary> {
+): Promise<{ summary: FormationSummary; created: boolean }> {
   const seed = await ensureFormationSeed(env, readModels, input.proposalId);
   if (input.milestoneIndex < 1 || input.milestoneIndex > seed.milestonesTotal) {
     throw new Error("milestone_out_of_range");
@@ -313,7 +350,10 @@ export async function requestFormationMilestoneUnlock(
     if (current === "unlocked") throw new Error("milestone_already_unlocked");
     if (current === "todo") throw new Error("milestone_not_submitted");
     milestones.set(input.milestoneIndex, "unlocked");
-    return await getFormationSummary(env, readModels, input.proposalId);
+    return {
+      summary: await getFormationSummary(env, readModels, input.proposalId),
+      created: true,
+    };
   }
 
   const db = createDb(env);
@@ -359,7 +399,10 @@ export async function requestFormationMilestoneUnlock(
     createdAt: now,
   });
 
-  return await getFormationSummary(env, readModels, input.proposalId);
+  return {
+    summary: await getFormationSummary(env, readModels, input.proposalId),
+    created: true,
+  };
 }
 
 export function clearFormationForTests() {

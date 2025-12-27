@@ -241,3 +241,29 @@ export const courtVerdicts = pgTable(
     pk: primaryKey({ columns: [t.caseId, t.voterAddress] }),
   }),
 );
+
+export const eraSnapshots = pgTable("era_snapshots", {
+  era: integer("era").primaryKey(),
+  activeGovernors: integer("active_governors").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const eraUserActivity = pgTable(
+  "era_user_activity",
+  {
+    era: integer("era").notNull(),
+    address: text("address").notNull(),
+    poolVotes: integer("pool_votes").notNull().default(0),
+    chamberVotes: integer("chamber_votes").notNull().default(0),
+    courtActions: integer("court_actions").notNull().default(0),
+    formationActions: integer("formation_actions").notNull().default(0),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.era, t.address] }),
+  }),
+);

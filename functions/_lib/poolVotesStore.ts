@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import { poolVotes } from "../../db/schema.ts";
 import { createDb } from "./db.ts";
@@ -14,22 +14,36 @@ const memoryVotes = new Map<string, Map<string, Direction>>();
 export async function castPoolVote(
   env: Env,
   input: { proposalId: string; voterAddress: string; direction: Direction },
-): Promise<Counts> {
+): Promise<{ counts: Counts; created: boolean }> {
   if (!env.DATABASE_URL) {
     const byVoter =
       memoryVotes.get(input.proposalId) ?? new Map<string, Direction>();
-    byVoter.set(input.voterAddress.toLowerCase(), input.direction);
+    const key = input.voterAddress.toLowerCase();
+    const created = !byVoter.has(key);
+    byVoter.set(key, input.direction);
     memoryVotes.set(input.proposalId, byVoter);
-    return countMemory(input.proposalId);
+    return { counts: countMemory(input.proposalId), created };
   }
 
   const db = createDb(env);
+  const voterAddress = input.voterAddress.toLowerCase();
+  const existing = await db
+    .select({ direction: poolVotes.direction })
+    .from(poolVotes)
+    .where(
+      and(
+        eq(poolVotes.proposalId, input.proposalId),
+        eq(poolVotes.voterAddress, voterAddress),
+      ),
+    )
+    .limit(1);
+  const created = existing.length === 0;
   const now = new Date();
   await db
     .insert(poolVotes)
     .values({
       proposalId: input.proposalId,
-      voterAddress: input.voterAddress,
+      voterAddress,
       direction: input.direction,
       createdAt: now,
       updatedAt: now,
@@ -39,7 +53,7 @@ export async function castPoolVote(
       set: { direction: input.direction, updatedAt: now },
     });
 
-  return await getPoolVoteCounts(env, input.proposalId);
+  return { counts: await getPoolVoteCounts(env, input.proposalId), created };
 }
 
 export async function getPoolVoteCounts(

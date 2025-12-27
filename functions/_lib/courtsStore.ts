@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import { courtCases, courtReports, courtVerdicts } from "../../db/schema.ts";
 import type { ReadModelsStore } from "./readModelsStore.ts";
@@ -135,18 +135,33 @@ export async function reportCourtCase(
   env: Env,
   readModels: ReadModelsStore,
   input: { caseId: string; reporterAddress: string },
-): Promise<CourtOverlay> {
+): Promise<{ overlay: CourtOverlay; created: boolean }> {
   await ensureCourtCaseSeed(env, readModels, input.caseId);
 
   const reporter = input.reporterAddress.toLowerCase();
   if (!env.DATABASE_URL) {
     const set = memoryReports.get(input.caseId) ?? new Set<string>();
+    const created = !set.has(reporter);
     set.add(reporter);
     memoryReports.set(input.caseId, set);
-    return await getCourtOverlay(env, readModels, input.caseId);
+    return {
+      overlay: await getCourtOverlay(env, readModels, input.caseId),
+      created,
+    };
   }
 
   const db = createDb(env);
+  const existing = await db
+    .select({ reporterAddress: courtReports.reporterAddress })
+    .from(courtReports)
+    .where(
+      and(
+        eq(courtReports.caseId, input.caseId),
+        eq(courtReports.reporterAddress, reporter),
+      ),
+    )
+    .limit(1);
+  const created = existing.length === 0;
   await db
     .insert(courtReports)
     .values({
@@ -158,14 +173,17 @@ export async function reportCourtCase(
       target: [courtReports.caseId, courtReports.reporterAddress],
     });
 
-  return await getCourtOverlay(env, readModels, input.caseId);
+  return {
+    overlay: await getCourtOverlay(env, readModels, input.caseId),
+    created,
+  };
 }
 
 export async function castCourtVerdict(
   env: Env,
   readModels: ReadModelsStore,
   input: { caseId: string; voterAddress: string; verdict: CourtVerdict },
-): Promise<CourtOverlay> {
+): Promise<{ overlay: CourtOverlay; created: boolean }> {
   const overlay = await getCourtOverlay(env, readModels, input.caseId);
   if (overlay.status !== "live") throw new Error("case_not_live");
 
@@ -173,12 +191,27 @@ export async function castCourtVerdict(
   if (!env.DATABASE_URL) {
     const map =
       memoryVerdicts.get(input.caseId) ?? new Map<string, CourtVerdict>();
+    const created = !map.has(voter);
     map.set(voter, input.verdict);
     memoryVerdicts.set(input.caseId, map);
-    return await getCourtOverlay(env, readModels, input.caseId);
+    return {
+      overlay: await getCourtOverlay(env, readModels, input.caseId),
+      created,
+    };
   }
 
   const db = createDb(env);
+  const existing = await db
+    .select({ voterAddress: courtVerdicts.voterAddress })
+    .from(courtVerdicts)
+    .where(
+      and(
+        eq(courtVerdicts.caseId, input.caseId),
+        eq(courtVerdicts.voterAddress, voter),
+      ),
+    )
+    .limit(1);
+  const created = existing.length === 0;
   const now = new Date();
   await db
     .insert(courtVerdicts)
@@ -194,7 +227,10 @@ export async function castCourtVerdict(
       set: { verdict: input.verdict, updatedAt: now },
     });
 
-  return await getCourtOverlay(env, readModels, input.caseId);
+  return {
+    overlay: await getCourtOverlay(env, readModels, input.caseId),
+    created,
+  };
 }
 
 export function clearCourtsForTests() {

@@ -1,6 +1,7 @@
 import { createReadModelsStore } from "../../../_lib/readModelsStore.ts";
 import { errorResponse, jsonResponse } from "../../../_lib/http.ts";
 import { getChamberVoteCounts } from "../../../_lib/chamberVotesStore.ts";
+import { getActiveGovernorsForCurrentEra } from "../../../_lib/eraStore.ts";
 
 export const onRequestGet: PagesFunction = async (context) => {
   try {
@@ -14,7 +15,8 @@ export const onRequestGet: PagesFunction = async (context) => {
     const counts = await getChamberVoteCounts(context.env, id);
     const typed = payload as Record<string, unknown>;
     const activeGovernors =
-      typeof typed.activeGovernors === "number" ? typed.activeGovernors : 0;
+      (await getActiveGovernorsForCurrentEra(context.env).catch(() => null)) ??
+      (typeof typed.activeGovernors === "number" ? typed.activeGovernors : 0);
     const engagedGovernors = counts.yes + counts.no + counts.abstain;
     return jsonResponse({
       ...typed,

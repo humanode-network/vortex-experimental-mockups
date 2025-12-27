@@ -40,6 +40,7 @@ These env vars are read by the API runtime (Pages Functions in production, Node 
 - `DATABASE_URL` (required for Phase 2c+): Postgres connection string (v1 expects Neon-compatible serverless Postgres).
 - `ADMIN_SECRET` (required for admin endpoints): must be provided via `x-admin-secret` header (unless `DEV_BYPASS_ADMIN=true`).
 - `HUMANODE_RPC_URL` (required when `DEV_BYPASS_GATE` is false): JSON-RPC endpoint for Humanode mainnet (used for `ImOnline::*` reads with a safe fallback to `Session::Validators` in v1).
+- `SIM_ACTIVE_GOVERNORS` (optional): active governors baseline used for quorum math (defaults to `150`).
 
 ## Frontend build flags
 
