@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { onRequestPost as commandPost } from "../functions/api/command.ts";
-import { onRequestGet as clockGet } from "../functions/api/clock/index.ts";
 import { onRequestPost as rollupEraPost } from "../functions/api/clock/rollup-era.ts";
+import { onRequestGet as myGovernanceGet } from "../functions/api/my-governance/index.ts";
 import { getSessionCookieName, issueSession } from "../functions/_lib/auth.ts";
 import { clearChamberVotesForTests } from "../functions/_lib/chamberVotesStore.ts";
 import { clearCourtsForTests } from "../functions/_lib/courtsStore.ts";
@@ -45,7 +45,7 @@ const baseEnv = {
   SIM_REQUIRED_FORMATION_ACTIONS: "0",
 };
 
-test("POST /api/clock/rollup-era is idempotent and computes status + active governors", async () => {
+test("GET /api/my-governance includes rollup status after rollup", async () => {
   await clearPoolVotesForTests();
   await clearChamberVotesForTests();
   clearCourtsForTests();
@@ -55,20 +55,9 @@ test("POST /api/clock/rollup-era is idempotent and computes status + active gove
   clearIdempotencyForTests();
   clearInlineReadModelsForTests();
 
-  const clockRes = await clockGet(
-    makeContext({
-      url: "https://local.test/api/clock",
-      env: baseEnv,
-      method: "GET",
-    }),
-  );
-  assert.equal(clockRes.status, 200);
-  const clockJson = await clockRes.json();
-  assert.equal(typeof clockJson.currentEra, "number");
-  const era = clockJson.currentEra;
+  const cookie = await makeSessionCookie(baseEnv, "5GovRollupAddr");
 
-  const cookie = await makeSessionCookie(baseEnv, "5RollupAddr");
-
+  // 3 distinct actions so status becomes Ahead (requiredTotal=1).
   const poolVote = await commandPost(
     makeContext({
       url: "https://local.test/api/command",
@@ -108,45 +97,31 @@ test("POST /api/clock/rollup-era is idempotent and computes status + active gove
   );
   assert.equal(report.status, 200);
 
-  const rollup1 = await rollupEraPost(
+  const rollupRes = await rollupEraPost(
     makeContext({
       url: "https://local.test/api/clock/rollup-era",
       env: baseEnv,
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ era }),
+      body: JSON.stringify({}),
     }),
   );
-  assert.equal(rollup1.status, 200);
-  const json1 = await rollup1.json();
-  assert.equal(json1.ok, true);
-  assert.equal(json1.era, era);
-  assert.equal(json1.requiredTotal, 1);
-  assert.equal(json1.activeGovernorsNextEra, 1);
-  assert.equal(json1.usersRolled, 1);
-  assert.equal(json1.statusCounts.Ahead, 1);
+  assert.equal(rollupRes.status, 200);
+  const rollupJson = await rollupRes.json();
+  assert.equal(rollupJson.ok, true);
 
-  const clockAfterRes = await clockGet(
+  const myGovRes = await myGovernanceGet(
     makeContext({
-      url: "https://local.test/api/clock",
+      url: "https://local.test/api/my-governance",
       env: baseEnv,
       method: "GET",
+      headers: { cookie },
     }),
   );
-  assert.equal(clockAfterRes.status, 200);
-  const clockAfterJson = await clockAfterRes.json();
-  assert.equal(clockAfterJson.currentEra, era);
-  assert.ok(clockAfterJson.currentEraRollup);
-  assert.equal(clockAfterJson.currentEraRollup.era, era);
-
-  const rollup2 = await rollupEraPost(
-    makeContext({
-      url: "https://local.test/api/clock/rollup-era",
-      env: baseEnv,
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ era }),
-    }),
-  );
-  assert.equal(rollup2.status, 200);
-  const json2 = await rollup2.json();
-  assert.deepEqual(json2, json1);
+  assert.equal(myGovRes.status, 200);
+  const myGovJson = await myGovRes.json();
+  assert.ok(myGovJson.rollup);
+  assert.equal(myGovJson.rollup.status, "Ahead");
+  assert.equal(myGovJson.rollup.isActiveNextEra, true);
+  assert.equal(myGovJson.rollup.requiredTotal, 1);
+  assert.equal(myGovJson.rollup.completedTotal, 3);
 });

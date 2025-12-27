@@ -28,6 +28,12 @@ import {
   getActiveGovernorsForCurrentEra,
   incrementEraUserActivity,
 } from "../_lib/eraStore.ts";
+import {
+  createApiRateLimitStore,
+  getCommandRateLimitConfig,
+} from "../_lib/apiRateLimitStore.ts";
+import { getRequestIp } from "../_lib/requestIp.ts";
+import { createActionLocksStore } from "../_lib/actionLocksStore.ts";
 
 const poolVoteSchema = z.object({
   type: z.literal("pool.vote"),
@@ -126,6 +132,47 @@ export const onRequestPost: PagesFunction = async (context) => {
   const gate = await checkEligibility(context.env, session.address);
   if (!gate.eligible) {
     return errorResponse(403, gate.reason ?? "not_eligible", { gate });
+  }
+
+  const locks = createActionLocksStore(context.env);
+  const activeLock = await locks.getActiveLock(session.address);
+  if (activeLock) {
+    return errorResponse(403, "Action locked", {
+      code: "action_locked",
+      lock: activeLock,
+    });
+  }
+
+  const rateLimits = createApiRateLimitStore(context.env);
+  const rateConfig = getCommandRateLimitConfig(context.env);
+  const requestIp = getRequestIp(context.request);
+
+  if (requestIp) {
+    const ipLimit = await rateLimits.consume({
+      bucket: `command:ip:${requestIp}`,
+      limit: rateConfig.perIpPerMinute,
+      windowSeconds: 60,
+    });
+    if (!ipLimit.ok) {
+      return errorResponse(429, "Rate limited", {
+        scope: "ip",
+        retryAfterSeconds: ipLimit.retryAfterSeconds,
+        resetAt: ipLimit.resetAt,
+      });
+    }
+  }
+
+  const addressLimit = await rateLimits.consume({
+    bucket: `command:address:${session.address}`,
+    limit: rateConfig.perAddressPerMinute,
+    windowSeconds: 60,
+  });
+  if (!addressLimit.ok) {
+    return errorResponse(429, "Rate limited", {
+      scope: "address",
+      retryAfterSeconds: addressLimit.retryAfterSeconds,
+      resetAt: addressLimit.resetAt,
+    });
   }
 
   const input: CommandInput = parsed.data;

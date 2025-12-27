@@ -60,6 +60,14 @@ const governingStatusForProgress = (
   };
 };
 
+const governingStatusTermId = (label: GoverningStatus): string => {
+  if (label === "Ahead") return "governing_status_ahead";
+  if (label === "Stable") return "governing_status_stable";
+  if (label === "Falling behind") return "governing_status_falling_behind";
+  if (label === "At risk") return "governing_status_at_risk";
+  return "governing_status_losing_status";
+};
+
 const MyGovernance: React.FC = () => {
   const [gov, setGov] = useState<GetMyGovernanceResponse | null>(null);
   const [chambers, setChambers] = useState<ChamberDto[] | null>(null);
@@ -90,10 +98,15 @@ const MyGovernance: React.FC = () => {
   }, []);
 
   const eraActivity = gov?.eraActivity;
-  const status = governingStatusForProgress(
-    eraActivity?.completed ?? 0,
-    eraActivity?.required ?? 0,
-  );
+  const status: { label: GoverningStatus; termId: string } = gov?.rollup
+    ? {
+        label: gov.rollup.status,
+        termId: governingStatusTermId(gov.rollup.status),
+      }
+    : governingStatusForProgress(
+        eraActivity?.completed ?? 0,
+        eraActivity?.required ?? 0,
+      );
 
   const myChambers = useMemo(() => {
     if (!gov || !chambers) return [];

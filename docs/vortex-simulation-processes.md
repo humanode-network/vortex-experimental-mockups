@@ -68,6 +68,12 @@ Implication:
   1. proof of address control (wallet signature session), and
   2. a fresh “active validator” eligibility check (cached with TTL).
 
+Guardrails (off-chain):
+
+- Even eligible actors can spam. The simulation enforces basic hardening controls:
+  - rate limiting on write endpoints (per IP and per address), and
+  - optional admin action locks that temporarily disable all writes for an address.
+
 ### 1.2 Governance time
 
 - **Epoch**: Humanode Bioauth uptime accounting window.
@@ -285,8 +291,18 @@ At each era boundary:
 - Close voting windows that expired.
 - Evaluate pool thresholds and advance eligible proposals.
 - Compute governor activity (actions done vs required).
-- Update tier decay streaks + derive status (Ahead/Stable/etc.).
+- Derive per-era governing status buckets (Ahead/Stable/Falling behind/At risk/Losing status).
+- Compute the “active governor” set for the next era (v1: requirement-based, configurable off-chain).
 - Recompute CM aggregates and chamber stats.
+
+v1 rollup inputs:
+
+- Per-era action requirements are configured off-chain (env):
+  - `SIM_REQUIRED_POOL_VOTES`
+  - `SIM_REQUIRED_CHAMBER_VOTES`
+  - `SIM_REQUIRED_COURT_ACTIONS`
+  - `SIM_REQUIRED_FORMATION_ACTIONS`
+- The rollup can be triggered manually (admin) and is designed to be idempotent for a given era window.
 
 Outputs:
 

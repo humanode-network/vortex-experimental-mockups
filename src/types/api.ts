@@ -158,6 +158,15 @@ export type MyGovernanceEraActivityDto = {
 export type GetMyGovernanceResponse = {
   eraActivity: MyGovernanceEraActivityDto;
   myChamberIds: string[];
+  rollup?: {
+    era: number;
+    rolledAt: string;
+    status: "Ahead" | "Stable" | "Falling behind" | "At risk" | "Losing status";
+    requiredTotal: number;
+    completedTotal: number;
+    isActiveNextEra: boolean;
+    activeGovernorsNextEra: number;
+  };
 };
 
 export type ProposalStageDatumDto = {

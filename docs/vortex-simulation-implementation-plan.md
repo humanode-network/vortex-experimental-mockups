@@ -101,7 +101,7 @@ This is the order we’ll follow from now on, based on what’s already landed.
 11. **Phase 8 — Formation v1 (DONE)**
 12. **Phase 9 — Courts v1 (DONE)**
 13. **Phase 10a — Era snapshots + activity counters (DONE)**
-14. **Phase 10b — Era rollups + tier statuses (IN PROGRESS)**
+14. **Phase 10b — Era rollups + tier statuses (DONE for v1)**
 15. **Phase 11 — Hardening + moderation**
 
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
@@ -459,7 +459,7 @@ Tests:
 
 - `tests/api-era-activity.test.js` (per-era action counting and reset across `advance-era`).
 
-## Phase 10b — Era rollups + tier statuses (ongoing)
+## Phase 10b — Era rollups + tier statuses (DONE for v1)
 
 1. Implement cron rollup:
    - freeze era action counts
@@ -479,6 +479,8 @@ Current status:
 
 - Implemented:
   - `POST /api/clock/rollup-era` (admin/simulation endpoint)
+  - `GET /api/clock` includes `currentEraRollup` when a rollup exists
+  - `GET /api/my-governance` includes `rollup` for authenticated users when the current era is rolled
   - Rollup tables: `era_rollups`, `era_user_status`
   - Configurable per-era requirements via env:
     - `SIM_REQUIRED_POOL_VOTES` (default `1`)
@@ -489,6 +491,11 @@ Current status:
     - `SIM_DYNAMIC_ACTIVE_GOVERNORS=true` writes next era’s `era_snapshots.active_governors` from rollup results
 - Tests:
   - `tests/api-era-rollup.test.js`
+  - `tests/api-my-governance-rollup.test.js`
+
+Notes:
+
+- Tier decay is tracked separately (future iteration) — v1 rollups compute per-era status + next-era active set only.
 
 ## Phase 11 — Hardening + moderation (ongoing)
 
@@ -499,6 +506,22 @@ Current status:
 - Moderation controls (off-chain):
   - temporary action lock for a user
   - court-driven restrictions flags (simulation)
+
+Implemented so far:
+
+- `POST /api/command` rate limiting:
+  - per IP: `SIM_COMMAND_RATE_LIMIT_PER_MINUTE_IP`
+  - per address: `SIM_COMMAND_RATE_LIMIT_PER_MINUTE_ADDRESS`
+  - storage: `api_rate_limits` (DB mode) or in-memory buckets (inline mode)
+- Action locks:
+  - storage: `user_action_locks` (DB mode) or in-memory locks (inline mode)
+  - enforcement: all `POST /api/command` writes return HTTP `403` when locked
+  - admin endpoints:
+    - `POST /api/admin/users/lock`
+    - `POST /api/admin/users/unlock`
+- Tests:
+  - `tests/api-command-rate-limit.test.js`
+  - `tests/api-command-action-lock.test.js`
 
 ## Suggested implementation order (lowest risk / highest value)
 

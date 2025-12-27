@@ -49,6 +49,43 @@ Idempotency:
 - If the same key is sent again with the same request body, the stored response is returned.
 - If the same key is re-used with a different request body, the API returns HTTP `409`.
 
+Rate limiting:
+
+- `POST /api/command` is rate limited:
+  - per IP: `SIM_COMMAND_RATE_LIMIT_PER_MINUTE_IP` (default `180`)
+  - per address: `SIM_COMMAND_RATE_LIMIT_PER_MINUTE_ADDRESS` (default `60`)
+- When rate limited, the API returns HTTP `429`:
+
+```json
+{
+  "error": {
+    "message": "Rate limited",
+    "scope": "ip | address",
+    "retryAfterSeconds": 30,
+    "resetAt": "2026-01-01T00:00:00.000Z"
+  }
+}
+```
+
+Action locks:
+
+- Writes can be temporarily disabled for an address via admin action locks (`user_action_locks`).
+- When locked, the API returns HTTP `403`:
+
+```json
+{
+  "error": {
+    "message": "Action locked",
+    "code": "action_locked",
+    "lock": {
+      "address": "5f... (lowercased)",
+      "reason": "optional",
+      "lockedUntil": "2026-01-01T00:00:00.000Z"
+    }
+  }
+}
+```
+
 #### Command: `pool.vote`
 
 Request:
@@ -214,9 +251,61 @@ These endpoints are implemented under `functions/api/*` and read from `read_mode
 
 These endpoints are intended for simulation control (local dev, cron jobs, and admin tools).
 
+- All admin endpoints require `x-admin-secret: $ADMIN_SECRET` unless `DEV_BYPASS_ADMIN=true`.
+
 - `GET /api/clock`
 - `POST /api/clock/advance-era`
 - `POST /api/clock/rollup-era` (computes per-era statuses and next-era active governor set)
+- `POST /api/admin/users/lock` (temporarily disables writes for an address)
+- `POST /api/admin/users/unlock`
+
+### `POST /api/admin/users/lock`
+
+```ts
+type PostAdminUserLockRequest = {
+  address: string;
+  lockedUntil: string; // ISO timestamp
+  reason?: string;
+};
+
+type PostAdminUserLockResponse = { ok: true };
+```
+
+### `POST /api/admin/users/unlock`
+
+```ts
+type PostAdminUserUnlockRequest = { address: string };
+type PostAdminUserUnlockResponse = { ok: true };
+```
+
+### `GET /api/clock`
+
+```ts
+type GoverningStatusDto =
+  | "Ahead"
+  | "Stable"
+  | "Falling behind"
+  | "At risk"
+  | "Losing status";
+
+type EraRollupMetaDto = {
+  era: number;
+  rolledAt: string;
+  requiredTotal: number;
+  requirements: {
+    poolVotes: number;
+    chamberVotes: number;
+    courtActions: number;
+    formationActions: number;
+  };
+  activeGovernorsNextEra: number;
+};
+
+type GetClockResponse = {
+  currentEra: number;
+  currentEraRollup?: EraRollupMetaDto;
+};
+```
 
 ### Chambers
 
@@ -400,6 +489,15 @@ type MyGovernanceEraActivityDto = {
 type GetMyGovernanceResponse = {
   eraActivity: MyGovernanceEraActivityDto;
   myChamberIds: string[];
+  rollup?: {
+    era: number;
+    rolledAt: string;
+    status: GoverningStatusDto;
+    requiredTotal: number;
+    completedTotal: number;
+    isActiveNextEra: boolean;
+    activeGovernorsNextEra: number;
+  };
 };
 ```
 
@@ -408,6 +506,7 @@ Notes:
 - Anonymous users get the base `read_models` payload.
 - When authenticated, the backend overlays `eraActivity.era` and each action’s `done` count from `era_user_activity` for the current era.
 - Per-era action counters are incremented only on first-time actions per entity (e.g. changing a vote does not count as another action).
+- If the current era has been rolled up, the response includes a `rollup` object derived from `era_rollups` and `era_user_status`.
 
 ### Proposals (list)
 

@@ -31,6 +31,8 @@ Production deploys the API as **Cloudflare Pages Functions** under `functions/`.
 - `GET /api/clock` (simulation time snapshot)
 - `POST /api/clock/advance-era` (admin-only; increments era by 1)
 - `POST /api/clock/rollup-era` (admin-only; computes next-era active set + tier statuses)
+- `POST /api/admin/users/lock` (admin-only; temporarily disables writes for an address)
+- `POST /api/admin/users/unlock` (admin-only)
 - `POST /api/command` (write commands; gated)
 
 ## Required env vars
@@ -47,6 +49,8 @@ These env vars are read by the API runtime (Pages Functions in production, Node 
 - `SIM_REQUIRED_COURT_ACTIONS` (optional): per-era required court actions (defaults to `0`).
 - `SIM_REQUIRED_FORMATION_ACTIONS` (optional): per-era required formation actions (defaults to `0`).
 - `SIM_DYNAMIC_ACTIVE_GOVERNORS` (optional): if `true`, `/api/clock/rollup-era` sets the next era’s `activeGovernors` baseline from rollup results.
+- `SIM_COMMAND_RATE_LIMIT_PER_MINUTE_IP` (optional): per-minute IP limit for `POST /api/command` (defaults to `180`).
+- `SIM_COMMAND_RATE_LIMIT_PER_MINUTE_ADDRESS` (optional): per-minute address limit for `POST /api/command` (defaults to `60`).
 
 ## Frontend build flags
 

@@ -118,6 +118,24 @@ export const idempotencyKeys = pgTable("idempotency_keys", {
     .defaultNow(),
 });
 
+export const apiRateLimits = pgTable("api_rate_limits", {
+  bucket: text("bucket").primaryKey(),
+  count: integer("count").notNull().default(0),
+  resetAt: timestamp("reset_at", { withTimezone: true }).notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const userActionLocks = pgTable("user_action_locks", {
+  address: text("address").primaryKey(),
+  lockedUntil: timestamp("locked_until", { withTimezone: true }).notNull(),
+  reason: text("reason"),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 export const cmAwards = pgTable("cm_awards", {
   id: bigserial("id", { mode: "number" }).primaryKey(),
   proposalId: text("proposal_id").notNull(),

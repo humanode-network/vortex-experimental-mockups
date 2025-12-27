@@ -274,6 +274,18 @@ This section maps each workflow from `docs/vortex-simulation-processes.md` to co
 - **Tables:** `users`, `auth_nonces`, `eligibility_cache`
 - **Events:** `auth.logged_in`, `gate.checked`
 
+### 2.0b Request hardening (rate limits + action locks)
+
+- **Module:** `hardening`
+- **API:**
+  - `POST /api/command` (rate limited per IP + per address)
+  - `POST /api/admin/users/lock`, `POST /api/admin/users/unlock` (admin-only)
+- **Tables:**
+  - `api_rate_limits` (DB mode)
+  - `user_action_locks` (DB mode)
+- **Notes:**
+  - Rate limiting and action locks are enforced server-side for all state changes so the simulation stays usable during community testing.
+
 ### 2.1 Onboarding (Human → Human Node → Governor)
 
 Current repo:

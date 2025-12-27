@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import { eraRollups, eraUserStatus } from "../../db/schema.ts";
 import { createDb } from "./db.ts";
@@ -39,7 +39,15 @@ type StoredRollup = {
 };
 
 const memoryRollups = new Map<number, StoredRollup>();
-const memoryUserStatuses = new Map<string, { status: GoverningStatus }>(); // key: `${era}:${address}`
+const memoryUserStatuses = new Map<
+  string,
+  {
+    status: GoverningStatus;
+    requiredTotal: number;
+    completedTotal: number;
+    isActiveNextEra: boolean;
+  }
+>(); // key: `${era}:${address}`
 
 export async function rollupEra(
   env: Env,
@@ -117,6 +125,90 @@ export async function rollupEra(
     activeGovernorsNextEra,
     usersRolled: userStatuses.length,
     statusCounts,
+  };
+}
+
+export async function getEraRollupMeta(
+  env: Env,
+  input: { era: number },
+): Promise<null | {
+  era: number;
+  rolledAt: string;
+  requiredTotal: number;
+  requirements: EraRequirements;
+  activeGovernorsNextEra: number;
+}> {
+  const rollup = await getEraRollup(env, input.era);
+  if (!rollup) return null;
+  return {
+    era: rollup.era,
+    rolledAt: rollup.rolledAt,
+    requiredTotal: rollup.requiredTotal,
+    requirements: rollup.requirements,
+    activeGovernorsNextEra: rollup.activeGovernorsNextEra,
+  };
+}
+
+export async function getEraUserStatus(
+  env: Env,
+  input: { era: number; address: string },
+): Promise<null | {
+  era: number;
+  address: string;
+  status: GoverningStatus;
+  requiredTotal: number;
+  completedTotal: number;
+  isActiveNextEra: boolean;
+}> {
+  const address = input.address.toLowerCase();
+
+  if (!env.DATABASE_URL) {
+    const rollup = memoryRollups.get(input.era);
+    if (!rollup) return null;
+    const entry = memoryUserStatuses.get(`${input.era}:${address}`);
+    if (!entry) return null;
+    return {
+      era: input.era,
+      address,
+      status: entry.status,
+      requiredTotal: entry.requiredTotal,
+      completedTotal: entry.completedTotal,
+      isActiveNextEra: entry.isActiveNextEra,
+    };
+  }
+
+  const db = createDb(env);
+  const rows = await db
+    .select({
+      status: eraUserStatus.status,
+      requiredTotal: eraUserStatus.requiredTotal,
+      completedTotal: eraUserStatus.completedTotal,
+      isActiveNextEra: eraUserStatus.isActiveNextEra,
+    })
+    .from(eraUserStatus)
+    .where(
+      and(eq(eraUserStatus.era, input.era), eq(eraUserStatus.address, address)),
+    )
+    .limit(1);
+  const row = rows[0];
+  if (!row) return null;
+  const status = String(row.status) as GoverningStatus;
+  if (
+    status !== "Ahead" &&
+    status !== "Stable" &&
+    status !== "Falling behind" &&
+    status !== "At risk" &&
+    status !== "Losing status"
+  ) {
+    return null;
+  }
+  return {
+    era: input.era,
+    address,
+    status,
+    requiredTotal: row.requiredTotal,
+    completedTotal: row.completedTotal,
+    isActiveNextEra: Boolean(row.isActiveNextEra),
   };
 }
 
@@ -275,6 +367,9 @@ async function storeEraRollup(
     for (const u of input.userStatuses) {
       memoryUserStatuses.set(`${input.era}:${u.address.toLowerCase()}`, {
         status: u.status,
+        requiredTotal: input.requiredTotal,
+        completedTotal: u.completedTotal,
+        isActiveNextEra: u.isActiveNextEra,
       });
     }
     return;

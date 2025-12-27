@@ -1,16 +1,9 @@
 import { issueNonce } from "../../_lib/auth.ts";
 import { createNonceStore } from "../../_lib/nonceStore.ts";
 import { errorResponse, jsonResponse, readJson } from "../../_lib/http.ts";
+import { getRequestIp } from "../../_lib/requestIp.ts";
 
 type Body = { address?: string };
-
-function getRequestIp(request: Request): string | undefined {
-  const cf = request.headers.get("cf-connecting-ip");
-  if (cf) return cf;
-  const xff = request.headers.get("x-forwarded-for");
-  if (!xff) return undefined;
-  return xff.split(",")[0]?.trim() || undefined;
-}
 
 export const onRequestPost: PagesFunction = async (context) => {
   let body: Body;

@@ -30,3 +30,14 @@ export function envCsv(
     .map((s) => s.trim())
     .filter(Boolean);
 }
+
+export function envInt(
+  env: Record<string, string | undefined>,
+  key: string,
+): number | undefined {
+  const raw = envString(env, key);
+  if (!raw) return undefined;
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed)) return undefined;
+  return parsed;
+}

@@ -1,6 +1,10 @@
 import { createReadModelsStore } from "../../_lib/readModelsStore.ts";
 import { readSession } from "../../_lib/auth.ts";
 import { getUserEraActivity } from "../../_lib/eraStore.ts";
+import {
+  getEraRollupMeta,
+  getEraUserStatus,
+} from "../../_lib/eraRollupStore.ts";
 import { errorResponse, jsonResponse } from "../../_lib/http.ts";
 
 function envInt(
@@ -138,6 +142,16 @@ export const onRequestGet: PagesFunction = async (context) => {
       0,
     );
 
+    const rollupMeta = await getEraRollupMeta(context.env, {
+      era: era.era,
+    }).catch(() => null);
+    const rollupUser = rollupMeta
+      ? await getEraUserStatus(context.env, {
+          era: rollupMeta.era,
+          address: session.address,
+        }).catch(() => null)
+      : null;
+
     return jsonResponse({
       ...base,
       eraActivity: {
@@ -147,6 +161,19 @@ export const onRequestGet: PagesFunction = async (context) => {
         completed: completedTotal,
         actions: nextActions,
       },
+      ...(rollupMeta
+        ? {
+            rollup: {
+              era: rollupMeta.era,
+              rolledAt: rollupMeta.rolledAt,
+              status: rollupUser?.status ?? "Losing status",
+              requiredTotal: rollupMeta.requiredTotal,
+              completedTotal: rollupUser?.completedTotal ?? 0,
+              isActiveNextEra: rollupUser?.isActiveNextEra ?? false,
+              activeGovernorsNextEra: rollupMeta.activeGovernorsNextEra,
+            },
+          }
+        : {}),
     });
   } catch (error) {
     return errorResponse(500, (error as Error).message);
