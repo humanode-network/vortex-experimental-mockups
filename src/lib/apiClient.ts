@@ -153,6 +153,32 @@ export async function apiPoolVote(input: {
   );
 }
 
+export type ChamberVoteChoice = "yes" | "no" | "abstain";
+
+export async function apiChamberVote(input: {
+  proposalId: string;
+  choice: ChamberVoteChoice;
+  idempotencyKey?: string;
+}): Promise<{
+  ok: true;
+  type: "chamber.vote";
+  proposalId: string;
+  choice: ChamberVoteChoice;
+  counts: { yes: number; no: number; abstain: number };
+}> {
+  return await apiPost(
+    "/api/command",
+    {
+      type: "chamber.vote",
+      payload: { proposalId: input.proposalId, choice: input.choice },
+      idempotencyKey: input.idempotencyKey,
+    },
+    input.idempotencyKey
+      ? { headers: { "idempotency-key": input.idempotencyKey } }
+      : undefined,
+  );
+}
+
 export async function apiProposalChamberPage(
   id: string,
 ): Promise<ChamberProposalPageDto> {

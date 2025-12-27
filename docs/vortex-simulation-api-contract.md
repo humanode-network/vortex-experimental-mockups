@@ -80,6 +80,43 @@ Notes:
 - When pool quorum thresholds are met, the backend auto-advances the proposal from **pool → vote** by updating the `proposals:list` read model.
   - If `proposals:${proposalId}:chamber` does not exist yet, it is created from the pool page payload as a minimal placeholder so the UI can render the chamber vote view.
 
+#### Command: `chamber.vote`
+
+Request:
+
+```ts
+type ChamberVoteChoice = "yes" | "no" | "abstain";
+type ChamberVoteCommand = {
+  type: "chamber.vote";
+  payload: { proposalId: string; choice: ChamberVoteChoice; score?: number };
+  idempotencyKey?: string;
+};
+```
+
+Response:
+
+```ts
+type ChamberVoteResponse = {
+  ok: true;
+  type: "chamber.vote";
+  proposalId: string;
+  choice: ChamberVoteChoice;
+  counts: { yes: number; no: number; abstain: number };
+};
+```
+
+Notes:
+
+- If the proposal is not currently in the vote stage, the API returns HTTP `409`.
+- `score` is optional and only allowed when `choice === "yes"` (HTTP `400` otherwise). This is the v1 CM input.
+- The chamber page read endpoint overlays live vote totals from stored votes (so `votes` and `engagedGovernors` update immediately).
+- When quorum + passing are met **and** `formationEligible === true`, the backend auto-advances the proposal from **vote → build** by updating the `proposals:list` read model.
+  - If `proposals:${proposalId}:formation` does not exist yet, it is created as a minimal placeholder derived from the chamber page payload so the Formation page can render.
+- When a proposal passes, CM is awarded off-chain:
+  - the average `score` across yes votes is converted into points
+  - a CM award record is stored in `cm_awards` (unique per proposal)
+  - `/api/humans` and `/api/humans/:id` overlay the derived ACM delta from awards
+
 ## Read endpoints
 
 These endpoints are implemented under `functions/api/*` and read from `read_models` (DB mode) or the inline seed (inline mode).

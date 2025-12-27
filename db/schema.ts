@@ -88,11 +88,44 @@ export const poolVotes = pgTable(
   }),
 );
 
+export const chamberVotes = pgTable(
+  "chamber_votes",
+  {
+    proposalId: text("proposal_id").notNull(),
+    voterAddress: text("voter_address").notNull(),
+    choice: integer("choice").notNull(), // 1 (yes), -1 (no), 0 (abstain)
+    score: integer("score"), // optional 1..10 CM input (v1)
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.proposalId, t.voterAddress] }),
+  }),
+);
+
 export const idempotencyKeys = pgTable("idempotency_keys", {
   key: text("key").primaryKey(),
   address: text("address").notNull(),
   request: jsonb("request").notNull(),
   response: jsonb("response").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const cmAwards = pgTable("cm_awards", {
+  id: bigserial("id", { mode: "number" }).primaryKey(),
+  proposalId: text("proposal_id").notNull(),
+  proposerId: text("proposer_id").notNull(),
+  chamberId: text("chamber_id").notNull(),
+  avgScore: integer("avg_score"), // 1..10 scale (rounded)
+  lcmPoints: integer("lcm_points").notNull(),
+  chamberMultiplierTimes10: integer("chamber_multiplier_times10").notNull(),
+  mcmPoints: integer("mcm_points").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

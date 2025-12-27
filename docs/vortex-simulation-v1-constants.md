@@ -26,3 +26,9 @@ This file records the v1 decisions used by the simulation backend so implementat
   - `POST /api/command` supports `pool.vote` (auth + gate + idempotency).
   - `pool_votes` stores one vote per address per proposal and `GET /api/proposals/:id/pool` overlays live counts.
   - Pool quorum evaluation exists (`evaluatePoolQuorum`) and proposals auto-advance from pool → vote by updating the `proposals:list` read model.
+- Phase 7 write slice started:
+- Phase 7 write slice exists:
+  - `POST /api/command` supports `chamber.vote` (auth + gate + idempotency).
+  - `chamber_votes` stores one vote per address per proposal and `GET /api/proposals/:id/chamber` overlays live counts.
+  - Vote quorum + passing evaluation exists (`evaluateChamberQuorum`) and proposals can auto-advance from vote → build when Formation-eligible.
+  - CM awards v1 are recorded in `cm_awards` when proposals pass (derived from average yes `score`), and `/api/humans*` overlays ACM deltas from awards.

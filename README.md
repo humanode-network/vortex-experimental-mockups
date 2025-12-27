@@ -34,6 +34,14 @@ The UI reads from `/api/*` (Cloudflare Pages Functions). For local development, 
 
 If only `yarn dev` runs, `/api/*` is not available and auth/gating/read pages will show an “API is not available” error.
 
+### Backend docs
+
+- `docs/vortex-simulation-processes.md` — what the simulation models (epochs/eras, proposals, chambers, courts, formation)
+- `docs/vortex-simulation-tech-architecture.md` — architecture + how the current repo maps to it
+- `docs/vortex-simulation-api-contract.md` — frozen `/api/*` DTO contracts consumed by the UI
+- `docs/vortex-simulation-implementation-plan.md` — phased roadmap and current progress
+- `docs/vortex-simulation-local-dev.md` — local dev setup (Node runner, env vars, DB scripts)
+
 ## Scripts
 
 - `yarn dev` – start the dev server
@@ -63,3 +71,4 @@ If only `yarn dev` runs, `/api/*` is not available and auth/gating/read pages wi
 
 - Builds output to `dist/`.
 - Keep glossary entries in sync between `src/data/vortexopedia.ts` and `prolog/vortexopedia.pl` if you edit definitions.
+- DB-backed dev requires `DATABASE_URL` + `yarn db:migrate && yarn db:seed` (see `docs/vortex-simulation-local-dev.md`).

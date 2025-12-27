@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import ProposalStageBar from "@/components/ProposalStageBar";
 import { StatTile } from "@/components/StatTile";
@@ -10,13 +10,22 @@ import {
   ProposalTeamMilestonesCard,
 } from "@/components/ProposalSections";
 import { Surface } from "@/components/Surface";
-import { apiProposalChamberPage } from "@/lib/apiClient";
+import { apiChamberVote, apiProposalChamberPage } from "@/lib/apiClient";
 import type { ChamberProposalPageDto } from "@/types/api";
 
 const ProposalChamber: React.FC = () => {
   const { id } = useParams();
   const [proposal, setProposal] = useState<ChamberProposalPageDto | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const loadPage = useCallback(async () => {
+    if (!id) return;
+    const page = await apiProposalChamberPage(id);
+    setProposal(page);
+    setLoadError(null);
+  }, [id]);
 
   useEffect(() => {
     if (!id) return;
@@ -85,6 +94,20 @@ const ProposalChamber: React.FC = () => {
     current: "draft" | "pool" | "chamber" | "formation",
   ) => <ProposalStageBar current={current} />;
 
+  const handleVote = async (choice: "yes" | "no" | "abstain") => {
+    if (!id || submitting) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      await apiChamberVote({ proposalId: id, choice });
+      await loadPage();
+    } catch (error) {
+      setSubmitError((error as Error).message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <PageHint pageId="proposals" />
@@ -112,10 +135,35 @@ const ProposalChamber: React.FC = () => {
           />
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <VoteButton tone="accent" label="Vote yes" />
-          <VoteButton tone="destructive" label="Vote no" />
-          <VoteButton tone="neutral" label="Abstain" />
+          <VoteButton
+            tone="accent"
+            label="Vote yes"
+            disabled={submitting}
+            onClick={() => handleVote("yes")}
+          />
+          <VoteButton
+            tone="destructive"
+            label="Vote no"
+            disabled={submitting}
+            onClick={() => handleVote("no")}
+          />
+          <VoteButton
+            tone="neutral"
+            label="Abstain"
+            disabled={submitting}
+            onClick={() => handleVote("abstain")}
+          />
         </div>
+        {submitError ? (
+          <Surface
+            variant="panelAlt"
+            radius="2xl"
+            shadow="tile"
+            className="px-5 py-4 text-sm text-muted"
+          >
+            {submitError}
+          </Surface>
+        ) : null}
 
         <h2 className="text-lg font-semibold text-text">Voting quorum</h2>
         <div className="grid gap-3 text-sm text-text sm:grid-cols-2 lg:grid-cols-4">

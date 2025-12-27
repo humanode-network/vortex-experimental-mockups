@@ -120,7 +120,7 @@ Examples:
 - `proposal.draft.save`
 - `proposal.submitToPool`
 - `pool.vote` (upvote/downvote)
-- `chamber.vote` (yes/no/abstain + optional CM score)
+- `chamber.vote` (yes/no/abstain + optional CM score 1–10 on yes votes)
 - `formation.join`
 - `formation.milestone.submit`
 - `formation.milestone.requestUnlock`
@@ -166,33 +166,44 @@ Local dev modes for reads:
 
 ### Governance time
 
-- `clock_state`: `currentEpoch`, `currentEra`, `updatedAt`
+Current repo:
+
+- `clock_state`: `currentEra`, `updatedAt`
+
+Planned:
+
 - `era_snapshots`: per-era aggregates (active governors, quorum baselines, etc.)
 - `epoch_uptime`: optional (per address, per epoch/week) if Bioauth uptime is modeled in v1/v2
 
-### Chambers + membership
+### Current tables (implemented)
+
+- `read_models`: transitional DTO storage for the current UI
+- `events`: append-only feed/audit log
+- `pool_votes`: unique (proposalId, voterAddress) → up/down
+- `chamber_votes`: unique (proposalId, voterAddress) → yes/no/abstain + optional `score` (1–10) on yes votes
+- `cm_awards`: CM awards emitted when proposals pass (unique per proposal)
+- `idempotency_keys`: stored responses for idempotent command retries
+
+### Planned normalized domain tables (not implemented yet)
 
 - `chambers`: `id`, `name`, `multiplier`
 - `chamber_membership`: `chamberId`, `userId`, `sinceEra`
-
-### CM / tiers
-
+- `proposals`: `id`, `title`, `chamberId`, `stage`, `proposerUserId`, `createdAt`, `updatedAt`
+- `proposal_drafts`: `proposalId`, structured form fields, `updatedAt`
+- `proposal_stage_transitions`: `proposalId`, `fromStage`, `toStage`, `atEra`, `atTime`
+- `proposal_attachments`: `proposalId`, `title`, `href`
 - `cm_lcm`: (`userId`, `chamberId`, `lcm`)
 - `tiers`: (`userId`, `tier`, `status`, `streaks`, `updatedAt`)
 
-### Proposals
-
-- `proposals`: `id`, `title`, `chamberId`, `stage`, `proposerUserId`, `createdAt`, `updatedAt`
-- `proposal_drafts`: `proposalId`, structured form fields, `updatedAt`
-- `pool_votes`: `proposalId`, `userId`, `direction` (+1/-1), `createdAt`
-- `chamber_votes`: `proposalId`, `userId`, `vote` (yes/no/abstain), `cmScore?`, `createdAt`
-- `proposal_stage_transitions`: `proposalId`, `fromStage`, `toStage`, `atEra`, `atTime`
-- `proposal_attachments`: `proposalId`, `title`, `href`
-
-Current repo status:
+Current repo behavior:
 
 - `pool_votes` exists and is written via `POST /api/command` (`pool.vote`).
-- Pool read pages (`GET /api/proposals/:id/pool`) overlay live upvote/downvote counts from `pool_votes`.
+- `chamber_votes` exists and is written via `POST /api/command` (`chamber.vote`).
+- `cm_awards` exists and is written when proposals pass chamber vote (derived from average yes `score`).
+- Read pages overlay live counts:
+  - `GET /api/proposals/:id/pool` overlays upvotes/downvotes from `pool_votes`
+  - `GET /api/proposals/:id/chamber` overlays yes/no/abstain from `chamber_votes`
+- Stage transitions are currently applied by updating `read_models` entries (until normalized tables + projections land).
 
 ### Formation
 
@@ -234,19 +245,35 @@ This section maps each workflow from `docs/vortex-simulation-processes.md` to co
 
 ### 2.1 Onboarding (Human → Human Node → Governor)
 
+Current repo:
+
+- **Module:** `auth`, `gate`
+- **API:** `GET /api/me`, `GET /api/gate/status`
+- **Tables:** `users`, `eligibility_cache`
+
+Planned:
+
 - **Module:** `identity`, `eligibility`, `tiers`
-- **API:** `GET /api/me` (derived view), optional admin `POST /api/admin/sync-eligibility`
-- **Tables:** `users`, `eligibility_cache`, `tiers`
-- **Events:** `human.verified`, `human_node.eligible`, `tier.updated`
+- **Tables:** `tiers`
+- **Events:** `tier.updated`
 
 ### 2.2 Era rollup (cron)
 
+Current repo:
+
+- **Module:** `clock`
+- **API:** `GET /api/clock`, `POST /api/clock/advance-era`
+- **Tables:** `clock_state`
+
+Planned:
+
 - **Module:** `governanceTime`, `tiers`, `cm`, `proposals`, `feed`
-- **API:** none (cron-triggered), optional admin `POST /api/clock/advance-era`
-- **Tables:** `clock_state`, `era_snapshots`, `tiers`, `cm_lcm`, `proposal_stage_transitions`, `events`
+- **Tables:** `era_snapshots`, `tiers`, `cm_lcm`, `proposal_stage_transitions`, `events`
 - **Events:** `era.rolled`, `quorum.baseline_updated`, `proposal.advanced`
 
 ### 2.3 Proposal drafting (wizard)
+
+Planned:
 
 - **Module:** `proposals.draft`
 - **API:** `POST /api/command` (`proposal.draft.save`, `proposal.submitToPool`)
@@ -265,7 +292,7 @@ This section maps each workflow from `docs/vortex-simulation-processes.md` to co
 
 - **Module:** `proposals.vote`, `cm`
 - **API:** `POST /api/command` (`chamber.vote`)
-- **Tables:** `chamber_votes`, `proposal_stage_transitions`, `cm_lcm`
+- **Tables:** `chamber_votes`, `cm_awards`, `events` (+ transitional `read_models` stage updates)
 - **Events:** `vote.cast`, `vote.quorum_met`, `proposal.passed`, `proposal.rejected`, `cm.awarded`
 
 ### 2.6 Formation execution (projects)

@@ -11,6 +11,12 @@ import { castPoolVote } from "../_lib/poolVotesStore.ts";
 import { appendFeedItemEvent } from "../_lib/appendEvents.ts";
 import { createReadModelsStore } from "../_lib/readModelsStore.ts";
 import { evaluatePoolQuorum } from "../_lib/poolQuorum.ts";
+import {
+  castChamberVote,
+  getChamberYesScoreAverage,
+} from "../_lib/chamberVotesStore.ts";
+import { evaluateChamberQuorum } from "../_lib/chamberQuorum.ts";
+import { awardCmOnce } from "../_lib/cmAwardsStore.ts";
 
 const poolVoteSchema = z.object({
   type: z.literal("pool.vote"),
@@ -21,7 +27,22 @@ const poolVoteSchema = z.object({
   idempotencyKey: z.string().min(8).optional(),
 });
 
-type CommandInput = z.infer<typeof poolVoteSchema>;
+const chamberVoteSchema = z.object({
+  type: z.literal("chamber.vote"),
+  payload: z.object({
+    proposalId: z.string().min(1),
+    choice: z.enum(["yes", "no", "abstain"]),
+    score: z.number().int().min(1).max(10).optional(),
+  }),
+  idempotencyKey: z.string().min(8).optional(),
+});
+
+const commandSchema = z.discriminatedUnion("type", [
+  poolVoteSchema,
+  chamberVoteSchema,
+]);
+
+type CommandInput = z.infer<typeof commandSchema>;
 
 export const onRequestPost: PagesFunction = async (context) => {
   let body: unknown;
@@ -31,7 +52,7 @@ export const onRequestPost: PagesFunction = async (context) => {
     return errorResponse(400, (error as Error).message);
   }
 
-  const parsed = poolVoteSchema.safeParse(body);
+  const parsed = commandSchema.safeParse(body);
   if (!parsed.success) {
     return errorResponse(400, "Invalid command", {
       issues: parsed.error.issues,
@@ -68,24 +89,120 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   const readModels = await createReadModelsStore(context.env).catch(() => null);
   if (readModels) {
+    const requiredStage = input.type === "pool.vote" ? "pool" : "vote";
     const stage = await getProposalStage(readModels, input.payload.proposalId);
-    if (stage && stage !== "pool") {
-      return errorResponse(409, "Proposal is not in pool stage", { stage });
+    if (!stage) return errorResponse(404, "Unknown proposal");
+    if (stage !== requiredStage) {
+      return errorResponse(409, "Proposal is not in the required stage", {
+        stage,
+        requiredStage,
+      });
     }
   }
 
-  const direction = input.payload.direction === "up" ? 1 : -1;
-  const counts = await castPoolVote(context.env, {
+  if (input.type === "pool.vote") {
+    const direction = input.payload.direction === "up" ? 1 : -1;
+    const counts = await castPoolVote(context.env, {
+      proposalId: input.payload.proposalId,
+      voterAddress: session.address,
+      direction,
+    });
+
+    const response = {
+      ok: true as const,
+      type: input.type,
+      proposalId: input.payload.proposalId,
+      direction: input.payload.direction,
+      counts,
+    };
+
+    if (idempotencyKey) {
+      await storeIdempotencyResponse(context.env, {
+        key: idempotencyKey,
+        address: session.address,
+        request: requestForIdem,
+        response,
+      });
+    }
+
+    await appendFeedItemEvent(context.env, {
+      stage: "pool",
+      actorAddress: session.address,
+      entityType: "proposal",
+      entityId: input.payload.proposalId,
+      payload: {
+        id: `pool-vote:${input.payload.proposalId}:${session.address}:${Date.now()}`,
+        title: "Pool vote cast",
+        meta: "Proposal pool · Vote",
+        stage: "pool",
+        summaryPill: input.payload.direction === "up" ? "Upvote" : "Downvote",
+        summary: `Recorded a ${input.payload.direction}vote in the proposal pool.`,
+        stats: [
+          { label: "Upvotes", value: String(counts.upvotes) },
+          { label: "Downvotes", value: String(counts.downvotes) },
+        ],
+        ctaPrimary: "Open proposal",
+        href: `/app/proposals/${input.payload.proposalId}/pp`,
+        timestamp: new Date().toISOString(),
+      },
+    });
+
+    const advanced =
+      readModels &&
+      (await maybeAdvancePoolProposalToVote(readModels, {
+        proposalId: input.payload.proposalId,
+        counts,
+      }));
+
+    if (advanced) {
+      await appendFeedItemEvent(context.env, {
+        stage: "vote",
+        actorAddress: session.address,
+        entityType: "proposal",
+        entityId: input.payload.proposalId,
+        payload: {
+          id: `pool-advance:${input.payload.proposalId}:${Date.now()}`,
+          title: "Proposal advanced",
+          meta: "Chamber vote",
+          stage: "vote",
+          summaryPill: "Advanced",
+          summary: "Attention quorum met; proposal moved to chamber vote.",
+          stats: [
+            { label: "Upvotes", value: String(counts.upvotes) },
+            {
+              label: "Engaged",
+              value: String(counts.upvotes + counts.downvotes),
+            },
+          ],
+          ctaPrimary: "Open proposal",
+          href: `/app/proposals/${input.payload.proposalId}/chamber`,
+          timestamp: new Date().toISOString(),
+        },
+      });
+    }
+
+    return jsonResponse(response);
+  }
+
+  if (input.payload.choice !== "yes" && input.payload.score !== undefined) {
+    return errorResponse(400, "Score is only allowed for yes votes");
+  }
+
+  const choice =
+    input.payload.choice === "yes" ? 1 : input.payload.choice === "no" ? -1 : 0;
+  const counts = await castChamberVote(context.env, {
     proposalId: input.payload.proposalId,
     voterAddress: session.address,
-    direction,
+    choice,
+    score:
+      input.payload.choice === "yes" ? (input.payload.score ?? null) : null,
   });
 
   const response = {
     ok: true as const,
     type: input.type,
     proposalId: input.payload.proposalId,
-    direction: input.payload.direction,
+    choice: input.payload.choice,
     counts,
   };
 
@@ -99,56 +216,70 @@ export const onRequestPost: PagesFunction = async (context) => {
   }
 
   await appendFeedItemEvent(context.env, {
-    stage: "pool",
+    stage: "vote",
     actorAddress: session.address,
     entityType: "proposal",
     entityId: input.payload.proposalId,
     payload: {
-      id: `pool-vote:${input.payload.proposalId}:${session.address}:${Date.now()}`,
-      title: "Pool vote cast",
-      meta: "Proposal pool · Vote",
-      stage: "pool",
-      summaryPill: input.payload.direction === "up" ? "Upvote" : "Downvote",
-      summary: `Recorded a ${input.payload.direction}vote in the proposal pool.`,
+      id: `chamber-vote:${input.payload.proposalId}:${session.address}:${Date.now()}`,
+      title: "Chamber vote cast",
+      meta: "Chamber vote",
+      stage: "vote",
+      summaryPill:
+        input.payload.choice === "yes"
+          ? "Yes"
+          : input.payload.choice === "no"
+            ? "No"
+            : "Abstain",
+      summary: "Recorded a vote in chamber stage.",
       stats: [
-        { label: "Upvotes", value: String(counts.upvotes) },
-        { label: "Downvotes", value: String(counts.downvotes) },
+        { label: "Yes", value: String(counts.yes) },
+        { label: "No", value: String(counts.no) },
+        { label: "Abstain", value: String(counts.abstain) },
       ],
       ctaPrimary: "Open proposal",
-      href: `/app/proposals/${input.payload.proposalId}/pp`,
+      href: `/app/proposals/${input.payload.proposalId}/chamber`,
       timestamp: new Date().toISOString(),
     },
   });
 
   const advanced =
     readModels &&
-    (await maybeAdvancePoolProposalToVote(readModels, {
+    (await maybeAdvanceVoteProposalToBuild(context.env, readModels, {
       proposalId: input.payload.proposalId,
       counts,
     }));
 
   if (advanced) {
+    const avgScore =
+      (await getChamberYesScoreAverage(
+        context.env,
+        input.payload.proposalId,
+      )) ?? null;
     await appendFeedItemEvent(context.env, {
-      stage: "vote",
+      stage: "build",
       actorAddress: session.address,
       entityType: "proposal",
       entityId: input.payload.proposalId,
       payload: {
-        id: `pool-advance:${input.payload.proposalId}:${Date.now()}`,
-        title: "Proposal advanced",
-        meta: "Chamber vote",
-        stage: "vote",
-        summaryPill: "Advanced",
-        summary: "Attention quorum met; proposal moved to chamber vote.",
+        id: `vote-pass:${input.payload.proposalId}:${Date.now()}`,
+        title: "Proposal passed",
+        meta: "Formation",
+        stage: "build",
+        summaryPill: "Passed",
+        summary: "Chamber vote passed; proposal moved to Formation.",
         stats: [
-          { label: "Upvotes", value: String(counts.upvotes) },
+          ...(avgScore !== null
+            ? [{ label: "Avg CM", value: avgScore.toFixed(1) }]
+            : []),
+          { label: "Yes", value: String(counts.yes) },
           {
             label: "Engaged",
-            value: String(counts.upvotes + counts.downvotes),
+            value: String(counts.yes + counts.no + counts.abstain),
           },
         ],
         ctaPrimary: "Open proposal",
-        href: `/app/proposals/${input.payload.proposalId}/chamber`,
+        href: `/app/proposals/${input.payload.proposalId}/formation`,
         timestamp: new Date().toISOString(),
       },
     });
@@ -347,4 +478,156 @@ function buildVoteStageData(payload: unknown): Array<{
     },
     { title: "Time left", description: "Voting window", value: timeLeft },
   ];
+}
+
+async function maybeAdvanceVoteProposalToBuild(
+  env: Record<string, string | undefined>,
+  store: Awaited<ReturnType<typeof createReadModelsStore>>,
+  input: {
+    proposalId: string;
+    counts: { yes: number; no: number; abstain: number };
+  },
+): Promise<boolean> {
+  if (!store.set) return false;
+
+  const chamberPayload = await store.get(
+    `proposals:${input.proposalId}:chamber`,
+  );
+  if (!isRecord(chamberPayload)) return false;
+
+  const attentionQuorum = chamberPayload.attentionQuorum;
+  const activeGovernors = chamberPayload.activeGovernors;
+  const formationEligible = chamberPayload.formationEligible;
+  if (
+    typeof attentionQuorum !== "number" ||
+    typeof activeGovernors !== "number" ||
+    typeof formationEligible !== "boolean"
+  ) {
+    return false;
+  }
+
+  const quorum = evaluateChamberQuorum(
+    {
+      quorumFraction: attentionQuorum,
+      activeGovernors,
+      passingFraction: 2 / 3,
+    },
+    input.counts,
+  );
+  if (!quorum.shouldAdvance) return false;
+  if (!formationEligible) return false;
+
+  const listPayload = await store.get("proposals:list");
+  if (!isRecord(listPayload)) return false;
+  const items = listPayload.items;
+  if (!Array.isArray(items)) return false;
+
+  await ensureFormationProposalPage(store, input.proposalId, chamberPayload);
+
+  let changed = false;
+  const nextItems = items.map((item) => {
+    if (!isRecord(item) || item.id !== input.proposalId) return item;
+    if (item.stage !== "vote") return item;
+    changed = true;
+    return { ...item, stage: "build", summaryPill: "Formation" };
+  });
+  if (!changed) return false;
+
+  await store.set("proposals:list", { ...listPayload, items: nextItems });
+
+  const proposerId = asString(chamberPayload.proposerId, "");
+  const chamberLabel = asString(chamberPayload.chamber, "");
+  const chamberId = normalizeChamberId(chamberLabel);
+  const multiplierTimes10 = await getChamberMultiplierTimes10(store, chamberId);
+  const avgScore =
+    (await getChamberYesScoreAverage(env, input.proposalId)) ?? null;
+
+  if (proposerId && avgScore !== null) {
+    const lcmPoints = Math.round(avgScore * 10);
+    const mcmPoints = Math.round((lcmPoints * multiplierTimes10) / 10);
+    await awardCmOnce(env, {
+      proposalId: input.proposalId,
+      proposerId,
+      chamberId,
+      avgScore,
+      lcmPoints,
+      chamberMultiplierTimes10: multiplierTimes10,
+      mcmPoints,
+    });
+  }
+
+  return true;
+}
+
+async function ensureFormationProposalPage(
+  store: Awaited<ReturnType<typeof createReadModelsStore>>,
+  proposalId: string,
+  chamberPayload: Record<string, unknown>,
+): Promise<void> {
+  const existing = await store.get(`proposals:${proposalId}:formation`);
+  if (existing) return;
+  if (!store.set) return;
+  await store.set(
+    `proposals:${proposalId}:formation`,
+    buildFormationProposalPageFromChamber(chamberPayload),
+  );
+}
+
+function buildFormationProposalPageFromChamber(
+  chamberPayload: Record<string, unknown>,
+): Record<string, unknown> {
+  return {
+    title: asString(chamberPayload.title, "Proposal"),
+    chamber: asString(chamberPayload.chamber, "General chamber"),
+    proposer: asString(chamberPayload.proposer, "Unknown"),
+    proposerId: asString(chamberPayload.proposerId, "unknown"),
+    budget: asString(chamberPayload.budget, "—"),
+    timeLeft: "12w",
+    teamSlots: asString(chamberPayload.teamSlots, "0 / 0"),
+    milestones: asString(chamberPayload.milestones, "0 / 0"),
+    progress: "0%",
+    stageData: [
+      { title: "Budget allocated", description: "HMND", value: "0 / —" },
+      { title: "Team slots", description: "Filled / Total", value: "0 / —" },
+      { title: "Milestones", description: "Completed / Total", value: "0 / —" },
+    ],
+    stats: [{ label: "Lead chamber", value: asString(chamberPayload.chamber) }],
+    lockedTeam: asArray(chamberPayload.teamLocked),
+    openSlots: asArray(chamberPayload.openSlotNeeds),
+    milestonesDetail: asArray(chamberPayload.milestonesDetail),
+    attachments: asArray(chamberPayload.attachments),
+    summary: asString(chamberPayload.summary, ""),
+    overview: asString(chamberPayload.overview, ""),
+    executionPlan: asArray(chamberPayload.executionPlan),
+    budgetScope: asString(chamberPayload.budgetScope, ""),
+    invisionInsight: isRecord(chamberPayload.invisionInsight)
+      ? chamberPayload.invisionInsight
+      : { role: "—", bullets: [] },
+  };
+}
+
+function normalizeChamberId(chamberLabel: string): string {
+  const match = chamberLabel.trim().match(/^([A-Za-z]+)/);
+  return (match?.[1] ?? chamberLabel).toLowerCase();
+}
+
+async function getChamberMultiplierTimes10(
+  store: Awaited<ReturnType<typeof createReadModelsStore>>,
+  chamberId: string,
+): Promise<number> {
+  const payload = await store.get("chambers:list");
+  if (!isRecord(payload)) return 10;
+  const items = payload.items;
+  if (!Array.isArray(items)) return 10;
+  const entry = items.find(
+    (item) =>
+      isRecord(item) &&
+      (item.id === chamberId ||
+        (typeof item.name === "string" &&
+          item.name.toLowerCase() === chamberId)),
+  );
+  if (!isRecord(entry)) return 10;
+  const mult = entry.multiplier;
+  if (typeof mult !== "number") return 10;
+  return Math.round(mult * 10);
 }

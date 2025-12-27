@@ -1,0 +1,133 @@
+import { eq, sql } from "drizzle-orm";
+
+import { chamberVotes } from "../../db/schema.ts";
+import { createDb } from "./db.ts";
+
+type Env = Record<string, string | undefined>;
+
+export type ChamberVoteChoice = 1 | 0 | -1;
+
+export type ChamberVoteCounts = {
+  yes: number;
+  no: number;
+  abstain: number;
+};
+
+type StoredChamberVote = { choice: ChamberVoteChoice; score?: number | null };
+const memoryVotes = new Map<string, Map<string, StoredChamberVote>>();
+
+export async function castChamberVote(
+  env: Env,
+  input: {
+    proposalId: string;
+    voterAddress: string;
+    choice: ChamberVoteChoice;
+    score?: number | null;
+  },
+): Promise<ChamberVoteCounts> {
+  if (!env.DATABASE_URL) {
+    const byVoter =
+      memoryVotes.get(input.proposalId) ?? new Map<string, StoredChamberVote>();
+    byVoter.set(input.voterAddress.toLowerCase(), {
+      choice: input.choice,
+      score: input.score ?? null,
+    });
+    memoryVotes.set(input.proposalId, byVoter);
+    return countMemory(input.proposalId);
+  }
+
+  const db = createDb(env);
+  const now = new Date();
+  await db
+    .insert(chamberVotes)
+    .values({
+      proposalId: input.proposalId,
+      voterAddress: input.voterAddress,
+      choice: input.choice,
+      score: input.score ?? null,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .onConflictDoUpdate({
+      target: [chamberVotes.proposalId, chamberVotes.voterAddress],
+      set: { choice: input.choice, score: input.score ?? null, updatedAt: now },
+    });
+
+  return await getChamberVoteCounts(env, input.proposalId);
+}
+
+export async function getChamberVoteCounts(
+  env: Env,
+  proposalId: string,
+): Promise<ChamberVoteCounts> {
+  if (!env.DATABASE_URL) return countMemory(proposalId);
+
+  const db = createDb(env);
+  const rows = await db
+    .select({
+      yes: sql<number>`sum(case when ${chamberVotes.choice} = 1 then 1 else 0 end)`,
+      no: sql<number>`sum(case when ${chamberVotes.choice} = -1 then 1 else 0 end)`,
+      abstain: sql<number>`sum(case when ${chamberVotes.choice} = 0 then 1 else 0 end)`,
+    })
+    .from(chamberVotes)
+    .where(eq(chamberVotes.proposalId, proposalId));
+
+  const row = rows[0];
+  return {
+    yes: Number(row?.yes ?? 0),
+    no: Number(row?.no ?? 0),
+    abstain: Number(row?.abstain ?? 0),
+  };
+}
+
+export async function clearChamberVotesForTests() {
+  memoryVotes.clear();
+}
+
+function countMemory(proposalId: string): ChamberVoteCounts {
+  const byVoter = memoryVotes.get(proposalId);
+  if (!byVoter) return { yes: 0, no: 0, abstain: 0 };
+  let yes = 0;
+  let no = 0;
+  let abstain = 0;
+  for (const vote of byVoter.values()) {
+    if (vote.choice === 1) yes += 1;
+    if (vote.choice === -1) no += 1;
+    if (vote.choice === 0) abstain += 1;
+  }
+  return { yes, no, abstain };
+}
+
+export async function getChamberYesScoreAverage(
+  env: Env,
+  proposalId: string,
+): Promise<number | null> {
+  if (!env.DATABASE_URL) return getYesScoreAverageFromMemory(proposalId);
+
+  const db = createDb(env);
+  const rows = await db
+    .select({
+      avg: sql<number | null>`avg(${chamberVotes.score})`,
+    })
+    .from(chamberVotes)
+    .where(
+      sql`${chamberVotes.proposalId} = ${proposalId} and ${chamberVotes.choice} = 1`,
+    );
+  const avg = rows[0]?.avg ?? null;
+  return avg === null ? null : Number(avg);
+}
+
+function getYesScoreAverageFromMemory(proposalId: string): number | null {
+  const byVoter = memoryVotes.get(proposalId);
+  if (!byVoter) return null;
+  let sum = 0;
+  let n = 0;
+  for (const vote of byVoter.values()) {
+    if (vote.choice !== 1) continue;
+    if (typeof vote.score !== "number") continue;
+    sum += vote.score;
+    n += 1;
+  }
+  if (n === 0) return null;
+  return sum / n;
+}

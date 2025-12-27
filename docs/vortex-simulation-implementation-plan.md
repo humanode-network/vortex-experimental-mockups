@@ -96,8 +96,8 @@ This is the order we’ll follow from now on, based on what’s already landed.
 6. **Phase 3 — Auth + eligibility gate (DONE)**
 7. **Phase 4 — Read models first (all pages, clean-by-default) (DONE)**
 8. **Phase 5 — Event log backbone (DONE)**
-9. **Phase 6 — First write slice (pool voting) (IN PROGRESS)**
-10. **Phase 7 — Chamber vote + CM awarding**
+9. **Phase 6 — First write slice (pool voting) (DONE)**
+10. **Phase 7 — Chamber vote + CM awarding (DONE)**
 11. **Phase 8 — Formation v1**
 12. **Phase 9 — Courts v1**
 13. **Phase 10 — Era rollups + tier statuses**
@@ -355,6 +355,23 @@ Tests:
 - Vote constraints (one vote per user, valid choices).
 - Quorum + passing calculation accuracy (including rounding rules like 66.6%).
 - CM awarding updates LCM/MCM/ACM deterministically after acceptance.
+
+Current status:
+
+- Implemented:
+  - `chamber.vote` command via `POST /api/command` (auth + gate + idempotency)
+  - `chamber_votes` storage (DB mode) with in-memory fallback for tests/dev without a DB
+  - Chamber page reads overlay live vote counts in `GET /api/proposals/:id/chamber`
+  - Vote → build auto-advance when quorum + passing are met and `formationEligible === true`
+    - the proposal stage is advanced by updating the `proposals:list` read model
+    - if the formation page read model is missing, it is generated from the chamber page payload
+  - CM awarding v1:
+    - `score` (1–10) can be attached to yes votes
+    - when a proposal passes, the average yes score is converted into CM points and recorded in `cm_awards`
+    - human ACM is derived as a baseline from read models plus a delta from `cm_awards` (overlaid in `/api/humans*`)
+- Not implemented yet:
+  - rejection / fail path and time-based vote windows
+  - richer CM economy (per-chamber breakdowns, ACM/LCM/MCM surfaces across all pages, parameter tuning)
 
 ## Phase 8 — Formation v1 (execution) (5–14 days)
 
