@@ -99,7 +99,7 @@ This is the order we’ll follow from now on, based on what’s already landed.
 9. **Phase 6 — First write slice (pool voting) (DONE)**
 10. **Phase 7 — Chamber vote + CM awarding (DONE)**
 11. **Phase 8 — Formation v1 (DONE)**
-12. **Phase 9 — Courts v1**
+12. **Phase 9 — Courts v1 (DONE)**
 13. **Phase 10 — Era rollups + tier statuses**
 14. **Phase 11 — Hardening + moderation**
 
@@ -417,6 +417,21 @@ Tests:
 - Case state machine transitions are valid only.
 - Verdict is single-per-user and only allowed in appropriate case states.
 - Outcome hooks apply the intended flags (hold/release/restrict).
+
+Current status:
+
+- Implemented:
+  - Courts tables: `court_cases`, `court_reports`, `court_verdicts`
+  - Commands:
+    - `court.case.report`
+    - `court.case.verdict`
+  - Courts read overlays:
+    - `GET /api/courts`
+    - `GET /api/courts/:id`
+  - Minimal UI wiring:
+    - Courtroom `Report` action and verdict buttons call `/api/command`
+- Tests:
+  - `tests/api-command-courts.test.js`
 
 ## Phase 10 — Era rollups + tier statuses (ongoing)
 

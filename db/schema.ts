@@ -196,3 +196,48 @@ export const formationMilestoneEvents = pgTable("formation_milestone_events", {
     .notNull()
     .defaultNow(),
 });
+
+export const courtCases = pgTable("court_cases", {
+  id: text("id").primaryKey(),
+  status: text("status").notNull(),
+  baseReports: integer("base_reports").notNull().default(0),
+  opened: text("opened"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const courtReports = pgTable(
+  "court_reports",
+  {
+    caseId: text("case_id").notNull(),
+    reporterAddress: text("reporter_address").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.caseId, t.reporterAddress] }),
+  }),
+);
+
+export const courtVerdicts = pgTable(
+  "court_verdicts",
+  {
+    caseId: text("case_id").notNull(),
+    voterAddress: text("voter_address").notNull(),
+    verdict: text("verdict").notNull(), // guilty|not_guilty
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.caseId, t.voterAddress] }),
+  }),
+);

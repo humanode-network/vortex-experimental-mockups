@@ -283,6 +283,54 @@ export async function apiCourt(id: string): Promise<CourtCaseDetailDto> {
   return await apiGet<CourtCaseDetailDto>(`/api/courts/${id}`);
 }
 
+export async function apiCourtReport(input: {
+  caseId: string;
+  idempotencyKey?: string;
+}): Promise<{
+  ok: true;
+  type: "court.case.report";
+  caseId: string;
+  reports: number;
+  status: "jury" | "live" | "ended";
+}> {
+  return await apiPost(
+    "/api/command",
+    {
+      type: "court.case.report",
+      payload: { caseId: input.caseId },
+      idempotencyKey: input.idempotencyKey,
+    },
+    input.idempotencyKey
+      ? { headers: { "idempotency-key": input.idempotencyKey } }
+      : undefined,
+  );
+}
+
+export async function apiCourtVerdict(input: {
+  caseId: string;
+  verdict: "guilty" | "not_guilty";
+  idempotencyKey?: string;
+}): Promise<{
+  ok: true;
+  type: "court.case.verdict";
+  caseId: string;
+  verdict: "guilty" | "not_guilty";
+  status: "jury" | "live" | "ended";
+  totals: { guilty: number; notGuilty: number };
+}> {
+  return await apiPost(
+    "/api/command",
+    {
+      type: "court.case.verdict",
+      payload: { caseId: input.caseId, verdict: input.verdict },
+      idempotencyKey: input.idempotencyKey,
+    },
+    input.idempotencyKey
+      ? { headers: { "idempotency-key": input.idempotencyKey } }
+      : undefined,
+  );
+}
+
 export async function apiHumans(): Promise<GetHumansResponse> {
   return await apiGet<GetHumansResponse>("/api/humans");
 }

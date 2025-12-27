@@ -103,7 +103,7 @@ DB setup uses the read-model bridge seeded from `db/seed/fixtures/*`:
 - Generate migrations: `yarn db:generate`
 - Apply migrations: `yarn db:migrate` (requires `DATABASE_URL`)
 - Seed into `read_models` and the `events` table: `yarn db:seed` (requires `DATABASE_URL`)
-  - Also truncates `pool_votes`, `chamber_votes`, `cm_awards`, `idempotency_keys`, and Formation tables so repeated seeds stay deterministic.
+  - Also truncates `pool_votes`, `chamber_votes`, `cm_awards`, `idempotency_keys`, Formation tables, and Courts tables so repeated seeds stay deterministic.
 
 ### Clearing all data (keep schema)
 

@@ -23,6 +23,7 @@ import {
   requestFormationMilestoneUnlock,
   submitFormationMilestone,
 } from "../_lib/formationStore.ts";
+import { castCourtVerdict, reportCourtCase } from "../_lib/courtsStore.ts";
 
 const poolVoteSchema = z.object({
   type: z.literal("pool.vote"),
@@ -71,12 +72,31 @@ const formationMilestoneUnlockSchema = z.object({
   idempotencyKey: z.string().min(8).optional(),
 });
 
+const courtReportSchema = z.object({
+  type: z.literal("court.case.report"),
+  payload: z.object({
+    caseId: z.string().min(1),
+  }),
+  idempotencyKey: z.string().min(8).optional(),
+});
+
+const courtVerdictSchema = z.object({
+  type: z.literal("court.case.verdict"),
+  payload: z.object({
+    caseId: z.string().min(1),
+    verdict: z.enum(["guilty", "not_guilty"]),
+  }),
+  idempotencyKey: z.string().min(8).optional(),
+});
+
 const commandSchema = z.discriminatedUnion("type", [
   poolVoteSchema,
   chamberVoteSchema,
   formationJoinSchema,
   formationMilestoneSubmitSchema,
   formationMilestoneUnlockSchema,
+  courtReportSchema,
+  courtVerdictSchema,
 ]);
 
 type CommandInput = z.infer<typeof commandSchema>;
@@ -125,7 +145,14 @@ export const onRequestPost: PagesFunction = async (context) => {
   }
 
   const readModels = await createReadModelsStore(context.env).catch(() => null);
-  if (readModels) {
+  if (
+    readModels &&
+    (input.type === "pool.vote" ||
+      input.type === "chamber.vote" ||
+      input.type === "formation.join" ||
+      input.type === "formation.milestone.submit" ||
+      input.type === "formation.milestone.requestUnlock")
+  ) {
     const requiredStage =
       input.type === "pool.vote"
         ? "pool"
@@ -415,6 +442,125 @@ export const onRequestPost: PagesFunction = async (context) => {
         ],
         ctaPrimary: "Open proposal",
         href: `/app/proposals/${input.payload.proposalId}/formation`,
+        timestamp: new Date().toISOString(),
+      },
+    });
+
+    return jsonResponse(response);
+  }
+
+  if (input.type === "court.case.report") {
+    if (!readModels) return errorResponse(500, "Read models store unavailable");
+    let overlay;
+    try {
+      overlay = await reportCourtCase(context.env, readModels, {
+        caseId: input.payload.caseId,
+        reporterAddress: session.address,
+      });
+    } catch (error) {
+      const code = (error as Error).message;
+      if (code === "court_case_missing")
+        return errorResponse(404, "Unknown case");
+      return errorResponse(400, "Unable to report case", { code });
+    }
+
+    const response = {
+      ok: true as const,
+      type: input.type,
+      caseId: input.payload.caseId,
+      reports: overlay.reports,
+      status: overlay.status,
+    };
+
+    if (idempotencyKey) {
+      await storeIdempotencyResponse(context.env, {
+        key: idempotencyKey,
+        address: session.address,
+        request: requestForIdem,
+        response,
+      });
+    }
+
+    await appendFeedItemEvent(context.env, {
+      stage: "courts",
+      actorAddress: session.address,
+      entityType: "court_case",
+      entityId: input.payload.caseId,
+      payload: {
+        id: `court-report:${input.payload.caseId}:${session.address}:${Date.now()}`,
+        title: "Court case reported",
+        meta: "Courts",
+        stage: "courts",
+        summaryPill: "Report",
+        summary: "Filed a report for a court case (mock).",
+        stats: [{ label: "Reports", value: String(overlay.reports) }],
+        ctaPrimary: "Open courtroom",
+        href: `/app/courts/${input.payload.caseId}`,
+        timestamp: new Date().toISOString(),
+      },
+    });
+
+    return jsonResponse(response);
+  }
+
+  if (input.type === "court.case.verdict") {
+    if (!readModels) return errorResponse(500, "Read models store unavailable");
+    let overlay;
+    try {
+      overlay = await castCourtVerdict(context.env, readModels, {
+        caseId: input.payload.caseId,
+        voterAddress: session.address,
+        verdict: input.payload.verdict,
+      });
+    } catch (error) {
+      const code = (error as Error).message;
+      if (code === "court_case_missing")
+        return errorResponse(404, "Unknown case");
+      if (code === "case_not_live")
+        return errorResponse(409, "Case is not live");
+      return errorResponse(400, "Unable to cast verdict", { code });
+    }
+
+    const response = {
+      ok: true as const,
+      type: input.type,
+      caseId: input.payload.caseId,
+      verdict: input.payload.verdict,
+      status: overlay.status,
+      totals: {
+        guilty: overlay.verdicts.guilty,
+        notGuilty: overlay.verdicts.notGuilty,
+      },
+    };
+
+    if (idempotencyKey) {
+      await storeIdempotencyResponse(context.env, {
+        key: idempotencyKey,
+        address: session.address,
+        request: requestForIdem,
+        response,
+      });
+    }
+
+    await appendFeedItemEvent(context.env, {
+      stage: "courts",
+      actorAddress: session.address,
+      entityType: "court_case",
+      entityId: input.payload.caseId,
+      payload: {
+        id: `court-verdict:${input.payload.caseId}:${session.address}:${Date.now()}`,
+        title: "Verdict cast",
+        meta: "Courtroom",
+        stage: "courts",
+        summaryPill:
+          input.payload.verdict === "guilty" ? "Guilty" : "Not guilty",
+        summary: "Cast a verdict in a courtroom session (mock).",
+        stats: [
+          { label: "Guilty", value: String(overlay.verdicts.guilty) },
+          { label: "Not guilty", value: String(overlay.verdicts.notGuilty) },
+        ],
+        ctaPrimary: "Open courtroom",
+        href: `/app/courts/${input.payload.caseId}`,
         timestamp: new Date().toISOString(),
       },
     });

@@ -39,3 +39,10 @@ This file records the v1 decisions used by the simulation backend so implementat
     - `formation.milestone.submit`
     - `formation.milestone.requestUnlock`
   - `GET /api/proposals/:id/formation` overlays live Formation state (team slots, milestones, progress).
+- Phase 9 write slice exists:
+  - Courts tables exist:
+    - `court_cases`, `court_reports`, `court_verdicts`
+  - `POST /api/command` supports:
+    - `court.case.report`
+    - `court.case.verdict`
+  - `GET /api/courts` and `GET /api/courts/:id` overlay live `reports` and `status`.

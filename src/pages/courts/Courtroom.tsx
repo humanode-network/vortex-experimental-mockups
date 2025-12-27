@@ -11,7 +11,14 @@ import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
 import { CourtStatusBadge } from "@/components/CourtStatusBadge";
 import { VoteButton } from "@/components/VoteButton";
-import { apiCourt, apiHumans } from "@/lib/apiClient";
+import { Button } from "@/components/primitives/button";
+import { useAuth } from "@/app/auth/AuthContext";
+import {
+  apiCourt,
+  apiCourtReport,
+  apiCourtVerdict,
+  apiHumans,
+} from "@/lib/apiClient";
 import type { CourtCaseDetailDto, HumanNodeDto } from "@/types/api";
 
 const Courtroom: React.FC = () => {
@@ -21,6 +28,9 @@ const Courtroom: React.FC = () => {
     {},
   );
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionBusy, setActionBusy] = useState(false);
+  const auth = useAuth();
 
   useEffect(() => {
     if (!id) return;
@@ -51,6 +61,29 @@ const Courtroom: React.FC = () => {
 
   const [verdict, setVerdict] = useState<"guilty" | "not_guilty" | null>(null);
   const votingEnabled = courtCase?.status === "live";
+  const canAct = auth.authenticated && auth.eligible;
+
+  const refresh = async () => {
+    if (!id) return;
+    const [court, humans] = await Promise.all([apiCourt(id), apiHumans()]);
+    setCourtCase(court);
+    setHumansById(
+      Object.fromEntries(humans.items.map((h) => [h.id, h] as const)),
+    );
+  };
+
+  const runAction = async (fn: () => Promise<void>) => {
+    setActionError(null);
+    setActionBusy(true);
+    try {
+      await fn();
+      await refresh();
+    } catch (error) {
+      setActionError((error as Error).message);
+    } finally {
+      setActionBusy(false);
+    }
+  };
 
   const juryMembers = (courtCase?.juryIds ?? []).map((memberId) => {
     const node = humansById[memberId];
@@ -118,6 +151,20 @@ const Courtroom: React.FC = () => {
                 <span className="text-muted">·</span>
                 <span>{courtCase?.reports ?? "—"} reports</span>
               </div>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={!id || !canAct || actionBusy}
+                onClick={() =>
+                  void runAction(async () => {
+                    if (!id) return;
+                    await apiCourtReport({ caseId: id });
+                  })
+                }
+              >
+                Report
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -133,32 +180,55 @@ const Courtroom: React.FC = () => {
               size="lg"
               tone="accent"
               label="Not guilty"
-              disabled={!votingEnabled}
+              disabled={!votingEnabled || !canAct || actionBusy}
               aria-pressed={verdict === "not_guilty"}
               className={
                 verdict === "not_guilty"
                   ? "min-w-[260px] bg-[var(--accent)] text-[var(--accent-foreground)]"
                   : "min-w-[260px]"
               }
-              onClick={() => setVerdict("not_guilty")}
+              onClick={() =>
+                void runAction(async () => {
+                  if (!id) return;
+                  await apiCourtVerdict({ caseId: id, verdict: "not_guilty" });
+                  setVerdict("not_guilty");
+                })
+              }
             />
             <VoteButton
               size="lg"
               tone="destructive"
               label="Guilty"
-              disabled={!votingEnabled}
+              disabled={!votingEnabled || !canAct || actionBusy}
               aria-pressed={verdict === "guilty"}
               className={
                 verdict === "guilty"
                   ? "min-w-[260px] bg-[var(--destructive)] text-[var(--destructive-foreground)]"
                   : "min-w-[260px]"
               }
-              onClick={() => setVerdict("guilty")}
+              onClick={() =>
+                void runAction(async () => {
+                  if (!id) return;
+                  await apiCourtVerdict({ caseId: id, verdict: "guilty" });
+                  setVerdict("guilty");
+                })
+              }
             />
           </div>
+          {actionError ? (
+            <p className="text-xs text-muted" role="status">
+              {actionError}
+            </p>
+          ) : null}
           {!votingEnabled ? (
             <p className="text-xs text-muted">
               Voting is available only when the session is live.
+            </p>
+          ) : !auth.authenticated ? (
+            <p className="text-xs text-muted">Connect a wallet to act.</p>
+          ) : auth.authenticated && !auth.eligible ? (
+            <p className="text-xs text-muted">
+              Wallet is connected, but not active (gated).
             </p>
           ) : verdict ? (
             <p className="text-xs text-muted">

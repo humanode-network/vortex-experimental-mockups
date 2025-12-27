@@ -227,10 +227,21 @@ Implemented (v1):
 
 ### Courts
 
-- `court_cases`: `id`, `status`, `openedAt`, `subject`, `trigger`, `linkedEntityType`, `linkedEntityId`
-- `court_reports`: `caseId`, `userId`, `createdAt`
+Implemented (v1):
+
+- Commands:
+  - `court.case.report` (per-user report; updates `reports` + can open a live session)
+  - `court.case.verdict` (guilty/not_guilty; one-per-user; only when live; ends after enough verdicts)
+- Tables:
+  - `court_cases`: current status + baseline report count (seeded from read model)
+  - `court_reports`: per-user report uniqueness
+  - `court_verdicts`: per-user verdicts
+- Read overlay:
+  - `GET /api/courts` and `GET /api/courts/:id` overlay live `reports` + `status` from stored state
+
+Planned (later phases):
+
 - `court_evidence`: `caseId`, `title`, `href`, `addedByUserId`, `createdAt`
-- `court_verdicts`: `caseId`, `userId`, `verdict`, `createdAt`
 - `court_outcomes`: `caseId`, `result`, `recommendationsJson`
 
 ### Delegation

@@ -541,6 +541,69 @@ Notes:
   - `teamSlots`, `milestones`, and `progress` are computed from stored Formation state.
   - joined team members are appended to `lockedTeam` (as short addresses).
 
+#### Command: `court.case.report`
+
+Request:
+
+```ts
+type CourtCaseReportCommand = {
+  type: "court.case.report";
+  payload: { caseId: string };
+  idempotencyKey?: string;
+};
+```
+
+Response:
+
+```ts
+type CourtCaseReportResponse = {
+  ok: true;
+  type: "court.case.report";
+  caseId: string;
+  reports: number;
+  status: "jury" | "live" | "ended";
+};
+```
+
+Notes:
+
+- If the case ID is unknown, the API returns HTTP `404`.
+- Reports are per-user (reporting twice does not increment the count).
+- Status can transition **jury → live** once enough reports are collected (v1 threshold).
+- Emits a feed event (stage: `courts`).
+
+#### Command: `court.case.verdict`
+
+Request:
+
+```ts
+type CourtCaseVerdictCommand = {
+  type: "court.case.verdict";
+  payload: { caseId: string; verdict: "guilty" | "not_guilty" };
+  idempotencyKey?: string;
+};
+```
+
+Response:
+
+```ts
+type CourtCaseVerdictResponse = {
+  ok: true;
+  type: "court.case.verdict";
+  caseId: string;
+  verdict: "guilty" | "not_guilty";
+  status: "jury" | "live" | "ended";
+  totals: { guilty: number; notGuilty: number };
+};
+```
+
+Notes:
+
+- Verdicts are only allowed when the case is **live** (HTTP `409` otherwise).
+- Verdicts are one-per-user (re-voting updates the voter’s verdict).
+- Status can transition **live → ended** once enough distinct verdicts are collected (v1 threshold).
+- Emits a feed event (stage: `courts`).
+
 ### Proposal drafts
 
 #### `GET /api/proposals/drafts`
