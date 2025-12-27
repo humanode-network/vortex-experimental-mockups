@@ -210,6 +210,14 @@ Notes:
 
 These endpoints are implemented under `functions/api/*` and read from `read_models` (DB mode) or the inline seed (inline mode).
 
+## Admin/simulation endpoints
+
+These endpoints are intended for simulation control (local dev, cron jobs, and admin tools).
+
+- `GET /api/clock`
+- `POST /api/clock/advance-era`
+- `POST /api/clock/rollup-era` (computes per-era statuses and next-era active governor set)
+
 ### Chambers
 
 #### `GET /api/chambers`

@@ -174,6 +174,8 @@ Implemented:
 
 - `era_snapshots`: per-era aggregates (v1: `activeGovernors`)
 - `era_user_activity`: per-era counters per address (pool/chamber/courts/formation actions)
+- `era_rollups`: per-era rollup output (requirements + active set size for next era)
+- `era_user_status`: per-era derived status per address (Ahead/Stable/At risk/etc.)
 - `epoch_uptime`: optional (per address, per epoch/week) if Bioauth uptime is modeled in v1/v2
 
 ### Current tables (implemented)
@@ -186,6 +188,8 @@ Implemented:
 - `idempotency_keys`: stored responses for idempotent command retries
 - `era_snapshots`: per-era aggregates (v1: active governors baseline)
 - `era_user_activity`: per-era action counters per address
+- `era_rollups`: per-era rollup output (requirements + active set size for next era)
+- `era_user_status`: per-era derived status per address
 - `formation_projects`: per-proposal Formation counters/baselines
 - `formation_team`: extra Formation joiners (beyond seed baseline)
 - `formation_milestones`: per-proposal milestone status (`todo`/`submitted`/`unlocked`)

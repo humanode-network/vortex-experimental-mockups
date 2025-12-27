@@ -1,5 +1,6 @@
 import {
   bigserial,
+  boolean,
   integer,
   jsonb,
   primaryKey,
@@ -260,6 +261,45 @@ export const eraUserActivity = pgTable(
     courtActions: integer("court_actions").notNull().default(0),
     formationActions: integer("formation_actions").notNull().default(0),
     updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.era, t.address] }),
+  }),
+);
+
+export const eraRollups = pgTable("era_rollups", {
+  era: integer("era").primaryKey(),
+  requiredPoolVotes: integer("required_pool_votes").notNull().default(0),
+  requiredChamberVotes: integer("required_chamber_votes").notNull().default(0),
+  requiredCourtActions: integer("required_court_actions").notNull().default(0),
+  requiredFormationActions: integer("required_formation_actions")
+    .notNull()
+    .default(0),
+  requiredTotal: integer("required_total").notNull().default(0),
+  activeGovernorsNextEra: integer("active_governors_next_era")
+    .notNull()
+    .default(0),
+  rolledAt: timestamp("rolled_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const eraUserStatus = pgTable(
+  "era_user_status",
+  {
+    era: integer("era").notNull(),
+    address: text("address").notNull(),
+    status: text("status").notNull(),
+    requiredTotal: integer("required_total").notNull().default(0),
+    completedTotal: integer("completed_total").notNull().default(0),
+    isActiveNextEra: boolean("is_active_next_era").notNull().default(false),
+    poolVotes: integer("pool_votes").notNull().default(0),
+    chamberVotes: integer("chamber_votes").notNull().default(0),
+    courtActions: integer("court_actions").notNull().default(0),
+    formationActions: integer("formation_actions").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
   },

@@ -64,6 +64,11 @@ function resolveRoute(pathname) {
       () => import("../functions/api/clock/advance-era.ts"),
     ],
     [
+      "POST",
+      /^\/api\/clock\/rollup-era$/,
+      () => import("../functions/api/clock/rollup-era.ts"),
+    ],
+    [
       "GET",
       /^\/api\/chambers$/,
       () => import("../functions/api/chambers/index.ts"),

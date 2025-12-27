@@ -30,6 +30,7 @@ Production deploys the API as **Cloudflare Pages Functions** under `functions/`.
 - `GET /api/my-governance`
 - `GET /api/clock` (simulation time snapshot)
 - `POST /api/clock/advance-era` (admin-only; increments era by 1)
+- `POST /api/clock/rollup-era` (admin-only; computes next-era active set + tier statuses)
 - `POST /api/command` (write commands; gated)
 
 ## Required env vars
@@ -41,6 +42,11 @@ These env vars are read by the API runtime (Pages Functions in production, Node 
 - `ADMIN_SECRET` (required for admin endpoints): must be provided via `x-admin-secret` header (unless `DEV_BYPASS_ADMIN=true`).
 - `HUMANODE_RPC_URL` (required when `DEV_BYPASS_GATE` is false): JSON-RPC endpoint for Humanode mainnet (used for `ImOnline::*` reads with a safe fallback to `Session::Validators` in v1).
 - `SIM_ACTIVE_GOVERNORS` (optional): active governors baseline used for quorum math (defaults to `150`).
+- `SIM_REQUIRED_POOL_VOTES` (optional): per-era required pool actions (defaults to `1`).
+- `SIM_REQUIRED_CHAMBER_VOTES` (optional): per-era required chamber actions (defaults to `1`).
+- `SIM_REQUIRED_COURT_ACTIONS` (optional): per-era required court actions (defaults to `0`).
+- `SIM_REQUIRED_FORMATION_ACTIONS` (optional): per-era required formation actions (defaults to `0`).
+- `SIM_DYNAMIC_ACTIVE_GOVERNORS` (optional): if `true`, `/api/clock/rollup-era` sets the next era’s `activeGovernors` baseline from rollup results.
 
 ## Frontend build flags
 

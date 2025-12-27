@@ -18,6 +18,40 @@ type Snapshot = { era: number; activeGovernors: number };
 const memoryEraSnapshots = new Map<number, Snapshot>();
 const memoryEraActivity = new Map<string, UserEraCounts>(); // key: `${era}:${address}`
 
+export async function listEraUserActivity(
+  env: Env,
+  input: { era: number },
+): Promise<Array<{ address: string } & UserEraCounts>> {
+  if (!env.DATABASE_URL) {
+    const rows: Array<{ address: string } & UserEraCounts> = [];
+    for (const [key, counts] of memoryEraActivity.entries()) {
+      if (!key.startsWith(`${input.era}:`)) continue;
+      const address = key.split(":").slice(1).join(":");
+      rows.push({ address, ...counts });
+    }
+    return rows;
+  }
+
+  const db = createDb(env);
+  const rows = await db
+    .select({
+      address: eraUserActivity.address,
+      poolVotes: eraUserActivity.poolVotes,
+      chamberVotes: eraUserActivity.chamberVotes,
+      courtActions: eraUserActivity.courtActions,
+      formationActions: eraUserActivity.formationActions,
+    })
+    .from(eraUserActivity)
+    .where(eq(eraUserActivity.era, input.era));
+  return rows.map((r) => ({
+    address: r.address,
+    poolVotes: r.poolVotes,
+    chamberVotes: r.chamberVotes,
+    courtActions: r.courtActions,
+    formationActions: r.formationActions,
+  }));
+}
+
 export async function ensureEraSnapshot(
   env: Env,
   era: number,
@@ -53,6 +87,29 @@ export async function ensureEraSnapshot(
     createdAt: new Date(),
   });
   return snap;
+}
+
+export async function setEraSnapshotActiveGovernors(
+  env: Env,
+  input: { era: number; activeGovernors: number },
+): Promise<void> {
+  const era = input.era;
+  const activeGovernors = input.activeGovernors;
+  await ensureEraSnapshot(env, era);
+
+  if (!env.DATABASE_URL) {
+    memoryEraSnapshots.set(era, { era, activeGovernors });
+    return;
+  }
+
+  const db = createDb(env);
+  await db
+    .insert(eraSnapshots)
+    .values({ era, activeGovernors, createdAt: new Date() })
+    .onConflictDoUpdate({
+      target: eraSnapshots.era,
+      set: { activeGovernors },
+    });
 }
 
 export async function getActiveGovernorsForCurrentEra(

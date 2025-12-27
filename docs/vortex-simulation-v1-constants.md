@@ -12,6 +12,11 @@ This file records the v1 decisions used by the simulation backend so implementat
 
 - **Era length:** configured off-chain by the simulation (not a chain parameter)
   - v1 value: **TBD** (the clock is advanced manually via `/api/clock/advance-era`)
+- **Per-era activity requirements:** configured off-chain by env vars (v1 defaults)
+  - `SIM_REQUIRED_POOL_VOTES=1`
+  - `SIM_REQUIRED_CHAMBER_VOTES=1`
+  - `SIM_REQUIRED_COURT_ACTIONS=0`
+  - `SIM_REQUIRED_FORMATION_ACTIONS=0`
 
 ## Current v1 progress checkpoints
 
@@ -52,3 +57,9 @@ This file records the v1 decisions used by the simulation backend so implementat
     - `era_user_activity` (per-era action counters per address)
   - Active governors baseline defaults to `150` and can be configured via `SIM_ACTIVE_GOVERNORS` (or `VORTEX_ACTIVE_GOVERNORS`).
   - `GET /api/my-governance` overlays per-era `done` counts for authenticated users.
+- Phase 10b write slice exists:
+  - `POST /api/clock/rollup-era` computes:
+    - per-era governing status buckets (Ahead/Stable/Falling behind/At risk/Losing status)
+    - `activeGovernorsNextEra` based on configured requirements
+  - Rollup output is stored in:
+    - `era_rollups`, `era_user_status`

@@ -101,7 +101,7 @@ This is the order we’ll follow from now on, based on what’s already landed.
 11. **Phase 8 — Formation v1 (DONE)**
 12. **Phase 9 — Courts v1 (DONE)**
 13. **Phase 10a — Era snapshots + activity counters (DONE)**
-14. **Phase 10b — Era rollups + tier statuses**
+14. **Phase 10b — Era rollups + tier statuses (IN PROGRESS)**
 15. **Phase 11 — Hardening + moderation**
 
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
@@ -474,6 +474,21 @@ Tests:
 
 - Rollup is deterministic and idempotent for a given era window.
 - Tier status mapping (Ahead/Stable/Falling behind/At risk/Losing status) matches policy.
+
+Current status:
+
+- Implemented:
+  - `POST /api/clock/rollup-era` (admin/simulation endpoint)
+  - Rollup tables: `era_rollups`, `era_user_status`
+  - Configurable per-era requirements via env:
+    - `SIM_REQUIRED_POOL_VOTES` (default `1`)
+    - `SIM_REQUIRED_CHAMBER_VOTES` (default `1`)
+    - `SIM_REQUIRED_COURT_ACTIONS` (default `0`)
+    - `SIM_REQUIRED_FORMATION_ACTIONS` (default `0`)
+  - Optional dynamic baseline:
+    - `SIM_DYNAMIC_ACTIVE_GOVERNORS=true` writes next era’s `era_snapshots.active_governors` from rollup results
+- Tests:
+  - `tests/api-era-rollup.test.js`
 
 ## Phase 11 — Hardening + moderation (ongoing)
 
