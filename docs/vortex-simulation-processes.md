@@ -72,6 +72,7 @@ Guardrails (off-chain):
 
 - Even eligible actors can spam. The simulation enforces basic hardening controls:
   - rate limiting on write endpoints (per IP and per address), and
+  - per-era quotas for counted governance actions, and
   - optional admin action locks that temporarily disable all writes for an address.
 
 ### 1.2 Governance time

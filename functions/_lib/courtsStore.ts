@@ -28,6 +28,54 @@ const memoryCases = new Map<string, CourtCaseSeed>();
 const memoryReports = new Map<string, Set<string>>();
 const memoryVerdicts = new Map<string, Map<string, CourtVerdict>>();
 
+export async function hasCourtReport(
+  env: Env,
+  input: { caseId: string; reporterAddress: string },
+): Promise<boolean> {
+  const reporter = input.reporterAddress.toLowerCase();
+  if (!env.DATABASE_URL) {
+    const set = memoryReports.get(input.caseId);
+    if (!set) return false;
+    return set.has(reporter);
+  }
+  const db = createDb(env);
+  const existing = await db
+    .select({ reporterAddress: courtReports.reporterAddress })
+    .from(courtReports)
+    .where(
+      and(
+        eq(courtReports.caseId, input.caseId),
+        eq(courtReports.reporterAddress, reporter),
+      ),
+    )
+    .limit(1);
+  return existing.length > 0;
+}
+
+export async function hasCourtVerdict(
+  env: Env,
+  input: { caseId: string; voterAddress: string },
+): Promise<boolean> {
+  const voter = input.voterAddress.toLowerCase();
+  if (!env.DATABASE_URL) {
+    const map = memoryVerdicts.get(input.caseId);
+    if (!map) return false;
+    return map.has(voter);
+  }
+  const db = createDb(env);
+  const existing = await db
+    .select({ voterAddress: courtVerdicts.voterAddress })
+    .from(courtVerdicts)
+    .where(
+      and(
+        eq(courtVerdicts.caseId, input.caseId),
+        eq(courtVerdicts.voterAddress, voter),
+      ),
+    )
+    .limit(1);
+  return existing.length > 0;
+}
+
 export async function ensureCourtCaseSeed(
   env: Env,
   readModels: ReadModelsStore,

@@ -279,12 +279,19 @@ This section maps each workflow from `docs/vortex-simulation-processes.md` to co
 - **Module:** `hardening`
 - **API:**
   - `POST /api/command` (rate limited per IP + per address)
+  - `POST /api/command` (optional per-era quotas for counted actions)
   - `POST /api/admin/users/lock`, `POST /api/admin/users/unlock` (admin-only)
+  - `GET /api/admin/users/locks`, `GET /api/admin/users/:address` (inspection)
+  - `GET /api/admin/audit` (admin actions audit log)
 - **Tables:**
   - `api_rate_limits` (DB mode)
+  - `era_user_activity` (per-era counters used for quota enforcement and rollups)
   - `user_action_locks` (DB mode)
+  - `events` (DB mode; admin actions are logged as `admin.action.v1`)
 - **Notes:**
   - Rate limiting and action locks are enforced server-side for all state changes so the simulation stays usable during community testing.
+  - Era quotas enforce a cap on new counted actions (vote/report/join) while still allowing edits (changing a vote) without consuming additional quota.
+  - Admin actions are appended to an audit log (memory mode for local dev, `events` table for DB mode).
 
 ### 2.1 Onboarding (Human → Human Node → Governor)
 

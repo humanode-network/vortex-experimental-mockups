@@ -33,6 +33,9 @@ Production deploys the API as **Cloudflare Pages Functions** under `functions/`.
 - `POST /api/clock/rollup-era` (admin-only; computes next-era active set + tier statuses)
 - `POST /api/admin/users/lock` (admin-only; temporarily disables writes for an address)
 - `POST /api/admin/users/unlock` (admin-only)
+- `GET /api/admin/users/locks` (admin-only)
+- `GET /api/admin/users/:address` (admin-only)
+- `GET /api/admin/audit` (admin-only)
 - `POST /api/command` (write commands; gated)
 
 ## Required env vars
@@ -51,6 +54,10 @@ These env vars are read by the API runtime (Pages Functions in production, Node 
 - `SIM_DYNAMIC_ACTIVE_GOVERNORS` (optional): if `true`, `/api/clock/rollup-era` sets the next era’s `activeGovernors` baseline from rollup results.
 - `SIM_COMMAND_RATE_LIMIT_PER_MINUTE_IP` (optional): per-minute IP limit for `POST /api/command` (defaults to `180`).
 - `SIM_COMMAND_RATE_LIMIT_PER_MINUTE_ADDRESS` (optional): per-minute address limit for `POST /api/command` (defaults to `60`).
+- `SIM_MAX_POOL_VOTES_PER_ERA` (optional): maximum counted pool actions per era per address (unset/0 = unlimited).
+- `SIM_MAX_CHAMBER_VOTES_PER_ERA` (optional): maximum counted chamber vote actions per era per address (unset/0 = unlimited).
+- `SIM_MAX_COURT_ACTIONS_PER_ERA` (optional): maximum counted court actions per era per address (unset/0 = unlimited).
+- `SIM_MAX_FORMATION_ACTIONS_PER_ERA` (optional): maximum counted formation actions per era per address (unset/0 = unlimited).
 
 ## Frontend build flags
 

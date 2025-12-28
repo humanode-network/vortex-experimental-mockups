@@ -19,6 +19,7 @@ test("db migrations: contain core tables", () => {
     "pool_votes",
     "chamber_votes",
     "idempotency_keys",
+    "api_rate_limits",
     "cm_awards",
     "formation_projects",
     "formation_team",
@@ -31,6 +32,7 @@ test("db migrations: contain core tables", () => {
     "era_user_activity",
     "era_rollups",
     "era_user_status",
+    "user_action_locks",
   ]) {
     assert.match(sql, new RegExp(`CREATE TABLE\\s+\\"${table}\\"`));
   }

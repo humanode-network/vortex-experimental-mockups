@@ -86,6 +86,29 @@ Action locks:
 }
 ```
 
+Era quotas:
+
+- Writes can be capped per era per address (to prevent spam while the community tests the simulation).
+- Limits are configured via env vars:
+  - `SIM_MAX_POOL_VOTES_PER_ERA`
+  - `SIM_MAX_CHAMBER_VOTES_PER_ERA`
+  - `SIM_MAX_COURT_ACTIONS_PER_ERA`
+  - `SIM_MAX_FORMATION_ACTIONS_PER_ERA`
+- When a quota is exceeded, the API returns HTTP `429`:
+
+```json
+{
+  "error": {
+    "message": "Era quota exceeded",
+    "code": "era_quota_exceeded",
+    "era": 0,
+    "kind": "poolVotes | chamberVotes | courtActions | formationActions",
+    "limit": 1,
+    "used": 1
+  }
+}
+```
+
 #### Command: `pool.vote`
 
 Request:
@@ -258,6 +281,9 @@ These endpoints are intended for simulation control (local dev, cron jobs, and a
 - `POST /api/clock/rollup-era` (computes per-era statuses and next-era active governor set)
 - `POST /api/admin/users/lock` (temporarily disables writes for an address)
 - `POST /api/admin/users/unlock`
+- `GET /api/admin/users/locks` (lists active locks)
+- `GET /api/admin/users/:address` (inspection: era counters, quotas, remaining, lock)
+- `GET /api/admin/audit` (admin actions audit log)
 
 ### `POST /api/admin/users/lock`
 
@@ -276,6 +302,63 @@ type PostAdminUserLockResponse = { ok: true };
 ```ts
 type PostAdminUserUnlockRequest = { address: string };
 type PostAdminUserUnlockResponse = { ok: true };
+```
+
+### `GET /api/admin/users/locks`
+
+```ts
+type GetAdminUserLocksResponse = {
+  items: Array<{ address: string; lockedUntil: string; reason: string | null }>;
+};
+```
+
+### `GET /api/admin/users/:address`
+
+```ts
+type EraQuotaConfigDto = {
+  maxPoolVotes: number | null;
+  maxChamberVotes: number | null;
+  maxCourtActions: number | null;
+  maxFormationActions: number | null;
+};
+
+type GetAdminUserResponse = {
+  address: string;
+  era: number;
+  counts: {
+    poolVotes: number;
+    chamberVotes: number;
+    courtActions: number;
+    formationActions: number;
+  };
+  quotas: EraQuotaConfigDto;
+  remaining: {
+    poolVotes: number | null;
+    chamberVotes: number | null;
+    courtActions: number | null;
+    formationActions: number | null;
+  };
+  lock: { address: string; lockedUntil: string; reason: string | null } | null;
+};
+```
+
+### `GET /api/admin/audit`
+
+```ts
+type AdminAuditActionDto = "user.lock" | "user.unlock";
+type AdminAuditItemDto = {
+  id: string;
+  action: AdminAuditActionDto;
+  targetAddress: string;
+  lockedUntil?: string;
+  reason?: string | null;
+  timestamp: string;
+};
+
+type GetAdminAuditResponse = {
+  items: AdminAuditItemDto[];
+  nextCursor?: string; // DB mode uses event seq
+};
 ```
 
 ### `GET /api/clock`

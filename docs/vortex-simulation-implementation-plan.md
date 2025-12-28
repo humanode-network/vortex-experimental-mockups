@@ -513,15 +513,29 @@ Implemented so far:
   - per IP: `SIM_COMMAND_RATE_LIMIT_PER_MINUTE_IP`
   - per address: `SIM_COMMAND_RATE_LIMIT_PER_MINUTE_ADDRESS`
   - storage: `api_rate_limits` (DB mode) or in-memory buckets (inline mode)
+- Per-era quotas (anti-spam):
+  - `SIM_MAX_POOL_VOTES_PER_ERA`
+  - `SIM_MAX_CHAMBER_VOTES_PER_ERA`
+  - `SIM_MAX_COURT_ACTIONS_PER_ERA`
+  - `SIM_MAX_FORMATION_ACTIONS_PER_ERA`
+  - enforcement uses the same “counted actions” as rollups (`era_user_activity`)
 - Action locks:
   - storage: `user_action_locks` (DB mode) or in-memory locks (inline mode)
   - enforcement: all `POST /api/command` writes return HTTP `403` when locked
   - admin endpoints:
     - `POST /api/admin/users/lock`
     - `POST /api/admin/users/unlock`
+  - inspection endpoints:
+    - `GET /api/admin/users/locks`
+    - `GET /api/admin/users/:address`
+  - audit:
+    - `GET /api/admin/audit`
+    - DB mode logs as `events.type = "admin.action.v1"`
 - Tests:
   - `tests/api-command-rate-limit.test.js`
   - `tests/api-command-action-lock.test.js`
+  - `tests/api-command-era-quotas.test.js`
+  - `tests/api-admin-tools.test.js`
 
 ## Suggested implementation order (lowest risk / highest value)
 

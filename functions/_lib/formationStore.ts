@@ -36,6 +36,64 @@ const memoryMilestones = new Map<
   Map<number, FormationMilestoneStatus>
 >();
 
+export async function isFormationTeamMember(
+  env: Env,
+  input: { proposalId: string; memberAddress: string },
+): Promise<boolean> {
+  const address = input.memberAddress.toLowerCase();
+  if (!env.DATABASE_URL) {
+    const team = memoryTeam.get(input.proposalId);
+    if (!team) return false;
+    return team.has(address);
+  }
+  const db = createDb(env);
+  const existing = await db
+    .select({ memberAddress: formationTeam.memberAddress })
+    .from(formationTeam)
+    .where(
+      and(
+        eq(formationTeam.proposalId, input.proposalId),
+        eq(formationTeam.memberAddress, address),
+      ),
+    )
+    .limit(1);
+  return existing.length > 0;
+}
+
+export async function getFormationMilestoneStatus(
+  env: Env,
+  readModels: ReadModelsStore,
+  input: { proposalId: string; milestoneIndex: number },
+): Promise<FormationMilestoneStatus> {
+  const seed = await ensureFormationSeed(env, readModels, input.proposalId);
+  if (input.milestoneIndex < 1 || input.milestoneIndex > seed.milestonesTotal) {
+    throw new Error("milestone_out_of_range");
+  }
+
+  if (!env.DATABASE_URL) {
+    const milestones = memoryMilestones.get(input.proposalId);
+    if (!milestones) throw new Error("milestones_missing");
+    return milestones.get(input.milestoneIndex) ?? "todo";
+  }
+
+  const db = createDb(env);
+  const rows = await db
+    .select({ status: formationMilestones.status })
+    .from(formationMilestones)
+    .where(
+      and(
+        eq(formationMilestones.proposalId, input.proposalId),
+        eq(formationMilestones.milestoneIndex, input.milestoneIndex),
+      ),
+    )
+    .limit(1);
+  const current = rows[0]?.status;
+  if (current === "submitted" || current === "unlocked" || current === "todo") {
+    return current;
+  }
+  return "todo";
+}
+
 export async function ensureFormationSeed(
   env: Env,
   readModels: ReadModelsStore,

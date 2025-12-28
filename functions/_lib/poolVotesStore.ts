@@ -11,6 +11,30 @@ type Counts = { upvotes: number; downvotes: number };
 
 const memoryVotes = new Map<string, Map<string, Direction>>();
 
+export async function hasPoolVote(
+  env: Env,
+  input: { proposalId: string; voterAddress: string },
+): Promise<boolean> {
+  const voterAddress = input.voterAddress.toLowerCase();
+  if (!env.DATABASE_URL) {
+    const byVoter = memoryVotes.get(input.proposalId);
+    if (!byVoter) return false;
+    return byVoter.has(voterAddress);
+  }
+  const db = createDb(env);
+  const existing = await db
+    .select({ direction: poolVotes.direction })
+    .from(poolVotes)
+    .where(
+      and(
+        eq(poolVotes.proposalId, input.proposalId),
+        eq(poolVotes.voterAddress, voterAddress),
+      ),
+    )
+    .limit(1);
+  return existing.length > 0;
+}
+
 export async function castPoolVote(
   env: Env,
   input: { proposalId: string; voterAddress: string; direction: Direction },

@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { assertAdmin } from "../../../_lib/clockStore.ts";
 import { createActionLocksStore } from "../../../_lib/actionLocksStore.ts";
+import { appendAdminAudit } from "../../../_lib/adminAuditStore.ts";
 import { errorResponse, jsonResponse, readJson } from "../../../_lib/http.ts";
 
 const schema = z.object({
@@ -38,6 +39,13 @@ export const onRequestPost: PagesFunction = async (context) => {
   await createActionLocksStore(context.env).setLock({
     address: parsed.data.address,
     lockedUntil,
+    reason: parsed.data.reason ?? null,
+  });
+
+  await appendAdminAudit(context.env, {
+    action: "user.lock",
+    targetAddress: parsed.data.address,
+    lockedUntil: lockedUntil.toISOString(),
     reason: parsed.data.reason ?? null,
   });
 

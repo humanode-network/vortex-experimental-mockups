@@ -20,13 +20,21 @@ import { awardCmOnce } from "../_lib/cmAwardsStore.ts";
 import {
   joinFormationProject,
   ensureFormationSeed,
+  getFormationMilestoneStatus,
+  isFormationTeamMember,
   requestFormationMilestoneUnlock,
   submitFormationMilestone,
 } from "../_lib/formationStore.ts";
-import { castCourtVerdict, reportCourtCase } from "../_lib/courtsStore.ts";
+import {
+  castCourtVerdict,
+  hasCourtReport,
+  hasCourtVerdict,
+  reportCourtCase,
+} from "../_lib/courtsStore.ts";
 import {
   getActiveGovernorsForCurrentEra,
   incrementEraUserActivity,
+  getUserEraActivity,
 } from "../_lib/eraStore.ts";
 import {
   createApiRateLimitStore,
@@ -34,6 +42,9 @@ import {
 } from "../_lib/apiRateLimitStore.ts";
 import { getRequestIp } from "../_lib/requestIp.ts";
 import { createActionLocksStore } from "../_lib/actionLocksStore.ts";
+import { getEraQuotaConfig } from "../_lib/eraQuotas.ts";
+import { hasPoolVote } from "../_lib/poolVotesStore.ts";
+import { hasChamberVote } from "../_lib/chamberVotesStore.ts";
 
 const poolVoteSchema = z.object({
   type: z.literal("pool.vote"),
@@ -199,6 +210,39 @@ export const onRequestPost: PagesFunction = async (context) => {
   const activeGovernorsBaseline = await getActiveGovernorsForCurrentEra(
     context.env,
   ).catch(() => null);
+
+  const quotas = getEraQuotaConfig(context.env);
+
+  async function enforceEraQuota(input: {
+    kind: "poolVotes" | "chamberVotes" | "courtActions" | "formationActions";
+    wouldCount: boolean;
+  }): Promise<Response | null> {
+    if (!input.wouldCount) return null;
+    const limit =
+      input.kind === "poolVotes"
+        ? quotas.maxPoolVotes
+        : input.kind === "chamberVotes"
+          ? quotas.maxChamberVotes
+          : input.kind === "courtActions"
+            ? quotas.maxCourtActions
+            : quotas.maxFormationActions;
+    if (limit === null) return null;
+
+    const activity = await getUserEraActivity(context.env, {
+      address: session.address,
+    });
+    const used = activity.counts[input.kind] ?? 0;
+    if (used >= limit) {
+      return errorResponse(429, "Era quota exceeded", {
+        code: "era_quota_exceeded",
+        era: activity.era,
+        kind: input.kind,
+        limit,
+        used,
+      });
+    }
+    return null;
+  }
   if (
     readModels &&
     (input.type === "pool.vote" ||
@@ -224,6 +268,16 @@ export const onRequestPost: PagesFunction = async (context) => {
   }
 
   if (input.type === "pool.vote") {
+    const wouldCount = !(await hasPoolVote(context.env, {
+      proposalId: input.payload.proposalId,
+      voterAddress: session.address,
+    }));
+    const quotaError = await enforceEraQuota({
+      kind: "poolVotes",
+      wouldCount,
+    });
+    if (quotaError) return quotaError;
+
     const direction = input.payload.direction === "up" ? 1 : -1;
     const { counts, created } = await castPoolVote(context.env, {
       proposalId: input.payload.proposalId,
@@ -317,6 +371,16 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   if (input.type === "formation.join") {
     if (!readModels) return errorResponse(500, "Read models store unavailable");
+    const wouldCount = !(await isFormationTeamMember(context.env, {
+      proposalId: input.payload.proposalId,
+      memberAddress: session.address,
+    }));
+    const quotaError = await enforceEraQuota({
+      kind: "formationActions",
+      wouldCount,
+    });
+    if (quotaError) return quotaError;
+
     let summary;
     let created = false;
     try {
@@ -388,6 +452,18 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   if (input.type === "formation.milestone.submit") {
     if (!readModels) return errorResponse(500, "Read models store unavailable");
+    const status = await getFormationMilestoneStatus(context.env, readModels, {
+      proposalId: input.payload.proposalId,
+      milestoneIndex: input.payload.milestoneIndex,
+    }).catch(() => null);
+    const wouldCount =
+      status !== null && status !== "submitted" && status !== "unlocked";
+    const quotaError = await enforceEraQuota({
+      kind: "formationActions",
+      wouldCount,
+    });
+    if (quotaError) return quotaError;
+
     let summary;
     let created = false;
     try {
@@ -466,6 +542,12 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   if (input.type === "formation.milestone.requestUnlock") {
     if (!readModels) return errorResponse(500, "Read models store unavailable");
+    const quotaError = await enforceEraQuota({
+      kind: "formationActions",
+      wouldCount: true,
+    });
+    if (quotaError) return quotaError;
+
     let summary;
     let created = false;
     try {
@@ -547,6 +629,16 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   if (input.type === "court.case.report") {
     if (!readModels) return errorResponse(500, "Read models store unavailable");
+    const wouldCount = !(await hasCourtReport(context.env, {
+      caseId: input.payload.caseId,
+      reporterAddress: session.address,
+    }));
+    const quotaError = await enforceEraQuota({
+      kind: "courtActions",
+      wouldCount,
+    });
+    if (quotaError) return quotaError;
+
     let overlay;
     let created = false;
     try {
@@ -611,6 +703,16 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   if (input.type === "court.case.verdict") {
     if (!readModels) return errorResponse(500, "Read models store unavailable");
+    const wouldCount = !(await hasCourtVerdict(context.env, {
+      caseId: input.payload.caseId,
+      voterAddress: session.address,
+    }));
+    const quotaError = await enforceEraQuota({
+      kind: "courtActions",
+      wouldCount,
+    });
+    if (quotaError) return quotaError;
+
     let overlay;
     let created = false;
     try {
@@ -691,6 +793,16 @@ export const onRequestPost: PagesFunction = async (context) => {
   if (input.payload.choice !== "yes" && input.payload.score !== undefined) {
     return errorResponse(400, "Score is only allowed for yes votes");
   }
+
+  const wouldCount = !(await hasChamberVote(context.env, {
+    proposalId: input.payload.proposalId,
+    voterAddress: session.address,
+  }));
+  const quotaError = await enforceEraQuota({
+    kind: "chamberVotes",
+    wouldCount,
+  });
+  if (quotaError) return quotaError;
 
   const choice =
     input.payload.choice === "yes" ? 1 : input.payload.choice === "no" ? -1 : 0;

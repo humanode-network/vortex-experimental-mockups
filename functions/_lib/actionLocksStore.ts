@@ -13,6 +13,7 @@ export type ActionLock = {
 
 export type ActionLocksStore = {
   getActiveLock: (address: string) => Promise<ActionLock | null>;
+  listActiveLocks: () => Promise<ActionLock[]>;
   setLock: (input: {
     address: string;
     lockedUntil: Date;
@@ -47,6 +48,20 @@ export function createActionLocksStore(env: Env): ActionLocksStore {
           reason: lock.reason,
           lockedUntil: new Date(lock.lockedUntilMs).toISOString(),
         };
+      },
+      listActiveLocks: async () => {
+        const now = nowMs();
+        const result: ActionLock[] = [];
+        for (const [address, lock] of memoryLocks.entries()) {
+          if (lock.lockedUntilMs <= now) continue;
+          result.push({
+            address,
+            reason: lock.reason,
+            lockedUntil: new Date(lock.lockedUntilMs).toISOString(),
+          });
+        }
+        result.sort((a, b) => a.address.localeCompare(b.address));
+        return result;
       },
       setLock: async ({ address, lockedUntil, reason }) => {
         const normalized = normalizeAddress(address);
@@ -84,6 +99,25 @@ export function createActionLocksStore(env: Env): ActionLocksStore {
         reason: row.reason ?? null,
         lockedUntil: row.lockedUntil.toISOString(),
       };
+    },
+    listActiveLocks: async () => {
+      const now = new Date();
+      const rows = await db
+        .select({
+          address: userActionLocks.address,
+          reason: userActionLocks.reason,
+          lockedUntil: userActionLocks.lockedUntil,
+        })
+        .from(userActionLocks);
+      const filtered = rows
+        .filter((r) => r.lockedUntil.getTime() > now.getTime())
+        .map((r) => ({
+          address: r.address,
+          reason: r.reason ?? null,
+          lockedUntil: r.lockedUntil.toISOString(),
+        }));
+      filtered.sort((a, b) => a.address.localeCompare(b.address));
+      return filtered;
     },
     setLock: async ({ address, lockedUntil, reason }) => {
       const normalized = normalizeAddress(address);
