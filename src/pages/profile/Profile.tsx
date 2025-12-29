@@ -6,7 +6,6 @@ import {
   CardTitle,
 } from "@/components/primitives/card";
 import { Badge } from "@/components/primitives/badge";
-import { Button } from "@/components/primitives/button";
 import { HintLabel } from "@/components/Hint";
 import { Surface } from "@/components/Surface";
 import { AvatarPlaceholder } from "@/components/AvatarPlaceholder";
@@ -102,7 +101,7 @@ const Profile: React.FC = () => {
         </Card>
       ) : !auth.authenticated ? (
         <Card className="border-dashed px-4 py-6 text-center text-sm text-muted">
-          Connect a wallet to view the profile mock.
+          Connect a wallet to view the profile.
         </Card>
       ) : profile === null ? (
         <Card className="border-dashed px-4 py-6 text-center text-sm text-muted">
@@ -131,9 +130,6 @@ const Profile: React.FC = () => {
             </h1>
           </div>
           <div className="flex flex-col items-center gap-2 text-sm lg:items-end">
-            <Button variant="outline" size="sm">
-              Edit profile
-            </Button>
             <StatusPill
               label="Governor"
               value={profile?.governorActive ? "Active" : "Not active"}

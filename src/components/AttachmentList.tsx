@@ -49,5 +49,3 @@ export function AttachmentList({
     </Surface>
   );
 }
-
-export default AttachmentList;

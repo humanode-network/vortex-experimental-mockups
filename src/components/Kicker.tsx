@@ -31,5 +31,3 @@ export function Kicker({
     </Component>
   );
 }
-
-export default Kicker;

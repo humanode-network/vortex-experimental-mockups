@@ -82,9 +82,15 @@ export async function verifyNonceCookie(
   if (!payload) return null;
   if (typeof payload.address !== "string") return null;
   if (typeof payload.nonce !== "string") return null;
+  if (typeof payload.issuedAt !== "number") return null;
   if (typeof payload.expiresAt !== "number") return null;
   if (Date.now() > payload.expiresAt) return null;
-  return payload as unknown as NonceToken;
+  return {
+    address: payload.address,
+    nonce: payload.nonce,
+    issuedAt: payload.issuedAt,
+    expiresAt: payload.expiresAt,
+  };
 }
 
 export async function issueSession(
@@ -142,9 +148,14 @@ export async function readSession(
   const payload = await verifyToken(token, secret);
   if (!payload) return null;
   if (typeof payload.address !== "string") return null;
+  if (typeof payload.issuedAt !== "number") return null;
   if (typeof payload.expiresAt !== "number") return null;
   if (Date.now() > payload.expiresAt) return null;
-  return payload as unknown as Session;
+  return {
+    address: payload.address,
+    issuedAt: payload.issuedAt,
+    expiresAt: payload.expiresAt,
+  };
 }
 
 export type GateResult = {

@@ -2,6 +2,9 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
+type PolymorphicRef<C extends React.ElementType> =
+  React.ComponentPropsWithRef<C>["ref"];
+
 const surfaceVariants = cva(
   "border border-border [background-image:var(--card-grad)] bg-cover bg-no-repeat ring-1 ring-inset ring-[color:var(--glass-border)]",
   {
@@ -38,36 +41,53 @@ const surfaceVariants = cva(
   },
 );
 
-export type SurfaceProps = React.HTMLAttributes<HTMLDivElement> &
-  VariantProps<typeof surfaceVariants> & {
-    as?: React.ElementType;
-  };
+type SurfaceOwnProps = VariantProps<typeof surfaceVariants> & {
+  className?: string;
+};
 
-export const Surface = React.forwardRef<HTMLDivElement, SurfaceProps>(
-  (
-    {
-      as: Comp = "div",
-      className,
-      variant,
-      radius,
-      shadow,
-      borderStyle,
-      ...props
-    },
-    ref,
-  ) => {
-    return (
-      <Comp
-        ref={ref as any}
-        className={cn(
-          surfaceVariants({ variant, radius, shadow, borderStyle }),
-          className,
-        )}
-        {...(props as any)}
-      />
-    );
-  },
-);
-Surface.displayName = "Surface";
+type SurfacePropKeys =
+  | "variant"
+  | "radius"
+  | "shadow"
+  | "borderStyle"
+  | "className";
 
-export default Surface;
+export type SurfaceProps<C extends React.ElementType = "div"> =
+  SurfaceOwnProps & { as?: C } & Omit<
+      React.ComponentPropsWithoutRef<C>,
+      SurfacePropKeys | "as"
+    >;
+
+type SurfaceComponent = <C extends React.ElementType = "div">(
+  props: SurfaceProps<C> & { ref?: PolymorphicRef<C> },
+) => React.ReactElement | null;
+
+type SurfacePropsAny = SurfaceProps<React.ElementType>;
+
+const SurfaceImpl = React.forwardRef(function Surface(
+  {
+    as,
+    className,
+    variant,
+    radius,
+    shadow,
+    borderStyle,
+    ...props
+  }: SurfacePropsAny,
+  ref: React.ForwardedRef<Element>,
+) {
+  const Comp = as ?? "div";
+  return (
+    <Comp
+      ref={ref}
+      className={cn(
+        surfaceVariants({ variant, radius, shadow, borderStyle }),
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+SurfaceImpl.displayName = "Surface";
+
+export const Surface = SurfaceImpl as SurfaceComponent;

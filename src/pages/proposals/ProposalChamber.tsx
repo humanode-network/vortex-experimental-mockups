@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router";
-import ProposalStageBar from "@/components/ProposalStageBar";
+import { ProposalStageBar } from "@/components/ProposalStageBar";
 import { StatTile } from "@/components/StatTile";
 import { PageHint } from "@/components/PageHint";
 import { VoteButton } from "@/components/VoteButton";

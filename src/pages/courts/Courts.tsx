@@ -67,6 +67,8 @@ const Courts: React.FC = () => {
   }, [cases, search, statusFilter, sortBy]);
 
   const openCases = (cases ?? []).filter((c) => c.status !== "ended").length;
+  const endedCases = (cases ?? []).filter((c) => c.status === "ended").length;
+  const totalReports = (cases ?? []).reduce((sum, c) => sum + c.reports, 0);
 
   return (
     <div className="flex flex-col gap-6">
@@ -77,9 +79,9 @@ const Courts: React.FC = () => {
             label: "Open cases",
             value: cases ? openCases : "—",
           },
+          { label: "Ended cases", value: cases ? endedCases : "—" },
+          { label: "Reports (total)", value: cases ? totalReports : "—" },
           { label: "Jury panels", value: "12 seats / case" },
-          { label: "New reports", value: "27 this week" },
-          { label: "Ended (30d)", value: "6" },
         ].map((metric) => (
           <MetricTile
             key={metric.label}

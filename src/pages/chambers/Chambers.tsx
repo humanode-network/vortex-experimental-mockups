@@ -3,16 +3,16 @@ import { useEffect, useMemo, useState } from "react";
 import { HintLabel } from "@/components/Hint";
 import { PageHint } from "@/components/PageHint";
 import { SearchBar } from "@/components/SearchBar";
-import MetricTile from "@/components/MetricTile";
-import AppCard from "@/components/AppCard";
+import { MetricTile } from "@/components/MetricTile";
+import { AppCard } from "@/components/AppCard";
 import { Badge } from "@/components/primitives/badge";
-import StatGrid, { makeChamberStats } from "@/components/StatGrid";
-import PipelineList from "@/components/PipelineList";
+import { StatGrid, makeChamberStats } from "@/components/StatGrid";
+import { PipelineList } from "@/components/PipelineList";
 import { Button } from "@/components/primitives/button";
 import { Link } from "react-router";
 import { InlineHelp } from "@/components/InlineHelp";
 import { NoDataYetBar } from "@/components/NoDataYetBar";
-import { apiChambers } from "@/lib/apiClient";
+import { apiChambers, apiClock } from "@/lib/apiClient";
 import type { ChamberDto } from "@/types/api";
 import { Surface } from "@/components/Surface";
 
@@ -21,15 +21,9 @@ type Metric = {
   value: string;
 };
 
-const metricCards: Metric[] = [
-  { label: "Total chambers", value: "6" },
-  { label: "Active governors", value: "150" },
-  { label: "Total ACM", value: "7,600" },
-  { label: "Live proposals", value: "9" },
-];
-
 const Chambers: React.FC = () => {
   const [chambers, setChambers] = useState<ChamberDto[] | null>(null);
+  const [activeGovernors, setActiveGovernors] = useState<number | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<{
@@ -46,6 +40,15 @@ const Chambers: React.FC = () => {
         if (!active) return;
         setChambers(res.items);
         setLoadError(null);
+        void apiClock()
+          .then((clock) => {
+            if (!active) return;
+            setActiveGovernors(clock.activeGovernors);
+          })
+          .catch(() => {
+            if (!active) return;
+            setActiveGovernors(null);
+          });
       } catch (error) {
         if (!active) return;
         setChambers([]);
@@ -70,9 +73,7 @@ const Chambers: React.FC = () => {
           chamber.stats.lcm.toLowerCase().includes(term) ||
           String(chamber.multiplier).toLowerCase().includes(term);
         const matchesPipeline =
-          pipelineFilter === "any" ||
-          chamber.pipeline[pipelineFilter] > 0 ||
-          pipelineFilter === "build";
+          pipelineFilter === "any" || chamber.pipeline[pipelineFilter] > 0;
         return matchesTerm && matchesPipeline;
       })
       .sort((a, b) => {
@@ -89,7 +90,14 @@ const Chambers: React.FC = () => {
   }, [chambers, search, pipelineFilter, sortBy]);
 
   const computedMetrics = useMemo((): Metric[] => {
-    if (!chambers) return metricCards;
+    if (!chambers) {
+      return [
+        { label: "Total chambers", value: "—" },
+        { label: "Active governors", value: "—" },
+        { label: "Total ACM", value: "—" },
+        { label: "Live proposals", value: "—" },
+      ];
+    }
     const totalAcm = chambers.reduce((sum, chamber) => {
       const parsed = Number(chamber.stats.acm.replace(/,/g, ""));
       return sum + (Number.isFinite(parsed) ? parsed : 0);
@@ -100,11 +108,11 @@ const Chambers: React.FC = () => {
     );
     return [
       { label: "Total chambers", value: String(chambers.length) },
-      { label: "Active governors", value: "150" },
+      { label: "Active governors", value: activeGovernors?.toString() ?? "—" },
       { label: "Total ACM", value: totalAcm.toLocaleString() },
       { label: "Live proposals", value: String(live) },
     ];
-  }, [chambers]);
+  }, [chambers, activeGovernors]);
 
   return (
     <div className="flex flex-col gap-6">

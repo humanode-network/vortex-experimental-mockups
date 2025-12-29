@@ -6,6 +6,7 @@ import type {
   GetFactionsResponse,
   GetChamberResponse,
   GetChambersResponse,
+  GetClockResponse,
   GetCourtsResponse,
   GetFeedResponse,
   GetFormationResponse,
@@ -19,7 +20,7 @@ import type {
   PoolProposalPageDto,
 } from "@/types/api";
 
-export type ApiError = {
+type ApiError = {
   error: {
     message: string;
     [key: string]: unknown;
@@ -357,6 +358,10 @@ export async function apiInvision(): Promise<GetInvisionResponse> {
 
 export async function apiMyGovernance(): Promise<GetMyGovernanceResponse> {
   return await apiGet<GetMyGovernanceResponse>("/api/my-governance");
+}
+
+export async function apiClock(): Promise<GetClockResponse> {
+  return await apiGet<GetClockResponse>("/api/clock");
 }
 
 export async function apiProposalDrafts(): Promise<GetProposalDraftsResponse> {

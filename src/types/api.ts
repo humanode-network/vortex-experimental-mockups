@@ -169,6 +169,23 @@ export type GetMyGovernanceResponse = {
   };
 };
 
+export type GetClockResponse = {
+  currentEra: number;
+  activeGovernors: number;
+  currentEraRollup?: {
+    era: number;
+    rolledAt: string;
+    requiredTotal: number;
+    requirements: {
+      poolVotes: number;
+      chamberVotes: number;
+      courtActions: number;
+      formationActions: number;
+    };
+    activeGovernorsNextEra: number;
+  };
+};
+
 export type ProposalStageDatumDto = {
   title: string;
   description: string;

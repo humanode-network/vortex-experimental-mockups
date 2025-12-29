@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import ProposalStageBar from "@/components/ProposalStageBar";
+import { ProposalStageBar } from "@/components/ProposalStageBar";
 import { Surface } from "@/components/Surface";
 import { StatTile } from "@/components/StatTile";
 import { PageHint } from "@/components/PageHint";

@@ -1,9 +1,9 @@
-export const themes = ["sky", "light", "night"] as const;
+const themes = ["sky", "light", "night"] as const;
 export type Theme = (typeof themes)[number];
 
 const STORAGE_KEY = "vortex.theme";
 
-export function isTheme(value: unknown): value is Theme {
+function isTheme(value: unknown): value is Theme {
   return (
     typeof value === "string" && (themes as readonly string[]).includes(value)
   );
@@ -18,7 +18,7 @@ export function getStoredTheme(): Theme | null {
   }
 }
 
-export function applyTheme(theme: Theme) {
+function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme;
 }
 

@@ -25,5 +25,3 @@ export const MetricTile: React.FC<MetricTileProps> = ({
     />
   );
 };
-
-export default MetricTile;

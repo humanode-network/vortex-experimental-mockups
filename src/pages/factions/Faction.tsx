@@ -8,9 +8,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/primitives/card";
+import { Badge } from "@/components/primitives/badge";
 import { HintLabel } from "@/components/Hint";
 import { Surface } from "@/components/Surface";
 import { AvatarPlaceholder } from "@/components/AvatarPlaceholder";
+import { NoDataYetBar } from "@/components/NoDataYetBar";
 import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";
 import { apiFaction, apiHumans, apiProposals } from "@/lib/apiClient";
@@ -73,29 +75,6 @@ const Faction: React.FC = () => {
     );
   }
 
-  const activity = [
-    {
-      title: `${faction.name} budget motion`,
-      action: "Opened proposal",
-      location: "Economics",
-    },
-    {
-      title: "Governance drill",
-      action: "Coordinated",
-      location: "Engineering",
-    },
-    {
-      title: "Formation ops stack",
-      action: "Pushed milestone",
-      location: "Formation",
-    },
-    {
-      title: "Privacy sprint",
-      action: "Filed research note",
-      location: "Design",
-    },
-  ];
-
   const roster = faction.roster.map((member) => {
     const node = humansById[member.humanNodeId];
     const name = node?.name ?? member.humanNodeId;
@@ -119,12 +98,6 @@ const Faction: React.FC = () => {
       );
     return { name, role: member.role, tag };
   });
-
-  const resources = [
-    { label: "Charter & mandate", href: "#" },
-    { label: "Roadmap", href: "#" },
-    { label: "How to contribute", href: "#" },
-  ];
 
   const initiatives = faction.initiatives.map((initiativeTitle) => {
     const matchingProposal = proposals.find(
@@ -178,7 +151,9 @@ const Faction: React.FC = () => {
             <h1 className="text-4xl font-semibold text-text">{faction.name}</h1>
           </div>
           <div className="flex flex-col items-center gap-2 text-sm lg:items-end">
-            <Button size="sm">Join faction</Button>
+            <Badge variant="outline" size="sm" className="px-3 py-1">
+              View-only
+            </Badge>
           </div>
         </div>
       </Surface>
@@ -256,21 +231,11 @@ const Faction: React.FC = () => {
           <CardHeader className="pb-2">
             <CardTitle>Resources</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm text-text">
-            {resources.map((item) => (
-              <Surface
-                key={item.label}
-                variant="panelAlt"
-                radius="xl"
-                shadow="control"
-                className="px-3 py-2"
-              >
-                <p className="font-semibold">{item.label}</p>
-                <p className="text-xs text-muted">
-                  {item.href === "#" ? "Internal link" : item.href}
-                </p>
-              </Surface>
-            ))}
+          <CardContent className="text-sm text-text">
+            <NoDataYetBar
+              label="resources"
+              description="Links and documents will appear here once published."
+            />
           </CardContent>
         </Card>
       </div>
@@ -300,22 +265,11 @@ const Faction: React.FC = () => {
         <CardHeader className="pb-2">
           <CardTitle>Recent activity</CardTitle>
         </CardHeader>
-        <CardContent className="grid max-h-72 grid-cols-1 gap-3 overflow-y-auto pr-2 text-sm text-text sm:grid-cols-2 xl:grid-cols-3">
-          {activity.map((item) => (
-            <Surface
-              key={item.title}
-              variant="panelAlt"
-              radius="xl"
-              shadow="tile"
-              className="px-3 py-3 text-center"
-            >
-              <p className="line-clamp-1 text-sm font-semibold">{item.title}</p>
-              <Kicker align="center" className="line-clamp-1 text-primary">
-                {item.action}
-              </Kicker>
-              <p className="line-clamp-1 text-xs text-muted">{item.location}</p>
-            </Surface>
-          ))}
+        <CardContent className="text-sm text-text">
+          <NoDataYetBar
+            label="activity"
+            description="Faction events will show up here once actions are recorded."
+          />
         </CardContent>
       </Card>
     </div>

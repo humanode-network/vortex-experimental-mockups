@@ -51,5 +51,3 @@ export function PageHeader({
     </div>
   );
 }
-
-export default PageHeader;

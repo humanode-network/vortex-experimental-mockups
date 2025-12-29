@@ -419,6 +419,7 @@ type EraRollupMetaDto = {
 
 type GetClockResponse = {
   currentEra: number;
+  activeGovernors: number;
   currentEraRollup?: EraRollupMetaDto;
 };
 ```

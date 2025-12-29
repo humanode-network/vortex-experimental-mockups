@@ -226,5 +226,3 @@ export const courtCases: CourtCase[] = [
     },
   },
 ];
-
-export default courtCases;

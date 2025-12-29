@@ -47,5 +47,3 @@ export const PipelineList: React.FC<PipelineListProps> = ({ pipeline }) => {
     </Surface>
   );
 };
-
-export default PipelineList;

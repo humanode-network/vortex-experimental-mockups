@@ -26,5 +26,3 @@ type TierLabelProps = {
 export const TierLabel: React.FC<TierLabelProps> = ({ tier, children }) => {
   return <HintLabel termId={tierToTermId(tier)}>{children ?? tier}</HintLabel>;
 };
-
-export default TierLabel;

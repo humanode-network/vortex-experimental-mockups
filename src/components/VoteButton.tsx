@@ -82,5 +82,3 @@ export function VoteButton({
     </button>
   );
 }
-
-export default VoteButton;

@@ -8,12 +8,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/primitives/card";
-import AppCard from "@/components/AppCard";
+import { AppCard } from "@/components/AppCard";
 import { HintLabel } from "@/components/Hint";
 import { Badge } from "@/components/primitives/badge";
 import { Button } from "@/components/primitives/button";
-import PipelineList from "@/components/PipelineList";
-import StatGrid, { makeChamberStats } from "@/components/StatGrid";
+import { PipelineList } from "@/components/PipelineList";
+import { StatGrid, makeChamberStats } from "@/components/StatGrid";
 import { Surface } from "@/components/Surface";
 import { PageHint } from "@/components/PageHint";
 import { Kicker } from "@/components/Kicker";

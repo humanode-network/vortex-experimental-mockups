@@ -248,6 +248,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, host, () => {
-  // eslint-disable-next-line no-console
   console.log(`[api] listening on http://${host}:${port}`);
 });

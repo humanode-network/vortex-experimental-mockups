@@ -34,5 +34,3 @@ export const AvatarPlaceholder: React.FC<AvatarPlaceholderProps> = ({
     </div>
   );
 };
-
-export default AvatarPlaceholder;

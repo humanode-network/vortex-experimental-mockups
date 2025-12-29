@@ -3,4 +3,3 @@ import type { TabsProps as ToggleGroupProps } from "@/components/primitives/tabs
 
 export type { ToggleGroupProps };
 export const ToggleGroup = Tabs;
-export default ToggleGroup;

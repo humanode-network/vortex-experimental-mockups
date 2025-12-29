@@ -64,5 +64,3 @@ export const ProposalStageBar: React.FC<ProposalStageBarProps> = ({
     </div>
   );
 };
-
-export default ProposalStageBar;

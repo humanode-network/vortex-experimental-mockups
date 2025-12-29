@@ -67,5 +67,3 @@ export const getFormationProjectById = (
 ): FormationProject | undefined =>
   (id ? formationProjects.find((project) => project.id === id) : undefined) ??
   undefined;
-
-export default formationProjects;

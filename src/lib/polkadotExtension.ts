@@ -37,10 +37,10 @@ function stringToHex(value: string): string {
 }
 
 function getInjectedWeb3(): InjectedWeb3 | null {
-  return (
-    (globalThis as unknown as { injectedWeb3?: InjectedWeb3 }).injectedWeb3 ??
-    null
-  );
+  type GlobalWithInjectedWeb3 = typeof globalThis & {
+    injectedWeb3?: InjectedWeb3;
+  };
+  return (globalThis as GlobalWithInjectedWeb3).injectedWeb3 ?? null;
 }
 
 export async function enablePolkadotExtension(

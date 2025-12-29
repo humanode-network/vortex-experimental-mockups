@@ -56,5 +56,3 @@ export function CardActionsRow({
     </div>
   );
 }
-
-export default CardActionsRow;

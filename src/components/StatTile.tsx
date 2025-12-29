@@ -48,5 +48,3 @@ export const StatTile: React.FC<StatTileProps> = ({
     </Surface>
   );
 };
-
-export default StatTile;

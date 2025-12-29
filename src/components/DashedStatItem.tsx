@@ -20,5 +20,3 @@ export function DashedStatItem({ label, value }: DashedStatItemProps) {
     </Surface>
   );
 }
-
-export default DashedStatItem;

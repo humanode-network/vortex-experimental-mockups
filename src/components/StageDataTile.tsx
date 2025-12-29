@@ -39,5 +39,3 @@ export function StageDataTile({
     </Surface>
   );
 }
-
-export default StageDataTile;

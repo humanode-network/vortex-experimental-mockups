@@ -17,7 +17,13 @@ import {
   apiProposalFormationPage,
   apiProposalPoolPage,
 } from "@/lib/apiClient";
-import type { FeedItemDto } from "@/types/api";
+import type {
+  ChamberProposalPageDto,
+  CourtCaseDetailDto,
+  FeedItemDto,
+  FormationProposalPageDto,
+  PoolProposalPageDto,
+} from "@/types/api";
 
 const formatDate = (iso: string) => {
   const d = new Date(iso);
@@ -32,16 +38,16 @@ const Feed: React.FC = () => {
   const [feedItems, setFeedItems] = useState<FeedItemDto[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [poolPagesById, setPoolPagesById] = useState<
-    Record<string, import("@/types/api").PoolProposalPageDto | undefined>
+    Record<string, PoolProposalPageDto | undefined>
   >({});
   const [chamberPagesById, setChamberPagesById] = useState<
-    Record<string, import("@/types/api").ChamberProposalPageDto | undefined>
+    Record<string, ChamberProposalPageDto | undefined>
   >({});
   const [formationPagesById, setFormationPagesById] = useState<
-    Record<string, import("@/types/api").FormationProposalPageDto | undefined>
+    Record<string, FormationProposalPageDto | undefined>
   >({});
   const [courtCasesById, setCourtCasesById] = useState<
-    Record<string, import("@/types/api").CourtCaseDetailDto | undefined>
+    Record<string, CourtCaseDetailDto | undefined>
   >({});
 
   useEffect(() => {
@@ -127,7 +133,6 @@ const Feed: React.FC = () => {
   return (
     <div className="flex flex-col gap-4">
       <PageHint pageId="feed" />
-      {/* Governing threshold moved to MyGovernance */}
 
       {feedItems === null ? (
         <Surface

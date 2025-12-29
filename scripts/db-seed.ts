@@ -32,8 +32,6 @@ async function upsertReadModel(
     });
 }
 
-export { buildReadModelSeed };
-
 async function main() {
   const databaseUrl = requireEnv("DATABASE_URL");
   const client = neon(databaseUrl);

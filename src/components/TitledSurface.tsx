@@ -29,5 +29,3 @@ export function TitledSurface({
     </Surface>
   );
 }
-
-export default TitledSurface;

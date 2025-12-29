@@ -2,7 +2,8 @@ import { and, desc, eq, lt } from "drizzle-orm";
 
 import { events } from "../../db/schema.ts";
 import { createDb } from "./db.ts";
-import { feedItemSchema, type FeedItemEventPayload } from "./eventSchemas.ts";
+import type { FeedItemEventPayload } from "./eventSchemas.ts";
+import { projectFeedPageFromEvents } from "./feedEventProjector.ts";
 
 type Env = Record<string, string | undefined>;
 
@@ -26,6 +27,7 @@ export async function listFeedEventsPage(
   let query = db
     .select({
       seq: events.seq,
+      stage: events.stage,
       payload: events.payload,
     })
     .from(events);
@@ -34,11 +36,5 @@ export async function listFeedEventsPage(
   }
 
   const rows = await query.orderBy(desc(events.seq)).limit(input.limit + 1);
-
-  const slice = rows.slice(0, input.limit);
-  const parsed = slice.map((row) => feedItemSchema.parse(row.payload));
-  const nextSeq =
-    rows.length > input.limit ? rows[input.limit]?.seq : undefined;
-
-  return nextSeq !== undefined ? { items: parsed, nextSeq } : { items: parsed };
+  return projectFeedPageFromEvents(rows, input);
 }

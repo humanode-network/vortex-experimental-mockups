@@ -529,5 +529,3 @@ export const proposals: ProposalListItem[] = [
     ctaSecondary: "Add to agenda",
   },
 ];
-
-export default proposals;

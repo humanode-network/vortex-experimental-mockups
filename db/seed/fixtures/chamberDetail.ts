@@ -107,5 +107,3 @@ export const chamberChatLog: ChatMessage[] = [
       "Sandbox + faucet flow: what’s the simplest onboarding UX we want?",
   },
 ];
-
-export default chamberProposals;

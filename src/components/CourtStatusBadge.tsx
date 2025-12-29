@@ -26,5 +26,3 @@ export function CourtStatusBadge({ status, className }: CourtStatusBadgeProps) {
     </Badge>
   );
 }
-
-export default CourtStatusBadge;

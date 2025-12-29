@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router";
 
 import { Button } from "@/components/primitives/button";
@@ -17,6 +17,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { TierLabel } from "@/components/TierLabel";
 import type { ChamberProposalStageDto } from "@/types/api";
 import { apiChamber, apiChambers } from "@/lib/apiClient";
+import { NoDataYetBar } from "@/components/NoDataYetBar";
 
 const Chamber: React.FC = () => {
   const { id } = useParams();
@@ -51,7 +52,6 @@ const Chamber: React.FC = () => {
   const [stageFilter, setStageFilter] =
     useState<ChamberProposalStageDto>("upcoming");
   const [governorSearch, setGovernorSearch] = useState("");
-  const [chatInput, setChatInput] = useState("");
 
   useEffect(() => {
     if (!id) return;
@@ -95,11 +95,6 @@ const Chamber: React.FC = () => {
         gov.focus.toLowerCase().includes(term),
     );
   }, [data, governorSearch]);
-
-  const handleChatSubmit = (event: FormEvent) => {
-    event.preventDefault();
-    setChatInput("");
-  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -279,26 +274,27 @@ const Chamber: React.FC = () => {
             <Kicker>Chamber forum</Kicker>
             <h2 className="text-lg font-semibold text-text">Threads & chat</h2>
           </div>
-          <Button variant="ghost" size="sm" className="self-center">
-            New thread
-          </Button>
         </header>
 
         <div className="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
           <div className="space-y-3">
-            {(data?.threads ?? []).map((thread) => (
-              <article key={thread.id} className="contents">
-                <Surface variant="panelAlt" className="px-4 py-3">
-                  <h3 className="text-base font-semibold text-text">
-                    {thread.title}
-                  </h3>
-                  <p className="text-sm text-muted">
-                    {thread.author} · {thread.replies} replies · Updated{" "}
-                    {thread.updated}
-                  </p>
-                </Surface>
-              </article>
-            ))}
+            {(data?.threads ?? []).length === 0 ? (
+              <NoDataYetBar label="threads" />
+            ) : (
+              (data?.threads ?? []).map((thread) => (
+                <article key={thread.id} className="contents">
+                  <Surface variant="panelAlt" className="px-4 py-3">
+                    <h3 className="text-base font-semibold text-text">
+                      {thread.title}
+                    </h3>
+                    <p className="text-sm text-muted">
+                      {thread.author} · {thread.replies} replies · Updated{" "}
+                      {thread.updated}
+                    </p>
+                  </Surface>
+                </article>
+              ))
+            )}
           </div>
 
           <Surface variant="panelAlt" className="p-4">
@@ -306,22 +302,16 @@ const Chamber: React.FC = () => {
               Chamber chat
             </header>
             <div className="my-3 max-h-64 space-y-2 overflow-auto pr-2 text-sm">
-              {(data?.chatLog ?? []).map((entry) => (
-                <p key={entry.id}>
-                  <strong>{entry.author}:</strong> {entry.message}
-                </p>
-              ))}
+              {(data?.chatLog ?? []).length === 0 ? (
+                <p className="text-muted">No chat messages yet.</p>
+              ) : (
+                (data?.chatLog ?? []).map((entry) => (
+                  <p key={entry.id}>
+                    <strong>{entry.author}:</strong> {entry.message}
+                  </p>
+                ))
+              )}
             </div>
-            <form className="flex gap-2" onSubmit={handleChatSubmit}>
-              <Input
-                value={chatInput}
-                onChange={(event) => setChatInput(event.target.value)}
-                placeholder="Send a message"
-              />
-              <Button type="submit" size="sm">
-                Send
-              </Button>
-            </form>
           </Surface>
         </div>
       </Surface>

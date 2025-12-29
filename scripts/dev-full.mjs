@@ -4,7 +4,6 @@ function spawnProc(command, args, name) {
   const child = spawn(command, args, { stdio: "inherit" });
   child.on("exit", (code) => {
     if (code && code !== 0) {
-      // eslint-disable-next-line no-console
       console.error(`[${name}] exited with code ${code}`);
     }
   });

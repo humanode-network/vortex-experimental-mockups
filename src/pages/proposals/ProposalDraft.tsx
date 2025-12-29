@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/primitives/card";
-import ProposalStageBar from "@/components/ProposalStageBar";
+import { ProposalStageBar } from "@/components/ProposalStageBar";
 import { Surface } from "@/components/Surface";
 import { StatTile } from "@/components/StatTile";
 import { PageHint } from "@/components/PageHint";

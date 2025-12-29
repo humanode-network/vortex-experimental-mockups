@@ -26,5 +26,3 @@ export const InlineHelp: React.FC<InlineHelpProps> = ({
     </p>
   );
 };
-
-export default InlineHelp;

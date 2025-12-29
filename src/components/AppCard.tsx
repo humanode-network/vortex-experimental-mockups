@@ -40,5 +40,3 @@ export const AppCard: React.FC<AppCardProps> = ({
     </Card>
   );
 };
-
-export default AppCard;

@@ -15,5 +15,3 @@ export const getInlineHelp = (
   pageId: string,
   sectionId: string,
 ): string | undefined => inlineHelp[pageId]?.[sectionId];
-
-export default inlineHelp;

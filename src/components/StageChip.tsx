@@ -50,5 +50,3 @@ export function StageChip({ stage, label, className }: StageChipProps) {
     </span>
   );
 }
-
-export default StageChip;

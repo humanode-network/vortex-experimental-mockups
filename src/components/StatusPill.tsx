@@ -45,5 +45,3 @@ export const StatusPill: React.FC<StatusPillProps> = ({
     </Surface>
   );
 };
-
-export default StatusPill;

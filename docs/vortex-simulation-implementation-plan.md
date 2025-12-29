@@ -477,7 +477,7 @@ Current status:
 
 - Implemented:
   - `POST /api/clock/rollup-era` (admin/simulation endpoint)
-  - `GET /api/clock` includes `currentEraRollup` when a rollup exists
+  - `GET /api/clock` includes `activeGovernors` and `currentEraRollup` when a rollup exists
   - `GET /api/my-governance` includes `rollup` for authenticated users when the current era is rolled
   - Rollup tables: `era_rollups`, `era_user_status`
   - Configurable per-era requirements via env:

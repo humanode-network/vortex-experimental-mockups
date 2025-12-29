@@ -122,5 +122,3 @@ export const feedItemsApi: FeedItemDto[] = [
     timestamp: "2025-03-20T20:00:00Z",
   },
 ];
-
-export default feedItemsApi;
