@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { onRequestGet as auditGet } from "../functions/api/admin/audit/index.ts";
+import { onRequestGet as statsGet } from "../functions/api/admin/stats.ts";
 import { onRequestGet as adminUserGet } from "../functions/api/admin/users/[address].ts";
 import { onRequestGet as adminLocksGet } from "../functions/api/admin/users/locks.ts";
 import { onRequestPost as adminLockPost } from "../functions/api/admin/users/lock.ts";
@@ -148,4 +149,18 @@ test("admin endpoints: list locks, inspect user, and audit lock/unlock actions (
   assert.ok(Array.isArray(auditJson.items));
   assert.ok(auditJson.items.find((e) => e.action === "user.lock"));
   assert.ok(auditJson.items.find((e) => e.action === "user.unlock"));
+
+  const statsRes = await statsGet(
+    makeContext({
+      url: "https://local.test/api/admin/stats",
+      env: baseEnv,
+      method: "GET",
+      headers: { "x-admin-secret": "admin-secret" },
+    }),
+  );
+  assert.equal(statsRes.status, 200);
+  const statsJson = await statsRes.json();
+  assert.equal(statsJson.currentEra, 0);
+  assert.equal(statsJson.writesFrozen, false);
+  assert.equal(statsJson.currentEraActivity.rows, 1);
 });

@@ -45,6 +45,7 @@ import { createActionLocksStore } from "../_lib/actionLocksStore.ts";
 import { getEraQuotaConfig } from "../_lib/eraQuotas.ts";
 import { hasPoolVote } from "../_lib/poolVotesStore.ts";
 import { hasChamberVote } from "../_lib/chamberVotesStore.ts";
+import { createAdminStateStore } from "../_lib/adminStateStore.ts";
 
 const poolVoteSchema = z.object({
   type: z.literal("pool.vote"),
@@ -143,6 +144,20 @@ export const onRequestPost: PagesFunction = async (context) => {
   const gate = await checkEligibility(context.env, session.address);
   if (!gate.eligible) {
     return errorResponse(403, gate.reason ?? "not_eligible", { gate });
+  }
+
+  if (context.env.SIM_WRITE_FREEZE === "true") {
+    return errorResponse(503, "Writes are temporarily disabled", {
+      code: "writes_frozen",
+    });
+  }
+  const adminState = await createAdminStateStore(context.env)
+    .get()
+    .catch(() => ({ writesFrozen: false }));
+  if (adminState.writesFrozen) {
+    return errorResponse(503, "Writes are temporarily disabled", {
+      code: "writes_frozen",
+    });
   }
 
   const locks = createActionLocksStore(context.env);

@@ -9,6 +9,14 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 
+export const adminState = pgTable("admin_state", {
+  id: integer("id").primaryKey(),
+  writesFrozen: boolean("writes_frozen").notNull().default(false),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 export const users = pgTable("users", {
   address: text("address").primaryKey(),
   displayName: text("display_name"),

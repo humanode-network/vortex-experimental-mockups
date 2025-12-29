@@ -36,6 +36,8 @@ Production deploys the API as **Cloudflare Pages Functions** under `functions/`.
 - `GET /api/admin/users/locks` (admin-only)
 - `GET /api/admin/users/:address` (admin-only)
 - `GET /api/admin/audit` (admin-only)
+- `GET /api/admin/stats` (admin-only)
+- `POST /api/admin/writes/freeze` (admin-only; toggles global write freeze)
 - `POST /api/command` (write commands; gated)
 
 ## Required env vars
@@ -58,6 +60,7 @@ These env vars are read by the API runtime (Pages Functions in production, Node 
 - `SIM_MAX_CHAMBER_VOTES_PER_ERA` (optional): maximum counted chamber vote actions per era per address (unset/0 = unlimited).
 - `SIM_MAX_COURT_ACTIONS_PER_ERA` (optional): maximum counted court actions per era per address (unset/0 = unlimited).
 - `SIM_MAX_FORMATION_ACTIONS_PER_ERA` (optional): maximum counted formation actions per era per address (unset/0 = unlimited).
+- `SIM_WRITE_FREEZE` (optional): if `true`, blocks all `POST /api/command` writes regardless of admin state (deploy-time kill switch).
 
 ## Frontend build flags
 

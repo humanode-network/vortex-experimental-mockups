@@ -10,6 +10,7 @@ test("db migrations: contain core tables", () => {
     .map((name) => readFileSync(`db/migrations/${name}`, "utf8"))
     .join("\n");
   for (const table of [
+    "admin_state",
     "users",
     "auth_nonces",
     "eligibility_cache",

@@ -284,6 +284,8 @@ These endpoints are intended for simulation control (local dev, cron jobs, and a
 - `GET /api/admin/users/locks` (lists active locks)
 - `GET /api/admin/users/:address` (inspection: era counters, quotas, remaining, lock)
 - `GET /api/admin/audit` (admin actions audit log)
+- `GET /api/admin/stats` (admin operational stats)
+- `POST /api/admin/writes/freeze` (toggle write freeze)
 
 ### `POST /api/admin/users/lock`
 
@@ -358,6 +360,37 @@ type AdminAuditItemDto = {
 type GetAdminAuditResponse = {
   items: AdminAuditItemDto[];
   nextCursor?: string; // DB mode uses event seq
+};
+```
+
+### `POST /api/admin/writes/freeze`
+
+```ts
+type PostAdminWritesFreezeRequest = { enabled: boolean };
+type PostAdminWritesFreezeResponse = { ok: true; writesFrozen: boolean };
+```
+
+### `GET /api/admin/stats`
+
+The response is intended for ops/debugging. It can evolve, but it stays JSON-safe and stable enough for manual inspection.
+
+```ts
+type GetAdminStatsResponse = {
+  currentEra: number;
+  writesFrozen: boolean;
+  config: {
+    rateLimitsPerMinute: {
+      perIpPerMinute: number;
+      perAddressPerMinute: number;
+    };
+    eraQuotas: {
+      maxPoolVotes: number | null;
+      maxChamberVotes: number | null;
+      maxCourtActions: number | null;
+      maxFormationActions: number | null;
+    };
+    dynamicActiveGovernors: boolean;
+  };
 };
 ```
 

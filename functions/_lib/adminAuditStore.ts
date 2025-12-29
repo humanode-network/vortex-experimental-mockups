@@ -5,7 +5,11 @@ import { createDb } from "./db.ts";
 
 type Env = Record<string, string | undefined>;
 
-export type AdminAuditAction = "user.lock" | "user.unlock";
+export type AdminAuditAction =
+  | "user.lock"
+  | "user.unlock"
+  | "writes.freeze"
+  | "writes.unfreeze";
 
 export type AdminAuditItem = {
   id: string;

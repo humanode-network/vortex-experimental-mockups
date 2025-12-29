@@ -531,11 +531,18 @@ Implemented so far:
   - audit:
     - `GET /api/admin/audit`
     - DB mode logs as `events.type = "admin.action.v1"`
-- Tests:
+  - Tests:
   - `tests/api-command-rate-limit.test.js`
   - `tests/api-command-action-lock.test.js`
   - `tests/api-command-era-quotas.test.js`
   - `tests/api-admin-tools.test.js`
+
+- Operational admin endpoints:
+  - `GET /api/admin/stats` (basic metrics + config snapshot)
+  - `POST /api/admin/writes/freeze` (toggle writes freeze state)
+  - deploy-time kill switch: `SIM_WRITE_FREEZE=true`
+- Tests:
+  - `tests/api-admin-write-freeze.test.js`
 
 ## Suggested implementation order (lowest risk / highest value)
 

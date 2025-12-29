@@ -283,15 +283,19 @@ This section maps each workflow from `docs/vortex-simulation-processes.md` to co
   - `POST /api/admin/users/lock`, `POST /api/admin/users/unlock` (admin-only)
   - `GET /api/admin/users/locks`, `GET /api/admin/users/:address` (inspection)
   - `GET /api/admin/audit` (admin actions audit log)
+  - `GET /api/admin/stats` (ops metrics snapshot)
+  - `POST /api/admin/writes/freeze` (toggle global write freeze)
 - **Tables:**
   - `api_rate_limits` (DB mode)
   - `era_user_activity` (per-era counters used for quota enforcement and rollups)
   - `user_action_locks` (DB mode)
   - `events` (DB mode; admin actions are logged as `admin.action.v1`)
+  - `admin_state` (DB mode; write freeze flag)
 - **Notes:**
   - Rate limiting and action locks are enforced server-side for all state changes so the simulation stays usable during community testing.
   - Era quotas enforce a cap on new counted actions (vote/report/join) while still allowing edits (changing a vote) without consuming additional quota.
   - Admin actions are appended to an audit log (memory mode for local dev, `events` table for DB mode).
+  - A write freeze can be toggled via admin endpoints (and overridden by a deploy-time env kill switch).
 
 ### 2.1 Onboarding (Human → Human Node → Governor)
 
