@@ -36,11 +36,17 @@ If only `yarn dev` runs, `/api/*` is not available and auth/gating/read pages wi
 
 ### Backend docs
 
+- `docs/README.md` — doc map + conventions
+- `docs/vortex-simulation-scope-v1.md` — v1 scope and explicit non-goals
 - `docs/vortex-simulation-processes.md` — what the simulation models (epochs/eras, proposals, chambers, courts, formation)
+- `docs/vortex-simulation-state-machines.md` — formal rules, invariants, derived metrics
 - `docs/vortex-simulation-tech-architecture.md` — architecture + how the current repo maps to it
+- `docs/vortex-simulation-data-model.md` — DB tables and how reads/writes/events map to them
 - `docs/vortex-simulation-api-contract.md` — frozen `/api/*` DTO contracts consumed by the UI
+- `docs/vortex-simulation-ops-runbook.md` — ops controls + admin endpoints
 - `docs/vortex-simulation-implementation-plan.md` — phased roadmap and current progress
 - `docs/vortex-simulation-local-dev.md` — local dev setup (Node runner, env vars, DB scripts)
+- `docs/vortex-simulation-v1-constants.md` — v1 constants used by code/tests
 
 ## Scripts
 

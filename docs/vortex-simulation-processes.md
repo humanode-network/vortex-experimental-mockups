@@ -2,6 +2,8 @@
 
 This document defines the domain processes the Vortex simulation backend models to match the UI mockups in this repo. This is not an on-chain implementation; it emulates “how Vortex would work” off-chain with deterministic rules + simulated time.
 
+For formal rules and invariants, see `docs/vortex-simulation-state-machines.md`.
+
 ## 0.1) On-chain vs off-chain boundary (proto-vortex architecture)
 
 Humanode mainnet provides the **identity/eligibility gate** (read-only verification). Everything else is off-chain:

@@ -1,0 +1,92 @@
+# Docs
+
+This folder documents the **Vortex simulation backend** that powers the UI in this repo.
+
+## Overview
+
+This repo ships two pieces together:
+
+1. A React UI mockup of Vortex (the “governance hub”)
+2. An off-chain simulation backend served from `/api/*`
+
+The simulation is **not** an on-chain implementation. Humanode mainnet is used only as an **eligibility gate** (read-only). All governance state (proposals, votes, courts, formation, reputation/CM, feed/history) is off-chain in Postgres and advanced with deterministic rules.
+
+### On-chain vs off-chain boundary (v1)
+
+- On-chain (read-only): determine whether an address is an **active Human Node**
+- Off-chain (authoritative): everything else
+
+### How the backend fits the UI
+
+The UI reads from `/api/*`. The contract is kept stable so the backend can evolve without forcing UI churn:
+
+- Contract source of truth: `docs/vortex-simulation-api-contract.md`
+- TS DTO types used by the UI: `src/types/api.ts`
+
+In v1, reads are backed by a transitional `read_models` table (and optional overlays from normalized tables), so pages can render without requiring the full normalized domain schema on day one.
+
+### Write path (commands)
+
+State-changing actions go through:
+
+- `POST /api/command`
+
+Guards applied to every command:
+
+- signature-authenticated session
+- active Human Node eligibility (cached with TTL)
+- idempotency (optional `Idempotency-Key`)
+- rate limiting (per IP and per address)
+- per-era action quotas (optional)
+- admin action locks (optional)
+- global write freeze (optional)
+
+### Local dev modes
+
+- Recommended: `yarn dev:full` (UI + API + `/api/*` proxy)
+- DB mode: `DATABASE_URL` + `yarn db:migrate && yarn db:seed`
+- Inline seeded mode: `READ_MODELS_INLINE=true`
+- Clean/empty mode: `READ_MODELS_INLINE_EMPTY=true` (pages show “No … yet”)
+
+Goal: keep a tight, professional set of docs that answers:
+
+- What is being built (scope, assumptions, non-goals)
+- How it works (architecture, data model, state machines)
+- How the UI talks to it (API contract)
+- How to run and operate it (local dev, admin/ops runbook)
+- What is implemented now vs intentionally deferred
+
+## Reading order
+
+1. `docs/vortex-simulation-scope-v1.md` — v1 scope, explicit non-goals, and what “done” means
+2. `docs/vortex-simulation-processes.md` — domain processes to model (product-level)
+3. `docs/vortex-simulation-state-machines.md` — formal state machines, invariants, and derived metrics
+4. `docs/vortex-simulation-tech-architecture.md` — technical mapping onto this repo (Workers/Pages Functions + Postgres)
+5. `docs/vortex-simulation-data-model.md` — DB tables and how reads/writes/events map to them
+6. `docs/vortex-simulation-api-contract.md` — frozen DTO contracts consumed by the UI
+7. `docs/vortex-simulation-local-dev.md` — local dev commands and env vars
+8. `docs/vortex-simulation-ops-runbook.md` — admin endpoints, safety controls, and operational workflows
+9. `docs/vortex-simulation-implementation-plan.md` — phased plan + current status
+10. `docs/vortex-simulation-v1-constants.md` — v1 constants shared by code and tests
+
+## Doc conventions
+
+### Voice and tone
+
+- Write as “we / our system”, not “you should…”.
+- Prefer precise language over persuasive language.
+- Keep “why” in the doc where it matters (scope/ADR), not sprinkled everywhere.
+
+### Truth hierarchy
+
+- **API truth:** `docs/vortex-simulation-api-contract.md` + `src/types/api.ts`
+- **Scope truth:** `docs/vortex-simulation-scope-v1.md`
+- **Behavior truth:** `docs/vortex-simulation-state-machines.md` (rules + invariants)
+- **Operational truth:** `docs/vortex-simulation-ops-runbook.md`
+
+### Status tags
+
+When a section mixes implemented + planned behavior, label it explicitly:
+
+- `Implemented (v1)`
+- `Planned (v2+)`

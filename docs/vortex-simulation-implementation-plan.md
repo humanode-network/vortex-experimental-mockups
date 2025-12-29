@@ -4,16 +4,16 @@ This plan turns `docs/vortex-simulation-processes.md` + `docs/vortex-simulation-
 
 ## Current status (what exists in the repo right now)
 
-Implemented (backend skeleton):
+Implemented (v1 simulation backend):
 
 - Cloudflare Pages Functions under `functions/`
-- Minimal API routes:
+- Auth + gate (wallet signature + mainnet eligibility):
   - `GET /api/health`
   - `POST /api/auth/nonce` (sets `vortex_nonce` cookie)
-  - `POST /api/auth/verify` (sets `vortex_session` cookie; Substrate signature verification is supported in Phase 3)
+  - `POST /api/auth/verify` (sets `vortex_session` cookie; Substrate signature verification)
   - `POST /api/auth/logout`
   - `GET /api/me`
-  - `GET /api/gate/status` (dev bypass available; real RPC gating supported in Phase 3)
+  - `GET /api/gate/status` (Humanode mainnet RPC gating; dev bypass supported)
 - Cookie-signed nonce + session helpers (requires `SESSION_SECRET`)
 - Dev toggles for local progress:
   - `DEV_BYPASS_SIGNATURE`, `DEV_BYPASS_GATE`, `DEV_ELIGIBLE_ADDRESSES`, `DEV_INSECURE_COOKIES`
@@ -22,42 +22,40 @@ Implemented (backend skeleton):
   - `yarn test` (Node’s built-in test runner)
   - CI runs `yarn test` via `.github/workflows/code.yml`
   - API tests: `tests/api-*.test.js`
-- v1 decisions + contracts:
+- v1 decisions + contracts (kept aligned with the UI):
   - v1 constants: `docs/vortex-simulation-v1-constants.md`
   - API contract: `docs/vortex-simulation-api-contract.md`
   - DTO types: `src/types/api.ts`
-- Postgres scaffolding (Phase 2c done):
+- Postgres (Drizzle) schema + migrations + seed scripts:
   - Drizzle config: `drizzle.config.ts`
   - Schema: `db/schema.ts`
-  - Initial migration: `db/migrations/0000_nosy_mastermind.sql`
-  - Seed script: `scripts/db-seed.ts` (writes read-model payloads into `read_models`)
-  - Read endpoints (Phase 2c/4 bridge): `functions/api/chambers/*`, `functions/api/proposals/*`, `functions/api/feed/*`, `functions/api/courts/*`, `functions/api/humans/*`
-  - Additional read endpoints (Phase 4 coverage): `functions/api/factions/*`, `functions/api/formation/*`, `functions/api/invision/*`, `functions/api/my-governance/*`, `functions/api/proposals/drafts/*`
+  - Seed script: `scripts/db-seed.ts` (writes read-model payloads into `read_models` + seeds `events`)
   - DB scripts: `yarn db:generate`, `yarn db:migrate`, `yarn db:seed`
+  - Clear script: `yarn db:clear` (wipe data, keep schema)
   - Seed tests: `tests/db-seed.test.js`, `tests/migrations.test.js`
-- Phase 3 tests: `tests/api-auth-signature.test.js`, `tests/api-gate-rpc.test.js`
-  - Nonce + rate limit tests: `tests/api-auth-nonce.test.js`
-- Event log scaffold (Phase 5 started):
-  - `events` table migration: `db/migrations/0002_dear_betty_ross.sql`
-  - Event payload schema: `functions/_lib/eventSchemas.ts`
-  - Feed projector: `functions/_lib/feedEventProjector.ts`
-  - DB-backed feed listing: `functions/_lib/eventsStore.ts`
-  - Seed fixtures for events: `db/seed/events.ts` (used by `yarn db:seed`)
-  - Seed test: `tests/events-seed.test.js`
-  - Projector test: `tests/feed-event-projector.test.js`
-- Phase 6 write slice (pool voting started):
-  - `pool_votes` + `idempotency_keys` migration: `db/migrations/0003_cultured_supreme_intelligence.sql`
-  - Command endpoint: `POST /api/command` (`functions/api/command.ts`)
-  - Pool vote storage + counts: `functions/_lib/poolVotesStore.ts`
-  - Idempotency storage: `functions/_lib/idempotencyStore.ts`
-  - Pool page overlays live counts: `functions/api/proposals/[id]/pool.ts`
-  - UI wiring: Proposal pool votes call the API (`src/pages/proposals/ProposalPP.tsx`)
-  - Tests: `tests/api-command-pool-vote.test.js`
+- Read endpoints for all pages (Phase 4 read-model bridge):
+  - `functions/api/*` serves Chambers, Proposals, Feed, Courts, Humans, Factions, Formation, Invision, My Governance
+  - Clean-by-default mode supported (`READ_MODELS_INLINE_EMPTY=true`), with a shared UI empty state bar (`src/components/NoDataYetBar.tsx`)
+- Event log backbone:
+  - `events` table + schemas + projector; Feed can be served from DB events in DB mode
+  - Tests: `tests/events-seed.test.js`, `tests/feed-event-projector.test.js`
+- Write slices via `POST /api/command` (auth + gate + idempotency + live overlays):
+  - Proposal pool voting (`pool.vote`) + pool → vote auto-advance
+  - Chamber voting (`chamber.vote`) + CM awards + vote → build auto-advance (when Formation-eligible)
+  - Formation v1 (`formation.join`, `formation.milestone.submit`, `formation.milestone.requestUnlock`)
+  - Courts v1 (`court.case.report`, `court.case.verdict`)
+  - Era snapshots + per-era activity counters (`/api/clock/*` + `/api/my-governance`)
+  - Era rollups + tier statuses (`POST /api/clock/rollup-era`)
+- Hardening + ops controls:
+  - Rate limiting, per-era quotas, idempotency conflict detection
+  - Admin tools: action locks, audit/inspection, stats, global write freeze
+  - Tests: `tests/api-command-*.test.js`, `tests/api-admin-*.test.js`
 
-Not implemented:
+Not implemented (intentional v1 gaps):
 
-- Full domain state machines (proposal stage transitions, chamber vote, formation, courts)
-- Event-driven read projections beyond the transitional `read_models` bridge
+- Replacing transitional `read_models` with fully normalized domain tables + event-driven projections
+- Time-windowed stage logic (vote windows, scheduled transitions) beyond manual/admin clock ops
+- Delegation flows and any “real” forum/thread product (threads remain minimal)
 
 ## Guiding principles
 
@@ -497,7 +495,7 @@ Notes:
 
 - Tier decay is tracked separately (future iteration) — v1 rollups compute per-era status + next-era active set only.
 
-## Phase 11 — Hardening + moderation (ongoing)
+## Phase 11 — Hardening + moderation (DONE for v1)
 
 - Rate limiting (per IP/address) and anti-spam (per-era quotas).
 - Auditability: make all state transitions and changes event-backed.
@@ -507,7 +505,7 @@ Notes:
   - temporary action lock for a user
   - court-driven restrictions flags (simulation)
 
-Implemented so far:
+Current status:
 
 - `POST /api/command` rate limiting:
   - per IP: `SIM_COMMAND_RATE_LIMIT_PER_MINUTE_IP`
@@ -531,18 +529,20 @@ Implemented so far:
   - audit:
     - `GET /api/admin/audit`
     - DB mode logs as `events.type = "admin.action.v1"`
-  - Tests:
+- Operational admin endpoints:
+  - `GET /api/admin/stats` (basic metrics + config snapshot)
+  - `POST /api/admin/writes/freeze` (toggle write-freeze state)
+  - deploy-time kill switch: `SIM_WRITE_FREEZE=true`
+- Tests:
   - `tests/api-command-rate-limit.test.js`
   - `tests/api-command-action-lock.test.js`
   - `tests/api-command-era-quotas.test.js`
   - `tests/api-admin-tools.test.js`
-
-- Operational admin endpoints:
-  - `GET /api/admin/stats` (basic metrics + config snapshot)
-  - `POST /api/admin/writes/freeze` (toggle writes freeze state)
-  - deploy-time kill switch: `SIM_WRITE_FREEZE=true`
-- Tests:
   - `tests/api-admin-write-freeze.test.js`
+
+Notes:
+
+- `POST /api/clock/*` remains the admin surface for simulation time operations; `POST /api/admin/*` is for moderation/ops.
 
 ## Suggested implementation order (lowest risk / highest value)
 

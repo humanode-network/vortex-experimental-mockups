@@ -2,6 +2,8 @@
 
 This document maps `docs/vortex-simulation-processes.md` onto a technical architecture that fits this repo (React app + Cloudflare Pages Functions in production, with a Node runner for local dev).
 
+For the DB table inventory, see `docs/vortex-simulation-data-model.md`. For ops controls and admin endpoints, see `docs/vortex-simulation-ops-runbook.md`.
+
 ## 1) Stack (recommended)
 
 ### Languages
