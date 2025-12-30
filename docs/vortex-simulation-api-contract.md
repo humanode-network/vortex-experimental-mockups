@@ -33,6 +33,10 @@ Already implemented in `functions/api/*`:
 Eligibility (v1):
 
 - The backend checks Humanode mainnet RPC and considers an address eligible if it is in the current validator set (`Session::Validators`).
+- The Humanode RPC URL is resolved in this order:
+  1. `HUMANODE_RPC_URL` (Pages Functions runtime env)
+  2. `/sim-config.json` → `humanodeRpcUrl` (repo-configured runtime config served from `public/`)
+- If neither is configured, the gate returns `eligible: false` with `reason: "rpc_not_configured"`.
 
 ## Write endpoints (Phase 6+)
 

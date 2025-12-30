@@ -47,7 +47,12 @@ These env vars are read by the API runtime (Pages Functions in production, Node 
 - `SESSION_SECRET` (required): used to sign `vortex_nonce` and `vortex_session` cookies.
 - `DATABASE_URL` (required for Phase 2c+): Postgres connection string (v1 expects Neon-compatible serverless Postgres).
 - `ADMIN_SECRET` (required for admin endpoints): must be provided via `x-admin-secret` header (unless `DEV_BYPASS_ADMIN=true`).
-- `HUMANODE_RPC_URL` (required when `DEV_BYPASS_GATE` is false): JSON-RPC endpoint for Humanode mainnet (used for `Session::Validators` reads in v1).
+- Humanode mainnet RPC URL can be configured in either place:
+  - `HUMANODE_RPC_URL` (recommended for deployments), or
+  - `public/sim-config.json` via `humanodeRpcUrl` (repo-configured runtime value).
+
+For convenience, this repo ships with a default `humanodeRpcUrl` pointing to the public Humanode mainnet explorer RPC.
+
 - `SIM_ACTIVE_GOVERNORS` (optional): active governors baseline used for quorum math (defaults to `150`).
 - `SIM_REQUIRED_POOL_VOTES` (optional): per-era required pool actions (defaults to `1`).
 - `SIM_REQUIRED_CHAMBER_VOTES` (optional): per-era required chamber actions (defaults to `1`).
@@ -108,7 +113,7 @@ Notes:
 
 - `yarn dev` proxies `/api/*` to `http://127.0.0.1:8788` (config: `rsbuild.config.ts`).
 - If you see `ECONNREFUSED` in the UI dev server logs, the backend is not running on `:8788` (start it with `yarn dev:api`).
-- Real gating uses `DEV_BYPASS_GATE=false` and a bound `HUMANODE_RPC_URL`.
+- Real gating uses `DEV_BYPASS_GATE=false` and a configured Humanode mainnet RPC URL (env var or `public/sim-config.json`).
 - The Node API runner defaults to **empty read models** when `DATABASE_URL` is not set (the UI should show “No … yet” on content pages).
 - To use the seeded fixtures locally (no DB), run with `READ_MODELS_INLINE=true`.
 - To force empty reads even if something is seeding locally, run with `READ_MODELS_INLINE_EMPTY=true`.

@@ -11,5 +11,7 @@ export const onRequestGet: PagesFunction = async (context) => {
       expiresAt: new Date().toISOString(),
     });
   }
-  return jsonResponse(await checkEligibility(context.env, session.address));
+  return jsonResponse(
+    await checkEligibility(context.env, session.address, context.request.url),
+  );
 };

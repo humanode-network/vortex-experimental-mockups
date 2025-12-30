@@ -6,7 +6,7 @@ This file records the v1 decisions used by the simulation backend so implementat
 
 - **Database:** Postgres (v1 recommendation: **Neon**, for edge/serverless connectivity)
 - **On-chain read source:** Humanode mainnet RPC (no Subscan dependency for v1)
-- **Eligibility (“active Human Node”):** derived from mainnet RPC reads of `Session::Validators` (current validator set membership)
+- **Eligibility (“active Human Node”):** derived from mainnet RPC reads of `Session::Validators` (current validator set membership). The Humanode RPC URL is configured via `HUMANODE_RPC_URL` or `public/sim-config.json`.
 
 ## Simulation time decisions
 

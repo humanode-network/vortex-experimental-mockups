@@ -4,6 +4,7 @@ import { eligibilityCache } from "../../db/schema.ts";
 import { envBoolean, envCsv } from "./env.ts";
 import { createDb } from "./db.ts";
 import { isActiveHumanNodeViaRpc } from "./humanodeRpc.ts";
+import { getSimConfigFromOrigin } from "./simConfig.ts";
 
 type Env = Record<string, string | undefined>;
 
@@ -18,6 +19,7 @@ const memory = new Map<string, GateResult>();
 export async function checkEligibility(
   env: Env,
   address: string,
+  requestUrl?: string,
 ): Promise<GateResult> {
   const eligibleAddresses = new Set(
     envCsv(env, "DEV_ELIGIBLE_ADDRESSES").map((a) => a.toLowerCase()),
@@ -29,6 +31,15 @@ export async function checkEligibility(
   if (envBoolean(env, "DEV_BYPASS_GATE")) return { eligible: true, expiresAt };
   if (eligibleAddresses.has(address.toLowerCase()))
     return { eligible: true, expiresAt };
+
+  let envWithRpc: Env = env;
+  if (!env.HUMANODE_RPC_URL && requestUrl) {
+    const cfg = await getSimConfigFromOrigin(requestUrl);
+    const fromCfg = (cfg?.humanodeRpcUrl ?? "").trim();
+    if (fromCfg) {
+      envWithRpc = { ...env, HUMANODE_RPC_URL: fromCfg };
+    }
+  }
 
   if (env.DATABASE_URL) {
     const db = createDb(env);
@@ -55,11 +66,14 @@ export async function checkEligibility(
     let eligible = false;
     let reason: string | undefined = undefined;
     try {
-      eligible = await isActiveHumanNodeViaRpc(env, address);
+      eligible = await isActiveHumanNodeViaRpc(envWithRpc, address);
       if (!eligible) reason = "not_in_validator_set";
     } catch (error) {
       eligible = false;
-      reason = "rpc_error";
+      const message = (error as Error | null)?.message ?? "";
+      reason = message.includes("HUMANODE_RPC_URL")
+        ? "rpc_not_configured"
+        : "rpc_error";
     }
 
     const nextExpires = new Date(Date.now() + ttlMs);
@@ -98,11 +112,14 @@ export async function checkEligibility(
   let eligible = false;
   let reason: string | undefined = undefined;
   try {
-    eligible = await isActiveHumanNodeViaRpc(env, address);
+    eligible = await isActiveHumanNodeViaRpc(envWithRpc, address);
     if (!eligible) reason = "not_in_validator_set";
-  } catch {
+  } catch (error) {
     eligible = false;
-    reason = "rpc_error";
+    const message = (error as Error | null)?.message ?? "";
+    reason = message.includes("HUMANODE_RPC_URL")
+      ? "rpc_not_configured"
+      : "rpc_error";
   }
 
   const result: GateResult = {

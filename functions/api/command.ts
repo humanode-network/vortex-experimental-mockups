@@ -180,7 +180,11 @@ export const onRequestPost: PagesFunction = async (context) => {
   if (!session) return errorResponse(401, "Not authenticated");
   const sessionAddress = session.address;
 
-  const gate = await checkEligibility(context.env, sessionAddress);
+  const gate = await checkEligibility(
+    context.env,
+    sessionAddress,
+    context.request.url,
+  );
   if (!gate.eligible) {
     return errorResponse(403, gate.reason ?? "not_eligible", { gate });
   }

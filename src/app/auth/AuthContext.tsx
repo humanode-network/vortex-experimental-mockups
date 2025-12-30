@@ -84,7 +84,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       return next;
     } catch (error) {
-      setLastError((error as Error).message);
+      setLastError(
+        formatAuthConnectError({ message: (error as Error).message }),
+      );
       return null;
     } finally {
       setLoading(false);
@@ -214,6 +216,15 @@ export function AuthSidebarPanel() {
   const gateLabel =
     auth.authenticated && auth.eligible ? "Active" : "Not active";
 
+  const gateError =
+    auth.authenticated && !auth.eligible
+      ? auth.gateReason === "rpc_not_configured"
+        ? "Gate RPC is not configured. Set `HUMANODE_RPC_URL` in the Pages environment or set `humanodeRpcUrl` in `/sim-config.json` (or use `DEV_BYPASS_GATE=true` for local dev)."
+        : auth.gateReason === "rpc_error"
+          ? "Gate RPC request failed. Check that `HUMANODE_RPC_URL` (or `/sim-config.json`) is reachable and supports `state_getStorage`."
+          : null
+      : null;
+
   return (
     <div className="sidebar__auth">
       <div className="sidebar__authRow">
@@ -237,6 +248,10 @@ export function AuthSidebarPanel() {
       {auth.lastError ? (
         <div className="sidebar__authError" role="status">
           {auth.lastError}
+        </div>
+      ) : gateError ? (
+        <div className="sidebar__authError" role="status">
+          {gateError}
         </div>
       ) : null}
 
