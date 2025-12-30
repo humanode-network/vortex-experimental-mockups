@@ -24,8 +24,12 @@ export function projectFeedPageFromEvents(
   let filtered = [...rows];
   if (input.stage)
     filtered = filtered.filter((row) => row.stage === input.stage);
-  if (input.beforeSeq)
-    filtered = filtered.filter((row) => row.seq < Math.max(0, input.beforeSeq));
+
+  const beforeSeq = input.beforeSeq;
+  const hasBeforeSeq = beforeSeq !== undefined && beforeSeq !== null;
+  if (hasBeforeSeq) {
+    filtered = filtered.filter((row) => row.seq < Math.max(0, beforeSeq));
+  }
 
   filtered.sort((a, b) => b.seq - a.seq);
 

@@ -117,6 +117,11 @@ Notes:
 
 `yarn dev:api:wrangler` runs `wrangler pages dev` against `./dist` and serves the same `/api/*` routes.
 
+## Type checking
+
+- UI + client types: `yarn exec tsc -p tsconfig.json --noEmit`
+- Pages Functions API: `yarn exec tsc -p functions/tsconfig.json --noEmit`
+
 ## DB (Phase 2c)
 
 DB setup uses the read-model bridge seeded from `db/seed/fixtures/*`:

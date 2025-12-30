@@ -140,8 +140,9 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   const session = await readSession(context.request, context.env);
   if (!session) return errorResponse(401, "Not authenticated");
+  const sessionAddress = session.address;
 
-  const gate = await checkEligibility(context.env, session.address);
+  const gate = await checkEligibility(context.env, sessionAddress);
   if (!gate.eligible) {
     return errorResponse(403, gate.reason ?? "not_eligible", { gate });
   }
@@ -161,7 +162,7 @@ export const onRequestPost: PagesFunction = async (context) => {
   }
 
   const locks = createActionLocksStore(context.env);
-  const activeLock = await locks.getActiveLock(session.address);
+  const activeLock = await locks.getActiveLock(sessionAddress);
   if (activeLock) {
     return errorResponse(403, "Action locked", {
       code: "action_locked",
@@ -244,7 +245,7 @@ export const onRequestPost: PagesFunction = async (context) => {
     if (limit === null) return null;
 
     const activity = await getUserEraActivity(context.env, {
-      address: session.address,
+      address: sessionAddress,
     });
     const used = activity.counts[input.kind] ?? 0;
     if (used >= limit) {
@@ -285,7 +286,7 @@ export const onRequestPost: PagesFunction = async (context) => {
   if (input.type === "pool.vote") {
     const wouldCount = !(await hasPoolVote(context.env, {
       proposalId: input.payload.proposalId,
-      voterAddress: session.address,
+      voterAddress: sessionAddress,
     }));
     const quotaError = await enforceEraQuota({
       kind: "poolVotes",

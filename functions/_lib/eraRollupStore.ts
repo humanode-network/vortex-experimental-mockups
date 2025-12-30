@@ -81,11 +81,11 @@ export async function rollupEra(
     const status = computeGoverningStatus(completedTotal, requiredTotal);
     const isActiveNextEra = isActiveByRequirements(row, requirements);
     return {
-      address: row.address,
+      ...row,
       status,
+      requiredTotal,
       completedTotal,
       isActiveNextEra,
-      ...row,
     };
   });
 

@@ -1,7 +1,6 @@
 import { createReadModelsStore } from "../../../_lib/readModelsStore.ts";
 import { errorResponse, jsonResponse } from "../../../_lib/http.ts";
 import {
-  ensureFormationSeed,
   getFormationSummary,
   listFormationJoiners,
 } from "../../../_lib/formationStore.ts";

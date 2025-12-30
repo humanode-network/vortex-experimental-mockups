@@ -48,6 +48,15 @@ Guards applied to every command:
 - Inline seeded mode: `READ_MODELS_INLINE=true`
 - Clean/empty mode: `READ_MODELS_INLINE_EMPTY=true` (pages show “No … yet”)
 
+### TypeScript projects
+
+The repo intentionally uses two TS projects:
+
+- UI + shared client types: `tsconfig.json` (covers `src/` + `tests/`)
+- Pages Functions API: `functions/tsconfig.json` (covers `functions/` + local helper `.d.ts` typing)
+
+This keeps editor tooling for Cloudflare Pages Functions isolated while leaving the frontend TS config lean.
+
 Goal: keep a tight, professional set of docs that answers:
 
 - What is being built (scope, assumptions, non-goals)

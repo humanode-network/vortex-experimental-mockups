@@ -80,19 +80,21 @@ export async function listAdminAudit(
   }
 
   const db = createDb(env);
-  let query = db
-    .select({ seq: events.seq, payload: events.payload })
-    .from(events);
-  query = query.where(
-    input.beforeSeq
-      ? and(
-          eq(events.type, "admin.action.v1"),
-          lt(events.seq, Math.max(0, input.beforeSeq)),
-        )
-      : eq(events.type, "admin.action.v1"),
-  );
+  const beforeSeq = input.beforeSeq;
+  const hasBeforeSeq = beforeSeq !== undefined && beforeSeq !== null;
+  const whereClause = hasBeforeSeq
+    ? and(
+        eq(events.type, "admin.action.v1"),
+        lt(events.seq, Math.max(0, beforeSeq)),
+      )
+    : eq(events.type, "admin.action.v1");
 
-  const ordered = await query.orderBy(desc(events.seq)).limit(input.limit + 1);
+  const ordered = await db
+    .select({ seq: events.seq, payload: events.payload })
+    .from(events)
+    .where(whereClause)
+    .orderBy(desc(events.seq))
+    .limit(input.limit + 1);
   const slice = ordered.slice(0, input.limit);
   const items = slice.map((r) => r.payload as AdminAuditItem);
   const nextSeq =

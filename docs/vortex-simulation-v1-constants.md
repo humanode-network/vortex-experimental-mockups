@@ -56,10 +56,12 @@ This file records the v1 decisions used by the simulation backend so implementat
     - `era_snapshots` (per-era active governors baseline)
     - `era_user_activity` (per-era action counters per address)
   - Active governors baseline defaults to `150` and can be configured via `SIM_ACTIVE_GOVERNORS` (or `VORTEX_ACTIVE_GOVERNORS`).
+  - `GET /api/clock` returns the current era + active governors baseline used for quorum math.
   - `GET /api/my-governance` overlays per-era `done` counts for authenticated users.
 - Phase 10b write slice exists:
   - `POST /api/clock/rollup-era` computes:
     - per-era governing status buckets (Ahead/Stable/Falling behind/At risk/Losing status)
     - `activeGovernorsNextEra` based on configured requirements
+    - optional baseline update when `SIM_DYNAMIC_ACTIVE_GOVERNORS=true` (next era uses `activeGovernorsNextEra`)
   - Rollup output is stored in:
     - `era_rollups`, `era_user_status`

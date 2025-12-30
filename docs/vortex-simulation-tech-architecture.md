@@ -70,6 +70,8 @@ This repo is currently a single frontend app. The backend can live alongside it 
 
 - `functions/api/*` (Pages Functions routes)
 - `functions/_lib/*` (shared server helpers)
+- `functions/cloudflare.d.ts` (local typing for `PagesFunction` in editors)
+- `functions/tsconfig.json` (separate TS project for `functions/`)
 - `db/*` (Drizzle schema + migrations)
 - `scripts/*` (seed/import jobs)
 - `src/server/domain/*` (future: shared domain engine)

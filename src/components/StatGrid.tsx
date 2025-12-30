@@ -71,3 +71,5 @@ export const makeChamberStats = (stats: {
   },
   { label: "Governors", value: stats.governors, tone: "neutral" },
 ];
+
+export default StatGrid;

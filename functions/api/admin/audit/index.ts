@@ -14,9 +14,13 @@ export const onRequestGet: PagesFunction = async (context) => {
 
   const url = new URL(context.request.url);
   const cursor = url.searchParams.get("cursor");
-  const beforeSeq = cursor ? Number.parseInt(cursor, 10) : null;
-  if (cursor && (!Number.isFinite(beforeSeq) || beforeSeq < 0)) {
-    return errorResponse(400, "Invalid cursor");
+  let beforeSeq: number | undefined;
+  if (cursor !== null) {
+    const parsed = Number.parseInt(cursor, 10);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return errorResponse(400, "Invalid cursor");
+    }
+    beforeSeq = parsed;
   }
 
   const page = await listAdminAudit(context.env, {

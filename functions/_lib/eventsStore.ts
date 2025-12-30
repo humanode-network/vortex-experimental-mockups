@@ -18,23 +18,24 @@ export async function listFeedEventsPage(
 ): Promise<FeedEventsPage> {
   const db = createDb(env);
 
-  const conditions = [];
-  conditions.push(eq(events.type, "feed.item.v1"));
-  if (input.stage) conditions.push(eq(events.stage, input.stage));
-  if (input.beforeSeq)
-    conditions.push(lt(events.seq, Math.max(0, input.beforeSeq)));
+  const beforeSeq = input.beforeSeq;
+  const hasBeforeSeq = beforeSeq !== undefined && beforeSeq !== null;
 
-  let query = db
+  const whereClause = and(
+    eq(events.type, "feed.item.v1"),
+    ...(input.stage ? [eq(events.stage, input.stage)] : []),
+    ...(hasBeforeSeq ? [lt(events.seq, Math.max(0, beforeSeq))] : []),
+  );
+
+  const rows = await db
     .select({
       seq: events.seq,
       stage: events.stage,
       payload: events.payload,
     })
-    .from(events);
-  if (conditions.length) {
-    query = query.where(and(...conditions));
-  }
-
-  const rows = await query.orderBy(desc(events.seq)).limit(input.limit + 1);
+    .from(events)
+    .where(whereClause)
+    .orderBy(desc(events.seq))
+    .limit(input.limit + 1);
   return projectFeedPageFromEvents(rows, input);
 }
