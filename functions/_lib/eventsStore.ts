@@ -4,6 +4,10 @@ import { events } from "../../db/schema.ts";
 import { createDb } from "./db.ts";
 import type { FeedItemEventPayload } from "./eventSchemas.ts";
 import { projectFeedPageFromEvents } from "./feedEventProjector.ts";
+import {
+  clearMemoryFeedEventsForTests,
+  listMemoryFeedEvents,
+} from "./feedEventsMemory.ts";
 
 type Env = Record<string, string | undefined>;
 
@@ -16,6 +20,15 @@ export async function listFeedEventsPage(
   env: Env,
   input: { stage?: string | null; beforeSeq?: number | null; limit: number },
 ): Promise<FeedEventsPage> {
+  if (!env.DATABASE_URL) {
+    const rows = listMemoryFeedEvents().map((event) => ({
+      seq: event.seq,
+      stage: event.stage,
+      payload: event.payload,
+    }));
+    return projectFeedPageFromEvents(rows, input);
+  }
+
   const db = createDb(env);
 
   const beforeSeq = input.beforeSeq;
@@ -38,4 +51,8 @@ export async function listFeedEventsPage(
     .orderBy(desc(events.seq))
     .limit(input.limit + 1);
   return projectFeedPageFromEvents(rows, input);
+}
+
+export function clearFeedEventsForTests(): void {
+  clearMemoryFeedEventsForTests();
 }

@@ -52,17 +52,23 @@ export function projectProposalListItem(
         ? projectVoteListStageData({
             activeGovernors: input.activeGovernors,
             counts: input.chamberCounts ?? { yes: 0, no: 0, abstain: 0 },
-            timeLeft:
-              typeof input.voteWindowSeconds === "number" &&
-              input.voteWindowSeconds > 0
-                ? formatTimeLeftDaysHours(
-                    getStageRemainingSeconds({
-                      now,
-                      stageStartedAt: proposal.updatedAt,
-                      windowSeconds: input.voteWindowSeconds,
-                    }),
-                  )
-                : "3d 00h",
+            timeLeft: (() => {
+              if (
+                !(
+                  typeof input.voteWindowSeconds === "number" &&
+                  input.voteWindowSeconds > 0
+                )
+              )
+                return "3d 00h";
+              const remaining = getStageRemainingSeconds({
+                now,
+                stageStartedAt: proposal.updatedAt,
+                windowSeconds: input.voteWindowSeconds,
+              });
+              return remaining === 0
+                ? "Ended"
+                : formatTimeLeftDaysHours(remaining);
+            })(),
           })
         : projectBuildListStageData({
             summary: input.formationSummary ?? {
@@ -223,16 +229,21 @@ export function projectChamberProposalPage(
   const engagedGovernors =
     input.counts.yes + input.counts.no + input.counts.abstain;
   const now = input.now ?? new Date();
-  const timeLeft =
-    typeof input.voteWindowSeconds === "number" && input.voteWindowSeconds > 0
-      ? formatTimeLeftDaysHours(
-          getStageRemainingSeconds({
-            now,
-            stageStartedAt: proposal.updatedAt,
-            windowSeconds: input.voteWindowSeconds,
-          }),
-        )
-      : "3d 00h";
+  const timeLeft = (() => {
+    if (
+      !(
+        typeof input.voteWindowSeconds === "number" &&
+        input.voteWindowSeconds > 0
+      )
+    )
+      return "3d 00h";
+    const remaining = getStageRemainingSeconds({
+      now,
+      stageStartedAt: proposal.updatedAt,
+      windowSeconds: input.voteWindowSeconds,
+    });
+    return remaining === 0 ? "Ended" : formatTimeLeftDaysHours(remaining);
+  })();
 
   return {
     title: proposal.title,

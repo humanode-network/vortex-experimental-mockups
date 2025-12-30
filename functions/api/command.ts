@@ -629,13 +629,16 @@ export const onRequestPost: PagesFunction = async (context) => {
             stageStartedAt: proposal.updatedAt,
             windowSeconds,
           }),
-          timeLeft: formatTimeLeftDaysHours(
-            getStageRemainingSeconds({
+          timeLeft: (() => {
+            const remaining = getStageRemainingSeconds({
               now,
               stageStartedAt: proposal.updatedAt,
               windowSeconds,
-            }),
-          ),
+            });
+            return remaining === 0
+              ? "Ended"
+              : formatTimeLeftDaysHours(remaining);
+          })(),
         });
       }
     }
@@ -1189,13 +1192,14 @@ export const onRequestPost: PagesFunction = async (context) => {
           stageStartedAt: proposal.updatedAt,
           windowSeconds,
         }),
-        timeLeft: formatTimeLeftDaysHours(
-          getStageRemainingSeconds({
+        timeLeft: (() => {
+          const remaining = getStageRemainingSeconds({
             now,
             stageStartedAt: proposal.updatedAt,
             windowSeconds,
-          }),
-        ),
+          });
+          return remaining === 0 ? "Ended" : formatTimeLeftDaysHours(remaining);
+        })(),
       });
     }
   }

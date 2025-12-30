@@ -57,6 +57,7 @@ Important: because the API runtime is Cloudflare Workers/Pages Functions (edge),
 - **Scheduler**:
   - era boundary rollups (governor activity, quorums, tier statuses, CM updates)
   - optional era auto-advance when the era is “due” by configured time (`SIM_ERA_SECONDS`)
+  - optional stage-window closure notifications (when `SIM_ENABLE_STAGE_WINDOWS=true`, `POST /api/clock/tick` emits a deduped feed event when a proposal’s pool/vote window ends)
 
 ### Key principle: authoritative writes
 

@@ -429,6 +429,12 @@ type PostClockTickResponse = {
   advanced: boolean;
   fromEra: number;
   toEra: number;
+  endedWindows?: Array<{
+    proposalId: string;
+    stage: "pool" | "vote";
+    endedAt: string;
+    emitted: boolean; // true only once per (proposalId, stage, endedAt)
+  }>;
   rollup?: {
     era: number;
     rolledAt: string;
@@ -448,6 +454,10 @@ type PostClockTickResponse = {
   };
 };
 ```
+
+Notes:
+
+- When `SIM_ENABLE_STAGE_WINDOWS=true`, `POST /api/clock/tick` can also emit (deduped) feed events when a proposal’s pool/vote window has ended, and returns those in `endedWindows` for visibility/debugging.
 
 ### `POST /api/admin/users/lock`
 

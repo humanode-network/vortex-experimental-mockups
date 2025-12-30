@@ -712,7 +712,8 @@ Current status:
 - `POST /api/clock/tick` exists and can run the rollup and (optionally) advance era when due.
 - Stage windows are implemented behind `SIM_ENABLE_STAGE_WINDOWS`:
   - `pool.vote` and `chamber.vote` return HTTP `409` after the configured windows end.
-  - `GET /api/proposals` and `GET /api/proposals/:id/chamber` compute `timeLeft` from the canonical proposal stage timestamp when enabled.
+  - `GET /api/proposals` and `GET /api/proposals/:id/chamber` compute `timeLeft` from the canonical proposal stage timestamp when enabled (`"Ended"` once the window is over).
+  - `POST /api/clock/tick` emits a deduped feed event when a proposal’s `pool` or `vote` window has ended (and returns those in the `endedWindows` response field for visibility).
 
 ### Phase 17 — Delegation v1 (PLANNED)
 
