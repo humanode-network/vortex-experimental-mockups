@@ -7,7 +7,7 @@ Notes:
 - These are **DTOs** (network-safe JSON), not React UI models.
 - All DTOs are JSON-safe (no `ReactNode`, no `Date`, no functions).
 - Read endpoints are served in two modes:
-  - DB mode: reads from Postgres `read_models` (seeded by `scripts/db-seed.ts`).
+  - DB mode: reads from Postgres `read_models` (seeded by `scripts/db-seed.ts`) plus overlays from normalized tables (votes/formation/courts/era) and canonical domain tables where applicable.
   - Inline mode: `READ_MODELS_INLINE=true` serves the same payloads from the in-repo seed builder (`db/seed/readModels.ts`) for local dev/tests without a DB.
   - Empty mode: `READ_MODELS_INLINE_EMPTY=true` forces empty/default payloads (used for clean local dev and “no content yet” UX).
 
@@ -375,7 +375,13 @@ Notes:
 
 ## Read endpoints
 
-These endpoints are implemented under `functions/api/*` and read from `read_models` (DB mode) or the inline seed (inline mode).
+These endpoints are implemented under `functions/api/*`.
+
+In v1, most reads start from `read_models` (DB mode) or the inline seed (inline mode), then apply overlays from normalized state (votes, formation, courts, era) and canonical tables where needed.
+
+Proposals note:
+
+- `GET /api/proposals` and `GET /api/proposals/:id/pool` may prefer canonical proposals (Phase 14) and fall back to `read_models` for seeded legacy payloads.
 
 ## Admin/simulation endpoints
 

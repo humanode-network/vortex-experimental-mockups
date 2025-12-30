@@ -58,8 +58,7 @@ If only `yarn dev` runs, `/api/*` is not available and auth/gating/read pages wi
 
 ## Type checking
 
-- UI + client types: `yarn exec tsc -p tsconfig.json --noEmit`
-- Pages Functions API: `yarn exec tsc -p functions/tsconfig.json --noEmit`
+- Repo typecheck (UI + Pages Functions + DB seed builders): `yarn exec tsc --noEmit`
 
 ## Project Structure
 

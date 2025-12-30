@@ -31,5 +31,5 @@
     },
     "ignoreDeprecations": "5.0"
   },
-  "include": ["src", "tests"]
+  "include": ["src", "tests", "functions", "db"]
 }

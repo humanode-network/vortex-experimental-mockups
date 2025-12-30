@@ -20,6 +20,7 @@ test("db migrations: contain core tables", () => {
     "pool_votes",
     "chamber_votes",
     "proposal_drafts",
+    "proposals",
     "idempotency_keys",
     "api_rate_limits",
     "cm_awards",

@@ -103,7 +103,7 @@ This is the order we’ll follow from now on, based on what’s already landed.
 15. **Phase 11 — Hardening + moderation**
 16. **Phase 12 — Proposal drafts + submission (DONE)**
 17. **Phase 13 — Eligibility via `Session::Validators` (DONE)**
-18. **Phase 14 — Canonical domain tables + projections (PLANNED)**
+18. **Phase 14 — Canonical domain tables + projections (DONE)**
 19. **Phase 15 — Deterministic state transitions (PLANNED)**
 20. **Phase 16 — Time windows + automation (PLANNED)**
 21. **Phase 17 — Delegation v1 (PLANNED)**
@@ -326,12 +326,12 @@ Current status:
   - `pool_votes` storage (DB mode) with in-memory fallback for tests/dev without a DB
   - Proposal pool page reads overlay the live vote counts
   - Pool quorum evaluator (`evaluatePoolQuorum`) and pool → vote auto-advance when thresholds are met
-    - the proposal stage is advanced by updating the `proposals:list` read model
+    - the proposal stage is advanced in the canonical `proposals` table and mirrored into the `proposals:list` read model (compat)
     - if the chamber page read model is missing, it is created from the pool page payload
   - Pool voting is rejected when a proposal is no longer in the pool stage (HTTP 409)
   - ProposalPP UI calls `pool.vote` and refetches the pool page on success
 - Not implemented yet:
-  - writing normalized proposal state transitions (beyond the UI read models)
+  - centralized state machine for transitions (beyond v1 stage updates)
 
 Deliverable: users can perform one real action (pool vote) and see it in metrics + feed.
 
@@ -368,7 +368,7 @@ Current status:
   - `chamber_votes` storage (DB mode) with in-memory fallback for tests/dev without a DB
   - Chamber page reads overlay live vote counts in `GET /api/proposals/:id/chamber`
   - Vote → build auto-advance when quorum + passing are met and `formationEligible === true`
-    - the proposal stage is advanced by updating the `proposals:list` read model
+    - the proposal stage is advanced in the canonical `proposals` table and mirrored into the `proposals:list` read model (compat)
     - if the formation page read model is missing, it is generated from the chamber page payload
   - CM awarding v1:
     - `score` (1–10) can be attached to yes votes
@@ -636,7 +636,7 @@ Tests:
 - Caching works (second call does not re-hit RPC in memory mode).
 - Non-validator address returns `eligible: false` with the expected reason code.
 
-### Phase 14 — Canonical domain tables + projections (PLANNED)
+### Phase 14 — Canonical domain tables + projections (DONE)
 
 Goal: start migrating away from `read_models` as the “source of truth” by introducing canonical tables for entities that are actively mutated (starting with proposals).
 
@@ -654,6 +654,13 @@ Tests:
 
 - Projection determinism: same canonical inputs → identical DTO outputs.
 - Backwards compatibility: existing endpoints continue returning the same DTO shape.
+
+Current status:
+
+- `proposals` table exists (migration + schema).
+- `proposal.submitToPool` writes a canonical proposal row and still projects pool/list DTOs into `read_models` (compat path).
+- `GET /api/proposals` and `GET /api/proposals/:id/pool` prefer canonical proposals, falling back to `read_models` for seeded legacy data.
+- Pool → vote and vote → build auto-advance now update the canonical proposal stage (and keep `read_models` in sync for the UI).
 
 ### Phase 15 — Deterministic state transitions (PLANNED)
 

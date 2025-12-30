@@ -10,6 +10,10 @@ import { getSessionCookieName, issueSession } from "../functions/_lib/auth.ts";
 import { clearIdempotencyForTests } from "../functions/_lib/idempotencyStore.ts";
 import { clearInlineReadModelsForTests } from "../functions/_lib/readModelsStore.ts";
 import { clearProposalDraftsForTests } from "../functions/_lib/proposalDraftsStore.ts";
+import {
+  clearProposalsForTests,
+  getProposal,
+} from "../functions/_lib/proposalsStore.ts";
 
 function makeContext({ url, env, params, method = "POST", headers, body }) {
   return {
@@ -62,6 +66,7 @@ test("proposal drafts: save → list/detail → submit to pool", async () => {
   clearIdempotencyForTests();
   clearInlineReadModelsForTests();
   clearProposalDraftsForTests();
+  clearProposalsForTests();
 
   const cookie = await makeSessionCookie(baseEnv, "5TestAddr");
 
@@ -127,6 +132,11 @@ test("proposal drafts: save → list/detail → submit to pool", async () => {
   assert.equal(submitJson.type, "proposal.submitToPool");
   assert.ok(typeof submitJson.proposalId === "string");
 
+  const proposal = await getProposal(baseEnv, submitJson.proposalId);
+  assert.ok(proposal, "canonical proposal exists");
+  assert.equal(proposal.stage, "pool");
+  assert.equal(proposal.title, "Test proposal draft");
+
   const proposalsRes = await proposalsGet(
     makeContext({
       url: "https://local.test/api/proposals?stage=pool",
@@ -167,10 +177,80 @@ test("proposal drafts: save → list/detail → submit to pool", async () => {
   assert.deepEqual(await listAfterSubmit.json(), { items: [] });
 });
 
+test("proposal reads prefer canonical proposals over read models", async () => {
+  clearIdempotencyForTests();
+  clearInlineReadModelsForTests();
+  clearProposalDraftsForTests();
+  clearProposalsForTests();
+
+  const cookie = await makeSessionCookie(baseEnv, "5TestAddr");
+
+  const saveRes = await commandPost(
+    makeContext({
+      url: "https://local.test/api/command",
+      env: baseEnv,
+      headers: { "content-type": "application/json", cookie },
+      body: JSON.stringify({
+        type: "proposal.draft.save",
+        payload: { form: makeDraftForm() },
+      }),
+    }),
+  );
+  assert.equal(saveRes.status, 200);
+  const saved = await saveRes.json();
+
+  const submitRes = await commandPost(
+    makeContext({
+      url: "https://local.test/api/command",
+      env: baseEnv,
+      headers: { "content-type": "application/json", cookie },
+      body: JSON.stringify({
+        type: "proposal.submitToPool",
+        payload: { draftId: saved.draftId },
+      }),
+    }),
+  );
+  assert.equal(submitRes.status, 200);
+  const submitJson = await submitRes.json();
+  assert.ok(submitJson.proposalId);
+
+  const proposal = await getProposal(baseEnv, submitJson.proposalId);
+  assert.ok(proposal);
+
+  clearInlineReadModelsForTests();
+
+  const proposalsRes = await proposalsGet(
+    makeContext({
+      url: "https://local.test/api/proposals?stage=pool",
+      env: baseEnv,
+      method: "GET",
+    }),
+  );
+  assert.equal(proposalsRes.status, 200);
+  const proposalsJson = await proposalsRes.json();
+  assert.ok(
+    proposalsJson.items.some((p) => p.id === submitJson.proposalId),
+    "proposal still appears without read models",
+  );
+
+  const poolPageRes = await proposalPoolGet(
+    makeContext({
+      url: `https://local.test/api/proposals/${submitJson.proposalId}/pool`,
+      env: baseEnv,
+      method: "GET",
+      params: { id: submitJson.proposalId },
+    }),
+  );
+  assert.equal(poolPageRes.status, 200);
+  const poolPageJson = await poolPageRes.json();
+  assert.equal(poolPageJson.title, "Test proposal draft");
+});
+
 test("proposal drafts: submit requires submittable draft", async () => {
   clearIdempotencyForTests();
   clearInlineReadModelsForTests();
   clearProposalDraftsForTests();
+  clearProposalsForTests();
 
   const cookie = await makeSessionCookie(baseEnv, "5TestAddr");
   const badForm = makeDraftForm();
@@ -208,6 +288,7 @@ test("proposal drafts: save is idempotent (Idempotency-Key)", async () => {
   clearIdempotencyForTests();
   clearInlineReadModelsForTests();
   clearProposalDraftsForTests();
+  clearProposalsForTests();
 
   const cookie = await makeSessionCookie(baseEnv, "5TestAddr");
 

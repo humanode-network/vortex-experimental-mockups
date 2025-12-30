@@ -55,6 +55,7 @@ import {
   proposalDraftFormSchema,
   upsertDraft,
 } from "../_lib/proposalDraftsStore.ts";
+import { createProposal, updateProposalStage } from "../_lib/proposalsStore.ts";
 import { randomHex } from "../_lib/random.ts";
 
 const poolVoteSchema = z.object({
@@ -404,6 +405,16 @@ export const onRequestPost: PagesFunction = async (context) => {
       .slice(0, 48);
     const proposalId = `${baseSlug || "proposal"}-${randomHex(2)}`;
 
+    await createProposal(context.env, {
+      id: proposalId,
+      stage: "pool",
+      authorAddress: sessionAddress,
+      title: draft.title,
+      chamberId: draft.chamberId ?? null,
+      summary: draft.summary,
+      payload: draft.payload,
+    });
+
     const chamber = formatChamberLabel(draft.chamberId);
     const budgetTotal = draft.payload.budgetItems.reduce((sum, item) => {
       const n = Number(item.amount);
@@ -630,6 +641,10 @@ export const onRequestPost: PagesFunction = async (context) => {
       }));
 
     if (advanced) {
+      await updateProposalStage(context.env, {
+        proposalId: input.payload.proposalId,
+        stage: "vote",
+      });
       await appendFeedItemEvent(context.env, {
         stage: "vote",
         actorAddress: session.address,
@@ -1165,6 +1180,10 @@ export const onRequestPost: PagesFunction = async (context) => {
     }));
 
   if (advanced) {
+    await updateProposalStage(context.env, {
+      proposalId: input.payload.proposalId,
+      stage: "build",
+    });
     const avgScore =
       (await getChamberYesScoreAverage(
         context.env,

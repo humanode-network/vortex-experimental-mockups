@@ -84,6 +84,24 @@ export const proposalDrafts = pgTable("proposal_drafts", {
     .defaultNow(),
 });
 
+// Canonical proposals (Phase 14).
+// This starts the migration away from `read_models` as source of truth.
+export const proposals = pgTable("proposals", {
+  id: text("id").primaryKey(),
+  stage: text("stage").notNull(), // pool | vote | build (v1)
+  authorAddress: text("author_address").notNull(),
+  title: text("title").notNull(),
+  chamberId: text("chamber_id"),
+  summary: text("summary").notNull(),
+  payload: jsonb("payload").notNull(), // stage-agnostic proposal content (v1: derived from draft)
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 // Append-only event log backbone (Phase 5).
 export const events = pgTable("events", {
   seq: bigserial("seq", { mode: "number" }).primaryKey(),

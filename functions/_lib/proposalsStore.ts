@@ -1,0 +1,162 @@
+import { eq } from "drizzle-orm";
+
+import { proposals } from "../../db/schema.ts";
+import { createDb } from "./db.ts";
+
+type Env = Record<string, string | undefined>;
+
+export type ProposalStage = "pool" | "vote" | "build";
+
+export type ProposalRecord = {
+  id: string;
+  stage: ProposalStage;
+  authorAddress: string;
+  title: string;
+  chamberId: string | null;
+  summary: string;
+  payload: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+const memory = new Map<string, ProposalRecord>();
+
+export async function createProposal(
+  env: Env,
+  input: Omit<ProposalRecord, "createdAt" | "updatedAt">,
+): Promise<ProposalRecord> {
+  const now = new Date();
+  const record: ProposalRecord = {
+    ...input,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  if (env.DATABASE_URL) {
+    const db = createDb(env);
+    await db.insert(proposals).values({
+      id: record.id,
+      stage: record.stage,
+      authorAddress: record.authorAddress,
+      title: record.title,
+      chamberId: record.chamberId,
+      summary: record.summary,
+      payload: record.payload,
+      createdAt: record.createdAt,
+      updatedAt: record.updatedAt,
+    });
+    return record;
+  }
+
+  memory.set(record.id, record);
+  return record;
+}
+
+export async function updateProposalStage(
+  env: Env,
+  input: { proposalId: string; stage: ProposalStage },
+): Promise<void> {
+  const now = new Date();
+  if (env.DATABASE_URL) {
+    const db = createDb(env);
+    await db
+      .update(proposals)
+      .set({ stage: input.stage, updatedAt: now })
+      .where(eq(proposals.id, input.proposalId));
+    return;
+  }
+
+  const existing = memory.get(input.proposalId);
+  if (!existing) return;
+  memory.set(input.proposalId, {
+    ...existing,
+    stage: input.stage,
+    updatedAt: now,
+  });
+}
+
+export async function getProposal(
+  env: Env,
+  proposalId: string,
+): Promise<ProposalRecord | null> {
+  if (env.DATABASE_URL) {
+    const db = createDb(env);
+    const rows = await db
+      .select({
+        id: proposals.id,
+        stage: proposals.stage,
+        authorAddress: proposals.authorAddress,
+        title: proposals.title,
+        chamberId: proposals.chamberId,
+        summary: proposals.summary,
+        payload: proposals.payload,
+        createdAt: proposals.createdAt,
+        updatedAt: proposals.updatedAt,
+      })
+      .from(proposals)
+      .where(eq(proposals.id, proposalId))
+      .limit(1);
+    const row = rows[0];
+    if (!row) return null;
+    return {
+      id: row.id,
+      stage: row.stage as ProposalStage,
+      authorAddress: row.authorAddress,
+      title: row.title,
+      chamberId: row.chamberId ?? null,
+      summary: row.summary,
+      payload: row.payload,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    };
+  }
+
+  return memory.get(proposalId) ?? null;
+}
+
+export async function listProposals(
+  env: Env,
+  input?: { stage?: ProposalStage | null },
+): Promise<ProposalRecord[]> {
+  const stage = input?.stage ?? null;
+  if (env.DATABASE_URL) {
+    const db = createDb(env);
+    const base = db
+      .select({
+        id: proposals.id,
+        stage: proposals.stage,
+        authorAddress: proposals.authorAddress,
+        title: proposals.title,
+        chamberId: proposals.chamberId,
+        summary: proposals.summary,
+        payload: proposals.payload,
+        createdAt: proposals.createdAt,
+        updatedAt: proposals.updatedAt,
+      })
+      .from(proposals);
+    const rows = stage
+      ? await base.where(eq(proposals.stage, stage))
+      : await base;
+    return rows
+      .map((row) => ({
+        id: row.id,
+        stage: row.stage as ProposalStage,
+        authorAddress: row.authorAddress,
+        title: row.title,
+        chamberId: row.chamberId ?? null,
+        summary: row.summary,
+        payload: row.payload,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+      }))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  const items = Array.from(memory.values());
+  const filtered = stage ? items.filter((p) => p.stage === stage) : items;
+  return filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+}
+
+export function clearProposalsForTests(): void {
+  memory.clear();
+}

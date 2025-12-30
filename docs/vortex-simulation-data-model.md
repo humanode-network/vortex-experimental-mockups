@@ -73,6 +73,20 @@ Proposal creation is stored as author-owned drafts:
   - `payload` (the wizard form, JSON)
   - `submitted_at` / `submitted_proposal_id` once submitted into the pool
 
+## Proposals (Phase 14)
+
+Canonical proposals table (first step away from `read_models` as source of truth):
+
+- `proposals`: one row per proposal:
+  - `id` (proposal slug)
+  - `stage` (`pool | vote | build` in v1)
+  - `author_address`
+  - `title`, `summary`, `chamber_id`
+  - `payload` (jsonb; stage-agnostic proposal content in v1, derived from the draft payload)
+  - `created_at`, `updated_at`
+
+In Phase 14, reads begin preferring this table (with `read_models` as a compatibility fallback for seeded legacy DTOs).
+
 ## Formation
 
 Formation stores the mutable parts that can’t remain a static mock:
@@ -123,8 +137,6 @@ Era tracking supports “My Governance” and rollups:
 
 ## What’s expected to change in v2+
 
-- Add proposal authoring tables and commands:
-  - `proposal_drafts`, `proposals`
 - Replace read-model bridge for proposals/chambers/courts with canonical normalized tables + projections:
   - `proposal_stage_transitions`, `chambers`, memberships, etc.
 - Add event-driven projections as materialized read views instead of mixing read-model payloads and overlays.
