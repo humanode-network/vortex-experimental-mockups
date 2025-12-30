@@ -134,7 +134,7 @@ const HumanNodes: React.FC = () => {
         </Card>
       ) : null}
       {loadError ? (
-        <Card className="border-dashed px-4 py-6 text-center text-sm text-[var(--destructive)]">
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-destructive">
           Human nodes unavailable: {loadError}
         </Card>
       ) : null}

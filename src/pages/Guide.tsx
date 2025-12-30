@@ -200,14 +200,14 @@ const GuideSection: React.FC<{
   return (
     <section
       id={id}
-      className="scroll-mt-24 rounded-2xl border border-white/10 bg-white/5 px-5 py-5 shadow-[var(--shadow-card)] backdrop-blur-md sm:px-7"
+      className="scroll-mt-24 rounded-2xl border border-white/10 bg-white/5 px-5 py-5 shadow-(--shadow-card) backdrop-blur-md sm:px-7"
     >
       <header className="space-y-1">
-        <h2 className="text-xl font-semibold tracking-tight !text-white [text-shadow:0_0_22px_rgba(244,179,127,0.22),0_0_2px_rgba(255,255,255,0.35)]">
+        <h2 className="text-xl font-semibold tracking-tight text-white! [text-shadow:0_0_22px_rgba(244,179,127,0.22),0_0_2px_rgba(255,255,255,0.35)]">
           {title}
         </h2>
         {subtitle && (
-          <p className="text-sm leading-relaxed !text-white [text-shadow:0_0_16px_rgba(244,179,127,0.16)]">
+          <p className="text-sm leading-relaxed text-white! [text-shadow:0_0_16px_rgba(244,179,127,0.16)]">
             {subtitle}
           </p>
         )}
@@ -252,7 +252,7 @@ const Guide: React.FC = () => {
                 return (
                   <span
                     key={index}
-                    className="absolute rounded-full bg-[color:var(--pagehint)] shadow-[0_0_24px_rgba(244,179,127,0.55)] blur-[0.25px] [animation-iteration-count:infinite] [animation-name:guide-particle-float] [animation-timing-function:ease-in-out]"
+                    className="absolute rounded-full bg-(--pagehint) shadow-[0_0_24px_rgba(244,179,127,0.55)] blur-[0.25px] repeat-[infinite] [animation-name:guide-particle-float] [animation-timing-function:ease-in-out]"
                     style={style}
                   />
                 );
@@ -265,10 +265,10 @@ const Guide: React.FC = () => {
     >
       <div className="relative mx-auto max-w-5xl">
         <header className="mx-auto max-w-3xl text-center">
-          <h1 className="text-3xl font-semibold tracking-tight !text-white [text-shadow:0_0_28px_rgba(244,179,127,0.22),0_0_3px_rgba(255,255,255,0.35)] sm:text-4xl">
+          <h1 className="text-3xl font-semibold tracking-tight text-white! [text-shadow:0_0_28px_rgba(244,179,127,0.22),0_0_3px_rgba(255,255,255,0.35)] sm:text-4xl">
             Vortex Guide
           </h1>
-          <p className="mt-3 text-sm leading-relaxed !text-white [text-shadow:0_0_18px_rgba(244,179,127,0.14)] sm:text-base">
+          <p className="mt-3 text-sm leading-relaxed text-white! [text-shadow:0_0_18px_rgba(244,179,127,0.14)] sm:text-base">
             A short, human-readable map of what you’re seeing in this demo, why
             Vortex exists, and how each page works.
           </p>
@@ -280,7 +280,7 @@ const Guide: React.FC = () => {
             <Button asChild variant="ghost" className="min-w-[200px]">
               <Link to="/app/vortexopedia">Open Vortexopedia</Link>
             </Button>
-            <Button asChild variant="ghost" className="min-w-[160px]">
+            <Button asChild variant="ghost" className="min-w-40">
               <a
                 href="https://gitbook.humanode.io/vortex-1.0"
                 target="_blank"
@@ -592,8 +592,8 @@ const Guide: React.FC = () => {
           </main>
 
           <aside className="sticky top-6 hidden space-y-4 lg:block">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-[var(--shadow-card)] backdrop-blur-sm">
-              <p className="text-sm font-semibold !text-white [text-shadow:0_0_18px_rgba(244,179,127,0.16)]">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-(--shadow-card) backdrop-blur-sm">
+              <p className="text-sm font-semibold text-white! [text-shadow:0_0_18px_rgba(244,179,127,0.16)]">
                 On this page
               </p>
               <nav className="mt-3 space-y-2 text-sm text-white">

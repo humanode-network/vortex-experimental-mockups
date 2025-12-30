@@ -43,15 +43,6 @@ function scaleEncodeVecAccountId32(publicKeys) {
   return out;
 }
 
-function u32LeBytes(value) {
-  return new Uint8Array([
-    value & 0xff,
-    (value >> 8) & 0xff,
-    (value >> 16) & 0xff,
-    (value >> 24) & 0xff,
-  ]);
-}
-
 test("gate/status: real RPC gate uses cached result (memory mode)", async () => {
   await cryptoWaitReady();
   const keyring = new Keyring({ type: "sr25519" });
@@ -61,27 +52,6 @@ test("gate/status: real RPC gate uses cached result (memory mode)", async () => 
     "0x" +
     xxhashAsHex("Session", 128).slice(2) +
     xxhashAsHex("Validators", 128).slice(2);
-  const currentIndexKey =
-    "0x" +
-    xxhashAsHex("Session", 128).slice(2) +
-    xxhashAsHex("CurrentIndex", 128).slice(2);
-
-  const sessionIndex = 1;
-  const sessionIndexBytes = u32LeBytes(sessionIndex);
-  const heartbeatKey =
-    "0x" +
-    xxhashAsHex("ImOnline", 128).slice(2) +
-    xxhashAsHex("ReceivedHeartbeats", 128).slice(2) +
-    xxhashAsHex(sessionIndexBytes, 64).slice(2) +
-    u8aToHex(sessionIndexBytes).slice(2) +
-    xxhashAsHex(pair.publicKey, 64).slice(2) +
-    u8aToHex(pair.publicKey).slice(2);
-  const authoredBlocksKey =
-    "0x" +
-    xxhashAsHex("ImOnline", 128).slice(2) +
-    xxhashAsHex("AuthoredBlocks", 128).slice(2) +
-    xxhashAsHex(pair.publicKey, 64).slice(2) +
-    u8aToHex(pair.publicKey).slice(2);
 
   let rpcCalls = 0;
   const originalFetch = globalThis.fetch;
@@ -93,12 +63,6 @@ test("gate/status: real RPC gate uses cached result (memory mode)", async () => 
 
     if (key === validatorsKey) {
       result = u8aToHex(scaleEncodeVecAccountId32([pair.publicKey]));
-    } else if (key === currentIndexKey) {
-      result = u8aToHex(sessionIndexBytes);
-    } else if (key === heartbeatKey) {
-      result = null;
-    } else if (key === authoredBlocksKey) {
-      result = u8aToHex(u32LeBytes(1));
     } else {
       result = null;
     }
@@ -166,7 +130,7 @@ test("gate/status: real RPC gate uses cached result (memory mode)", async () => 
     const json2 = await gateRes2.json();
     assert.equal(json2.eligible, true);
 
-    assert.equal(rpcCalls, 4, "expected eligibility to be cached");
+    assert.equal(rpcCalls, 1, "expected eligibility to be cached");
   } finally {
     globalThis.fetch = originalFetch;
   }

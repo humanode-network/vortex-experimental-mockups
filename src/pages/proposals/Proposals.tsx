@@ -232,7 +232,7 @@ const Proposals: React.FC = () => {
           variant="panelAlt"
           radius="2xl"
           shadow="tile"
-          className="px-5 py-4 text-sm text-[var(--destructive)]"
+          className="px-5 py-4 text-sm text-destructive"
         >
           Proposals unavailable: {loadError}
         </Surface>
@@ -448,11 +448,11 @@ const Proposals: React.FC = () => {
                         shadow="tile"
                         className="flex flex-wrap items-center justify-center gap-4 px-6 py-5 text-lg font-semibold"
                       >
-                        <span className="text-[var(--accent)]">
+                        <span className="text-accent">
                           {poolPage.upvotes} upvotes
                         </span>
                         <span className="text-muted">·</span>
-                        <span className="text-[var(--destructive)]">
+                        <span className="text-destructive">
                           {poolPage.downvotes} downvotes
                         </span>
                         <span className="text-muted">·</span>
@@ -496,14 +496,14 @@ const Proposals: React.FC = () => {
                         shadow="tile"
                         className="space-y-3 px-5 py-4"
                       >
-                        <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--border)]">
+                        <div className="h-2 w-full overflow-hidden rounded-full bg-border">
                           <div className="flex h-full w-full">
                             <div
-                              className="h-full bg-[var(--accent)]"
+                              className="h-full bg-accent"
                               style={{ width: `${chamberStats.yesWidth}%` }}
                             />
                             <div
-                              className="h-full bg-[var(--destructive)]"
+                              className="h-full bg-destructive"
                               style={{ width: `${chamberStats.noWidth}%` }}
                             />
                             <div
@@ -516,11 +516,11 @@ const Proposals: React.FC = () => {
                         <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted">
                           <div className="flex flex-wrap items-center gap-4">
                             <span className="inline-flex items-center gap-2">
-                              <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
+                              <span className="h-2 w-2 rounded-full bg-accent" />
                               Yes {chamberStats.yesTotal}
                             </span>
                             <span className="inline-flex items-center gap-2">
-                              <span className="h-2 w-2 rounded-full bg-[var(--destructive)]" />
+                              <span className="h-2 w-2 rounded-full bg-destructive" />
                               No {chamberStats.noTotal}
                             </span>
                             <span className="inline-flex items-center gap-2">
@@ -581,9 +581,9 @@ const Proposals: React.FC = () => {
                             {formationPage.progress}
                           </span>
                         </div>
-                        <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--border)]">
+                        <div className="h-2 w-full overflow-hidden rounded-full bg-border">
                           <div
-                            className="h-full bg-[var(--accent)]"
+                            className="h-full bg-accent"
                             style={{
                               width: `${Math.min(
                                 Math.max(formationStats.progressValue, 0),

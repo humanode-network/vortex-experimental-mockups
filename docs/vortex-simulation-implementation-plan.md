@@ -102,10 +102,11 @@ This is the order we’ll follow from now on, based on what’s already landed.
 14. **Phase 10b — Era rollups + tier statuses (DONE for v1)**
 15. **Phase 11 — Hardening + moderation**
 16. **Phase 12 — Proposal drafts + submission (DONE)**
-17. **Phase 13 — Canonical domain tables + projections (PLANNED)**
-18. **Phase 14 — Deterministic state transitions (PLANNED)**
-19. **Phase 15 — Time windows + automation (PLANNED)**
-20. **Phase 16 — Delegation v1 (PLANNED)**
+17. **Phase 13 — Eligibility via `Session::Validators` (DONE)**
+18. **Phase 14 — Canonical domain tables + projections (PLANNED)**
+19. **Phase 15 — Deterministic state transitions (PLANNED)**
+20. **Phase 16 — Time windows + automation (PLANNED)**
+21. **Phase 17 — Delegation v1 (PLANNED)**
 
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
 
@@ -113,7 +114,7 @@ Locked for v1 (based on current decisions):
 
 1. Database: **Postgres** (Neon-compatible serverless Postgres).
 2. Gating source: **Humanode mainnet RPC** (no Subscan dependency for v1).
-3. Active Human Node rule: “active” derived via RPC reads from `ImOnline::*` (with a safe fallback to `Session::Validators` in v1).
+3. Active Human Node rule: address is in the current validator set (`Session::Validators`) on Humanode mainnet.
 4. Era length: **configured by us off-chain** (a simulation constant), not a chain parameter.
 
 Deliverable: a short “v1 constants” section committed to docs or config.
@@ -220,7 +221,7 @@ Tests:
    - create session cookie/JWT
 3. `GET /api/gate/status`:
    - read session address
-   - query eligibility via RPC (`ImOnline::*` with a safe fallback to `Session::Validators` in v1)
+   - query eligibility via RPC (`Session::Validators` in v1)
    - cache result with TTL (`eligibility_cache`)
 4. Frontend wiring:
    - show wallet connect/disconnect + gate status in the sidebar (Polkadot extension)
@@ -615,7 +616,27 @@ Current status:
 - ProposalCreation UI saves drafts via the backend and submits drafts into the proposal pool.
 - Tests added: `tests/api-command-drafts.test.js`.
 
-### Phase 13 — Canonical domain tables + projections (PLANNED)
+### Phase 13 — Eligibility via `Session::Validators` (DONE)
+
+Goal: gate writes based on the **current validator set** on Humanode mainnet (instead of attempting to infer “activeness” via `ImOnline::*`).
+
+Deliverables:
+
+- Mainnet gate reads:
+  - Use `Session::Validators` as the single source of truth for “active Human Node” eligibility.
+  - Store and cache the result in `eligibility_cache` (DB mode) or memory (no-DB mode), same as today.
+- Error / reason codes:
+  - Standardize on a single negative reason when not in the validator set (e.g. `not_in_validator_set`).
+- Local dev:
+  - Keep `DEV_BYPASS_GATE` and `DEV_ELIGIBLE_ADDRESSES` for local iteration.
+
+Tests:
+
+- `GET /api/gate/status` returns `eligible: true` when the address is included in the RPC-returned `Session::Validators`.
+- Caching works (second call does not re-hit RPC in memory mode).
+- Non-validator address returns `eligible: false` with the expected reason code.
+
+### Phase 14 — Canonical domain tables + projections (PLANNED)
 
 Goal: start migrating away from `read_models` as the “source of truth” by introducing canonical tables for entities that are actively mutated (starting with proposals).
 
@@ -634,7 +655,7 @@ Tests:
 - Projection determinism: same canonical inputs → identical DTO outputs.
 - Backwards compatibility: existing endpoints continue returning the same DTO shape.
 
-### Phase 14 — Deterministic state transitions (PLANNED)
+### Phase 15 — Deterministic state transitions (PLANNED)
 
 Goal: centralize all proposal stage logic in a single, testable state machine (rather than scattered “read model patching”).
 
@@ -652,7 +673,7 @@ Tests:
 - Transition matrix coverage (allowed vs forbidden transitions).
 - Regression tests for quorum and rounding edges (e.g. 66.6%).
 
-### Phase 15 — Time windows + automation (PLANNED)
+### Phase 16 — Time windows + automation (PLANNED)
 
 Goal: move from “admin-driven clock ops only” to scheduled simulation behavior.
 
@@ -670,7 +691,7 @@ Tests:
 - Clock advancement is idempotent and monotonic.
 - Rollups remain deterministic even when scheduled.
 
-### Phase 16 — Delegation v1 (PLANNED)
+### Phase 17 — Delegation v1 (PLANNED)
 
 Goal: implement delegation as an off-chain simulation feature (needed for courts/disputes and future quorum weighting experiments), without changing the fundamental “1 human = 1 vote” model.
 

@@ -123,7 +123,7 @@ const MyGovernance: React.FC = () => {
           shadow="tile"
           className={cn(
             "px-5 py-4 text-sm text-muted",
-            loadError ? "text-[var(--destructive)]" : undefined,
+            loadError ? "text-destructive" : undefined,
           )}
         >
           {loadError ? `My governance unavailable: ${loadError}` : "Loading…"}
@@ -397,7 +397,7 @@ const MyGovernance: React.FC = () => {
                 badge={
                   <Badge
                     size="md"
-                    className="border-none bg-[var(--primary-dim)] px-4 py-1 text-center text-sm font-bold tracking-wide whitespace-nowrap text-[var(--primary)] uppercase"
+                    className="border-none bg-(--primary-dim) px-4 py-1 text-center text-sm font-bold tracking-wide whitespace-nowrap text-primary uppercase"
                   >
                     M × {chamber.multiplier}
                   </Badge>

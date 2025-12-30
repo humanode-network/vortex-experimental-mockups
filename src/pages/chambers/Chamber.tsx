@@ -110,7 +110,7 @@ const Chamber: React.FC = () => {
           variant="panelAlt"
           radius="2xl"
           shadow="tile"
-          className="px-5 py-4 text-sm text-[var(--destructive)]"
+          className="px-5 py-4 text-sm text-destructive"
         >
           Chamber unavailable: {loadError}
         </Surface>
@@ -141,8 +141,8 @@ const Chamber: React.FC = () => {
                     onClick={() => setStageFilter(option.value)}
                     className={
                       isSelected
-                        ? "border-[color:var(--glass-border-strong)] bg-[color:var(--btn-primary-active-bg)] text-[var(--primary-foreground)] shadow-[var(--shadow-primary)] [filter:saturate(1.35)]"
-                        : "border-border bg-[var(--panel)] text-muted hover:text-[var(--primary)]"
+                        ? "border-(--glass-border-strong) bg-(--btn-primary-active-bg) text-primary-foreground shadow-(--shadow-primary) filter-[saturate(1.35)]"
+                        : "border-border bg-panel text-muted hover:text-primary"
                     }
                   >
                     {option.label}

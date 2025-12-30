@@ -131,7 +131,7 @@ const Courtroom: React.FC = () => {
         </Card>
       ) : null}
       {loadError ? (
-        <Card className="border-dashed px-4 py-6 text-center text-sm text-[var(--destructive)]">
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-destructive">
           Courtroom unavailable: {loadError}
         </Card>
       ) : null}
@@ -184,7 +184,7 @@ const Courtroom: React.FC = () => {
               aria-pressed={verdict === "not_guilty"}
               className={
                 verdict === "not_guilty"
-                  ? "min-w-[260px] bg-[var(--accent)] text-[var(--accent-foreground)]"
+                  ? "min-w-[260px] bg-accent text-accent-foreground"
                   : "min-w-[260px]"
               }
               onClick={() =>
@@ -203,7 +203,7 @@ const Courtroom: React.FC = () => {
               aria-pressed={verdict === "guilty"}
               className={
                 verdict === "guilty"
-                  ? "min-w-[260px] bg-[var(--destructive)] text-[var(--destructive-foreground)]"
+                  ? "min-w-[260px] bg-destructive text-destructive-foreground"
                   : "min-w-[260px]"
               }
               onClick={() =>

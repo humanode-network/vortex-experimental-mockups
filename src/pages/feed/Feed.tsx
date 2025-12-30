@@ -17,13 +17,7 @@ import {
   apiProposalFormationPage,
   apiProposalPoolPage,
 } from "@/lib/apiClient";
-import type {
-  ChamberProposalPageDto,
-  CourtCaseDetailDto,
-  FeedItemDto,
-  FormationProposalPageDto,
-  PoolProposalPageDto,
-} from "@/types/api";
+import type { FeedItemDto } from "@/types/api";
 
 const formatDate = (iso: string) => {
   const d = new Date(iso);
@@ -38,16 +32,16 @@ const Feed: React.FC = () => {
   const [feedItems, setFeedItems] = useState<FeedItemDto[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [poolPagesById, setPoolPagesById] = useState<
-    Record<string, PoolProposalPageDto | undefined>
+    Record<string, import("@/types/api").PoolProposalPageDto | undefined>
   >({});
   const [chamberPagesById, setChamberPagesById] = useState<
-    Record<string, ChamberProposalPageDto | undefined>
+    Record<string, import("@/types/api").ChamberProposalPageDto | undefined>
   >({});
   const [formationPagesById, setFormationPagesById] = useState<
-    Record<string, FormationProposalPageDto | undefined>
+    Record<string, import("@/types/api").FormationProposalPageDto | undefined>
   >({});
   const [courtCasesById, setCourtCasesById] = useState<
-    Record<string, CourtCaseDetailDto | undefined>
+    Record<string, import("@/types/api").CourtCaseDetailDto | undefined>
   >({});
 
   useEffect(() => {
@@ -133,6 +127,7 @@ const Feed: React.FC = () => {
   return (
     <div className="flex flex-col gap-4">
       <PageHint pageId="feed" />
+      {/* Governing threshold moved to MyGovernance */}
 
       {feedItems === null ? (
         <Surface
@@ -149,7 +144,7 @@ const Feed: React.FC = () => {
           variant="panelAlt"
           radius="2xl"
           shadow="tile"
-          className="px-5 py-4 text-sm text-[var(--destructive)]"
+          className="px-5 py-4 text-sm text-destructive"
         >
           Feed unavailable: {loadError}
         </Surface>
@@ -327,11 +322,11 @@ const Feed: React.FC = () => {
                       shadow="tile"
                       className="flex flex-wrap items-center justify-center gap-4 px-6 py-5 text-lg font-semibold"
                     >
-                      <span className="text-[var(--accent)]">
+                      <span className="text-accent">
                         {poolPage.upvotes} upvotes
                       </span>
                       <span className="text-muted">·</span>
-                      <span className="text-[var(--destructive)]">
+                      <span className="text-destructive">
                         {poolPage.downvotes} downvotes
                       </span>
                       <span className="text-muted">·</span>
@@ -367,14 +362,14 @@ const Feed: React.FC = () => {
                       shadow="tile"
                       className="space-y-3 px-5 py-4"
                     >
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--border)]">
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-border">
                         <div className="flex h-full w-full">
                           <div
-                            className="h-full bg-[var(--accent)]"
+                            className="h-full bg-accent"
                             style={{ width: `${chamberStats.yesWidth}%` }}
                           />
                           <div
-                            className="h-full bg-[var(--destructive)]"
+                            className="h-full bg-destructive"
                             style={{ width: `${chamberStats.noWidth}%` }}
                           />
                           <div
@@ -387,11 +382,11 @@ const Feed: React.FC = () => {
                       <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted">
                         <div className="flex flex-wrap items-center gap-4">
                           <span className="inline-flex items-center gap-2">
-                            <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
+                            <span className="h-2 w-2 rounded-full bg-accent" />
                             Yes {chamberStats.yesTotal}
                           </span>
                           <span className="inline-flex items-center gap-2">
-                            <span className="h-2 w-2 rounded-full bg-[var(--destructive)]" />
+                            <span className="h-2 w-2 rounded-full bg-destructive" />
                             No {chamberStats.noTotal}
                           </span>
                           <span className="inline-flex items-center gap-2">
@@ -448,9 +443,9 @@ const Feed: React.FC = () => {
                           {formationPage.progress}
                         </span>
                       </div>
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--border)]">
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-border">
                         <div
-                          className="h-full bg-[var(--accent)]"
+                          className="h-full bg-accent"
                           style={{
                             width: `${Math.min(
                               Math.max(formationStats.progressValue, 0),

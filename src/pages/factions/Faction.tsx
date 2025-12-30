@@ -66,7 +66,7 @@ const Faction: React.FC = () => {
       <div className="flex flex-col gap-4">
         <h1 className="text-xl font-semibold text-text">Faction not found</h1>
         {loadError ? (
-          <p className="text-sm text-[var(--destructive)]">{loadError}</p>
+          <p className="text-sm text-destructive">{loadError}</p>
         ) : null}
         <Button asChild size="sm">
           <Link to="/app/factions">Back to factions</Link>

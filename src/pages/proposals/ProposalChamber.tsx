@@ -188,13 +188,8 @@ const ProposalChamber: React.FC = () => {
             value={
               <>
                 <span className="whitespace-nowrap">
-                  <span className="text-[var(--accent)]">
-                    {yesPercentOfTotal}%
-                  </span>{" "}
-                  /{" "}
-                  <span className="text-[var(--destructive)]">
-                    {noPercentOfTotal}%
-                  </span>{" "}
+                  <span className="text-accent">{yesPercentOfTotal}%</span> /{" "}
+                  <span className="text-destructive">{noPercentOfTotal}%</span>{" "}
                   / <span className="text-muted">{abstainPercentOfTotal}%</span>
                 </span>
                 <span className="text-xs font-semibold whitespace-nowrap text-muted">

@@ -99,13 +99,13 @@ const Landing: React.FC = () => {
         aria-hidden="true"
       />
 
-      <div className="relative flex min-h-[100svh] flex-col items-center justify-center px-6 py-10">
+      <div className="relative flex min-h-svh flex-col items-center justify-center px-6 py-10">
         <div className="flex flex-col items-center gap-4">
           <Button
             asChild
             size="lg"
             variant="ghost"
-            className="relative h-[76px] w-full max-w-[420px] overflow-hidden rounded-2xl border-2 border-[color:var(--pagehint)] bg-transparent px-12 text-2xl tracking-tight text-[color:var(--pagehint)] shadow-[var(--shadow-control)] ring-1 ring-white/10 transition-[background-color,border-color,color,box-shadow,transform] duration-200 ring-inset before:pointer-events-none before:absolute before:top-[-30%] before:bottom-[-30%] before:left-0 before:w-[42%] before:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.65),transparent)] before:opacity-0 after:pointer-events-none after:absolute after:inset-0 after:bg-[radial-gradient(80%_120%_at_50%_0%,rgba(255,255,255,0.82)_0%,rgba(255,255,255,0)_60%)] after:opacity-0 hover:border-[color:var(--primary)] hover:bg-[color:var(--primary)] hover:text-[var(--primary-foreground)] hover:shadow-[var(--shadow-primary)] hover:ring-white/20 hover:before:animate-[landing-shimmer_1.1s_linear_infinite] hover:before:opacity-100 active:translate-y-[0.5px] active:shadow-[var(--shadow-popover)] active:after:animate-[btn-flash_520ms_ease-out] active:after:opacity-100 motion-reduce:hover:before:animate-none motion-reduce:active:after:animate-none"
+            className="relative h-[76px] w-full max-w-[420px] overflow-hidden rounded-2xl border-2 border-(--pagehint) bg-transparent px-12 text-2xl tracking-tight text-(--pagehint) shadow-(--shadow-control) ring-1 ring-white/10 transition-[background-color,border-color,color,box-shadow,transform] duration-200 ring-inset before:pointer-events-none before:absolute before:top-[-30%] before:bottom-[-30%] before:left-0 before:w-[42%] before:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.65),transparent)] before:opacity-0 after:pointer-events-none after:absolute after:inset-0 after:bg-[radial-gradient(80%_120%_at_50%_0%,rgba(255,255,255,0.82)_0%,rgba(255,255,255,0)_60%)] after:opacity-0 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-(--shadow-primary) hover:ring-white/20 hover:before:animate-[landing-shimmer_1.1s_linear_infinite] hover:before:opacity-100 active:translate-y-[0.5px] active:shadow-(--shadow-popover) active:after:animate-[btn-flash_520ms_ease-out] active:after:opacity-100 motion-reduce:hover:before:animate-none motion-reduce:active:after:animate-none"
           >
             <Link to="/app/feed">Enter Vortex</Link>
           </Button>
@@ -143,7 +143,7 @@ const Landing: React.FC = () => {
             href="http://link.humanode.io/chat/vortex-experimental-mockups-feedback"
             target="_blank"
             rel="noreferrer"
-            className="pointer-events-auto font-semibold text-[color:var(--pagehint)] underline decoration-[color:var(--pagehint)] underline-offset-4 hover:text-white hover:decoration-white"
+            className="pointer-events-auto font-semibold text-(--pagehint) underline decoration-(--pagehint) underline-offset-4 hover:text-white hover:decoration-white"
           >
             here
           </a>

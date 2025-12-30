@@ -56,7 +56,7 @@ export async function checkEligibility(
     let reason: string | undefined = undefined;
     try {
       eligible = await isActiveHumanNodeViaRpc(env, address);
-      if (!eligible) reason = "not_active_human_node";
+      if (!eligible) reason = "not_in_validator_set";
     } catch (error) {
       eligible = false;
       reason = "rpc_error";
@@ -99,7 +99,7 @@ export async function checkEligibility(
   let reason: string | undefined = undefined;
   try {
     eligible = await isActiveHumanNodeViaRpc(env, address);
-    if (!eligible) reason = "not_active_human_node";
+    if (!eligible) reason = "not_in_validator_set";
   } catch {
     eligible = false;
     reason = "rpc_error";

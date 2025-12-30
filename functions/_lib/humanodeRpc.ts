@@ -1,6 +1,6 @@
 import { xxhashAsHex } from "@polkadot/util-crypto";
 import { cryptoWaitReady, decodeAddress } from "@polkadot/util-crypto";
-import { hexToU8a, u8aEq, u8aToHex } from "@polkadot/util";
+import { hexToU8a, u8aEq } from "@polkadot/util";
 
 type Env = Record<string, string | undefined>;
 
@@ -14,24 +14,6 @@ function storageKeySessionValidators(): string {
   return `0x${pallet}${item}`;
 }
 
-function storageKeySessionCurrentIndex(): string {
-  const pallet = xxhashAsHex("Session", 128).slice(2);
-  const item = xxhashAsHex("CurrentIndex", 128).slice(2);
-  return `0x${pallet}${item}`;
-}
-
-function storageKeyImOnlineAuthoredBlocksPrefix(): string {
-  const pallet = xxhashAsHex("ImOnline", 128).slice(2);
-  const item = xxhashAsHex("AuthoredBlocks", 128).slice(2);
-  return `0x${pallet}${item}`;
-}
-
-function storageKeyImOnlineReceivedHeartbeatsPrefix(): string {
-  const pallet = xxhashAsHex("ImOnline", 128).slice(2);
-  const item = xxhashAsHex("ReceivedHeartbeats", 128).slice(2);
-  return `0x${pallet}${item}`;
-}
-
 async function rpcCall<T>(rpcUrl: string, method: string, params: unknown[]) {
   const res = await fetch(rpcUrl, {
     method: "POST",
@@ -42,29 +24,6 @@ async function rpcCall<T>(rpcUrl: string, method: string, params: unknown[]) {
   const json = (await res.json()) as JsonRpcResponse<T>;
   if ("error" in json) throw new Error(json.error.message);
   return json.result;
-}
-
-function u32LeBytes(value: number): Uint8Array {
-  return new Uint8Array([
-    value & 0xff,
-    (value >> 8) & 0xff,
-    (value >> 16) & 0xff,
-    (value >> 24) & 0xff,
-  ]);
-}
-
-function decodeU32Le(hex: string | null): number | null {
-  if (!hex || hex === "0x") return null;
-  const bytes = hexToU8a(hex);
-  if (bytes.length < 4) return null;
-  return bytes[0] + (bytes[1] << 8) + (bytes[2] << 16) + (bytes[3] << 24);
-}
-
-function decodeTruthy(hex: string | null): boolean {
-  if (!hex || hex === "0x") return false;
-  const bytes = hexToU8a(hex);
-  if (!bytes.length) return false;
-  return bytes[0] !== 0;
 }
 
 function readCompactU32(
@@ -124,42 +83,5 @@ export async function isActiveHumanNodeViaRpc(
     [validatorsKey],
   );
   const validators = decodeVecAccountId32(validatorsStorage);
-  const isValidator = validators.some((v) => u8aEq(v, subject));
-  if (!isValidator) return false;
-
-  const sessionIndexHex = await rpcCall<string | null>(
-    rpcUrl,
-    "state_getStorage",
-    [storageKeySessionCurrentIndex()],
-  );
-  const sessionIndex = decodeU32Le(sessionIndexHex);
-  if (sessionIndex === null) return true;
-
-  const heartbeatKey =
-    storageKeyImOnlineReceivedHeartbeatsPrefix() +
-    xxhashAsHex(u32LeBytes(sessionIndex), 64).slice(2) +
-    u8aToHex(u32LeBytes(sessionIndex)).slice(2) +
-    xxhashAsHex(subject, 64).slice(2) +
-    u8aToHex(subject).slice(2);
-
-  const authoredBlocksKey =
-    storageKeyImOnlineAuthoredBlocksPrefix() +
-    xxhashAsHex(subject, 64).slice(2) +
-    u8aToHex(subject).slice(2);
-
-  const [heartbeatHex, authoredBlocksHex] = await Promise.all([
-    rpcCall<string | null>(rpcUrl, "state_getStorage", [heartbeatKey]).catch(
-      () => null,
-    ),
-    rpcCall<string | null>(rpcUrl, "state_getStorage", [
-      authoredBlocksKey,
-    ]).catch(() => null),
-  ]);
-
-  const anyImOnlineData = heartbeatHex !== null || authoredBlocksHex !== null;
-  if (!anyImOnlineData) return true;
-
-  if (decodeTruthy(heartbeatHex)) return true;
-  const authoredBlocks = decodeU32Le(authoredBlocksHex);
-  return authoredBlocks !== null && authoredBlocks > 0;
+  return validators.some((v) => u8aEq(v, subject));
 }

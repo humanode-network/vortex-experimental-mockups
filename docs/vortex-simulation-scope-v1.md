@@ -42,7 +42,7 @@ v1 is “done” when:
 ### Identity and gating
 
 - Session auth: wallet signs a nonce (Substrate signature verification).
-- Eligibility: Humanode mainnet RPC reads of `ImOnline::*` with a safe fallback to `Session::Validators`.
+- Eligibility: Humanode mainnet RPC reads of `Session::Validators` (current validator set membership).
 - Cached gate status with TTL; browsing is open, writes are gated.
 
 ### Reads
@@ -104,10 +104,11 @@ These are intentionally deferred:
 These are the next build targets after v1 (see `docs/vortex-simulation-implementation-plan.md` for the full phased checklist):
 
 - Proposal drafts + submission as real writes (Phase 12).
-- Canonical proposal tables + projections to replace `read_models` as the source of truth (Phase 13).
-- Centralized, deterministic stage transitions (Phase 14).
-- Scheduled automation: era advancement/rollups and optional vote windows (Phase 15).
-- Delegation v1 (set/clear + history + court references) (Phase 16).
+- Eligibility gate based on current validator set (`Session::Validators`) (Phase 13).
+- Canonical proposal tables + projections to replace `read_models` as the source of truth (Phase 14).
+- Centralized, deterministic stage transitions (Phase 15).
+- Scheduled automation: era advancement/rollups and optional vote windows (Phase 16).
+- Delegation v1 (set/clear + history + court references) (Phase 17).
 
 ## Sources of truth
 

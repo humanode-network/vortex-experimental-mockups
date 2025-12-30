@@ -166,11 +166,9 @@ const ProposalPP: React.FC = () => {
             />
           </div>
           <div className="mx-auto flex w-fit items-center gap-5 rounded-full border border-border bg-panel-alt px-14 py-7 text-2xl font-semibold text-text">
-            <span className="text-[var(--accent)]">
-              {proposal.upvotes} upvotes
-            </span>
+            <span className="text-accent">{proposal.upvotes} upvotes</span>
             <span className="text-muted">·</span>
-            <span className="text-[var(--destructive)]">
+            <span className="text-destructive">
               {proposal.downvotes} downvotes
             </span>
           </div>
@@ -189,7 +187,7 @@ const ProposalPP: React.FC = () => {
                 </>
               }
               variant="panel"
-              className="flex min-h-[96px] flex-col items-center justify-center gap-1 py-4"
+              className="flex min-h-24 flex-col items-center justify-center gap-1 py-4"
               valueClassName="text-2xl font-semibold whitespace-nowrap"
             />
             <StatTile
@@ -200,7 +198,7 @@ const ProposalPP: React.FC = () => {
                 </>
               }
               variant="panel"
-              className="flex min-h-[96px] flex-col items-center justify-center gap-1 py-4"
+              className="flex min-h-24 flex-col items-center justify-center gap-1 py-4"
               valueClassName="text-2xl font-semibold whitespace-nowrap"
             />
           </CardContent>
@@ -274,7 +272,7 @@ const ProposalPP: React.FC = () => {
             <input
               id="rules-confirm"
               type="checkbox"
-              className="h-4 w-4 accent-[var(--primary)]"
+              className="h-4 w-4 accent-primary"
               checked={rulesChecked}
               onChange={(e) => setRulesChecked(e.target.checked)}
             />
@@ -295,10 +293,10 @@ const ProposalPP: React.FC = () => {
               disabled={!rulesChecked || voteSubmitting || !pendingAction}
               className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
                 !rulesChecked || voteSubmitting || !pendingAction
-                  ? "cursor-not-allowed bg-muted text-[var(--primary-foreground)] opacity-60"
+                  ? "cursor-not-allowed bg-muted text-primary-foreground opacity-60"
                   : pendingAction === "downvote"
-                    ? "border-2 border-[var(--destructive)] bg-[var(--destructive)] text-[var(--destructive-foreground)] hover:opacity-95"
-                    : "border-2 border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)] hover:opacity-95"
+                    ? "border-2 border-destructive bg-destructive text-destructive-foreground hover:opacity-95"
+                    : "border-2 border-accent bg-accent text-accent-foreground hover:opacity-95"
               }`}
               onClick={async () => {
                 if (!id || !pendingAction) return;
@@ -330,9 +328,7 @@ const ProposalPP: React.FC = () => {
             </button>
           </div>
           {voteError ? (
-            <p className="mt-3 text-sm text-[var(--destructive)]">
-              {voteError}
-            </p>
+            <p className="mt-3 text-sm text-destructive">{voteError}</p>
           ) : null}
         </Surface>
       </Modal>

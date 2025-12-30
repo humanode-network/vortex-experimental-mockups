@@ -103,7 +103,7 @@ export function SearchBar<
           onFocus={() => setFiltersOpen(true)}
           onClick={() => setFiltersOpen(true)}
           className={cn(
-            "w-full border border-border bg-[var(--panel-alt)] text-[var(--text)]",
+            "w-full border border-border bg-panel-alt text-text",
             inputClassName,
           )}
         />
@@ -112,13 +112,13 @@ export function SearchBar<
             variant="panel"
             radius="2xl"
             shadow="popover"
-            className="absolute top-[calc(100%+0.5rem)] right-0 left-0 z-50 w-full border-[var(--primary-dim)] p-4"
+            className="absolute top-[calc(100%+0.5rem)] right-0 left-0 z-50 w-full border-(--primary-dim) p-4"
           >
             <div className="space-y-3 text-sm text-text">{content}</div>
             <div className="mt-4 flex justify-end gap-2">
               <Button
                 size="sm"
-                className="border border-[var(--accent)] bg-[var(--panel)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
+                className="border border-accent bg-panel text-accent hover:bg-accent hover:text-accent-foreground"
                 onClick={() => setFiltersOpen(false)}
               >
                 Close

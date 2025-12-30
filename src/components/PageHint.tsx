@@ -33,7 +33,7 @@ export const PageHint: React.FC<PageHintProps> = ({ pageId, className }) => {
       <Button
         variant="ghost"
         size="sm"
-        className="h-10 w-10 rounded-full border border-[color:var(--pagehint)] bg-[var(--pagehint)] text-[var(--pagehint-foreground)] shadow-[var(--shadow-pagehint)] hover:bg-[var(--pagehint-hover)] hover:text-[var(--pagehint-foreground)] focus-visible:ring-[var(--pagehint-dim)]"
+        className="h-10 w-10 rounded-full border border-(--pagehint) bg-(--pagehint) text-(--pagehint-foreground) shadow-(--shadow-pagehint) hover:bg-(--pagehint-hover) hover:text-(--pagehint-foreground) focus-visible:ring-(--pagehint-dim)"
         onClick={() => setOpen(true)}
         aria-label="Open page hint"
       >
@@ -49,11 +49,11 @@ export const PageHint: React.FC<PageHintProps> = ({ pageId, className }) => {
         align="top"
         contentClassName="max-w-2xl"
       >
-        <Card className="shadow-[var(--shadow-popover)]">
+        <Card className="shadow-(--shadow-popover)">
           <CardHeader className="pb-2">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <CardTitle className="text-xl font-semibold text-[var(--text)]">
+                <CardTitle className="text-xl font-semibold text-text">
                   {hint.title}
                 </CardTitle>
               </div>
@@ -62,13 +62,13 @@ export const PageHint: React.FC<PageHintProps> = ({ pageId, className }) => {
                 size="sm"
                 aria-label="Close page hint"
                 onClick={() => setOpen(false)}
-                className="text-[var(--text)]"
+                className="text-text"
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4 text-sm text-[var(--text)]">
+          <CardContent className="space-y-4 text-sm text-text">
             <p className="text-muted">{hint.intro}</p>
             {hint.sections?.map((section) => (
               <div key={section.heading} className="space-y-1">

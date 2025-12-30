@@ -30,8 +30,8 @@ export function StageDataTile({
       <p
         className={cn(
           "text-lg font-semibold text-text",
-          tone === "ok" && "text-[var(--accent)]",
-          tone === "warn" && "text-[var(--accent-warm)]",
+          tone === "ok" && "text-accent",
+          tone === "warn" && "text-accent-warm",
         )}
       >
         {value}

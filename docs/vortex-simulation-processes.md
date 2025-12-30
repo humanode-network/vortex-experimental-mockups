@@ -66,7 +66,7 @@ Recommended modeling:
 
 For v1 we use **Humanode mainnet RPC only** (no Subscan dependency).
 
-Eligibility rule (v1): an address is an **active Human Node** if it is “active” per mainnet RPC reads of `ImOnline::*` (with a safe fallback to `Session::Validators`).
+Eligibility rule (v1): an address is an **active Human Node** if it is in the current validator set on Humanode mainnet (`Session::Validators`).
 
 Implication:
 
@@ -261,7 +261,7 @@ Eligibility check (authoritative gating):
 Two proofs (explicit):
 
 - Proof A: “User controls address X” (nonce + signature; SIWE-style but chain-agnostic).
-- Proof B: “Address X is an active Human Node” (mainnet read via RPC; v1 reads `ImOnline::*` with a safe fallback to `Session::Validators`).
+- Proof B: “Address X is an active Human Node” (mainnet read via RPC; v1 reads `Session::Validators`).
 
 Eligibility claim (cached):
 

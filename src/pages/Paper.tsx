@@ -13,7 +13,7 @@ const Paper: React.FC = () => {
         />
       }
     >
-      <div className="relative mx-auto flex min-h-[100svh] max-w-xl flex-col items-center justify-center text-center">
+      <div className="relative mx-auto flex min-h-svh max-w-xl flex-col items-center justify-center text-center">
         <h1 className="text-3xl font-semibold tracking-tight text-white">
           Paper
         </h1>
@@ -31,7 +31,7 @@ const Paper: React.FC = () => {
               Open paper
             </a>
           </Button>
-          <Button asChild variant="ghost" className="min-w-[160px]">
+          <Button asChild variant="ghost" className="min-w-40">
             <Link to="/">Back</Link>
           </Button>
         </div>

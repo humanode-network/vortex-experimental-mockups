@@ -47,7 +47,7 @@ export function Modal({
   return createPortal(
     <div
       className={cn(
-        "fixed inset-0 z-50 flex justify-center bg-[var(--veil)] p-4 backdrop-blur-sm",
+        "fixed inset-0 z-50 flex justify-center bg-(--veil) p-4 backdrop-blur-sm",
         align === "top" ? "items-start" : "items-center",
         overlayClassName,
       )}
