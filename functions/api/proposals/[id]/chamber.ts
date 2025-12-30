@@ -5,6 +5,11 @@ import { getActiveGovernorsForCurrentEra } from "../../../_lib/eraStore.ts";
 import { getProposal } from "../../../_lib/proposalsStore.ts";
 import { projectChamberProposalPage } from "../../../_lib/proposalProjector.ts";
 import { V1_ACTIVE_GOVERNORS_FALLBACK } from "../../../_lib/v1Constants.ts";
+import {
+  getSimNow,
+  getStageWindowSeconds,
+  stageWindowsEnabled,
+} from "../../../_lib/stageWindows.ts";
 
 export const onRequestGet: PagesFunction = async (context) => {
   try {
@@ -18,8 +23,16 @@ export const onRequestGet: PagesFunction = async (context) => {
 
     const proposal = await getProposal(context.env, id);
     if (proposal) {
+      const now = getSimNow(context.env);
       return jsonResponse(
-        projectChamberProposalPage(proposal, { counts, activeGovernors }),
+        projectChamberProposalPage(proposal, {
+          counts,
+          activeGovernors,
+          now,
+          voteWindowSeconds: stageWindowsEnabled(context.env)
+            ? getStageWindowSeconds(context.env, "vote")
+            : undefined,
+        }),
       );
     }
 

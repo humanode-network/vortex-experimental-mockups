@@ -66,6 +66,12 @@ For convenience, this repo ships with a default `humanodeRpcUrl` pointing to the
 - `SIM_MAX_COURT_ACTIONS_PER_ERA` (optional): maximum counted court actions per era per address (unset/0 = unlimited).
 - `SIM_MAX_FORMATION_ACTIONS_PER_ERA` (optional): maximum counted formation actions per era per address (unset/0 = unlimited).
 - `SIM_WRITE_FREEZE` (optional): if `true`, blocks all `POST /api/command` writes regardless of admin state (deploy-time kill switch).
+- Phase 16 automation and time windows:
+  - `SIM_ERA_SECONDS` (optional): tick “due” threshold in seconds (defaults to 7 days).
+  - `SIM_ENABLE_STAGE_WINDOWS` (optional): when `true`, enforce per-stage pool/vote windows and compute `timeLeft` from canonical timestamps.
+  - `SIM_POOL_WINDOW_SECONDS` (optional): pool stage window in seconds (defaults to 7 days).
+  - `SIM_VOTE_WINDOW_SECONDS` (optional): vote stage window in seconds (defaults to 3 days).
+  - `SIM_NOW_ISO` (optional): override “current time” for test/debug.
 
 ## Frontend build flags
 

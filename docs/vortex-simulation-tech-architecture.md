@@ -15,7 +15,7 @@ For the DB table inventory, see `docs/vortex-simulation-data-model.md`. For ops 
 
 - **Cloudflare Pages**: existing frontend hosting.
 - **Cloudflare Workers**: API runtime (REST + optional SSE).
-- **Cron Triggers**: era rollups / scheduled jobs.
+- **Cron Triggers**: era rollups / scheduled jobs (implemented as an explicit `/api/clock/tick` endpoint that a scheduler calls).
 - **Durable Objects (optional but recommended)**: race-free state transitions for voting/pool/court actions.
 
 ### Database
@@ -56,6 +56,7 @@ Important: because the API runtime is Cloudflare Workers/Pages Functions (edge),
   - append-only event log (feed/audit)
 - **Scheduler**:
   - era boundary rollups (governor activity, quorums, tier statuses, CM updates)
+  - optional era auto-advance when the era is “due” by configured time (`SIM_ERA_SECONDS`)
 
 ### Key principle: authoritative writes
 

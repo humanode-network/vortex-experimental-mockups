@@ -10,10 +10,19 @@ import {
   projectProposalListItem,
 } from "../../_lib/proposalProjector.ts";
 import { V1_ACTIVE_GOVERNORS_FALLBACK } from "../../_lib/v1Constants.ts";
+import {
+  getSimNow,
+  getStageWindowSeconds,
+  stageWindowsEnabled,
+} from "../../_lib/stageWindows.ts";
 
 export const onRequestGet: PagesFunction = async (context) => {
   try {
     const store = await createReadModelsStore(context.env);
+    const now = getSimNow(context.env);
+    const voteWindowSeconds = stageWindowsEnabled(context.env)
+      ? getStageWindowSeconds(context.env, "vote")
+      : undefined;
     const url = new URL(context.request.url);
     const stage = url.searchParams.get("stage");
 
@@ -58,6 +67,8 @@ export const onRequestGet: PagesFunction = async (context) => {
             : null;
         return projectProposalListItem(proposal, {
           activeGovernors,
+          now,
+          voteWindowSeconds,
           poolCounts,
           chamberCounts,
           formationSummary: formationSummary ?? undefined,

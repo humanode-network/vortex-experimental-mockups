@@ -11,6 +11,10 @@ import type { ProposalDraftForm } from "./proposalDraftsStore.ts";
 import { formatChamberLabel } from "./proposalDraftsStore.ts";
 import type { ProposalRecord, ProposalStage } from "./proposalsStore.ts";
 import {
+  formatTimeLeftDaysHours,
+  getStageRemainingSeconds,
+} from "./stageWindows.ts";
+import {
   V1_ACTIVE_GOVERNORS_FALLBACK,
   V1_CHAMBER_PASSING_FRACTION,
   V1_CHAMBER_QUORUM_FRACTION,
@@ -22,6 +26,8 @@ export function projectProposalListItem(
   proposal: ProposalRecord,
   input: {
     activeGovernors: number;
+    now?: Date;
+    voteWindowSeconds?: number;
     poolCounts?: { upvotes: number; downvotes: number };
     chamberCounts?: { yes: number; no: number; abstain: number };
     formationSummary?: {
@@ -34,6 +40,7 @@ export function projectProposalListItem(
 ): ProposalListItemDto {
   const chamber = formatChamberLabel(proposal.chamberId);
   const date = proposal.createdAt.toISOString().slice(0, 10);
+  const now = input.now ?? new Date();
 
   const stageData =
     proposal.stage === "pool"
@@ -45,6 +52,17 @@ export function projectProposalListItem(
         ? projectVoteListStageData({
             activeGovernors: input.activeGovernors,
             counts: input.chamberCounts ?? { yes: 0, no: 0, abstain: 0 },
+            timeLeft:
+              typeof input.voteWindowSeconds === "number" &&
+              input.voteWindowSeconds > 0
+                ? formatTimeLeftDaysHours(
+                    getStageRemainingSeconds({
+                      now,
+                      stageStartedAt: proposal.updatedAt,
+                      windowSeconds: input.voteWindowSeconds,
+                    }),
+                  )
+                : "3d 00h",
           })
         : projectBuildListStageData({
             summary: input.formationSummary ?? {
@@ -190,6 +208,8 @@ export function projectChamberProposalPage(
   input: {
     counts: { yes: number; no: number; abstain: number };
     activeGovernors: number;
+    now?: Date;
+    voteWindowSeconds?: number;
   },
 ): ChamberProposalPageDto {
   const form = getDraftForm(proposal.payload);
@@ -202,6 +222,17 @@ export function projectChamberProposalPage(
   );
   const engagedGovernors =
     input.counts.yes + input.counts.no + input.counts.abstain;
+  const now = input.now ?? new Date();
+  const timeLeft =
+    typeof input.voteWindowSeconds === "number" && input.voteWindowSeconds > 0
+      ? formatTimeLeftDaysHours(
+          getStageRemainingSeconds({
+            now,
+            stageStartedAt: proposal.updatedAt,
+            windowSeconds: input.voteWindowSeconds,
+          }),
+        )
+      : "3d 00h";
 
   return {
     title: proposal.title,
@@ -212,7 +243,7 @@ export function projectChamberProposalPage(
     formationEligible: true,
     teamSlots: "1 / 3",
     milestones: `${form?.timeline.length ?? 0}`,
-    timeLeft: "3d 00h",
+    timeLeft,
     votes: input.counts,
     attentionQuorum: V1_CHAMBER_QUORUM_FRACTION,
     passingRule: `≥${(V1_CHAMBER_PASSING_FRACTION * 100).toFixed(1)}% + 1 yes within quorum`,
@@ -376,6 +407,7 @@ function projectPoolListStageData(input: {
 function projectVoteListStageData(input: {
   activeGovernors: number;
   counts: { yes: number; no: number; abstain: number };
+  timeLeft: string;
 }): ProposalStageDatumDto[] {
   const quorumFraction = V1_CHAMBER_QUORUM_FRACTION;
   const passingFraction = V1_CHAMBER_PASSING_FRACTION;
@@ -400,7 +432,7 @@ function projectVoteListStageData(input: {
       value: `${Math.round(result.yesFraction * 1000) / 10}% yes`,
       tone: result.passMet ? "ok" : "warn",
     },
-    { title: "Time left", description: "Voting window", value: "3d 00h" },
+    { title: "Time left", description: "Voting window", value: input.timeLeft },
   ];
 }
 

@@ -687,23 +687,32 @@ Current status:
 - `pool.vote` and `chamber.vote` can auto-advance proposals even when `read_models` are missing, by using canonical proposal state as the source of truth.
 - Canonical stage transitions are enforced via `transitionProposalStage(...)` (compare-and-set + transition validation), with coverage in tests.
 
-### Phase 16 — Time windows + automation (PLANNED)
+### Phase 16 — Time windows + automation (IN PROGRESS)
 
 Goal: move from “admin-driven clock ops only” to scheduled simulation behavior.
 
 Deliverables:
 
 - Cron-based era ops:
-  - auto-advance era on schedule (if enabled)
-  - auto-rollup era and persist rollup results
+  - a single “cron entrypoint” endpoint: `POST /api/clock/tick`
+  - rollup the current era (idempotent)
+  - optionally advance era when “due” (time-based; configurable)
 - Optional vote windows:
-  - automatic close on `pool` and `vote` windows
-  - deterministic rule for “what happens on expiry” (v2 decision)
+  - ability to enable/disable stage windows via env (`SIM_ENABLE_STAGE_WINDOWS`)
+  - reject new votes when `pool` or `vote` windows end (v1 behavior; no automatic stage change)
+  - deterministic rule for “what happens on expiry” (v2 decision: auto-close/auto-reject vs “stuck”)
 
 Tests:
 
 - Clock advancement is idempotent and monotonic.
 - Rollups remain deterministic even when scheduled.
+
+Current status:
+
+- `POST /api/clock/tick` exists and can run the rollup and (optionally) advance era when due.
+- Stage windows are implemented behind `SIM_ENABLE_STAGE_WINDOWS`:
+  - `pool.vote` and `chamber.vote` return HTTP `409` after the configured windows end.
+  - `GET /api/proposals` and `GET /api/proposals/:id/chamber` compute `timeLeft` from the canonical proposal stage timestamp when enabled.
 
 ### Phase 17 — Delegation v1 (PLANNED)
 

@@ -396,6 +396,7 @@ These endpoints are intended for simulation control (local dev, cron jobs, and a
 - `GET /api/clock`
 - `POST /api/clock/advance-era`
 - `POST /api/clock/rollup-era` (computes per-era statuses and next-era active governor set)
+- `POST /api/clock/tick` (automation hook: rollup + optional era auto-advance)
 - `POST /api/admin/users/lock` (temporarily disables writes for an address)
 - `POST /api/admin/users/unlock`
 - `GET /api/admin/users/locks` (lists active locks)
@@ -403,6 +404,50 @@ These endpoints are intended for simulation control (local dev, cron jobs, and a
 - `GET /api/admin/audit` (admin actions audit log)
 - `GET /api/admin/stats` (admin operational stats)
 - `POST /api/admin/writes/freeze` (toggle write freeze)
+
+### `POST /api/clock/tick`
+
+This is the simulation “cron” entrypoint. It is safe to call repeatedly; rollups are idempotent per-era and era advancement is guarded by a “due” check unless forced.
+
+Request:
+
+```ts
+type PostClockTickRequest = {
+  forceAdvance?: boolean; // advance even if the era is not due
+  rollup?: boolean; // default true
+};
+```
+
+Response:
+
+```ts
+type PostClockTickResponse = {
+  ok: true;
+  now: string;
+  eraSeconds: number;
+  due: boolean;
+  advanced: boolean;
+  fromEra: number;
+  toEra: number;
+  rollup?: {
+    era: number;
+    rolledAt: string;
+    requirements: {
+      poolVotes: number;
+      chamberVotes: number;
+      courtActions: number;
+      formationActions: number;
+    };
+    requiredTotal: number;
+    activeGovernorsNextEra: number;
+    usersRolled: number;
+    statusCounts: Record<
+      "Ahead" | "Stable" | "Falling behind" | "At risk" | "Losing status",
+      number
+    >;
+  };
+};
+```
 
 ### `POST /api/admin/users/lock`
 

@@ -8,6 +8,7 @@ type Env = Record<string, string | undefined>;
 
 export type ClockSnapshot = {
   currentEra: number;
+  updatedAt: string;
 };
 
 export type ClockStore = {
@@ -16,9 +17,10 @@ export type ClockStore = {
 };
 
 let inlineEra = 0;
+let inlineUpdatedAt = new Date().toISOString();
 
 async function ensureClockRow(): Promise<ClockSnapshot> {
-  return { currentEra: inlineEra };
+  return { currentEra: inlineEra, updatedAt: inlineUpdatedAt };
 }
 
 export function createClockStore(env: Env): ClockStore {
@@ -27,6 +29,7 @@ export function createClockStore(env: Env): ClockStore {
       get: async () => ensureClockRow(),
       advanceEra: async () => {
         inlineEra += 1;
+        inlineUpdatedAt = new Date().toISOString();
         return ensureClockRow();
       },
     };
@@ -45,11 +48,17 @@ export function createClockStore(env: Env): ClockStore {
   async function readRow(): Promise<ClockSnapshot> {
     await upsertDefaultRow();
     const rows = await db
-      .select({ currentEra: clockState.currentEra })
+      .select({
+        currentEra: clockState.currentEra,
+        updatedAt: clockState.updatedAt,
+      })
       .from(clockState)
       .where(eq(clockState.id, clockRowId))
       .limit(1);
-    return { currentEra: rows[0]?.currentEra ?? 0 };
+    const updatedAt = rows[0]?.updatedAt
+      ? rows[0].updatedAt.toISOString()
+      : new Date(0).toISOString();
+    return { currentEra: rows[0]?.currentEra ?? 0, updatedAt };
   }
 
   async function bumpEra(): Promise<ClockSnapshot> {
@@ -60,20 +69,26 @@ export function createClockStore(env: Env): ClockStore {
       .limit(1);
     const currentEra = rows[0]?.currentEra ?? 0;
     const nextEra = currentEra + 1;
+    const now = new Date();
     await db
       .insert(clockState)
-      .values({ id: clockRowId, currentEra: nextEra })
+      .values({ id: clockRowId, currentEra: nextEra, updatedAt: now })
       .onConflictDoUpdate({
         target: clockState.id,
-        set: { currentEra: nextEra, updatedAt: new Date() },
+        set: { currentEra: nextEra, updatedAt: now },
       });
-    return { currentEra: nextEra };
+    return { currentEra: nextEra, updatedAt: now.toISOString() };
   }
 
   return {
     get: async () => readRow(),
     advanceEra: async () => bumpEra(),
   };
+}
+
+export function clearClockForTests(): void {
+  inlineEra = 0;
+  inlineUpdatedAt = new Date().toISOString();
 }
 
 export function assertAdmin(context: { request: Request; env: Env }): void {

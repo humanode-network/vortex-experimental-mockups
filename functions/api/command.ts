@@ -74,6 +74,15 @@ import {
   V1_POOL_ATTENTION_QUORUM_FRACTION,
 } from "../_lib/v1Constants.ts";
 import { ensureFormationSeedFromInput } from "../_lib/formationStore.ts";
+import {
+  formatTimeLeftDaysHours,
+  getSimNow,
+  getStageDeadlineIso,
+  getStageRemainingSeconds,
+  getStageWindowSeconds,
+  isStageOpen,
+  stageWindowsEnabled,
+} from "../_lib/stageWindows.ts";
 
 const poolVoteSchema = z.object({
   type: z.literal("pool.vote"),
@@ -598,6 +607,39 @@ export const onRequestPost: PagesFunction = async (context) => {
   }
 
   if (input.type === "pool.vote") {
+    const proposal = await getProposal(context.env, input.payload.proposalId);
+    if (
+      proposal &&
+      stageWindowsEnabled(context.env) &&
+      proposal.stage === "pool"
+    ) {
+      const now = getSimNow(context.env);
+      const windowSeconds = getStageWindowSeconds(context.env, "pool");
+      if (
+        !isStageOpen({
+          now,
+          stageStartedAt: proposal.updatedAt,
+          windowSeconds,
+        })
+      ) {
+        return errorResponse(409, "Pool window ended", {
+          code: "stage_closed",
+          stage: "pool",
+          endedAt: getStageDeadlineIso({
+            stageStartedAt: proposal.updatedAt,
+            windowSeconds,
+          }),
+          timeLeft: formatTimeLeftDaysHours(
+            getStageRemainingSeconds({
+              now,
+              stageStartedAt: proposal.updatedAt,
+              windowSeconds,
+            }),
+          ),
+        });
+      }
+    }
+
     const wouldCount = !(await hasPoolVote(context.env, {
       proposalId: input.payload.proposalId,
       voterAddress: sessionAddress,
@@ -1123,6 +1165,39 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   if (input.type !== "chamber.vote") {
     return errorResponse(400, "Unsupported command");
+  }
+
+  const proposal = await getProposal(context.env, input.payload.proposalId);
+  if (
+    proposal &&
+    stageWindowsEnabled(context.env) &&
+    proposal.stage === "vote"
+  ) {
+    const now = getSimNow(context.env);
+    const windowSeconds = getStageWindowSeconds(context.env, "vote");
+    if (
+      !isStageOpen({
+        now,
+        stageStartedAt: proposal.updatedAt,
+        windowSeconds,
+      })
+    ) {
+      return errorResponse(409, "Voting window ended", {
+        code: "stage_closed",
+        stage: "vote",
+        endedAt: getStageDeadlineIso({
+          stageStartedAt: proposal.updatedAt,
+          windowSeconds,
+        }),
+        timeLeft: formatTimeLeftDaysHours(
+          getStageRemainingSeconds({
+            now,
+            stageStartedAt: proposal.updatedAt,
+            windowSeconds,
+          }),
+        ),
+      });
+    }
   }
 
   if (input.payload.choice !== "yes" && input.payload.score !== undefined) {
