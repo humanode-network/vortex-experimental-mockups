@@ -20,6 +20,7 @@ import { awardCmOnce } from "../_lib/cmAwardsStore.ts";
 import {
   joinFormationProject,
   ensureFormationSeed,
+  buildV1FormationSeedFromProposalPayload,
   getFormationMilestoneStatus,
   isFormationTeamMember,
   requestFormationMilestoneUnlock,
@@ -55,8 +56,24 @@ import {
   proposalDraftFormSchema,
   upsertDraft,
 } from "../_lib/proposalDraftsStore.ts";
-import { createProposal, updateProposalStage } from "../_lib/proposalsStore.ts";
+import {
+  createProposal,
+  getProposal,
+  transitionProposalStage,
+} from "../_lib/proposalsStore.ts";
 import { randomHex } from "../_lib/random.ts";
+import {
+  computePoolUpvoteFloor,
+  shouldAdvancePoolToVote,
+  shouldAdvanceVoteToBuild,
+} from "../_lib/proposalStateMachine.ts";
+import {
+  V1_ACTIVE_GOVERNORS_FALLBACK,
+  V1_CHAMBER_PASSING_FRACTION,
+  V1_CHAMBER_QUORUM_FRACTION,
+  V1_POOL_ATTENTION_QUORUM_FRACTION,
+} from "../_lib/v1Constants.ts";
+import { ensureFormationSeedFromInput } from "../_lib/formationStore.ts";
 
 const poolVoteSchema = z.object({
   type: z.literal("pool.vote"),
@@ -303,12 +320,11 @@ export const onRequestPost: PagesFunction = async (context) => {
     return null;
   }
   if (
-    readModels &&
-    (input.type === "pool.vote" ||
-      input.type === "chamber.vote" ||
-      input.type === "formation.join" ||
-      input.type === "formation.milestone.submit" ||
-      input.type === "formation.milestone.requestUnlock")
+    input.type === "pool.vote" ||
+    input.type === "chamber.vote" ||
+    input.type === "formation.join" ||
+    input.type === "formation.milestone.submit" ||
+    input.type === "formation.milestone.requestUnlock"
   ) {
     const requiredStage =
       input.type === "pool.vote"
@@ -316,7 +332,11 @@ export const onRequestPost: PagesFunction = async (context) => {
         : input.type === "chamber.vote"
           ? "vote"
           : "build";
-    const stage = await getProposalStage(readModels, input.payload.proposalId);
+    const stage =
+      (await getProposal(context.env, input.payload.proposalId))?.stage ??
+      (readModels
+        ? await getProposalStage(readModels, input.payload.proposalId)
+        : null);
     if (!stage) return errorResponse(404, "Unknown proposal");
     if (stage !== requiredStage) {
       return errorResponse(409, "Proposal is not in the required stage", {
@@ -378,10 +398,6 @@ export const onRequestPost: PagesFunction = async (context) => {
   }
 
   if (input.type === "proposal.submitToPool") {
-    if (!readModels?.set) {
-      return errorResponse(500, "Read models store unavailable");
-    }
-
     const draft = await getDraft(context.env, {
       authorAddress: sessionAddress,
       draftId: input.payload.draftId,
@@ -427,9 +443,9 @@ export const onRequestPost: PagesFunction = async (context) => {
     const activeGovernors =
       typeof activeGovernorsBaseline === "number"
         ? activeGovernorsBaseline
-        : 150;
-    const attentionQuorum = 0.2;
-    const upvoteFloor = Math.max(1, Math.ceil(activeGovernors * 0.1));
+        : V1_ACTIVE_GOVERNORS_FALLBACK;
+    const attentionQuorum = V1_POOL_ATTENTION_QUORUM_FRACTION;
+    const upvoteFloor = computePoolUpvoteFloor(activeGovernors);
 
     const poolPagePayload = {
       title: draft.title,
@@ -480,9 +496,13 @@ export const onRequestPost: PagesFunction = async (context) => {
       },
     };
 
-    const listPayload = await readModels.get("proposals:list");
+    const listPayload = readModels?.set
+      ? await readModels.get("proposals:list")
+      : null;
     const existingItems =
-      isRecord(listPayload) && Array.isArray(listPayload.items)
+      readModels?.set &&
+      isRecord(listPayload) &&
+      Array.isArray(listPayload.items)
         ? listPayload.items
         : [];
 
@@ -525,11 +545,13 @@ export const onRequestPost: PagesFunction = async (context) => {
       ctaSecondary: "",
     };
 
-    await readModels.set("proposals:list", {
-      ...(isRecord(listPayload) ? listPayload : {}),
-      items: [...existingItems, listItem],
-    });
-    await readModels.set(`proposals:${proposalId}:pool`, poolPagePayload);
+    if (readModels?.set) {
+      await readModels.set("proposals:list", {
+        ...(isRecord(listPayload) ? listPayload : {}),
+        items: [...existingItems, listItem],
+      });
+      await readModels.set(`proposals:${proposalId}:pool`, poolPagePayload);
+    }
 
     await markDraftSubmitted(context.env, {
       authorAddress: sessionAddress,
@@ -633,18 +655,19 @@ export const onRequestPost: PagesFunction = async (context) => {
     });
 
     const advanced =
-      readModels &&
-      (await maybeAdvancePoolProposalToVote(readModels, {
+      (readModels &&
+        (await maybeAdvancePoolProposalToVote(readModels, {
+          proposalId: input.payload.proposalId,
+          counts,
+          activeGovernorsBaseline,
+        }))) ||
+      (await maybeAdvancePoolProposalToVoteCanonical(context.env, {
         proposalId: input.payload.proposalId,
         counts,
         activeGovernorsBaseline,
       }));
 
     if (advanced) {
-      await updateProposalStage(context.env, {
-        proposalId: input.payload.proposalId,
-        stage: "vote",
-      });
       await appendFeedItemEvent(context.env, {
         stage: "vote",
         actorAddress: session.address,
@@ -1172,18 +1195,19 @@ export const onRequestPost: PagesFunction = async (context) => {
   });
 
   const advanced =
-    readModels &&
-    (await maybeAdvanceVoteProposalToBuild(context.env, readModels, {
+    (readModels &&
+      (await maybeAdvanceVoteProposalToBuild(context.env, readModels, {
+        proposalId: input.payload.proposalId,
+        counts,
+        activeGovernorsBaseline,
+      }))) ||
+    (await maybeAdvanceVoteProposalToBuildCanonical(context.env, readModels, {
       proposalId: input.payload.proposalId,
       counts,
       activeGovernorsBaseline,
     }));
 
   if (advanced) {
-    await updateProposalStage(context.env, {
-      proposalId: input.payload.proposalId,
-      stage: "build",
-    });
     const avgScore =
       (await getChamberYesScoreAverage(
         context.env,
@@ -1309,6 +1333,36 @@ async function maybeAdvancePoolProposalToVote(
   return true;
 }
 
+async function maybeAdvancePoolProposalToVoteCanonical(
+  env: Record<string, string | undefined>,
+  input: {
+    proposalId: string;
+    counts: { upvotes: number; downvotes: number };
+    activeGovernorsBaseline: number | null;
+  },
+): Promise<boolean> {
+  const proposal = await getProposal(env, input.proposalId);
+  if (!proposal) return false;
+  if (proposal.stage !== "pool") return false;
+
+  const activeGovernors =
+    typeof input.activeGovernorsBaseline === "number"
+      ? input.activeGovernorsBaseline
+      : V1_ACTIVE_GOVERNORS_FALLBACK;
+
+  const shouldAdvance = shouldAdvancePoolToVote({
+    activeGovernors,
+    counts: input.counts,
+  });
+  if (!shouldAdvance) return false;
+
+  return transitionProposalStage(env, {
+    proposalId: input.proposalId,
+    from: "pool",
+    to: "vote",
+  });
+}
+
 async function ensureChamberProposalPage(
   store: Awaited<ReturnType<typeof createReadModelsStore>>,
   proposalId: string,
@@ -1355,8 +1409,8 @@ function buildChamberProposalPageFromPool(
     milestones: asString(poolPayload.milestones, "—"),
     timeLeft: "3d 00h",
     votes: { yes: 0, no: 0, abstain: 0 },
-    attentionQuorum: 0.33,
-    passingRule: "≥66.6% + 1 yes within quorum",
+    attentionQuorum: V1_CHAMBER_QUORUM_FRACTION,
+    passingRule: `≥${(V1_CHAMBER_PASSING_FRACTION * 100).toFixed(1)}% + 1 yes within quorum`,
     engagedGovernors: 0,
     activeGovernors,
     attachments: asArray(poolPayload.attachments),
@@ -1421,7 +1475,7 @@ function buildVoteStageData(payload: unknown): Array<{
       title: "Passing rule",
       description: passingRule,
       value: `Current ${Math.round(yesPct)}%`,
-      tone: yesPct >= 66.6 ? "ok" : "warn",
+      tone: yesPct >= V1_CHAMBER_PASSING_FRACTION * 100 ? "ok" : "warn",
     },
     { title: "Time left", description: "Voting window", value: timeLeft },
   ];
@@ -1461,7 +1515,7 @@ async function maybeAdvanceVoteProposalToBuild(
     {
       quorumFraction: attentionQuorum,
       activeGovernors,
-      passingFraction: 2 / 3,
+      passingFraction: V1_CHAMBER_PASSING_FRACTION,
     },
     input.counts,
   );
@@ -1508,6 +1562,77 @@ async function maybeAdvanceVoteProposalToBuild(
     });
   }
 
+  return true;
+}
+
+async function maybeAdvanceVoteProposalToBuildCanonical(
+  env: Record<string, string | undefined>,
+  store: Awaited<ReturnType<typeof createReadModelsStore>> | null,
+  input: {
+    proposalId: string;
+    counts: { yes: number; no: number; abstain: number };
+    activeGovernorsBaseline: number | null;
+  },
+): Promise<boolean> {
+  const proposal = await getProposal(env, input.proposalId);
+  if (!proposal) return false;
+  if (proposal.stage !== "vote") return false;
+
+  const activeGovernors =
+    typeof input.activeGovernorsBaseline === "number"
+      ? input.activeGovernorsBaseline
+      : V1_ACTIVE_GOVERNORS_FALLBACK;
+
+  const shouldAdvance = shouldAdvanceVoteToBuild({
+    activeGovernors,
+    counts: input.counts,
+  });
+  if (!shouldAdvance) return false;
+
+  if (!getFormationEligibleFromProposalPayload(proposal.payload)) return false;
+
+  const transitioned = await transitionProposalStage(env, {
+    proposalId: input.proposalId,
+    from: "vote",
+    to: "build",
+  });
+  if (!transitioned) return false;
+
+  const seed = buildV1FormationSeedFromProposalPayload(proposal.payload);
+  await ensureFormationSeedFromInput(env, {
+    proposalId: input.proposalId,
+    seed,
+  });
+
+  const avgScore =
+    (await getChamberYesScoreAverage(env, input.proposalId)) ?? null;
+  const chamberId = (proposal.chamberId ?? "general").toLowerCase();
+  const multiplierTimes10 = store
+    ? await getChamberMultiplierTimes10(store, chamberId)
+    : 10;
+
+  if (avgScore !== null) {
+    const lcmPoints = Math.round(avgScore * 10);
+    const mcmPoints = Math.round((lcmPoints * multiplierTimes10) / 10);
+    await awardCmOnce(env, {
+      proposalId: input.proposalId,
+      proposerId: proposal.authorAddress,
+      chamberId,
+      avgScore,
+      lcmPoints,
+      chamberMultiplierTimes10: multiplierTimes10,
+      mcmPoints,
+    });
+  }
+
+  return true;
+}
+
+function getFormationEligibleFromProposalPayload(payload: unknown): boolean {
+  if (!isRecord(payload)) return true;
+  if (typeof payload.formationEligible === "boolean")
+    return payload.formationEligible;
+  if (typeof payload.formation === "boolean") return payload.formation;
   return true;
 }
 

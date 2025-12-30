@@ -9,6 +9,7 @@ import {
   parseProposalStageQuery,
   projectProposalListItem,
 } from "../../_lib/proposalProjector.ts";
+import { V1_ACTIVE_GOVERNORS_FALLBACK } from "../../_lib/v1Constants.ts";
 
 export const onRequestGet: PagesFunction = async (context) => {
   try {
@@ -30,7 +31,7 @@ export const onRequestGet: PagesFunction = async (context) => {
 
     const activeGovernors =
       (await getActiveGovernorsForCurrentEra(context.env).catch(() => null)) ??
-      150;
+      V1_ACTIVE_GOVERNORS_FALLBACK;
 
     const stageQuery =
       stage === "draft" ? null : parseProposalStageQuery(stage ?? null);

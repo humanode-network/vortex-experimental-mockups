@@ -14,6 +14,8 @@ import {
   clearProposalsForTests,
   getProposal,
 } from "../functions/_lib/proposalsStore.ts";
+import { clearPoolVotesForTests } from "../functions/_lib/poolVotesStore.ts";
+import { clearEraForTests } from "../functions/_lib/eraStore.ts";
 
 function makeContext({ url, env, params, method = "POST", headers, body }) {
   return {
@@ -244,6 +246,110 @@ test("proposal reads prefer canonical proposals over read models", async () => {
   assert.equal(poolPageRes.status, 200);
   const poolPageJson = await poolPageRes.json();
   assert.equal(poolPageJson.title, "Test proposal draft");
+});
+
+test("canonical proposals: stage gating and pool→vote advance work without read models", async () => {
+  clearIdempotencyForTests();
+  clearInlineReadModelsForTests();
+  clearProposalDraftsForTests();
+  clearProposalsForTests();
+  await clearPoolVotesForTests();
+  clearEraForTests();
+
+  const env = {
+    ...baseEnv,
+    READ_MODELS_INLINE: "true",
+    SIM_ACTIVE_GOVERNORS: "10",
+  };
+
+  const cookieProposer = await makeSessionCookie(env, "5ProposerAddr");
+  const saveRes = await commandPost(
+    makeContext({
+      url: "https://local.test/api/command",
+      env,
+      headers: { "content-type": "application/json", cookie: cookieProposer },
+      body: JSON.stringify({
+        type: "proposal.draft.save",
+        payload: { form: makeDraftForm() },
+      }),
+    }),
+  );
+  assert.equal(saveRes.status, 200);
+  const saved = await saveRes.json();
+
+  const submitRes = await commandPost(
+    makeContext({
+      url: "https://local.test/api/command",
+      env,
+      headers: { "content-type": "application/json", cookie: cookieProposer },
+      body: JSON.stringify({
+        type: "proposal.submitToPool",
+        payload: { draftId: saved.draftId },
+      }),
+    }),
+  );
+  assert.equal(submitRes.status, 200);
+  const submitted = await submitRes.json();
+  const proposalId = submitted.proposalId;
+  assert.ok(proposalId);
+
+  clearInlineReadModelsForTests();
+
+  const cookieVoter1 = await makeSessionCookie(env, "5VoterA");
+  const vote1 = await commandPost(
+    makeContext({
+      url: "https://local.test/api/command",
+      env,
+      headers: { "content-type": "application/json", cookie: cookieVoter1 },
+      body: JSON.stringify({
+        type: "pool.vote",
+        payload: { proposalId, direction: "up" },
+      }),
+    }),
+  );
+  assert.equal(vote1.status, 200);
+
+  const cookieVoter2 = await makeSessionCookie(env, "5VoterB");
+  const vote2 = await commandPost(
+    makeContext({
+      url: "https://local.test/api/command",
+      env,
+      headers: { "content-type": "application/json", cookie: cookieVoter2 },
+      body: JSON.stringify({
+        type: "pool.vote",
+        payload: { proposalId, direction: "down" },
+      }),
+    }),
+  );
+  assert.equal(vote2.status, 200);
+
+  const canonical = await getProposal(env, proposalId);
+  assert.ok(canonical);
+  assert.equal(canonical.stage, "vote");
+
+  const proposalsRes = await proposalsGet(
+    makeContext({
+      url: "https://local.test/api/proposals?stage=vote",
+      env,
+      method: "GET",
+    }),
+  );
+  assert.equal(proposalsRes.status, 200);
+  const proposalsJson = await proposalsRes.json();
+  assert.ok(proposalsJson.items.some((p) => p.id === proposalId));
+
+  const blocked = await commandPost(
+    makeContext({
+      url: "https://local.test/api/command",
+      env,
+      headers: { "content-type": "application/json", cookie: cookieVoter1 },
+      body: JSON.stringify({
+        type: "pool.vote",
+        payload: { proposalId, direction: "up" },
+      }),
+    }),
+  );
+  assert.equal(blocked.status, 409);
 });
 
 test("proposal drafts: submit requires submittable draft", async () => {

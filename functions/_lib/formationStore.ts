@@ -36,6 +36,8 @@ const memoryMilestones = new Map<
   Map<number, FormationMilestoneStatus>
 >();
 
+export type FormationSeedInput = FormationProjectSeed;
+
 export async function isFormationTeamMember(
   env: Env,
   input: { proposalId: string; memberAddress: string },
@@ -174,6 +176,107 @@ export async function ensureFormationSeed(
   }
 
   return seed;
+}
+
+export async function ensureFormationSeedFromInput(
+  env: Env,
+  input: { proposalId: string; seed: FormationSeedInput },
+): Promise<void> {
+  if (!env.DATABASE_URL) {
+    const existing = memoryProjects.get(input.proposalId);
+    if (existing) return;
+    memoryProjects.set(input.proposalId, input.seed);
+    const milestoneMap = new Map<number, FormationMilestoneStatus>();
+    for (let i = 1; i <= input.seed.milestonesTotal; i += 1) {
+      milestoneMap.set(
+        i,
+        i <= input.seed.baseMilestonesCompleted ? "unlocked" : "todo",
+      );
+    }
+    memoryMilestones.set(input.proposalId, milestoneMap);
+    if (!memoryTeam.has(input.proposalId))
+      memoryTeam.set(input.proposalId, new Map());
+    return;
+  }
+
+  const db = createDb(env);
+  const existing = await db
+    .select()
+    .from(formationProjects)
+    .where(eq(formationProjects.proposalId, input.proposalId))
+    .limit(1);
+  if (existing[0]) return;
+
+  const now = new Date();
+  await db.insert(formationProjects).values({
+    proposalId: input.proposalId,
+    teamSlotsTotal: input.seed.teamSlotsTotal,
+    baseTeamFilled: input.seed.baseTeamFilled,
+    milestonesTotal: input.seed.milestonesTotal,
+    baseMilestonesCompleted: input.seed.baseMilestonesCompleted,
+    budgetTotalHmnd: input.seed.budgetTotalHmnd,
+    baseBudgetAllocatedHmnd: input.seed.baseBudgetAllocatedHmnd,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  if (input.seed.milestonesTotal > 0) {
+    await db
+      .insert(formationMilestones)
+      .values(
+        Array.from({ length: input.seed.milestonesTotal }, (_, idx) => {
+          const milestoneIndex = idx + 1;
+          return {
+            proposalId: input.proposalId,
+            milestoneIndex,
+            status:
+              milestoneIndex <= input.seed.baseMilestonesCompleted
+                ? "unlocked"
+                : "todo",
+            createdAt: now,
+            updatedAt: now,
+          };
+        }),
+      )
+      .onConflictDoNothing({
+        target: [
+          formationMilestones.proposalId,
+          formationMilestones.milestoneIndex,
+        ],
+      });
+  }
+}
+
+export function buildV1FormationSeedFromProposalPayload(
+  payload: unknown,
+): FormationSeedInput {
+  const record =
+    payload && typeof payload === "object" && !Array.isArray(payload)
+      ? (payload as Record<string, unknown>)
+      : null;
+
+  const timeline = Array.isArray(record?.timeline)
+    ? (record?.timeline as unknown[])
+    : [];
+  const budgetItems = Array.isArray(record?.budgetItems)
+    ? (record?.budgetItems as Array<Record<string, unknown>>)
+    : [];
+
+  const budgetTotalHmnd = budgetItems.reduce((sum, item) => {
+    const amountRaw = typeof item.amount === "string" ? item.amount : "";
+    const n = Number(amountRaw);
+    if (!Number.isFinite(n) || n <= 0) return sum;
+    return sum + n;
+  }, 0);
+
+  return {
+    teamSlotsTotal: 3,
+    baseTeamFilled: 1,
+    milestonesTotal: timeline.length,
+    baseMilestonesCompleted: 0,
+    budgetTotalHmnd: budgetTotalHmnd > 0 ? budgetTotalHmnd : null,
+    baseBudgetAllocatedHmnd: 0,
+  };
 }
 
 export async function getFormationSummary(

@@ -3,12 +3,36 @@ import { errorResponse, jsonResponse } from "../../../_lib/http.ts";
 import {
   getFormationSummary,
   listFormationJoiners,
+  ensureFormationSeedFromInput,
+  buildV1FormationSeedFromProposalPayload,
 } from "../../../_lib/formationStore.ts";
+import { getProposal } from "../../../_lib/proposalsStore.ts";
+import type { ReadModelsStore } from "../../../_lib/readModelsStore.ts";
+import { projectFormationProposalPage } from "../../../_lib/proposalProjector.ts";
 
 export const onRequestGet: PagesFunction = async (context) => {
   try {
     const id = context.params?.id;
     if (!id) return errorResponse(400, "Missing proposal id");
+
+    const proposal = await getProposal(context.env, id);
+    if (proposal) {
+      const store: ReadModelsStore = (await createReadModelsStore(
+        context.env,
+      ).catch(() => null)) ?? {
+        get: async () => null,
+      };
+
+      const seed = buildV1FormationSeedFromProposalPayload(proposal.payload);
+      await ensureFormationSeedFromInput(context.env, { proposalId: id, seed });
+
+      const summary = await getFormationSummary(context.env, store, id);
+      const joiners = await listFormationJoiners(context.env, id);
+      return jsonResponse(
+        projectFormationProposalPage(proposal, { summary, joiners }),
+      );
+    }
+
     const store = await createReadModelsStore(context.env);
     const readModelKey = `proposals:${id}:formation`;
     const payload = await store.get(readModelKey);

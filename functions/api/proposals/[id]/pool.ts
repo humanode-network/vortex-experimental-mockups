@@ -4,6 +4,7 @@ import { getPoolVoteCounts } from "../../../_lib/poolVotesStore.ts";
 import { getActiveGovernorsForCurrentEra } from "../../../_lib/eraStore.ts";
 import { getProposal } from "../../../_lib/proposalsStore.ts";
 import { projectPoolProposalPage } from "../../../_lib/proposalProjector.ts";
+import { V1_ACTIVE_GOVERNORS_FALLBACK } from "../../../_lib/v1Constants.ts";
 
 export const onRequestGet: PagesFunction = async (context) => {
   try {
@@ -13,7 +14,7 @@ export const onRequestGet: PagesFunction = async (context) => {
     const counts = await getPoolVoteCounts(context.env, id);
     const activeGovernors =
       (await getActiveGovernorsForCurrentEra(context.env).catch(() => null)) ??
-      150;
+      V1_ACTIVE_GOVERNORS_FALLBACK;
 
     const proposal = await getProposal(context.env, id);
     if (proposal) {

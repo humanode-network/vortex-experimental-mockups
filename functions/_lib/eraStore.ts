@@ -2,6 +2,7 @@ import { and, eq, sql } from "drizzle-orm";
 
 import { eraSnapshots, eraUserActivity } from "../../db/schema.ts";
 import { createDb } from "./db.ts";
+import { V1_ACTIVE_GOVERNORS_FALLBACK } from "./v1Constants.ts";
 import { createClockStore } from "./clockStore.ts";
 
 type Env = Record<string, string | undefined>;
@@ -234,5 +235,5 @@ function getActiveGovernorsBaseline(env: Env): number {
   const raw = env.SIM_ACTIVE_GOVERNORS ?? env.VORTEX_ACTIVE_GOVERNORS ?? "";
   const parsed = Number(raw);
   if (Number.isFinite(parsed) && parsed > 0) return Math.round(parsed);
-  return 150;
+  return V1_ACTIVE_GOVERNORS_FALLBACK;
 }

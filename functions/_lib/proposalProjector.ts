@@ -2,12 +2,21 @@ import { evaluateChamberQuorum } from "./chamberQuorum.ts";
 import { evaluatePoolQuorum } from "./poolQuorum.ts";
 import type {
   ProposalListItemDto,
+  ChamberProposalPageDto,
+  FormationProposalPageDto,
   PoolProposalPageDto,
   ProposalStageDatumDto,
 } from "../../src/types/api.ts";
 import type { ProposalDraftForm } from "./proposalDraftsStore.ts";
 import { formatChamberLabel } from "./proposalDraftsStore.ts";
 import type { ProposalRecord, ProposalStage } from "./proposalsStore.ts";
+import {
+  V1_ACTIVE_GOVERNORS_FALLBACK,
+  V1_CHAMBER_PASSING_FRACTION,
+  V1_CHAMBER_QUORUM_FRACTION,
+  V1_POOL_ATTENTION_QUORUM_FRACTION,
+  V1_POOL_UPVOTE_FLOOR_FRACTION,
+} from "./v1Constants.ts";
 
 export function projectProposalListItem(
   proposal: ProposalRecord,
@@ -110,9 +119,15 @@ export function projectPoolProposalPage(
   const chamber = formatChamberLabel(proposal.chamberId);
   const budget = formatBudget(form);
 
-  const activeGovernors = Math.max(0, Math.floor(input.activeGovernors));
-  const attentionQuorum = 0.2;
-  const upvoteFloor = Math.max(1, Math.ceil(activeGovernors * 0.1));
+  const activeGovernors = Math.max(
+    0,
+    Math.floor(input.activeGovernors ?? V1_ACTIVE_GOVERNORS_FALLBACK),
+  );
+  const attentionQuorum = V1_POOL_ATTENTION_QUORUM_FRACTION;
+  const upvoteFloor = Math.max(
+    1,
+    Math.ceil(activeGovernors * V1_POOL_UPVOTE_FLOOR_FRACTION),
+  );
 
   const rules = [
     `${Math.round(attentionQuorum * 100)}% attention from active governors required.`,
@@ -170,14 +185,164 @@ export function projectPoolProposalPage(
   };
 }
 
+export function projectChamberProposalPage(
+  proposal: ProposalRecord,
+  input: {
+    counts: { yes: number; no: number; abstain: number };
+    activeGovernors: number;
+  },
+): ChamberProposalPageDto {
+  const form = getDraftForm(proposal.payload);
+  const chamber = formatChamberLabel(proposal.chamberId);
+  const budget = formatBudget(form);
+
+  const activeGovernors = Math.max(
+    0,
+    Math.floor(input.activeGovernors ?? V1_ACTIVE_GOVERNORS_FALLBACK),
+  );
+  const engagedGovernors =
+    input.counts.yes + input.counts.no + input.counts.abstain;
+
+  return {
+    title: proposal.title,
+    proposer: proposal.authorAddress,
+    proposerId: proposal.authorAddress,
+    chamber,
+    budget,
+    formationEligible: true,
+    teamSlots: "1 / 3",
+    milestones: `${form?.timeline.length ?? 0}`,
+    timeLeft: "3d 00h",
+    votes: input.counts,
+    attentionQuorum: V1_CHAMBER_QUORUM_FRACTION,
+    passingRule: `≥${(V1_CHAMBER_PASSING_FRACTION * 100).toFixed(1)}% + 1 yes within quorum`,
+    engagedGovernors,
+    activeGovernors,
+    attachments:
+      form?.attachments
+        .filter((a) => a.label.trim().length > 0)
+        .map((a) => ({ id: a.id, title: a.label })) ?? [],
+    teamLocked: [{ name: proposal.authorAddress, role: "Proposer" }],
+    openSlotNeeds: [],
+    milestonesDetail:
+      form?.timeline.map((m, idx) => ({
+        title: m.title.trim().length ? m.title : `Milestone ${idx + 1}`,
+        desc: m.timeframe.trim().length ? m.timeframe : "Timeline TBD",
+      })) ?? [],
+    summary: form?.summary ?? proposal.summary,
+    overview: form?.what ?? "",
+    executionPlan:
+      form?.how
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean) ?? [],
+    budgetScope:
+      form?.budgetItems
+        .filter((b) => b.description.trim().length > 0)
+        .map((b) => `${b.description}: ${b.amount} HMND`)
+        .join("\n") ?? "",
+    invisionInsight: {
+      role: "Draft author",
+      bullets: [
+        "Submitted via the simulation backend proposal wizard.",
+        "This is an off-chain governance simulation (not mainnet).",
+      ],
+    },
+  };
+}
+
+export function projectFormationProposalPage(
+  proposal: ProposalRecord,
+  input: {
+    summary: {
+      teamFilled: number;
+      teamTotal: number;
+      milestonesCompleted: number;
+      milestonesTotal: number;
+    };
+    joiners: { address: string; role?: string | null }[];
+  },
+): FormationProposalPageDto {
+  const form = getDraftForm(proposal.payload);
+  const chamber = formatChamberLabel(proposal.chamberId);
+  const budget = formatBudget(form);
+
+  const teamSlots = `${input.summary.teamFilled} / ${input.summary.teamTotal}`;
+  const milestones = `${input.summary.milestonesCompleted} / ${input.summary.milestonesTotal}`;
+  const progress =
+    input.summary.milestonesTotal > 0
+      ? `${Math.round((input.summary.milestonesCompleted / input.summary.milestonesTotal) * 100)}%`
+      : "0%";
+
+  return {
+    title: proposal.title,
+    chamber,
+    proposer: proposal.authorAddress,
+    proposerId: proposal.authorAddress,
+    budget,
+    timeLeft: "12w",
+    teamSlots,
+    milestones,
+    progress,
+    stageData: [
+      { title: "Budget allocated", description: "HMND", value: "0 / —" },
+      { title: "Team slots", description: "Filled / Total", value: teamSlots },
+      {
+        title: "Milestones",
+        description: "Completed / Total",
+        value: milestones,
+      },
+    ],
+    stats: [{ label: "Lead chamber", value: chamber }],
+    lockedTeam: [
+      { name: shortenAddress(proposal.authorAddress), role: "Proposer" },
+      ...input.joiners.map((entry) => ({
+        name: shortenAddress(entry.address),
+        role: entry.role ?? "Contributor",
+      })),
+    ],
+    openSlots: [],
+    milestonesDetail:
+      form?.timeline.map((m, idx) => ({
+        title: m.title.trim().length ? m.title : `Milestone ${idx + 1}`,
+        desc: m.timeframe.trim().length ? m.timeframe : "Timeline TBD",
+      })) ?? [],
+    attachments:
+      form?.attachments
+        .filter((a) => a.label.trim().length > 0)
+        .map((a) => ({ id: a.id, title: a.label })) ?? [],
+    summary: form?.summary ?? proposal.summary,
+    overview: form?.what ?? "",
+    executionPlan:
+      form?.how
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean) ?? [],
+    budgetScope:
+      form?.budgetItems
+        .filter((b) => b.description.trim().length > 0)
+        .map((b) => `${b.description}: ${b.amount} HMND`)
+        .join("\n") ?? "",
+    invisionInsight: {
+      role: "Draft author",
+      bullets: [
+        "Submitted via the simulation backend proposal wizard.",
+        "This is an off-chain governance simulation (not mainnet).",
+      ],
+    },
+  };
+}
+
 function projectPoolListStageData(input: {
   activeGovernors: number;
   counts: { upvotes: number; downvotes: number };
 }): ProposalStageDatumDto[] {
-  const attentionQuorum = 0.2;
+  const attentionQuorum = V1_POOL_ATTENTION_QUORUM_FRACTION;
   const upvoteFloor = Math.max(
     1,
-    Math.ceil(Math.max(0, input.activeGovernors) * 0.1),
+    Math.ceil(
+      Math.max(0, input.activeGovernors) * V1_POOL_UPVOTE_FLOOR_FRACTION,
+    ),
   );
   const quorum = evaluatePoolQuorum(
     { attentionQuorum, activeGovernors: input.activeGovernors, upvoteFloor },
@@ -212,8 +377,8 @@ function projectVoteListStageData(input: {
   activeGovernors: number;
   counts: { yes: number; no: number; abstain: number };
 }): ProposalStageDatumDto[] {
-  const quorumFraction = 0.33;
-  const passingFraction = 2 / 3;
+  const quorumFraction = V1_CHAMBER_QUORUM_FRACTION;
+  const passingFraction = V1_CHAMBER_PASSING_FRACTION;
   const result = evaluateChamberQuorum(
     { quorumFraction, activeGovernors: input.activeGovernors, passingFraction },
     input.counts,
@@ -296,4 +461,10 @@ export function parseProposalStageQuery(
   if (!value) return null;
   if (value === "pool" || value === "vote" || value === "build") return value;
   return null;
+}
+
+function shortenAddress(address: string): string {
+  const normalized = address.trim();
+  if (normalized.length <= 12) return normalized;
+  return `${normalized.slice(0, 6)}…${normalized.slice(-4)}`;
 }

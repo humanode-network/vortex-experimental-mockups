@@ -169,7 +169,7 @@ This allows early `GET /api/...` endpoints to serve the exact DTOs expected by `
 
 Local dev modes for reads:
 
-- DB mode: read from `read_models` using `DATABASE_URL`.
+- DB mode: reads start from `read_models` using `DATABASE_URL` and may prefer canonical domain tables where applicable (e.g. proposals).
 - Inline fixtures: `READ_MODELS_INLINE=true` (no DB).
 - Clean/empty mode: `READ_MODELS_INLINE_EMPTY=true` (list endpoints return `{ items: [] }` and singleton endpoints return minimal defaults).
 
@@ -190,6 +190,7 @@ Implemented:
 ### Current tables (implemented)
 
 - `read_models`: transitional DTO storage for the current UI
+- `proposals`: canonical proposal rows (Phase 14)
 - `events`: append-only feed/audit log
 - `pool_votes`: unique (proposalId, voterAddress) → up/down
 - `chamber_votes`: unique (proposalId, voterAddress) → yes/no/abstain + optional `score` (1–10) on yes votes
@@ -203,13 +204,12 @@ Implemented:
 - `formation_team`: extra Formation joiners (beyond seed baseline)
 - `formation_milestones`: per-proposal milestone status (`todo`/`submitted`/`unlocked`)
 - `formation_milestone_events`: append-only milestone submissions/unlock requests
+- `proposal_drafts`: author-owned proposal drafts (Phase 12)
 
 ### Planned normalized domain tables (not implemented yet)
 
 - `chambers`: `id`, `name`, `multiplier`
 - `chamber_membership`: `chamberId`, `userId`, `sinceEra`
-- `proposals`: `id`, `title`, `chamberId`, `stage`, `proposerUserId`, `createdAt`, `updatedAt`
-- `proposal_drafts`: `proposalId`, structured form fields, `updatedAt`
 - `proposal_stage_transitions`: `proposalId`, `fromStage`, `toStage`, `atEra`, `atTime`
 - `proposal_attachments`: `proposalId`, `title`, `href`
 - `cm_lcm`: (`userId`, `chamberId`, `lcm`)

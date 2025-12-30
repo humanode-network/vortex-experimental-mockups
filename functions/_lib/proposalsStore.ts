@@ -1,8 +1,7 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { proposals } from "../../db/schema.ts";
 import { createDb } from "./db.ts";
-
 type Env = Record<string, string | undefined>;
 
 export type ProposalStage = "pool" | "vote" | "build";
@@ -73,6 +72,45 @@ export async function updateProposalStage(
     stage: input.stage,
     updatedAt: now,
   });
+}
+
+export async function transitionProposalStage(
+  env: Env,
+  input: { proposalId: string; from: ProposalStage; to: ProposalStage },
+): Promise<boolean> {
+  if (
+    !(
+      (input.from === "pool" && input.to === "vote") ||
+      (input.from === "vote" && input.to === "build")
+    )
+  ) {
+    throw new Error("invalid_transition");
+  }
+
+  const now = new Date();
+  if (env.DATABASE_URL) {
+    const db = createDb(env);
+    const res = await db
+      .update(proposals)
+      .set({ stage: input.to, updatedAt: now })
+      .where(
+        and(
+          eq(proposals.id, input.proposalId),
+          eq(proposals.stage, input.from),
+        ),
+      );
+    return res.rowCount > 0;
+  }
+
+  const existing = memory.get(input.proposalId);
+  if (!existing) return false;
+  if (existing.stage !== input.from) return false;
+  memory.set(input.proposalId, {
+    ...existing,
+    stage: input.to,
+    updatedAt: now,
+  });
+  return true;
 }
 
 export async function getProposal(

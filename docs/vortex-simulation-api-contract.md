@@ -381,7 +381,11 @@ In v1, most reads start from `read_models` (DB mode) or the inline seed (inline 
 
 Proposals note:
 
-- `GET /api/proposals` and `GET /api/proposals/:id/pool` may prefer canonical proposals (Phase 14) and fall back to `read_models` for seeded legacy payloads.
+- Proposal endpoints may prefer canonical proposals (Phase 14+) and fall back to `read_models` for seeded legacy payloads:
+  - `GET /api/proposals`
+  - `GET /api/proposals/:id/pool`
+  - `GET /api/proposals/:id/chamber`
+  - `GET /api/proposals/:id/formation`
 
 ## Admin/simulation endpoints
 
@@ -880,7 +884,7 @@ type FormationProposalPageDto = {
 
 Notes:
 
-- The read-model payload is overlaid with Formation state:
+- The payload is overlaid with Formation state:
   - `teamSlots`, `milestones`, and `progress` are computed from stored Formation state.
   - joined team members are appended to `lockedTeam` (as short addresses).
 

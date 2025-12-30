@@ -104,7 +104,7 @@ This is the order we’ll follow from now on, based on what’s already landed.
 16. **Phase 12 — Proposal drafts + submission (DONE)**
 17. **Phase 13 — Eligibility via `Session::Validators` (DONE)**
 18. **Phase 14 — Canonical domain tables + projections (DONE)**
-19. **Phase 15 — Deterministic state transitions (PLANNED)**
+19. **Phase 15 — Deterministic state transitions (DONE)**
 20. **Phase 16 — Time windows + automation (PLANNED)**
 21. **Phase 17 — Delegation v1 (PLANNED)**
 
@@ -658,11 +658,11 @@ Tests:
 Current status:
 
 - `proposals` table exists (migration + schema).
-- `proposal.submitToPool` writes a canonical proposal row and still projects pool/list DTOs into `read_models` (compat path).
-- `GET /api/proposals` and `GET /api/proposals/:id/pool` prefer canonical proposals, falling back to `read_models` for seeded legacy data.
-- Pool → vote and vote → build auto-advance now update the canonical proposal stage (and keep `read_models` in sync for the UI).
+- `proposal.submitToPool` writes a canonical proposal row (and only writes proposal DTOs into `read_models` when a `read_models` store is available).
+- Proposal page reads prefer canonical proposals (pool/chamber/formation), falling back to `read_models` only for seeded legacy proposals.
+- Pool → vote and vote → build auto-advance update the canonical proposal stage via compare-and-set transitions.
 
-### Phase 15 — Deterministic state transitions (PLANNED)
+### Phase 15 — Deterministic state transitions (DONE)
 
 Goal: centralize all proposal stage logic in a single, testable state machine (rather than scattered “read model patching”).
 
@@ -679,6 +679,13 @@ Tests:
 
 - Transition matrix coverage (allowed vs forbidden transitions).
 - Regression tests for quorum and rounding edges (e.g. 66.6%).
+
+Current status:
+
+- A v1 state machine module exists (`functions/_lib/proposalStateMachine.ts`) with the core quorum-based advance rules.
+- Commands validate stage against canonical proposals first (falling back to `read_models` for legacy seeded proposals).
+- `pool.vote` and `chamber.vote` can auto-advance proposals even when `read_models` are missing, by using canonical proposal state as the source of truth.
+- Canonical stage transitions are enforced via `transitionProposalStage(...)` (compare-and-set + transition validation), with coverage in tests.
 
 ### Phase 16 — Time windows + automation (PLANNED)
 
