@@ -46,6 +46,16 @@ import { getEraQuotaConfig } from "../_lib/eraQuotas.ts";
 import { hasPoolVote } from "../_lib/poolVotesStore.ts";
 import { hasChamberVote } from "../_lib/chamberVotesStore.ts";
 import { createAdminStateStore } from "../_lib/adminStateStore.ts";
+import {
+  deleteDraft,
+  draftIsSubmittable,
+  formatChamberLabel,
+  getDraft,
+  markDraftSubmitted,
+  proposalDraftFormSchema,
+  upsertDraft,
+} from "../_lib/proposalDraftsStore.ts";
+import { randomHex } from "../_lib/random.ts";
 
 const poolVoteSchema = z.object({
   type: z.literal("pool.vote"),
@@ -111,6 +121,31 @@ const courtVerdictSchema = z.object({
   idempotencyKey: z.string().min(8).optional(),
 });
 
+const proposalDraftSaveSchema = z.object({
+  type: z.literal("proposal.draft.save"),
+  payload: z.object({
+    draftId: z.string().min(1).optional(),
+    form: proposalDraftFormSchema,
+  }),
+  idempotencyKey: z.string().min(8).optional(),
+});
+
+const proposalDraftDeleteSchema = z.object({
+  type: z.literal("proposal.draft.delete"),
+  payload: z.object({
+    draftId: z.string().min(1),
+  }),
+  idempotencyKey: z.string().min(8).optional(),
+});
+
+const proposalSubmitToPoolSchema = z.object({
+  type: z.literal("proposal.submitToPool"),
+  payload: z.object({
+    draftId: z.string().min(1),
+  }),
+  idempotencyKey: z.string().min(8).optional(),
+});
+
 const commandSchema = z.discriminatedUnion("type", [
   poolVoteSchema,
   chamberVoteSchema,
@@ -119,6 +154,9 @@ const commandSchema = z.discriminatedUnion("type", [
   formationMilestoneUnlockSchema,
   courtReportSchema,
   courtVerdictSchema,
+  proposalDraftSaveSchema,
+  proposalDraftDeleteSchema,
+  proposalSubmitToPoolSchema,
 ]);
 
 type CommandInput = z.infer<typeof commandSchema>;
@@ -281,6 +319,245 @@ export const onRequestPost: PagesFunction = async (context) => {
         requiredStage,
       });
     }
+  }
+
+  if (input.type === "proposal.draft.save") {
+    const record = await upsertDraft(context.env, {
+      authorAddress: sessionAddress,
+      draftId: input.payload.draftId,
+      form: input.payload.form,
+    });
+
+    const response = {
+      ok: true as const,
+      type: input.type,
+      draftId: record.id,
+      updatedAt: record.updatedAt.toISOString(),
+    };
+
+    if (idempotencyKey) {
+      await storeIdempotencyResponse(context.env, {
+        key: idempotencyKey,
+        address: sessionAddress,
+        request: requestForIdem,
+        response,
+      });
+    }
+
+    return jsonResponse(response);
+  }
+
+  if (input.type === "proposal.draft.delete") {
+    const deleted = await deleteDraft(context.env, {
+      authorAddress: sessionAddress,
+      draftId: input.payload.draftId,
+    });
+
+    const response = {
+      ok: true as const,
+      type: input.type,
+      draftId: input.payload.draftId,
+      deleted,
+    };
+
+    if (idempotencyKey) {
+      await storeIdempotencyResponse(context.env, {
+        key: idempotencyKey,
+        address: sessionAddress,
+        request: requestForIdem,
+        response,
+      });
+    }
+
+    return jsonResponse(response);
+  }
+
+  if (input.type === "proposal.submitToPool") {
+    if (!readModels?.set) {
+      return errorResponse(500, "Read models store unavailable");
+    }
+
+    const draft = await getDraft(context.env, {
+      authorAddress: sessionAddress,
+      draftId: input.payload.draftId,
+    });
+    if (!draft) return errorResponse(404, "Draft not found");
+    if (draft.submittedAt || draft.submittedProposalId) {
+      return errorResponse(409, "Draft already submitted");
+    }
+    if (!draftIsSubmittable(draft.payload)) {
+      return errorResponse(400, "Draft is not ready for submission", {
+        code: "draft_not_submittable",
+      });
+    }
+
+    const now = new Date();
+    const baseSlug = draft.title
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 48);
+    const proposalId = `${baseSlug || "proposal"}-${randomHex(2)}`;
+
+    const chamber = formatChamberLabel(draft.chamberId);
+    const budgetTotal = draft.payload.budgetItems.reduce((sum, item) => {
+      const n = Number(item.amount);
+      if (!Number.isFinite(n) || n <= 0) return sum;
+      return sum + n;
+    }, 0);
+    const budget =
+      budgetTotal > 0 ? `${budgetTotal.toLocaleString()} HMND` : "—";
+
+    const activeGovernors =
+      typeof activeGovernorsBaseline === "number"
+        ? activeGovernorsBaseline
+        : 150;
+    const attentionQuorum = 0.2;
+    const upvoteFloor = Math.max(1, Math.ceil(activeGovernors * 0.1));
+
+    const poolPagePayload = {
+      title: draft.title,
+      proposer: sessionAddress,
+      proposerId: sessionAddress,
+      chamber,
+      focus: "—",
+      tier: "Nominee",
+      budget,
+      cooldown: "Withdraw cooldown: 12h",
+      formationEligible: true,
+      teamSlots: "1 / 3",
+      milestones: String(draft.payload.timeline.length),
+      upvotes: 0,
+      downvotes: 0,
+      attentionQuorum,
+      activeGovernors,
+      upvoteFloor,
+      rules: [
+        `${Math.round(attentionQuorum * 100)}% attention from active governors required.`,
+        `At least ${Math.round((upvoteFloor / activeGovernors) * 100)}% upvotes to move to chamber vote.`,
+      ],
+      attachments: draft.payload.attachments
+        .filter((a) => a.label.trim().length > 0)
+        .map((a) => ({ id: a.id, title: a.label })),
+      teamLocked: [{ name: sessionAddress, role: "Proposer" }],
+      openSlotNeeds: [],
+      milestonesDetail: draft.payload.timeline.map((m, idx) => ({
+        title: m.title.trim().length ? m.title : `Milestone ${idx + 1}`,
+        desc: m.timeframe.trim().length ? m.timeframe : "Timeline TBD",
+      })),
+      summary: draft.payload.summary,
+      overview: draft.payload.what,
+      executionPlan: draft.payload.how
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean),
+      budgetScope: draft.payload.budgetItems
+        .filter((b) => b.description.trim().length > 0)
+        .map((b) => `${b.description}: ${b.amount} HMND`)
+        .join("\n"),
+      invisionInsight: {
+        role: "Draft author",
+        bullets: [
+          "Submitted via the simulation backend proposal wizard.",
+          "This is an off-chain governance simulation (not mainnet).",
+        ],
+      },
+    };
+
+    const listPayload = await readModels.get("proposals:list");
+    const existingItems =
+      isRecord(listPayload) && Array.isArray(listPayload.items)
+        ? listPayload.items
+        : [];
+
+    const listItem = {
+      id: proposalId,
+      title: draft.title,
+      meta: `${chamber} · Nominee tier`,
+      stage: "pool",
+      summaryPill: `${draft.payload.timeline.length} milestones`,
+      summary: draft.payload.summary,
+      stageData: [
+        {
+          title: "Pool momentum",
+          description: "Upvotes / Downvotes",
+          value: "0 / 0",
+        },
+        {
+          title: "Attention quorum",
+          description: "20% active or ≥10% upvotes",
+          value: "Needs · 0% engaged",
+          tone: "warn",
+        },
+        { title: "Votes casted", description: "Backing seats", value: "0" },
+      ],
+      stats: [
+        { label: "Budget ask", value: budget },
+        { label: "Formation", value: "Yes" },
+      ],
+      proposer: sessionAddress,
+      proposerId: sessionAddress,
+      chamber,
+      tier: "Nominee",
+      proofFocus: "pot",
+      tags: [],
+      keywords: [],
+      date: now.toISOString().slice(0, 10),
+      votes: 0,
+      activityScore: 0,
+      ctaPrimary: "Open proposal",
+      ctaSecondary: "",
+    };
+
+    await readModels.set("proposals:list", {
+      ...(isRecord(listPayload) ? listPayload : {}),
+      items: [...existingItems, listItem],
+    });
+    await readModels.set(`proposals:${proposalId}:pool`, poolPagePayload);
+
+    await markDraftSubmitted(context.env, {
+      authorAddress: sessionAddress,
+      draftId: input.payload.draftId,
+      proposalId,
+    });
+
+    const response = {
+      ok: true as const,
+      type: input.type,
+      draftId: input.payload.draftId,
+      proposalId,
+    };
+
+    if (idempotencyKey) {
+      await storeIdempotencyResponse(context.env, {
+        key: idempotencyKey,
+        address: sessionAddress,
+        request: requestForIdem,
+        response,
+      });
+    }
+
+    await appendFeedItemEvent(context.env, {
+      stage: "pool",
+      actorAddress: sessionAddress,
+      entityType: "proposal",
+      entityId: proposalId,
+      payload: {
+        id: `proposal-submitted:${proposalId}:${Date.now()}`,
+        title: "Proposal submitted",
+        meta: "Proposal pool · New",
+        stage: "pool",
+        summaryPill: "Submitted",
+        summary: `Submitted "${draft.title}" to the proposal pool.`,
+        stats: [{ label: "Budget ask", value: budget }],
+        ctaPrimary: "Open proposal",
+        href: `/app/proposals/${proposalId}/pp`,
+        timestamp: new Date().toISOString(),
+      },
+    });
+
+    return jsonResponse(response);
   }
 
   if (input.type === "pool.vote") {

@@ -36,7 +36,7 @@ function nowMs(): number {
 }
 
 export function createActionLocksStore(env: Env): ActionLocksStore {
-  if (env.READ_MODELS_INLINE === "true") {
+  if (!env.DATABASE_URL || env.READ_MODELS_INLINE === "true") {
     return {
       getActiveLock: async (address) => {
         const normalized = normalizeAddress(address);

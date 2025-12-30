@@ -16,6 +16,11 @@ This implies an architecture with:
 - Off-chain authentication (wallet signature) + on-chain eligibility checks.
 - An authoritative off-chain state machine for all governance flows.
 
+Implementation mapping:
+
+- v1 scope and what is already implemented: `docs/vortex-simulation-scope-v1.md`
+- the phased build roadmap (including planned v2+): `docs/vortex-simulation-implementation-plan.md`
+
 ## 0) Goals and non-goals
 
 ### Goals

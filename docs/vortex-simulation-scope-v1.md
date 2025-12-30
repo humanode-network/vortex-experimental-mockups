@@ -99,6 +99,16 @@ These are intentionally deferred:
 - Bioauth epoch uptime as a first-class modeled subsystem (epochs are defined conceptually but not fully simulated as canonical state).
 - “Real tokenomics”: rewards, balances, staking, slashing correctness.
 
+## Planned after v1 (v2+)
+
+These are the next build targets after v1 (see `docs/vortex-simulation-implementation-plan.md` for the full phased checklist):
+
+- Proposal drafts + submission as real writes (Phase 12).
+- Canonical proposal tables + projections to replace `read_models` as the source of truth (Phase 13).
+- Centralized, deterministic stage transitions (Phase 14).
+- Scheduled automation: era advancement/rollups and optional vote windows (Phase 15).
+- Delegation v1 (set/clear + history + court references) (Phase 16).
+
 ## Sources of truth
 
 - v1 constants: `docs/vortex-simulation-v1-constants.md`

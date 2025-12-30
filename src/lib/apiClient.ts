@@ -373,3 +373,89 @@ export async function apiProposalDraft(
 ): Promise<ProposalDraftDetailDto> {
   return await apiGet<ProposalDraftDetailDto>(`/api/proposals/drafts/${id}`);
 }
+
+export type ProposalDraftFormPayload = {
+  title: string;
+  chamberId: string;
+  summary: string;
+  what: string;
+  why: string;
+  how: string;
+  timeline: { id: string; title: string; timeframe: string }[];
+  outputs: { id: string; label: string; url: string }[];
+  budgetItems: { id: string; description: string; amount: string }[];
+  aboutMe: string;
+  attachments: { id: string; label: string; url: string }[];
+  agreeRules: boolean;
+  confirmBudget: boolean;
+};
+
+export async function apiProposalDraftSave(input: {
+  draftId?: string;
+  form: ProposalDraftFormPayload;
+  idempotencyKey?: string;
+}): Promise<{
+  ok: true;
+  type: "proposal.draft.save";
+  draftId: string;
+  updatedAt: string;
+}> {
+  return await apiPost(
+    "/api/command",
+    {
+      type: "proposal.draft.save",
+      payload: {
+        ...(input.draftId ? { draftId: input.draftId } : {}),
+        form: input.form,
+      },
+      idempotencyKey: input.idempotencyKey,
+    },
+    input.idempotencyKey
+      ? { headers: { "idempotency-key": input.idempotencyKey } }
+      : undefined,
+  );
+}
+
+export async function apiProposalDraftDelete(input: {
+  draftId: string;
+  idempotencyKey?: string;
+}): Promise<{
+  ok: true;
+  type: "proposal.draft.delete";
+  draftId: string;
+  deleted: boolean;
+}> {
+  return await apiPost(
+    "/api/command",
+    {
+      type: "proposal.draft.delete",
+      payload: { draftId: input.draftId },
+      idempotencyKey: input.idempotencyKey,
+    },
+    input.idempotencyKey
+      ? { headers: { "idempotency-key": input.idempotencyKey } }
+      : undefined,
+  );
+}
+
+export async function apiProposalSubmitToPool(input: {
+  draftId: string;
+  idempotencyKey?: string;
+}): Promise<{
+  ok: true;
+  type: "proposal.submitToPool";
+  draftId: string;
+  proposalId: string;
+}> {
+  return await apiPost(
+    "/api/command",
+    {
+      type: "proposal.submitToPool",
+      payload: { draftId: input.draftId },
+      idempotencyKey: input.idempotencyKey,
+    },
+    input.idempotencyKey
+      ? { headers: { "idempotency-key": input.idempotencyKey } }
+      : undefined,
+  );
+}

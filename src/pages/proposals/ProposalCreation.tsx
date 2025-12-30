@@ -14,7 +14,11 @@ import { PageHint } from "@/components/PageHint";
 import { Select } from "@/components/primitives/select";
 import { SIM_AUTH_ENABLED } from "@/lib/featureFlags";
 import { useAuth } from "@/app/auth/AuthContext";
-import { apiChambers } from "@/lib/apiClient";
+import {
+  apiChambers,
+  apiProposalDraftSave,
+  apiProposalSubmitToPool,
+} from "@/lib/apiClient";
 import type { ChamberDto } from "@/types/api";
 
 type StepKey = "essentials" | "plan" | "budget" | "review";
@@ -55,6 +59,7 @@ type ProposalDraftForm = {
 
 const STORAGE_KEY = "vortex:proposalCreation:draft";
 const STORAGE_STEP_KEY = "vortex:proposalCreation:step";
+const STORAGE_DRAFT_ID_KEY = "vortex:proposalCreation:draftId";
 
 const DEFAULT_DRAFT: ProposalDraftForm = {
   title: "",
@@ -114,6 +119,11 @@ function loadStep(): StepKey {
   return "review";
 }
 
+function loadDraftId(): string | null {
+  const raw = localStorage.getItem(STORAGE_DRAFT_ID_KEY);
+  return raw && raw.trim().length > 0 ? raw : null;
+}
+
 function isStepKey(value: string): value is StepKey {
   return value === "essentials" || value === "plan" || value === "budget";
 }
@@ -123,9 +133,17 @@ const ProposalCreation: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [draft, setDraft] = useState<ProposalDraftForm>(() => loadDraft());
+  const [draftId, setDraftId] = useState<string | null>(() => loadDraftId());
   const [submitted, setSubmitted] = useState(false);
+  const [submittedProposalId, setSubmittedProposalId] = useState<string | null>(
+    null,
+  );
   const [attemptedNext, setAttemptedNext] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [chambers, setChambers] = useState<ChamberDto[]>([]);
 
   useEffect(() => {
@@ -237,17 +255,45 @@ const ProposalCreation: React.FC = () => {
   const resetDraft = () => {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(STORAGE_STEP_KEY);
+    localStorage.removeItem(STORAGE_DRAFT_ID_KEY);
     setDraft(DEFAULT_DRAFT);
+    setDraftId(null);
     setSubmitted(false);
+    setSubmittedProposalId(null);
     setAttemptedNext(false);
     setSavedAt(null);
+    setSaveError(null);
+    setSubmitError(null);
     setSearchParams({ step: "essentials" }, { replace: true });
   };
 
-  const saveDraftNow = () => {
+  const saveDraftNow = async () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
     localStorage.setItem(STORAGE_STEP_KEY, step);
     setSavedAt(Date.now());
+    setSaveError(null);
+
+    if (!canAct) {
+      setSaveError(
+        "Connect and verify as an eligible human node to save drafts.",
+      );
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await apiProposalDraftSave({
+        ...(draftId ? { draftId } : {}),
+        form: draft,
+      });
+      localStorage.setItem(STORAGE_DRAFT_ID_KEY, res.draftId);
+      setDraftId(res.draftId);
+      setSavedAt(Date.now());
+    } catch (error) {
+      setSaveError((error as Error).message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const canSubmit =
@@ -259,6 +305,32 @@ const ProposalCreation: React.FC = () => {
   const canAct = !SIM_AUTH_ENABLED || (auth.authenticated && auth.eligible);
   const submitDisabled = !canSubmit || !canAct;
 
+  const onSubmit = async () => {
+    if (submitDisabled) return;
+    setSubmitError(null);
+    setSaveError(null);
+    setSubmitting(true);
+    try {
+      const saved = await apiProposalDraftSave({
+        ...(draftId ? { draftId } : {}),
+        form: draft,
+      });
+      localStorage.setItem(STORAGE_DRAFT_ID_KEY, saved.draftId);
+      setDraftId(saved.draftId);
+      const submitRes = await apiProposalSubmitToPool({
+        draftId: saved.draftId,
+      });
+      setSubmittedProposalId(submitRes.proposalId);
+      setSubmitted(true);
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_STEP_KEY);
+    } catch (error) {
+      setSubmitError((error as Error).message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <PageHint pageId="proposals" />
@@ -267,8 +339,18 @@ const ProposalCreation: React.FC = () => {
           <Button asChild variant="outline" size="sm">
             <Link to="/app/proposals">Back to proposals</Link>
           </Button>
-          <Button variant="outline" size="sm" onClick={saveDraftNow}>
-            Save draft
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={saveDraftNow}
+            disabled={saving || (!canAct && SIM_AUTH_ENABLED)}
+            title={
+              SIM_AUTH_ENABLED && !canAct
+                ? "Connect and verify as an eligible human node to save drafts."
+                : undefined
+            }
+          >
+            {saving ? "Saving…" : "Save draft"}
           </Button>
           <Button variant="ghost" size="sm" onClick={resetDraft}>
             Reset draft
@@ -302,25 +384,30 @@ const ProposalCreation: React.FC = () => {
             Create proposal · {stepLabel[step]}
           </CardTitle>
           <p className="text-sm text-muted">
-            This is a UI mockup. Changes autosave locally.
+            Draft fields autosave locally. Use “Save draft” to persist to the
+            simulation backend.
           </p>
         </CardHeader>
 
         {submitted ? (
           <CardContent className="space-y-4 text-sm text-text">
             <div className="rounded-xl border border-border bg-panel-alt p-4">
-              <p className="text-base font-semibold text-text">
-                Submitted (mock)
-              </p>
+              <p className="text-base font-semibold text-text">Submitted</p>
               <p className="mt-1 text-sm text-muted">
-                No backend yet — this just confirms the flow and the required
-                fields.
+                Draft submitted to the proposal pool.
               </p>
             </div>
             <div className="flex flex-wrap items-center justify-end gap-2">
               <Button variant="outline" onClick={resetDraft}>
                 Create another
               </Button>
+              {submittedProposalId ? (
+                <Button asChild variant="outline">
+                  <Link to={`/app/proposals/${submittedProposalId}/pp`}>
+                    Open proposal
+                  </Link>
+                </Button>
+              ) : null}
               <Button asChild>
                 <Link to="/app/proposals">Back to proposals</Link>
               </Button>
@@ -937,15 +1024,22 @@ const ProposalCreation: React.FC = () => {
                         ? "Connect and verify as an eligible human node to submit."
                         : undefined
                     }
-                    onClick={() => setSubmitted(true)}
+                    onClick={onSubmit}
                   >
-                    Submit proposal (mock)
+                    {submitting ? "Submitting…" : "Submit proposal"}
                   </Button>
                 ) : (
                   <Button onClick={onNext}>Next</Button>
                 )}
               </div>
             </div>
+
+            {saveError ? (
+              <p className="text-xs text-[var(--destructive)]">{saveError}</p>
+            ) : null}
+            {submitError ? (
+              <p className="text-xs text-[var(--destructive)]">{submitError}</p>
+            ) : null}
           </CardContent>
         )}
       </Card>

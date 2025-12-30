@@ -14,7 +14,13 @@ export async function createReadModelsStore(
   env: Env,
 ): Promise<ReadModelsStore> {
   if (env.READ_MODELS_INLINE_EMPTY === "true") {
-    return { get: async () => null };
+    const map = await getEmptyReadModelsMap();
+    return {
+      get: async (key) => map.get(key) ?? null,
+      set: async (key, payload) => {
+        map.set(key, payload);
+      },
+    };
   }
   if (env.READ_MODELS_INLINE === "true") {
     const map = await getInlineReadModelsMap();
@@ -50,9 +56,11 @@ export async function createReadModelsStore(
 }
 
 let inlineReadModelsMap: Map<string, unknown> | null = null;
+let emptyReadModelsMap: Map<string, unknown> | null = null;
 
 export function clearInlineReadModelsForTests() {
   inlineReadModelsMap = null;
+  emptyReadModelsMap = null;
 }
 
 async function getInlineReadModelsMap(): Promise<Map<string, unknown>> {
@@ -62,4 +70,10 @@ async function getInlineReadModelsMap(): Promise<Map<string, unknown>> {
     buildReadModelSeed().map((entry) => [entry.key, entry.payload]),
   );
   return inlineReadModelsMap;
+}
+
+async function getEmptyReadModelsMap(): Promise<Map<string, unknown>> {
+  if (emptyReadModelsMap) return emptyReadModelsMap;
+  emptyReadModelsMap = new Map<string, unknown>();
+  return emptyReadModelsMap;
 }

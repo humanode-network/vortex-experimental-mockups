@@ -63,6 +63,16 @@ In v1, events are emitted both by user commands and by admin endpoints.
 
 - `cm_awards`: one row per proposal that passes chamber vote, derived from the average yes `score`.
 
+## Proposal drafts (Phase 12)
+
+Proposal creation is stored as author-owned drafts:
+
+- `proposal_drafts`: one row per draft:
+  - `id` (draft slug)
+  - `author_address`
+  - `payload` (the wizard form, JSON)
+  - `submitted_at` / `submitted_proposal_id` once submitted into the pool
+
 ## Formation
 
 Formation stores the mutable parts that can’t remain a static mock:
@@ -113,6 +123,10 @@ Era tracking supports “My Governance” and rollups:
 
 ## What’s expected to change in v2+
 
-- Replace read-model bridge for proposals/chambers/courts with canonical normalized tables:
-  - `proposals`, `proposal_stage_transitions`, `chambers`, memberships, etc.
+- Add proposal authoring tables and commands:
+  - `proposal_drafts`, `proposals`
+- Replace read-model bridge for proposals/chambers/courts with canonical normalized tables + projections:
+  - `proposal_stage_transitions`, `chambers`, memberships, etc.
 - Add event-driven projections as materialized read views instead of mixing read-model payloads and overlays.
+- Add delegation tables and event history:
+  - `delegations`

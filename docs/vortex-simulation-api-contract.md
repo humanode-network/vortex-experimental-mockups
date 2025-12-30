@@ -109,6 +109,109 @@ Era quotas:
 }
 ```
 
+Additional implemented commands (Phase 12):
+
+- `proposal.draft.save`
+- `proposal.draft.delete`
+- `proposal.submitToPool`
+  These are gated the same way as other writes (session + eligibility).
+
+#### Command: `proposal.draft.save`
+
+Request:
+
+```ts
+type ProposalDraftFormPayload = {
+  title: string;
+  chamberId: string;
+  summary: string;
+  what: string;
+  why: string;
+  how: string;
+  timeline: { id: string; title: string; timeframe: string }[];
+  outputs: { id: string; label: string; url: string }[];
+  budgetItems: { id: string; description: string; amount: string }[];
+  aboutMe: string;
+  attachments: { id: string; label: string; url: string }[];
+  agreeRules: boolean;
+  confirmBudget: boolean;
+};
+
+type ProposalDraftSaveCommand = {
+  type: "proposal.draft.save";
+  payload: { draftId?: string; form: ProposalDraftFormPayload };
+  idempotencyKey?: string;
+};
+```
+
+Response:
+
+```ts
+type ProposalDraftSaveResponse = {
+  ok: true;
+  type: "proposal.draft.save";
+  draftId: string;
+  updatedAt: string;
+};
+```
+
+Notes:
+
+- If `draftId` is omitted, the backend generates a new draft ID.
+
+#### Command: `proposal.draft.delete`
+
+Request:
+
+```ts
+type ProposalDraftDeleteCommand = {
+  type: "proposal.draft.delete";
+  payload: { draftId: string };
+  idempotencyKey?: string;
+};
+```
+
+Response:
+
+```ts
+type ProposalDraftDeleteResponse = {
+  ok: true;
+  type: "proposal.draft.delete";
+  draftId: string;
+  deleted: boolean;
+};
+```
+
+#### Command: `proposal.submitToPool`
+
+Request:
+
+```ts
+type ProposalSubmitToPoolCommand = {
+  type: "proposal.submitToPool";
+  payload: { draftId: string };
+  idempotencyKey?: string;
+};
+```
+
+Response:
+
+```ts
+type ProposalSubmitToPoolResponse = {
+  ok: true;
+  type: "proposal.submitToPool";
+  draftId: string;
+  proposalId: string;
+};
+```
+
+Notes:
+
+- Submission validates that required fields are present (same constraints as the UI wizard).
+- On success, the backend:
+  - creates a new proposal in the proposal pool by writing `proposals:list` and `proposals:${proposalId}:pool` read models,
+  - marks the draft as submitted so it no longer appears under drafts.
+
 #### Command: `pool.vote`
 
 Request:

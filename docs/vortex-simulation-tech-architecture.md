@@ -51,7 +51,8 @@ Important: because the API runtime is Cloudflare Workers/Pages Functions (edge),
   - pure functions implementing state machines, invariants, and event emission
   - no network calls; no DB calls
 - **DB**:
-  - canonical state (users, proposals, votes, courts, etc.)
+  - canonical state where implemented (votes, formation, courts, era accounting, idempotency, sessions)
+  - transitional `read_models` payloads for page DTOs while migrating toward canonical domain tables (v2)
   - append-only event log (feed/audit)
 - **Scheduler**:
   - era boundary rollups (governor activity, quorums, tier statuses, CM updates)
@@ -119,10 +120,11 @@ Prefer a single command endpoint so invariants are centralized:
 
 - `POST /api/command` → `{ type, payload, idempotencyKey? }`
 
-Examples:
+Implemented in v1:
 
-- `proposal.draft.save`
-- `proposal.submitToPool`
+- `proposal.draft.save` (Phase 12)
+- `proposal.draft.delete` (Phase 12)
+- `proposal.submitToPool` (Phase 12)
 - `pool.vote` (upvote/downvote)
 - `chamber.vote` (yes/no/abstain + optional CM score 1–10 on yes votes)
 - `formation.join`
@@ -130,6 +132,9 @@ Examples:
 - `formation.milestone.requestUnlock`
 - `court.case.report`
 - `court.case.verdict`
+
+Planned (v2+) examples:
+
 - `delegation.set`
 - `delegation.clear`
 

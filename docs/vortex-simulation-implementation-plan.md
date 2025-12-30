@@ -101,6 +101,11 @@ This is the order we’ll follow from now on, based on what’s already landed.
 13. **Phase 10a — Era snapshots + activity counters (DONE)**
 14. **Phase 10b — Era rollups + tier statuses (DONE for v1)**
 15. **Phase 11 — Hardening + moderation**
+16. **Phase 12 — Proposal drafts + submission (DONE)**
+17. **Phase 13 — Canonical domain tables + projections (PLANNED)**
+18. **Phase 14 — Deterministic state transitions (PLANNED)**
+19. **Phase 15 — Time windows + automation (PLANNED)**
+20. **Phase 16 — Delegation v1 (PLANNED)**
 
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
 
@@ -573,3 +578,116 @@ Minimum viable proto-vortex for community:
 - The UI already has the key surfaces for v1:
   - `ProposalCreation` wizard (draft), ProposalPP (pool), ProposalChamber (vote), ProposalFormation (formation), Courts/Courtroom (courts).
 - Keep returning API payloads that match the frozen DTOs so UI components remain stable.
+
+## Post-v1 roadmap (v2+)
+
+v1 is a complete, community-playable simulation slice. The next phases focus on replacing transitional components (`read_models`-driven state) with canonical domain tables and a fuller write model, while keeping the current UI DTOs stable.
+
+### Phase 12 — Proposal drafts + submission (DONE)
+
+Goal: make the ProposalCreation wizard a real write path (drafts stored in DB, submitted into the pool), without requiring a backend redesign.
+
+Deliverables:
+
+- Commands (via `POST /api/command`):
+  - `proposal.draft.save` (create/update a draft)
+  - `proposal.draft.delete`
+  - `proposal.submitToPool` (transition a draft into `pool`)
+- Reads:
+  - `GET /api/proposals/drafts`
+  - `GET /api/proposals/drafts/:id`
+  - drafts appear as real data (not seed-only) in DB mode
+- Minimal validation that matches the wizard gates (required fields for submission).
+- Emit events:
+  - `proposal.draft.saved`, `proposal.submittedToPool`
+
+Tests:
+
+- Draft save is idempotent (Idempotency-Key) and never duplicates.
+- Submission enforces required fields and stage (`draft` → `pool` only).
+- Non-eligible users can browse drafts only if explicitly allowed (default: drafts are private to the author).
+
+Current status:
+
+- `proposal_drafts` table exists (migration + schema).
+- `POST /api/command` implements `proposal.draft.save`, `proposal.draft.delete`, `proposal.submitToPool`.
+- Draft read endpoints support author-owned drafts in DB mode and memory drafts in non-DB mode, with fixture fallback in `READ_MODELS_INLINE=true`.
+- ProposalCreation UI saves drafts via the backend and submits drafts into the proposal pool.
+- Tests added: `tests/api-command-drafts.test.js`.
+
+### Phase 13 — Canonical domain tables + projections (PLANNED)
+
+Goal: start migrating away from `read_models` as the “source of truth” by introducing canonical tables for entities that are actively mutated (starting with proposals).
+
+Deliverables:
+
+- Introduce canonical tables (v1 order):
+  - `proposals` (canonical state: stage, chamber, proposer, formation eligibility, etc.)
+  - `proposal_drafts` (author-owned draft write model)
+  - optional: `proposal_stage_transitions` (append-only, derived from events)
+- Add a projector layer that generates the existing read DTOs from canonical tables/events, writing either:
+  - derived DTO payloads into `read_models` (compat mode), or
+  - serving DTOs directly from projector queries (preferred once stable).
+
+Tests:
+
+- Projection determinism: same canonical inputs → identical DTO outputs.
+- Backwards compatibility: existing endpoints continue returning the same DTO shape.
+
+### Phase 14 — Deterministic state transitions (PLANNED)
+
+Goal: centralize all proposal stage logic in a single, testable state machine (rather than scattered “read model patching”).
+
+Deliverables:
+
+- A single transition authority for proposals:
+  - `draft` → `pool` (submit)
+  - `pool` → `vote` (quorum met)
+  - `vote` → `build` (passing met + formation eligible)
+  - explicit fail paths (v2 decision): `pool`/`vote` rejection or expiry
+- All transitions emit events and are enforced (HTTP `409` on invalid transition).
+
+Tests:
+
+- Transition matrix coverage (allowed vs forbidden transitions).
+- Regression tests for quorum and rounding edges (e.g. 66.6%).
+
+### Phase 15 — Time windows + automation (PLANNED)
+
+Goal: move from “admin-driven clock ops only” to scheduled simulation behavior.
+
+Deliverables:
+
+- Cron-based era ops:
+  - auto-advance era on schedule (if enabled)
+  - auto-rollup era and persist rollup results
+- Optional vote windows:
+  - automatic close on `pool` and `vote` windows
+  - deterministic rule for “what happens on expiry” (v2 decision)
+
+Tests:
+
+- Clock advancement is idempotent and monotonic.
+- Rollups remain deterministic even when scheduled.
+
+### Phase 16 — Delegation v1 (PLANNED)
+
+Goal: implement delegation as an off-chain simulation feature (needed for courts/disputes and future quorum weighting experiments), without changing the fundamental “1 human = 1 vote” model.
+
+Deliverables:
+
+- Delegation model:
+  - `delegations` (delegator → delegatee)
+  - cycle prevention
+  - optional metadata: sinceEra, note, public/private visibility
+- Commands:
+  - `delegation.set`, `delegation.clear`
+- Reads:
+  - surfaced in profile + My Governance as informational metadata (v1)
+- Court hooks:
+  - delegation disputes can reference real delegation history/events.
+
+Tests:
+
+- Cycle detection and invariants (no self-delegation; no loops).
+- Idempotent set/clear semantics.

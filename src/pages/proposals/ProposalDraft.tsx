@@ -17,7 +17,7 @@ import { AttachmentList } from "@/components/AttachmentList";
 import { TitledSurface } from "@/components/TitledSurface";
 import { SIM_AUTH_ENABLED } from "@/lib/featureFlags";
 import { useAuth } from "@/app/auth/AuthContext";
-import { apiProposalDraft } from "@/lib/apiClient";
+import { apiProposalDraft, apiProposalSubmitToPool } from "@/lib/apiClient";
 import type { ProposalDraftDetailDto } from "@/types/api";
 
 const ProposalDraft: React.FC = () => {
@@ -26,6 +26,8 @@ const ProposalDraft: React.FC = () => {
   const [draftDetails, setDraftDetails] =
     useState<ProposalDraftDetailDto | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [filledSlots, totalSlots] = (draftDetails?.teamSlots ?? "0 / 0")
     .split("/")
     .map((v) => Number(v.trim()));
@@ -97,11 +99,29 @@ const ProposalDraft: React.FC = () => {
                 ? "Connect and verify as an eligible human node to submit."
                 : undefined
             }
+            onClick={async () => {
+              if (!id || !canAct) return;
+              setSubmitError(null);
+              setSubmitting(true);
+              try {
+                const res = await apiProposalSubmitToPool({ draftId: id });
+                window.location.href = `/app/proposals/${res.proposalId}/pp`;
+              } catch (error) {
+                setSubmitError((error as Error).message);
+              } finally {
+                setSubmitting(false);
+              }
+            }}
           >
-            Submit to pool
+            {submitting ? "Submitting…" : "Submit to pool"}
           </Button>
         </div>
       </div>
+      {submitError ? (
+        <Card className="border-dashed px-4 py-6 text-center text-sm text-[var(--destructive)]">
+          Submit failed: {submitError}
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader className="space-y-3 pb-3">

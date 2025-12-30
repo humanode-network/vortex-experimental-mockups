@@ -65,6 +65,25 @@ export const readModels = pgTable("read_models", {
     .defaultNow(),
 });
 
+// Proposal drafts (Phase 12).
+// Drafts are author-owned and are the source of truth for the proposal creation wizard.
+export const proposalDrafts = pgTable("proposal_drafts", {
+  id: text("id").primaryKey(),
+  authorAddress: text("author_address").notNull(),
+  title: text("title").notNull(),
+  chamberId: text("chamber_id"),
+  summary: text("summary").notNull(),
+  payload: jsonb("payload").notNull(),
+  submittedAt: timestamp("submitted_at", { withTimezone: true }),
+  submittedProposalId: text("submitted_proposal_id"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 // Append-only event log backbone (Phase 5).
 export const events = pgTable("events", {
   seq: bigserial("seq", { mode: "number" }).primaryKey(),

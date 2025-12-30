@@ -201,9 +201,56 @@ Rollup invariants:
 
 ## What’s intentionally missing (v1)
 
-Planned (v2+):
+Planned (v2+) and in-progress work, mapped to the implementation plan:
 
-- Normalized `proposals` table + stage transitions as canonical state (instead of updating read models)
-- Vote windows and scheduled transitions
-- Delegation graph rules and delegation-related commands
-- More complete court outcome hooks (e.g., withholding unlock, sanctions)
+### Phase 12 — Proposal drafts + submission (done)
+
+Commands:
+
+- `proposal.draft.save`
+- `proposal.draft.delete`
+- `proposal.submitToPool`
+
+Core invariants:
+
+- Drafts are author-owned (default: not globally browseable).
+- Submit is only allowed from `draft` stage.
+- Submit enforces the wizard-required fields (exact list is defined in the API contract and validated by the command handler).
+
+### Phase 13 — Canonical proposal tables + projections
+
+Planned shift:
+
+- Canonical proposal state lives in normalized tables (`proposals`, `proposal_drafts`, optional `proposal_stage_transitions`).
+- DTOs remain stable; read endpoints are served from projections (compat mode can keep writing DTO payloads into `read_models` while migrating).
+
+### Phase 14 — Deterministic transitions authority
+
+Planned rule:
+
+- All stage transitions are performed by a single transition authority and are event-backed.
+- Invalid transitions return HTTP `409` and do not partially apply changes.
+
+### Phase 15 — Time windows + automation
+
+Planned additions:
+
+- Scheduled era advancement/rollup (cron) with deterministic, idempotent behavior.
+- Optional per-stage vote windows with a clear expiry policy (close/fail/extend rules are a v2 decision).
+
+### Phase 16 — Delegation v1
+
+Planned commands:
+
+- `delegation.set`
+- `delegation.clear`
+
+Planned invariants:
+
+- No self-delegation.
+- No cycles (graph must remain acyclic).
+- Delegation changes are event-backed so courts can reference full history.
+
+### Future court hooks (beyond v1)
+
+- Outcome hooks that affect Formation unlocks, reputation/cred flags, and visibility (simulation only).

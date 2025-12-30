@@ -48,7 +48,7 @@ function consumeFromMemory(input: ConsumeInput): ConsumeResult {
 }
 
 export function createApiRateLimitStore(env: Env): ApiRateLimitStore {
-  if (env.READ_MODELS_INLINE === "true") {
+  if (!env.DATABASE_URL || env.READ_MODELS_INLINE === "true") {
     return {
       consume: async (input) => consumeFromMemory(input),
     };

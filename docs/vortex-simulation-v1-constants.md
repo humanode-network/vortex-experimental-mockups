@@ -65,3 +65,9 @@ This file records the v1 decisions used by the simulation backend so implementat
     - optional baseline update when `SIM_DYNAMIC_ACTIVE_GOVERNORS=true` (next era uses `activeGovernorsNextEra`)
   - Rollup output is stored in:
     - `era_rollups`, `era_user_status`
+
+## Post-v1 roadmap (v2+)
+
+v1 constants are intentionally kept small and testable. Phase 12 (proposal drafts + submission) is now implemented; the next planned phases continue with canonical proposal tables/projections, deterministic transitions, time-window automation, and delegation.
+
+Source of truth: `docs/vortex-simulation-implementation-plan.md`.

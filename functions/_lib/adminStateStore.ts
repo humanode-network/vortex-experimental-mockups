@@ -17,7 +17,7 @@ export type AdminStateStore = {
 let memoryWritesFrozen = false;
 
 export function createAdminStateStore(env: Env): AdminStateStore {
-  if (env.READ_MODELS_INLINE === "true") {
+  if (!env.DATABASE_URL || env.READ_MODELS_INLINE === "true") {
     return {
       get: async () => ({ writesFrozen: memoryWritesFrozen }),
       setWritesFrozen: async (writesFrozen) => {
