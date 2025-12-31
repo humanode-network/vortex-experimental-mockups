@@ -1,6 +1,7 @@
 type SimConfig = {
   humanodeRpcUrl?: string;
   genesisChamberMembers?: Record<string, string[]>;
+  genesisChambers?: { id: string; title: string; multiplier: number }[];
 };
 
 let cached:
@@ -32,12 +33,39 @@ function asGenesisMembers(
 function parseSimConfig(json: unknown): SimConfig | null {
   if (!json || typeof json !== "object") return null;
   const value = json as Record<string, unknown>;
+  const genesisChambersRaw = value.genesisChambers;
+  const genesisChambers = Array.isArray(genesisChambersRaw)
+    ? genesisChambersRaw
+        .filter((row): row is Record<string, unknown> => {
+          return Boolean(row && typeof row === "object" && !Array.isArray(row));
+        })
+        .map((row) => ({
+          id: typeof row.id === "string" ? row.id.trim().toLowerCase() : "",
+          title:
+            typeof row.title === "string"
+              ? row.title.trim()
+              : typeof row.name === "string"
+                ? row.name.trim()
+                : "",
+          multiplier:
+            typeof row.multiplier === "number"
+              ? row.multiplier
+              : typeof row.multiplierTimes10 === "number"
+                ? row.multiplierTimes10 / 10
+                : 1,
+        }))
+        .filter((row) => row.id && row.title)
+    : undefined;
   return {
     humanodeRpcUrl:
       typeof value.humanodeRpcUrl === "string"
         ? value.humanodeRpcUrl
         : undefined,
     genesisChamberMembers: asGenesisMembers(value.genesisChamberMembers),
+    genesisChambers:
+      genesisChambers && genesisChambers.length > 0
+        ? genesisChambers
+        : undefined,
   };
 }
 

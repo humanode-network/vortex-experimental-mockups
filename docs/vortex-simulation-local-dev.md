@@ -57,6 +57,10 @@ For convenience, this repo ships with a default `humanodeRpcUrl` pointing to the
   - `public/sim-config.json` → `genesisChamberMembers` can list initial eligible voters per `chamberId` (including `general`).
   - This is needed to allow the first specialization chamber votes before anyone has an accepted proposal.
 
+- Chambers bootstrap (recommended):
+  - `public/sim-config.json` → `genesisChambers` defines the initial chamber set (id/title/multiplier).
+  - The backend auto-seeds these into the canonical `chambers` table when the table is empty.
+
 - `SIM_ACTIVE_GOVERNORS` (optional): active governors baseline used for quorum math (defaults to `150`).
 - `SIM_REQUIRED_POOL_VOTES` (optional): per-era required pool actions (defaults to `1`).
 - `SIM_REQUIRED_CHAMBER_VOTES` (optional): per-era required chamber actions (defaults to `1`).
@@ -146,7 +150,7 @@ DB setup uses the read-model bridge seeded from `db/seed/fixtures/*`:
 - Generate migrations: `yarn db:generate`
 - Apply migrations: `yarn db:migrate` (requires `DATABASE_URL`)
 - Seed into `read_models` and the `events` table: `yarn db:seed` (requires `DATABASE_URL`)
-  - Also truncates `pool_votes`, `chamber_votes`, `cm_awards`, `idempotency_keys`, Formation tables, and Courts tables so repeated seeds stay deterministic.
+  - Also truncates `chambers`, `chamber_memberships`, `pool_votes`, `chamber_votes`, `cm_awards`, `idempotency_keys`, Formation tables, Courts tables, and Era tables so repeated seeds stay deterministic.
 
 ### Clearing all data (keep schema)
 

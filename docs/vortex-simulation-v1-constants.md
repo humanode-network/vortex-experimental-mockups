@@ -76,6 +76,10 @@ This file records the v1 decisions used by the simulation backend so implementat
   - Eligibility is persisted in `chamber_memberships` and granted when a proposal is accepted (vote → build transition).
   - Dev bypass: `DEV_BYPASS_CHAMBER_ELIGIBILITY=true` disables chamber-membership checks (local/testing only).
 
+- Phase 18 write slice exists:
+  - Chambers are canonical in `chambers` (auto-seeded from `public/sim-config.json` → `genesisChambers`).
+  - General-chamber proposal outcomes can create/dissolve chambers (simulated via proposal payload `metaGovernance`).
+
 ## Post-v1 roadmap (v2+)
 
 v1 constants are intentionally kept small and testable. Phase 12 (proposal drafts + submission) is now implemented; the next planned phases continue with canonical proposal tables/projections, deterministic transitions, time-window automation, and delegation.

@@ -228,21 +228,23 @@ Genesis exception:
 
 #### How chambers are represented in the code today (current state)
 
-Right now chambers are still **read-model driven** (Phase 4 legacy), with seeds living under `db/seed/fixtures/*`:
+Chambers are now **canonical** (Phase 18):
 
-- Chamber list read model: `db/seed/fixtures/chambers.ts` → key `chambers:list`
-- Chamber detail read model: `db/seed/fixtures/chamberDetail.ts` → key `chambers:${id}`
+- DB table: `chambers`
+- Genesis seeding:
+  - `public/sim-config.json` → `genesisChambers`
+  - the backend auto-seeds these into `chambers` if the table is empty
 - API:
-  - `functions/api/chambers/index.ts` returns `chambers:list`
-  - `functions/api/chambers/[id].ts` returns `chambers:${id}`
+  - `functions/api/chambers/index.ts` returns the canonical list (with derived stats/pipeline where possible)
+  - `functions/api/chambers/[id].ts` returns a minimal canonical detail model (proposals/governors/threads/chat can be empty in v1)
 - UI:
   - `src/pages/chambers/Chambers.tsx` renders the directory from `GET /api/chambers`
   - `src/pages/chambers/Chamber.tsx` renders the detail page from `GET /api/chambers/:id`
 
-Canonical links already exist, but are not fully modeled for chambers yet:
+Canonical links:
 
-- proposal drafts and canonical proposals already carry a `chamberId` (`proposal_drafts.chamber_id`, `proposals.chamber_id`)
-- CM awarding uses `chamberId` as an input (so multipliers can be applied)
+- proposal drafts and canonical proposals carry `chamberId` (`proposal_drafts.chamber_id`, `proposals.chamber_id`)
+- CM awarding uses `chamberId` and pulls multipliers from canonical chambers (fallback to read-model multipliers in legacy mode)
 
 Canonical voting eligibility is now modeled and enforced:
 
@@ -252,11 +254,9 @@ Canonical voting eligibility is now modeled and enforced:
   - specialization chamber → must have an accepted proposal in that chamber
   - general chamber → must have an accepted proposal in any chamber
 
-Note: the chamber list/detail pages are still read-model driven until chambers themselves are normalized.
-
 #### Target representation (next audit-driven step)
 
-To match the chamber model more precisely (and remove read-model drift), chambers should be modeled as canonical tables:
+To match the chamber model more precisely, chambers are modeled as canonical tables:
 
 - `chambers`:
   - `id`, `name`, `multiplierTimes10`, optional `createdAt`, optional `createdBy`

@@ -15,7 +15,7 @@ async function main() {
   const db = drizzle(client);
 
   await db.execute(
-    sql`TRUNCATE TABLE auth_nonces, eligibility_cache, users, clock_state, read_models, proposal_drafts, proposals, events, pool_votes, chamber_votes, cm_awards, idempotency_keys, formation_projects, formation_team, formation_milestones, formation_milestone_events, court_cases, court_reports, court_verdicts, era_snapshots, era_user_activity, era_rollups, era_user_status, api_rate_limits, user_action_locks, admin_state RESTART IDENTITY`,
+    sql`TRUNCATE TABLE auth_nonces, eligibility_cache, users, clock_state, read_models, proposal_drafts, proposals, chamber_memberships, chambers, events, pool_votes, chamber_votes, cm_awards, idempotency_keys, formation_projects, formation_team, formation_milestones, formation_milestone_events, court_cases, court_reports, court_verdicts, era_snapshots, era_user_activity, era_rollups, era_user_status, api_rate_limits, user_action_locks, admin_state RESTART IDENTITY`,
   );
 
   console.log("Cleared simulation tables (data removed, schema preserved).");

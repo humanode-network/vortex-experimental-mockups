@@ -90,6 +90,12 @@ import {
 } from "../_lib/stageWindows.ts";
 import { envBoolean } from "../_lib/env.ts";
 import { getSimConfig } from "../_lib/simConfig.ts";
+import {
+  createChamberFromAcceptedGeneralProposal,
+  dissolveChamberFromAcceptedGeneralProposal,
+  getChamberMultiplierTimes10 as getCanonicalChamberMultiplierTimes10,
+  parseChamberGovernanceFromPayload,
+} from "../_lib/chambersStore.ts";
 
 const poolVoteSchema = z.object({
   type: z.literal("pool.vote"),
@@ -1310,11 +1316,15 @@ export const onRequestPost: PagesFunction = async (context) => {
         counts,
         activeGovernorsBaseline,
       }))) ||
-    (await maybeAdvanceVoteProposalToBuildCanonical(context.env, readModels, {
-      proposalId: input.payload.proposalId,
-      counts,
-      activeGovernorsBaseline,
-    }));
+    (await maybeAdvanceVoteProposalToBuildCanonical(
+      context.env,
+      {
+        proposalId: input.payload.proposalId,
+        counts,
+        activeGovernorsBaseline,
+      },
+      context.request.url,
+    ));
 
   if (advanced) {
     const avgScore =
@@ -1681,12 +1691,12 @@ async function maybeAdvanceVoteProposalToBuild(
 
 async function maybeAdvanceVoteProposalToBuildCanonical(
   env: Record<string, string | undefined>,
-  store: Awaited<ReturnType<typeof createReadModelsStore>> | null,
   input: {
     proposalId: string;
     counts: { yes: number; no: number; abstain: number };
     activeGovernorsBaseline: number | null;
   },
+  requestUrl: string,
 ): Promise<boolean> {
   const proposal = await getProposal(env, input.proposalId);
   if (!proposal) return false;
@@ -1720,6 +1730,24 @@ async function maybeAdvanceVoteProposalToBuildCanonical(
     proposalId: proposal.id,
   });
 
+  if ((proposal.chamberId ?? "").toLowerCase() === "general") {
+    const meta = parseChamberGovernanceFromPayload(proposal.payload);
+    if (meta?.action === "chamber.create" && meta.title) {
+      await createChamberFromAcceptedGeneralProposal(env, requestUrl, {
+        id: meta.id,
+        title: meta.title,
+        multiplier: meta.multiplier,
+        proposalId: proposal.id,
+      });
+    }
+    if (meta?.action === "chamber.dissolve") {
+      await dissolveChamberFromAcceptedGeneralProposal(env, requestUrl, {
+        id: meta.id,
+        proposalId: proposal.id,
+      });
+    }
+  }
+
   if (formationEligible) {
     const seed = buildV1FormationSeedFromProposalPayload(proposal.payload);
     await ensureFormationSeedFromInput(env, {
@@ -1731,9 +1759,9 @@ async function maybeAdvanceVoteProposalToBuildCanonical(
   const avgScore =
     (await getChamberYesScoreAverage(env, input.proposalId)) ?? null;
   const chamberId = (proposal.chamberId ?? "general").toLowerCase();
-  const multiplierTimes10 = store
-    ? await getChamberMultiplierTimes10(store, chamberId)
-    : 10;
+  const multiplierTimes10 =
+    (await getCanonicalChamberMultiplierTimes10(env, requestUrl, chamberId)) ??
+    10;
 
   if (avgScore !== null) {
     const lcmPoints = Math.round(avgScore * 10);

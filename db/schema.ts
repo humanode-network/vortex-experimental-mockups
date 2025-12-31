@@ -121,6 +121,24 @@ export const chamberMemberships = pgTable(
   }),
 );
 
+// Canonical chambers (Phase 18).
+export const chambers = pgTable("chambers", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  status: text("status").notNull().default("active"), // active | dissolved (v1)
+  multiplierTimes10: integer("multiplier_times10").notNull().default(10),
+  createdByProposalId: text("created_by_proposal_id"),
+  dissolvedByProposalId: text("dissolved_by_proposal_id"),
+  metadata: jsonb("metadata").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  dissolvedAt: timestamp("dissolved_at", { withTimezone: true }),
+});
+
 // Append-only event log backbone (Phase 5).
 export const events = pgTable("events", {
   seq: bigserial("seq", { mode: "number" }).primaryKey(),

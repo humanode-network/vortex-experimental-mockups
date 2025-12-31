@@ -3,13 +3,14 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { sql } from "drizzle-orm";
 import { pathToFileURL } from "node:url";
 
-import { events, readModels } from "../db/schema.ts";
+import { chambers as chambersTable, events, readModels } from "../db/schema.ts";
 
 import {
   buildReadModelSeed,
   type ReadModelSeedEntry,
 } from "../db/seed/readModels.ts";
 import { buildEventSeed } from "../db/seed/events.ts";
+import { chambers as chamberFixtures } from "../db/seed/fixtures/chambers.ts";
 
 function requireEnv(key: string): string {
   const value = process.env[key];
@@ -44,8 +45,24 @@ async function main() {
   const eventSeed = buildEventSeed();
   await db.execute(sql`TRUNCATE TABLE events RESTART IDENTITY`);
   await db.execute(
-    sql`TRUNCATE TABLE pool_votes, chamber_votes, cm_awards, idempotency_keys, formation_projects, formation_team, formation_milestones, formation_milestone_events, court_cases, court_reports, court_verdicts, era_snapshots, era_user_activity, era_rollups, era_user_status RESTART IDENTITY`,
+    sql`TRUNCATE TABLE chambers, chamber_memberships, pool_votes, chamber_votes, cm_awards, idempotency_keys, formation_projects, formation_team, formation_milestones, formation_milestone_events, court_cases, court_reports, court_verdicts, era_snapshots, era_user_activity, era_rollups, era_user_status RESTART IDENTITY`,
   );
+
+  await db.insert(chambersTable).values(
+    chamberFixtures.map((chamber) => ({
+      id: chamber.id,
+      title: chamber.name,
+      status: "active",
+      multiplierTimes10: Math.round(chamber.multiplier * 10),
+      metadata: {},
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      dissolvedAt: null,
+      createdByProposalId: null,
+      dissolvedByProposalId: null,
+    })),
+  );
+
   if (eventSeed.length > 0) {
     await db.insert(events).values(
       eventSeed.map((event) => ({

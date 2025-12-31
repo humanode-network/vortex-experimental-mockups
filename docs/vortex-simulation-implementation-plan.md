@@ -107,7 +107,7 @@ This is the order we’ll follow from now on, based on what’s already landed.
 19. **Phase 15 — Deterministic state transitions (DONE)**
 20. **Phase 16 — Time windows + automation (DONE)**
 21. **Phase 17 — Chamber voting eligibility + Formation optionality (DONE)**
-22. **Phase 18 — Chambers lifecycle (create/dissolve) (NEXT)**
+22. **Phase 18 — Chambers lifecycle (create/dissolve) (DONE)**
 
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
 
@@ -778,7 +778,7 @@ Current status:
 - Tests:
   - `tests/api-chamber-eligibility.test.js`
 
-### Phase 18 — Chambers lifecycle (create/dissolve) (NEXT)
+### Phase 18 — Chambers lifecycle (create/dissolve) (DONE)
 
 Goal: model chamber creation and dissolution per Vortex 1.0 as **General chamber** proposals.
 
@@ -794,3 +794,17 @@ Tests:
 
 - Chamber create/dissolve changes canonical chamber status and read endpoints reflect it.
 - Votes and proposals continue to resolve `chamberId` correctly when a chamber is dissolved (history preserved).
+
+Current status:
+
+- Canonical `chambers` table exists:
+  - schema: `db/schema.ts`
+  - migration: `db/migrations/0017_chambers.sql`
+- Genesis chambers are configured via `public/sim-config.json` → `genesisChambers` and auto-seeded when the table is empty.
+- Read endpoints are canonical:
+  - `GET /api/chambers` builds from canonical chambers (empty in `READ_MODELS_INLINE_EMPTY=true` mode).
+  - `GET /api/chambers/:id` resolves canonical chambers (still returns a minimal detail model in v1).
+- Chamber lifecycle is simulated as a General-chamber proposal outcome:
+  - accepted General proposals with `payload.metaGovernance.action` in `{ "chamber.create", "chamber.dissolve" }` create/dissolve chambers.
+- Tests:
+  - `tests/api-chambers-lifecycle.test.js`

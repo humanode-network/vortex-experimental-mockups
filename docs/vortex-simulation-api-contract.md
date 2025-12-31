@@ -45,6 +45,11 @@ Chamber voting eligibility (v1):
   - General chamber: eligible if the human has at least one accepted proposal in any chamber
 - Genesis bootstrap is configured via `/sim-config.json` → `genesisChamberMembers` (a mapping of `chamberId -> [addresses]` treated as eligible from day one).
 
+Chambers (v1):
+
+- Chambers are canonical (`chambers` table).
+- Genesis chambers are configured via `/sim-config.json` → `genesisChambers` and are auto-seeded when the table is empty.
+
 ## Write endpoints (Phase 6+)
 
 ### `POST /api/command`
