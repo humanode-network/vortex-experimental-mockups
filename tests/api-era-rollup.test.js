@@ -13,6 +13,10 @@ import { clearFormationForTests } from "../functions/_lib/formationStore.ts";
 import { clearIdempotencyForTests } from "../functions/_lib/idempotencyStore.ts";
 import { clearPoolVotesForTests } from "../functions/_lib/poolVotesStore.ts";
 import { clearInlineReadModelsForTests } from "../functions/_lib/readModelsStore.ts";
+import {
+  clearChamberMembershipsForTests,
+  ensureChamberMembership,
+} from "../functions/_lib/chamberMembershipsStore.ts";
 
 function makeContext({ url, env, params, method = "POST", headers, body }) {
   return {
@@ -48,6 +52,7 @@ const baseEnv = {
 test("POST /api/clock/rollup-era is idempotent and computes status + active governors", async () => {
   await clearPoolVotesForTests();
   await clearChamberVotesForTests();
+  clearChamberMembershipsForTests();
   clearCourtsForTests();
   clearFormationForTests();
   clearEraForTests();
@@ -68,6 +73,11 @@ test("POST /api/clock/rollup-era is idempotent and computes status + active gove
   const era = clockJson.currentEra;
 
   const cookie = await makeSessionCookie(baseEnv, "5RollupAddr");
+  await ensureChamberMembership(baseEnv, {
+    address: "5RollupAddr",
+    chamberId: "general",
+    source: "test",
+  });
 
   const poolVote = await commandPost(
     makeContext({

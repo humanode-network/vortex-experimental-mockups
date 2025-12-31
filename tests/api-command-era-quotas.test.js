@@ -12,6 +12,10 @@ import { clearFormationForTests } from "../functions/_lib/formationStore.ts";
 import { clearIdempotencyForTests } from "../functions/_lib/idempotencyStore.ts";
 import { clearPoolVotesForTests } from "../functions/_lib/poolVotesStore.ts";
 import { clearInlineReadModelsForTests } from "../functions/_lib/readModelsStore.ts";
+import {
+  clearChamberMembershipsForTests,
+  ensureChamberMembership,
+} from "../functions/_lib/chamberMembershipsStore.ts";
 
 function makeContext({ url, env, params, method = "POST", headers, body }) {
   return {
@@ -48,6 +52,7 @@ function baseEnv(overrides = {}) {
 async function resetAll() {
   await clearPoolVotesForTests();
   await clearChamberVotesForTests();
+  clearChamberMembershipsForTests();
   clearCourtsForTests();
   clearFormationForTests();
   clearEraForTests();
@@ -115,6 +120,16 @@ test("era quota: chamber votes limit blocks new votes but allows updates", async
   await resetAll();
   const env = baseEnv({ SIM_MAX_CHAMBER_VOTES_PER_ERA: "1" });
   const cookie = await makeSessionCookie(env, "5QuotaAddr");
+  await ensureChamberMembership(env, {
+    address: "5QuotaAddr",
+    chamberId: "general",
+    source: "test",
+  });
+  await ensureChamberMembership(env, {
+    address: "5QuotaAddr",
+    chamberId: "economics",
+    source: "test",
+  });
 
   const first = await commandPost(
     makeContext({

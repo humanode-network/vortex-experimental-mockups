@@ -12,6 +12,10 @@ import { clearFormationForTests } from "../functions/_lib/formationStore.ts";
 import { clearIdempotencyForTests } from "../functions/_lib/idempotencyStore.ts";
 import { clearPoolVotesForTests } from "../functions/_lib/poolVotesStore.ts";
 import { clearInlineReadModelsForTests } from "../functions/_lib/readModelsStore.ts";
+import {
+  clearChamberMembershipsForTests,
+  ensureChamberMembership,
+} from "../functions/_lib/chamberMembershipsStore.ts";
 
 function makeContext({ url, env, params, method = "POST", headers, body }) {
   return {
@@ -52,6 +56,7 @@ const baseEnv = {
 test("My Governance era activity counts only the first action per entity per era", async () => {
   await clearPoolVotesForTests();
   await clearChamberVotesForTests();
+  clearChamberMembershipsForTests();
   clearCourtsForTests();
   clearFormationForTests();
   clearEraForTests();
@@ -60,6 +65,11 @@ test("My Governance era activity counts only the first action per entity per era
 
   const address = "5EraAddr";
   const cookie = await makeSessionCookie(baseEnv, address);
+  await ensureChamberMembership(baseEnv, {
+    address,
+    chamberId: "general",
+    source: "test",
+  });
 
   const poolProposalId = "biometric-account-recovery";
 

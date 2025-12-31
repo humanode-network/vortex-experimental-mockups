@@ -135,6 +135,150 @@ Simulation requirements:
 - Chamber multipliers (for CM math).
 - Per-chamber pipeline counts: pool / vote / formation.
 
+#### What a chamber is (in this simulation)
+
+A **chamber** is a named specialization domain that:
+
+- tags a proposal with a “lead domain” (`chamberId`)
+- defines the **review/vote constituency** (who is expected/allowed to vote in the chamber stage)
+- defines a **CM multiplier (M)** used to scale contribution scores across domains
+
+In other words:
+
+- Pool stage answers: “Is this proposal worth attention at all?”
+- Chamber stage answers: “Do the domain specialists accept it?”
+- Formation answers (when applicable): “Can it be executed and tracked?”
+
+#### Chamber types: General vs specialization
+
+There are two kinds of chambers:
+
+- **General chamber**: meta-governance chamber.
+  - Everyone can vote in General only after they have at least one **accepted proposal** in any chamber.
+- **Specialization chambers**: Design/Engineering/Economics/Marketing/Product.
+  - Only domain participants can vote (see eligibility below).
+
+#### How chambers are created (v1)
+
+In v1, the set of chambers is treated as a **genesis configuration** (fixed set of chambers used across the UI).
+
+- the set of chambers is fixed (Design/Engineering/Economics/Marketing/General/Product)
+- `chamberId` is a stable string identifier (used in URLs, DTOs, and DB rows)
+- multipliers are adjustable (simulated via the CM Panel)
+
+Governance rule (paper-aligned):
+
+- **Chamber creation happens only through a proposal that went through the General chamber.**
+
+That proposal contains:
+
+- chamber id/name
+- multiplier
+- genesis roles/memberships (addresses + roles), represented in the simulation as `genesisChamberMembers` in `public/sim-config.json`
+
+Future (v2+): chamber creation/dissolution becomes fully canonical (not read-model seeded), but the rule stays the same.
+
+- add a new chamber definition
+- set initial multiplier
+- define initial membership rules and quorum baseline rules
+
+#### How chambers function (end-to-end)
+
+1. **Draft**
+   - A proposal draft is authored and assigns a `chamberId`.
+2. **Proposal pool (attention)**
+   - Proposal competes for attention globally (in v1, the threshold uses the current era’s active governors baseline).
+3. **Chamber vote**
+   - The chamber is the lead domain for the vote stage.
+   - In v1, quorum rules are **global** (not chamber-specific).
+   - CM scoring is collected here (optional 1–10 input), then awarded on success.
+4. **Formation**
+   - Formation is **optional**. A proposal is considered accepted once it passes the chamber vote, but only some proposal types open a Formation project.
+
+#### Role in the system
+
+Chambers are the main mechanism that keeps Vortex “specialization-based” instead of purely global governance:
+
+- reduces noise (people vote where they have context)
+- makes CM comparable across domains (multiplier)
+- provides a natural place for domain-specific norms (what “spam” means, acceptance criteria, etc.)
+
+#### Chamber participation and voting eligibility (paper-aligned rule)
+
+Voting is not weighted; this is eligibility only (still 1 human = 1 vote).
+
+Preconditions for any write action:
+
+1. The actor is an **active Human Node** (on-chain eligibility gate).
+2. The actor is counted as an “active governor” for the era where the action is happening (governance actions determine whether they are counted in quorum baselines next era).
+
+Eligibility to vote in chambers is earned by accepted proposals:
+
+- **Specialization chamber `X`**: a human can vote in `X` if they have at least one **accepted proposal in chamber `X`**.
+- **General chamber**: a human can vote in General if they have at least one **accepted proposal in any chamber**.
+
+Genesis exception:
+
+- genesis roles/memberships are treated as eligible from day one for their chamber(s) via `public/sim-config.json` → `genesisChamberMembers`.
+
+#### Chamber dissolution (paper-aligned rule)
+
+- Chambers can be dissolved only through a proposal in the **General chamber**.
+- Dissolution should not delete history. It should change chamber status (archived/dissolved/merged) and preserve audit trails.
+
+#### How chambers are represented in the code today (current state)
+
+Right now chambers are still **read-model driven** (Phase 4 legacy), with seeds living under `db/seed/fixtures/*`:
+
+- Chamber list read model: `db/seed/fixtures/chambers.ts` → key `chambers:list`
+- Chamber detail read model: `db/seed/fixtures/chamberDetail.ts` → key `chambers:${id}`
+- API:
+  - `functions/api/chambers/index.ts` returns `chambers:list`
+  - `functions/api/chambers/[id].ts` returns `chambers:${id}`
+- UI:
+  - `src/pages/chambers/Chambers.tsx` renders the directory from `GET /api/chambers`
+  - `src/pages/chambers/Chamber.tsx` renders the detail page from `GET /api/chambers/:id`
+
+Canonical links already exist, but are not fully modeled for chambers yet:
+
+- proposal drafts and canonical proposals already carry a `chamberId` (`proposal_drafts.chamber_id`, `proposals.chamber_id`)
+- CM awarding uses `chamberId` as an input (so multipliers can be applied)
+
+Canonical voting eligibility is now modeled and enforced:
+
+- DB table: `chamber_memberships` (granted on proposal acceptance)
+- Enforcement: `POST /api/command` → `chamber.vote` checks membership before recording a vote.
+- Rule:
+  - specialization chamber → must have an accepted proposal in that chamber
+  - general chamber → must have an accepted proposal in any chamber
+
+Note: the chamber list/detail pages are still read-model driven until chambers themselves are normalized.
+
+#### Target representation (next audit-driven step)
+
+To match the chamber model more precisely (and remove read-model drift), chambers should be modeled as canonical tables:
+
+- `chambers`:
+  - `id`, `name`, `multiplierTimes10`, optional `createdAt`, optional `createdBy`
+- `chamber_memberships` (already present in v1):
+  - `address`, `chamberId`, `grantedByProposalId`, `source`, `createdAt`
+  - future: add optional `role` and `leftAt` for dissolution/merges (without deleting history)
+
+From those, the UI’s chamber “stats” and “pipeline” should be derived from canonical state:
+
+- pipeline counts = number of proposals grouped by (`chamberId`, `stage`)
+- governors count = active chamber members (and/or active governors within chamber for the era)
+- LCM/MCM/ACM = derived from CM award events + multiplier configuration
+
+## 2) Next process audits (order)
+
+This is the sequence to audit and then implement, so the simulation matches the Vortex 1.0 model:
+
+1. **Chamber governance** (this section): creation/dissolution rules via General chamber proposals.
+2. **Chamber participation**: canonical “accepted proposal → chamber voting eligibility” and “accepted proposal anywhere → General eligibility”.
+3. **Formation optionality**: ensure “accepted” does not imply “formation exists” and treat Formation as a conditional sub-flow.
+4. **Quorum baselines**: confirm global quorum math uses “active governors next era” and enforce “active human node” gating + “active governor” rules consistently.
+
 ### 1.4 Cognitocratic Measure (CM)
 
 CM is a reputation-like contribution score:
@@ -184,6 +328,31 @@ Simulation requirements:
 - Stage transitions with gates: pool thresholds, vote window rules, formation eligibility.
 - Per-stage metrics shown in UI (quorums, floors, vote split, budgets, milestones, team slots).
 - Attachments metadata (links only; no file storage required for the simulation).
+
+#### When a proposal is “accepted”
+
+Paper-aligned rule for v1 simulation:
+
+- A proposal is considered **accepted** once it **passes the chamber vote**.
+- Formation is optional; acceptance does not imply that a Formation project must exist.
+
+Implications:
+
+- Chamber participation (“you can vote here”) is earned by having an accepted proposal.
+- The General chamber is unlocked by having any accepted proposal in any chamber.
+
+#### Formation optionality (modeling note)
+
+In the current UI, the stages are always rendered as Draft → Pool → Chamber vote → Formation.
+
+To keep DTOs and routes stable while allowing “no formation” proposals, the simulation should model:
+
+- `formationRequired: boolean` (proposal-type dependent)
+- Only when `formationRequired=true`:
+  - a Formation project is created
+  - Formation actions/milestones are enabled
+
+For `formationRequired=false`, the “Formation” page can render a minimal “No formation required” view and a history of the accepted vote.
 
 ### 1.8 Formation (execution layer)
 

@@ -41,7 +41,7 @@ Implemented (v1 simulation backend):
   - Tests: `tests/events-seed.test.js`, `tests/feed-event-projector.test.js`
 - Write slices via `POST /api/command` (auth + gate + idempotency + live overlays):
   - Proposal pool voting (`pool.vote`) + pool → vote auto-advance
-  - Chamber voting (`chamber.vote`) + CM awards + vote → build auto-advance (when Formation-eligible)
+  - Chamber voting (`chamber.vote`) + CM awards + vote → build auto-advance (quorum + passing; Formation is optional)
   - Formation v1 (`formation.join`, `formation.milestone.submit`, `formation.milestone.requestUnlock`)
   - Courts v1 (`court.case.report`, `court.case.verdict`)
   - Era snapshots + per-era activity counters (`/api/clock/*` + `/api/my-governance`)
@@ -105,8 +105,9 @@ This is the order we’ll follow from now on, based on what’s already landed.
 17. **Phase 13 — Eligibility via `Session::Validators` (DONE)**
 18. **Phase 14 — Canonical domain tables + projections (DONE)**
 19. **Phase 15 — Deterministic state transitions (DONE)**
-20. **Phase 16 — Time windows + automation (PLANNED)**
-21. **Phase 17 — Delegation v1 (PLANNED)**
+20. **Phase 16 — Time windows + automation (DONE)**
+21. **Phase 17 — Chamber voting eligibility + Formation optionality (DONE)**
+22. **Phase 18 — Chambers lifecycle (create/dissolve) (NEXT)**
 
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
 
@@ -687,7 +688,7 @@ Current status:
 - `pool.vote` and `chamber.vote` can auto-advance proposals even when `read_models` are missing, by using canonical proposal state as the source of truth.
 - Canonical stage transitions are enforced via `transitionProposalStage(...)` (compare-and-set + transition validation), with coverage in tests.
 
-### Phase 16 — Time windows + automation (IN PROGRESS)
+### Phase 16 — Time windows + automation (DONE)
 
 Goal: move from “admin-driven clock ops only” to scheduled simulation behavior.
 
@@ -715,24 +716,81 @@ Current status:
   - `GET /api/proposals` and `GET /api/proposals/:id/chamber` compute `timeLeft` from the canonical proposal stage timestamp when enabled (`"Ended"` once the window is over).
   - `POST /api/clock/tick` emits a deduped feed event when a proposal’s `pool` or `vote` window has ended (and returns those in the `endedWindows` response field for visibility).
 
-### Phase 17 — Delegation v1 (PLANNED)
+### Phase 17 — Chamber voting eligibility + Formation optionality (DONE)
 
-Goal: implement delegation as an off-chain simulation feature (needed for courts/disputes and future quorum weighting experiments), without changing the fundamental “1 human = 1 vote” model.
+Goal: align chambers with the Vortex 1.0 model:
+
+- specialization chambers are votable only by humans who have an **accepted proposal in that chamber**
+- General chamber is votable only by humans who have an **accepted proposal in any chamber**
+- quorum rules remain **global** (v1 simplification)
+- not all accepted proposals require Formation (Formation is optional)
+
+Definitions (v1):
+
+- “Accepted proposal” means: **passed chamber vote**.
+- “Formation required” is a proposal-type property; acceptance does not imply a Formation project must exist.
 
 Deliverables:
 
-- Delegation model:
-  - `delegations` (delegator → delegatee)
-  - cycle prevention
-  - optional metadata: sinceEra, note, public/private visibility
-- Commands:
-  - `delegation.set`, `delegation.clear`
-- Reads:
-  - surfaced in profile + My Governance as informational metadata (v1)
-- Court hooks:
-  - delegation disputes can reference real delegation history/events.
+1. Chamber participation model
+   - genesis participants/roles (seeded at genesis)
+   - earned eligibility:
+     - accepted proposal in chamber X → eligible to vote in X (specialization)
+     - accepted proposal in any chamber → eligible to vote in General
+   - no decay/expiration of eligibility (separate from “active governor next era” quorum baselines)
+2. Enforce eligibility in writes
+   - `chamber.vote` must reject when the voter is not eligible for the proposal’s lead chamber.
+   - The rule applies to **General** and **specialization** chambers.
+3. Decouple acceptance from Formation
+   - chamber vote passing moves a proposal to “accepted” regardless of whether Formation is required.
+   - Formation actions and Formation page behavior are enabled only when the proposal is Formation-required.
 
 Tests:
 
-- Cycle detection and invariants (no self-delegation; no loops).
-- Idempotent set/clear semantics.
+- Eligibility enforcement:
+  - voting in a specialization chamber without eligibility is rejected
+  - voting in General without “any accepted proposal” is rejected
+  - eligibility is granted after a proposal is accepted
+- Formation optionality:
+  - a non-Formation proposal can still become accepted
+  - Formation actions are rejected when Formation is not required
+
+Current status:
+
+- Chamber membership table added:
+  - schema: `db/schema.ts` (`chamber_memberships`)
+  - migration: `db/migrations/0016_chamber_memberships.sql`
+  - store: `functions/_lib/chamberMembershipsStore.ts`
+- Eligibility is enforced in writes:
+  - `POST /api/command` → `chamber.vote` rejects HTTP `403` when the voter is not eligible for the proposal’s lead chamber.
+  - Dev bypass: `DEV_BYPASS_CHAMBER_ELIGIBILITY=true` (local/testing only).
+- Genesis bootstrap:
+  - `/sim-config.json` can list `genesisChamberMembers` to allow the first chamber votes before any proposals are accepted.
+  - Tests/local dev can override config via `SIM_CONFIG_JSON`.
+- Eligibility is granted on acceptance:
+  - when a proposal passes chamber vote (vote → build), the proposer gains:
+    - specialization membership for that chamber (if not `general`)
+    - General eligibility (`general`)
+- Acceptance is decoupled from Formation:
+  - passing chamber vote advances vote → build regardless of Formation requirement
+  - Formation state is only seeded when `formationEligible=true`
+  - Formation commands are rejected when Formation is not required
+- Tests:
+  - `tests/api-chamber-eligibility.test.js`
+
+### Phase 18 — Chambers lifecycle (create/dissolve) (NEXT)
+
+Goal: model chamber creation and dissolution per Vortex 1.0 as **General chamber** proposals.
+
+Deliverables:
+
+- Canonical `chambers` table (id, title, status, createdAt, dissolvedAt, multiplier, metadata).
+- Commands/events for:
+  - create chamber (General chamber proposal outcome)
+  - dissolve chamber (General chamber proposal outcome; preserve history)
+- Read endpoints (replace read-model-only chamber list/detail with canonical + projections).
+
+Tests:
+
+- Chamber create/dissolve changes canonical chamber status and read endpoints reflect it.
+- Votes and proposals continue to resolve `chamberId` correctly when a chamber is dissolved (history preserved).

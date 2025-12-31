@@ -1,3 +1,11 @@
 {
-  "humanodeRpcUrl": "https://explorer-rpc.mainnet.stages.humanode.io"
+  "humanodeRpcUrl": "https://explorer-rpc.mainnet.stages.humanode.io",
+  "genesisChamberMembers": {
+    "general": [],
+    "design": [],
+    "engineering": [],
+    "economics": [],
+    "marketing": [],
+    "product": []
+  }
 }

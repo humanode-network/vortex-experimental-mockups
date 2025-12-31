@@ -61,6 +61,11 @@ import {
   getProposal,
   transitionProposalStage,
 } from "../_lib/proposalsStore.ts";
+import {
+  grantVotingEligibilityForAcceptedProposal,
+  hasAnyChamberMembership,
+  hasChamberMembership,
+} from "../_lib/chamberMembershipsStore.ts";
 import { randomHex } from "../_lib/random.ts";
 import {
   computePoolUpvoteFloor,
@@ -83,6 +88,8 @@ import {
   isStageOpen,
   stageWindowsEnabled,
 } from "../_lib/stageWindows.ts";
+import { envBoolean } from "../_lib/env.ts";
+import { getSimConfig } from "../_lib/simConfig.ts";
 
 const poolVoteSchema = z.object({
   type: z.literal("pool.vote"),
@@ -751,6 +758,10 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   if (input.type === "formation.join") {
     if (!readModels) return errorResponse(500, "Read models store unavailable");
+    const formationGate = await requireFormationEnabled(context.env, {
+      proposalId: input.payload.proposalId,
+    });
+    if (!formationGate.ok) return formationGate.error;
     const wouldCount = !(await isFormationTeamMember(context.env, {
       proposalId: input.payload.proposalId,
       memberAddress: session.address,
@@ -832,6 +843,10 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   if (input.type === "formation.milestone.submit") {
     if (!readModels) return errorResponse(500, "Read models store unavailable");
+    const formationGate = await requireFormationEnabled(context.env, {
+      proposalId: input.payload.proposalId,
+    });
+    if (!formationGate.ok) return formationGate.error;
     const status = await getFormationMilestoneStatus(context.env, readModels, {
       proposalId: input.payload.proposalId,
       milestoneIndex: input.payload.milestoneIndex,
@@ -922,6 +937,10 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   if (input.type === "formation.milestone.requestUnlock") {
     if (!readModels) return errorResponse(500, "Read models store unavailable");
+    const formationGate = await requireFormationEnabled(context.env, {
+      proposalId: input.payload.proposalId,
+    });
+    if (!formationGate.ok) return formationGate.error;
     const quotaError = await enforceEraQuota({
       kind: "formationActions",
       wouldCount: true,
@@ -1203,6 +1222,17 @@ export const onRequestPost: PagesFunction = async (context) => {
       });
     }
   }
+
+  const eligibilityError = await enforceChamberVoteEligibility(
+    context.env,
+    readModels,
+    {
+      proposalId: input.payload.proposalId,
+      voterAddress: session.address,
+    },
+    context.request.url,
+  );
+  if (eligibilityError) return eligibilityError;
 
   if (input.payload.choice !== "yes" && input.payload.score !== undefined) {
     return errorResponse(400, "Score is only allowed for yes votes");
@@ -1599,22 +1629,27 @@ async function maybeAdvanceVoteProposalToBuild(
     input.counts,
   );
   if (!quorum.shouldAdvance) return false;
-  if (!formationEligible) return false;
 
   const listPayload = await store.get("proposals:list");
   if (!isRecord(listPayload)) return false;
   const items = listPayload.items;
   if (!Array.isArray(items)) return false;
 
-  await ensureFormationProposalPage(store, input.proposalId, chamberPayload);
-  await ensureFormationSeed(env, store, input.proposalId);
+  if (formationEligible) {
+    await ensureFormationProposalPage(store, input.proposalId, chamberPayload);
+    await ensureFormationSeed(env, store, input.proposalId);
+  }
 
   let changed = false;
   const nextItems = items.map((item) => {
     if (!isRecord(item) || item.id !== input.proposalId) return item;
     if (item.stage !== "vote") return item;
     changed = true;
-    return { ...item, stage: "build", summaryPill: "Formation" };
+    return {
+      ...item,
+      stage: "build",
+      summaryPill: formationEligible ? "Formation" : "Passed",
+    };
   });
   if (!changed) return false;
 
@@ -1668,7 +1703,9 @@ async function maybeAdvanceVoteProposalToBuildCanonical(
   });
   if (!shouldAdvance) return false;
 
-  if (!getFormationEligibleFromProposalPayload(proposal.payload)) return false;
+  const formationEligible = getFormationEligibleFromProposalPayload(
+    proposal.payload,
+  );
 
   const transitioned = await transitionProposalStage(env, {
     proposalId: input.proposalId,
@@ -1677,11 +1714,19 @@ async function maybeAdvanceVoteProposalToBuildCanonical(
   });
   if (!transitioned) return false;
 
-  const seed = buildV1FormationSeedFromProposalPayload(proposal.payload);
-  await ensureFormationSeedFromInput(env, {
-    proposalId: input.proposalId,
-    seed,
+  await grantVotingEligibilityForAcceptedProposal(env, {
+    address: proposal.authorAddress,
+    chamberId: proposal.chamberId ?? null,
+    proposalId: proposal.id,
   });
+
+  if (formationEligible) {
+    const seed = buildV1FormationSeedFromProposalPayload(proposal.payload);
+    await ensureFormationSeedFromInput(env, {
+      proposalId: input.proposalId,
+      seed,
+    });
+  }
 
   const avgScore =
     (await getChamberYesScoreAverage(env, input.proposalId)) ?? null;
@@ -1713,6 +1758,38 @@ function getFormationEligibleFromProposalPayload(payload: unknown): boolean {
     return payload.formationEligible;
   if (typeof payload.formation === "boolean") return payload.formation;
   return true;
+}
+
+async function requireFormationEnabled(
+  env: Record<string, string | undefined>,
+  input: { proposalId: string },
+): Promise<
+  | { ok: true }
+  | {
+      ok: false;
+      error: Response;
+    }
+> {
+  const proposal = await getProposal(env, input.proposalId);
+  if (!proposal) return { ok: true };
+  if (proposal.stage !== "build") {
+    return {
+      ok: false,
+      error: errorResponse(409, "Proposal is not in formation stage", {
+        code: "stage_invalid",
+        stage: proposal.stage,
+      }),
+    };
+  }
+  if (!getFormationEligibleFromProposalPayload(proposal.payload)) {
+    return {
+      ok: false,
+      error: errorResponse(409, "Formation is not required for this proposal", {
+        code: "formation_not_required",
+      }),
+    };
+  }
+  return { ok: true };
 }
 
 async function ensureFormationProposalPage(
@@ -1765,6 +1842,99 @@ function buildFormationProposalPageFromChamber(
 function normalizeChamberId(chamberLabel: string): string {
   const match = chamberLabel.trim().match(/^([A-Za-z]+)/);
   return (match?.[1] ?? chamberLabel).toLowerCase();
+}
+
+async function enforceChamberVoteEligibility(
+  env: Record<string, string | undefined>,
+  readModels: Awaited<ReturnType<typeof createReadModelsStore>> | null,
+  input: { proposalId: string; voterAddress: string },
+  requestUrl: string,
+): Promise<Response | null> {
+  if (envBoolean(env, "DEV_BYPASS_CHAMBER_ELIGIBILITY")) return null;
+
+  const simConfig = await getSimConfig(env, requestUrl);
+  const genesis = simConfig?.genesisChamberMembers;
+
+  const chamberId = await getProposalChamberIdForVote(env, readModels, {
+    proposalId: input.proposalId,
+  });
+  const voterAddress = input.voterAddress.toLowerCase();
+
+  const hasGenesisMembership = (targetChamberId: string): boolean => {
+    if (!genesis) return false;
+    const members = genesis[targetChamberId.toLowerCase()] ?? [];
+    return members.includes(voterAddress);
+  };
+  const hasAnyGenesisMembership = (): boolean => {
+    if (!genesis) return false;
+    for (const members of Object.values(genesis)) {
+      if (members.includes(voterAddress)) return true;
+    }
+    return false;
+  };
+
+  if (chamberId === "general") {
+    const eligible =
+      (await hasChamberMembership(env, {
+        address: voterAddress,
+        chamberId: "general",
+      })) ||
+      (await hasAnyChamberMembership(env, voterAddress)) ||
+      hasAnyGenesisMembership();
+    if (!eligible) {
+      return errorResponse(403, "Not eligible to vote in General chamber", {
+        code: "chamber_vote_ineligible",
+        chamberId,
+      });
+    }
+    return null;
+  }
+
+  const eligible = await hasChamberMembership(env, {
+    address: voterAddress,
+    chamberId,
+  });
+  if (!eligible && !hasGenesisMembership(chamberId)) {
+    return errorResponse(403, "Not eligible to vote in this chamber", {
+      code: "chamber_vote_ineligible",
+      chamberId,
+    });
+  }
+  return null;
+}
+
+async function getProposalChamberIdForVote(
+  env: Record<string, string | undefined>,
+  readModels: Awaited<ReturnType<typeof createReadModelsStore>> | null,
+  input: { proposalId: string },
+): Promise<string> {
+  const proposal = await getProposal(env, input.proposalId);
+  if (proposal) return (proposal.chamberId ?? "general").toLowerCase();
+
+  if (!readModels) return "general";
+
+  const chamberPayload = await readModels.get(
+    `proposals:${input.proposalId}:chamber`,
+  );
+  if (isRecord(chamberPayload)) {
+    const label = asString(chamberPayload.chamber, "");
+    const normalized = normalizeChamberId(label);
+    return normalized || "general";
+  }
+
+  const listPayload = await readModels.get("proposals:list");
+  if (isRecord(listPayload) && Array.isArray(listPayload.items)) {
+    const entry = listPayload.items.find(
+      (item) => isRecord(item) && item.id === input.proposalId,
+    );
+    if (isRecord(entry)) {
+      const label = asString(entry.chamber, asString(entry.meta, ""));
+      const normalized = normalizeChamberId(label);
+      return normalized || "general";
+    }
+  }
+
+  return "general";
 }
 
 async function getChamberMultiplierTimes10(

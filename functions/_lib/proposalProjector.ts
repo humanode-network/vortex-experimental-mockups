@@ -41,6 +41,7 @@ export function projectProposalListItem(
   const chamber = formatChamberLabel(proposal.chamberId);
   const date = proposal.createdAt.toISOString().slice(0, 10);
   const now = input.now ?? new Date();
+  const formationEligible = getFormationEligibleFromPayload(proposal.payload);
 
   const stageData =
     proposal.stage === "pool"
@@ -70,14 +71,16 @@ export function projectProposalListItem(
                 : formatTimeLeftDaysHours(remaining);
             })(),
           })
-        : projectBuildListStageData({
-            summary: input.formationSummary ?? {
-              teamFilled: 0,
-              teamTotal: 0,
-              milestonesCompleted: 0,
-              milestonesTotal: 0,
-            },
-          });
+        : formationEligible
+          ? projectBuildListStageData({
+              summary: input.formationSummary ?? {
+                teamFilled: 0,
+                teamTotal: 0,
+                milestonesCompleted: 0,
+                milestonesTotal: 0,
+              },
+            })
+          : projectPassedListStageData();
 
   const budget = formatBudget(getDraftForm(proposal.payload));
   const milestonesCount = getDraftForm(proposal.payload)?.timeline.length ?? 0;
@@ -87,16 +90,21 @@ export function projectProposalListItem(
       ? "Open proposal"
       : proposal.stage === "vote"
         ? "Open proposal"
-        : "Open project";
+        : formationEligible
+          ? "Open project"
+          : "Open proposal";
 
-  const ctaSecondary = proposal.stage === "build" ? "Ping team" : "";
+  const ctaSecondary =
+    proposal.stage === "build" && formationEligible ? "Ping team" : "";
 
   const summaryPill =
     proposal.stage === "pool"
       ? `${milestonesCount} milestones`
       : proposal.stage === "vote"
         ? "Chamber vote"
-        : "Formation";
+        : formationEligible
+          ? "Formation"
+          : "Passed";
 
   return {
     id: proposal.id,
@@ -108,7 +116,7 @@ export function projectProposalListItem(
     stageData,
     stats: [
       { label: "Budget ask", value: budget },
-      { label: "Formation", value: "Yes" },
+      { label: "Formation", value: formationEligible ? "Yes" : "No" },
     ],
     proposer: proposal.authorAddress,
     proposerId: proposal.authorAddress,
@@ -142,6 +150,7 @@ export function projectPoolProposalPage(
   const form = getDraftForm(proposal.payload);
   const chamber = formatChamberLabel(proposal.chamberId);
   const budget = formatBudget(form);
+  const formationEligible = getFormationEligibleFromPayload(proposal.payload);
 
   const activeGovernors = Math.max(
     0,
@@ -167,7 +176,7 @@ export function projectPoolProposalPage(
     tier: "Nominee",
     budget,
     cooldown: "Withdraw cooldown: 12h",
-    formationEligible: true,
+    formationEligible,
     teamSlots: "1 / 3",
     milestones: String(form?.timeline.length ?? 0),
     upvotes: input.counts.upvotes,
@@ -221,6 +230,7 @@ export function projectChamberProposalPage(
   const form = getDraftForm(proposal.payload);
   const chamber = formatChamberLabel(proposal.chamberId);
   const budget = formatBudget(form);
+  const formationEligible = getFormationEligibleFromPayload(proposal.payload);
 
   const activeGovernors = Math.max(
     0,
@@ -251,7 +261,7 @@ export function projectChamberProposalPage(
     proposerId: proposal.authorAddress,
     chamber,
     budget,
-    formationEligible: true,
+    formationEligible,
     teamSlots: "1 / 3",
     milestones: `${form?.timeline.length ?? 0}`,
     timeLeft,
@@ -478,6 +488,22 @@ function projectBuildListStageData(input: {
   ];
 }
 
+function projectPassedListStageData(): ProposalStageDatumDto[] {
+  return [
+    {
+      title: "Accepted",
+      description: "Passed chamber vote",
+      value: "Yes",
+      tone: "ok",
+    },
+    {
+      title: "Formation",
+      description: "Execution stage",
+      value: "Not required",
+    },
+  ];
+}
+
 function getDraftForm(payload: unknown): ProposalDraftForm | null {
   if (!payload || typeof payload !== "object" || Array.isArray(payload))
     return null;
@@ -486,6 +512,16 @@ function getDraftForm(payload: unknown): ProposalDraftForm | null {
   if (!Array.isArray(record.timeline) || !Array.isArray(record.budgetItems))
     return null;
   return record as ProposalDraftForm;
+}
+
+function getFormationEligibleFromPayload(payload: unknown): boolean {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload))
+    return true;
+  const record = payload as Record<string, unknown>;
+  if (typeof record.formationEligible === "boolean")
+    return record.formationEligible;
+  if (typeof record.formation === "boolean") return record.formation;
+  return true;
 }
 
 function formatBudget(form: ProposalDraftForm | null): string {

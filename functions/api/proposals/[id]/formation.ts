@@ -23,8 +23,38 @@ export const onRequestGet: PagesFunction = async (context) => {
         get: async () => null,
       };
 
-      const seed = buildV1FormationSeedFromProposalPayload(proposal.payload);
-      await ensureFormationSeedFromInput(context.env, { proposalId: id, seed });
+      const formationEligible = (() => {
+        const payload = proposal.payload;
+        if (!payload || typeof payload !== "object" || Array.isArray(payload))
+          return true;
+        const record = payload as Record<string, unknown>;
+        if (typeof record.formationEligible === "boolean")
+          return record.formationEligible;
+        if (typeof record.formation === "boolean") return record.formation;
+        return true;
+      })();
+
+      if (!formationEligible) {
+        return jsonResponse(
+          projectFormationProposalPage(proposal, {
+            summary: {
+              teamFilled: 0,
+              teamTotal: 0,
+              milestonesCompleted: 0,
+              milestonesTotal: 0,
+            },
+            joiners: [],
+          }),
+        );
+      }
+
+      if (formationEligible) {
+        const seed = buildV1FormationSeedFromProposalPayload(proposal.payload);
+        await ensureFormationSeedFromInput(context.env, {
+          proposalId: id,
+          seed,
+        });
+      }
 
       const summary = await getFormationSummary(context.env, store, id);
       const joiners = await listFormationJoiners(context.env, id);

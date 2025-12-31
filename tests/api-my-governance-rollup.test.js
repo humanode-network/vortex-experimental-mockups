@@ -13,6 +13,10 @@ import { clearFormationForTests } from "../functions/_lib/formationStore.ts";
 import { clearIdempotencyForTests } from "../functions/_lib/idempotencyStore.ts";
 import { clearPoolVotesForTests } from "../functions/_lib/poolVotesStore.ts";
 import { clearInlineReadModelsForTests } from "../functions/_lib/readModelsStore.ts";
+import {
+  clearChamberMembershipsForTests,
+  ensureChamberMembership,
+} from "../functions/_lib/chamberMembershipsStore.ts";
 
 function makeContext({ url, env, params, method = "POST", headers, body }) {
   return {
@@ -48,6 +52,7 @@ const baseEnv = {
 test("GET /api/my-governance includes rollup status after rollup", async () => {
   await clearPoolVotesForTests();
   await clearChamberVotesForTests();
+  clearChamberMembershipsForTests();
   clearCourtsForTests();
   clearFormationForTests();
   clearEraForTests();
@@ -56,6 +61,11 @@ test("GET /api/my-governance includes rollup status after rollup", async () => {
   clearInlineReadModelsForTests();
 
   const cookie = await makeSessionCookie(baseEnv, "5GovRollupAddr");
+  await ensureChamberMembership(baseEnv, {
+    address: "5GovRollupAddr",
+    chamberId: "general",
+    source: "test",
+  });
 
   // 3 distinct actions so status becomes Ahead (requiredTotal=1).
   const poolVote = await commandPost(

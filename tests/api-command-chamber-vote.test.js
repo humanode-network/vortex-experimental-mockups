@@ -11,6 +11,10 @@ import { clearInlineReadModelsForTests } from "../functions/_lib/readModelsStore
 import { clearChamberVotesForTests } from "../functions/_lib/chamberVotesStore.ts";
 import { clearCmAwardsForTests } from "../functions/_lib/cmAwardsStore.ts";
 import { onRequestGet as humansGet } from "../functions/api/humans/index.ts";
+import {
+  clearChamberMembershipsForTests,
+  ensureChamberMembership,
+} from "../functions/_lib/chamberMembershipsStore.ts";
 
 function makeContext({ url, env, params, method = "POST", headers, body }) {
   return {
@@ -41,6 +45,7 @@ const baseEnv = {
 
 test("POST /api/command chamber.vote rejects when not authenticated", async () => {
   await clearChamberVotesForTests();
+  clearChamberMembershipsForTests();
   clearIdempotencyForTests();
   clearInlineReadModelsForTests();
   await clearCmAwardsForTests();
@@ -61,11 +66,17 @@ test("POST /api/command chamber.vote rejects when not authenticated", async () =
 
 test("GET /api/proposals/:id/chamber overlays live vote counts", async () => {
   await clearChamberVotesForTests();
+  clearChamberMembershipsForTests();
   clearIdempotencyForTests();
   clearInlineReadModelsForTests();
   await clearCmAwardsForTests();
 
   const cookie = await makeSessionCookie(baseEnv, "5VoteAddr");
+  await ensureChamberMembership(baseEnv, {
+    address: "5VoteAddr",
+    chamberId: "general",
+    source: "test",
+  });
   const res1 = await commandPost(
     makeContext({
       url: "https://local.test/api/command",
@@ -99,6 +110,7 @@ test("GET /api/proposals/:id/chamber overlays live vote counts", async () => {
 
 test("chamber vote passing auto-advances proposal from vote → build and creates formation page", async () => {
   await clearChamberVotesForTests();
+  clearChamberMembershipsForTests();
   clearIdempotencyForTests();
   clearInlineReadModelsForTests();
   await clearCmAwardsForTests();
@@ -107,6 +119,11 @@ test("chamber vote passing auto-advances proposal from vote → build and create
 
   for (let i = 0; i < 50; i += 1) {
     const address = `5ChamberAddr${i}`;
+    await ensureChamberMembership(baseEnv, {
+      address,
+      chamberId: "general",
+      source: "test",
+    });
     const cookie = await makeSessionCookie(baseEnv, address);
     const choice = i < 33 ? "yes" : "no";
     const res = await commandPost(
@@ -127,6 +144,11 @@ test("chamber vote passing auto-advances proposal from vote → build and create
     assert.equal(res.status, 200);
   }
 
+  await ensureChamberMembership(baseEnv, {
+    address: "5ChamberAddr50",
+    chamberId: "general",
+    source: "test",
+  });
   const cookie51 = await makeSessionCookie(baseEnv, "5ChamberAddr50");
   const res51 = await commandPost(
     makeContext({
@@ -169,6 +191,11 @@ test("chamber vote passing auto-advances proposal from vote → build and create
   );
   assert.match(formationJson.title, /^Tier Decay v1/);
 
+  await ensureChamberMembership(baseEnv, {
+    address: "5AfterPass",
+    chamberId: "general",
+    source: "test",
+  });
   const cookieAfter = await makeSessionCookie(baseEnv, "5AfterPass");
   const resAfter = await commandPost(
     makeContext({

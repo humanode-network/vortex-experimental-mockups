@@ -38,6 +38,13 @@ Eligibility (v1):
   2. `/sim-config.json` → `humanodeRpcUrl` (repo-configured runtime config served from `public/`)
 - If neither is configured, the gate returns `eligible: false` with `reason: "rpc_not_configured"`.
 
+Chamber voting eligibility (v1):
+
+- `chamber.vote` is additionally restricted by **chamber membership**:
+  - specialization chamber `X`: eligible if the human has at least one accepted proposal in `X`
+  - General chamber: eligible if the human has at least one accepted proposal in any chamber
+- Genesis bootstrap is configured via `/sim-config.json` → `genesisChamberMembers` (a mapping of `chamberId -> [addresses]` treated as eligible from day one).
+
 ## Write endpoints (Phase 6+)
 
 ### `POST /api/command`
@@ -275,10 +282,14 @@ type ChamberVoteResponse = {
 Notes:
 
 - If the proposal is not currently in the vote stage, the API returns HTTP `409`.
+- Chamber eligibility is enforced (paper-aligned):
+  - voting in a specialization chamber requires an accepted proposal in that chamber
+  - voting in General requires an accepted proposal in any chamber
+  - when ineligible, the API returns HTTP `403` with `code: "chamber_vote_ineligible"` and the target `chamberId`
 - `score` is optional and only allowed when `choice === "yes"` (HTTP `400` otherwise). This is the v1 CM input.
 - The chamber page read endpoint overlays live vote totals from stored votes (so `votes` and `engagedGovernors` update immediately).
-- When quorum + passing are met **and** `formationEligible === true`, the backend auto-advances the proposal from **vote → build** by updating the `proposals:list` read model.
-  - If `proposals:${proposalId}:formation` does not exist yet, it is created as a minimal placeholder derived from the chamber page payload so the Formation page can render.
+- When quorum + passing are met, the backend auto-advances the proposal from **vote → build**.
+  - Formation is optional: if `formationEligible === true`, the backend also seeds the Formation placeholder/state so the Formation page can render and Formation actions can be used.
 - When a proposal passes, CM is awarded off-chain:
   - the average `score` across yes votes is converted into points
   - a CM award record is stored in `cm_awards` (unique per proposal)
@@ -310,6 +321,7 @@ type FormationJoinResponse = {
 Notes:
 
 - If the proposal is not currently in the build stage, the API returns HTTP `409`.
+- If the proposal does not require Formation (`formationEligible === false`), the API returns HTTP `409` with `code: "formation_not_required"`.
 - If team slots are full, the API returns HTTP `409`.
 - This command emits a feed event (stage: `build`).
 
@@ -339,6 +351,8 @@ type FormationMilestoneSubmitResponse = {
 
 Notes:
 
+- If the proposal is not currently in the build stage, the API returns HTTP `409`.
+- If the proposal does not require Formation (`formationEligible === false`), the API returns HTTP `409` with `code: "formation_not_required"`.
 - `milestoneIndex` is 1-based.
 - Submitting does not automatically increase `completed` until it is unlocked.
 - This command emits a feed event (stage: `build`).
@@ -369,6 +383,8 @@ type FormationMilestoneRequestUnlockResponse = {
 
 Notes:
 
+- If the proposal is not currently in the build stage, the API returns HTTP `409`.
+- If the proposal does not require Formation (`formationEligible === false`), the API returns HTTP `409` with `code: "formation_not_required"`.
 - Unlocking requires a prior submit (HTTP `409` if not submitted).
 - Double-unlock is rejected (HTTP `409`).
 - This command emits a feed event (stage: `build`).

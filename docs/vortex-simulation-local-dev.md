@@ -53,6 +53,10 @@ These env vars are read by the API runtime (Pages Functions in production, Node 
 
 For convenience, this repo ships with a default `humanodeRpcUrl` pointing to the public Humanode mainnet explorer RPC.
 
+- Chamber voting bootstrap (optional):
+  - `public/sim-config.json` → `genesisChamberMembers` can list initial eligible voters per `chamberId` (including `general`).
+  - This is needed to allow the first specialization chamber votes before anyone has an accepted proposal.
+
 - `SIM_ACTIVE_GOVERNORS` (optional): active governors baseline used for quorum math (defaults to `150`).
 - `SIM_REQUIRED_POOL_VOTES` (optional): per-era required pool actions (defaults to `1`).
 - `SIM_REQUIRED_CHAMBER_VOTES` (optional): per-era required chamber actions (defaults to `1`).
@@ -83,11 +87,13 @@ For convenience, this repo ships with a default `humanodeRpcUrl` pointing to the
 
 - `DEV_BYPASS_SIGNATURE=true` to accept any signature (demo/dev mode).
 - `DEV_BYPASS_GATE=true` to mark any signed-in user as eligible (demo/dev mode).
+- `DEV_BYPASS_CHAMBER_ELIGIBILITY=true` to skip chamber membership checks for `chamber.vote` (demo/dev mode).
 - `DEV_ELIGIBLE_ADDRESSES=addr1,addr2,...` allowlist for eligibility when `DEV_BYPASS_GATE` is false.
 - `DEV_INSECURE_COOKIES=true` to allow auth cookies over plain HTTP (local dev only).
 - `READ_MODELS_INLINE=true` to serve read endpoints from the in-repo seed builder (no DB required).
 - `READ_MODELS_INLINE_EMPTY=true` to force an empty read-model store (useful for “clean UI” local dev without touching a DB).
 - `DEV_BYPASS_ADMIN=true` to allow admin endpoints locally without `ADMIN_SECRET`.
+- `SIM_CONFIG_JSON='{"humanodeRpcUrl":"...","genesisChamberMembers":{"engineering":["5..."]}}'` to override `/sim-config.json` in tests or local dev.
 
 ## Running locally (recommended)
 

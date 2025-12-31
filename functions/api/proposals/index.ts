@@ -51,6 +51,17 @@ export const onRequestGet: PagesFunction = async (context) => {
 
     const projected = await Promise.all(
       proposals.map(async (proposal) => {
+        const formationEligible = (() => {
+          const payload = proposal.payload;
+          if (!payload || typeof payload !== "object" || Array.isArray(payload))
+            return true;
+          const record = payload as Record<string, unknown>;
+          if (typeof record.formationEligible === "boolean")
+            return record.formationEligible;
+          if (typeof record.formation === "boolean") return record.formation;
+          return true;
+        })();
+
         const poolCounts =
           proposal.stage === "pool"
             ? await getPoolVoteCounts(context.env, proposal.id)
@@ -60,7 +71,7 @@ export const onRequestGet: PagesFunction = async (context) => {
             ? await getChamberVoteCounts(context.env, proposal.id)
             : undefined;
         const formationSummary =
-          proposal.stage === "build"
+          proposal.stage === "build" && formationEligible
             ? await getFormationSummary(context.env, store, proposal.id).catch(
                 () => null,
               )

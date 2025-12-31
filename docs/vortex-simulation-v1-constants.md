@@ -34,7 +34,8 @@ This file records the v1 decisions used by the simulation backend so implementat
 - Phase 7 write slice exists:
   - `POST /api/command` supports `chamber.vote` (auth + gate + idempotency).
   - `chamber_votes` stores one vote per address per proposal and `GET /api/proposals/:id/chamber` overlays live counts.
-  - Vote quorum + passing evaluation exists (`evaluateChamberQuorum`) and proposals can auto-advance from vote → build when Formation-eligible.
+  - Vote quorum + passing evaluation exists (`evaluateChamberQuorum`) and proposals auto-advance from vote → build when quorum + passing are met.
+  - Formation is optional: formation state is only seeded/usable when `formationEligible` is true on the proposal payload.
   - CM awards v1 are recorded in `cm_awards` when proposals pass (derived from average yes `score`), and `/api/humans*` overlays ACM deltas from awards.
 - Phase 8 write slice exists:
   - Formation tables exist:
@@ -44,6 +45,7 @@ This file records the v1 decisions used by the simulation backend so implementat
     - `formation.milestone.submit`
     - `formation.milestone.requestUnlock`
   - `GET /api/proposals/:id/formation` overlays live Formation state (team slots, milestones, progress).
+  - Formation commands are rejected when a proposal does not require Formation (`formationEligible=false`).
 - Phase 9 write slice exists:
   - Courts tables exist:
     - `court_cases`, `court_reports`, `court_verdicts`
@@ -65,6 +67,14 @@ This file records the v1 decisions used by the simulation backend so implementat
     - optional baseline update when `SIM_DYNAMIC_ACTIVE_GOVERNORS=true` (next era uses `activeGovernorsNextEra`)
   - Rollup output is stored in:
     - `era_rollups`, `era_user_status`
+
+- Phase 17 write slice exists:
+  - Chamber vote eligibility is enforced (paper-aligned):
+    - Specialization chamber: vote requires an accepted proposal in that chamber.
+    - General chamber: vote requires an accepted proposal in any chamber.
+  - Genesis bootstrap for the first votes can be configured via `public/sim-config.json` (`genesisChamberMembers`).
+  - Eligibility is persisted in `chamber_memberships` and granted when a proposal is accepted (vote → build transition).
+  - Dev bypass: `DEV_BYPASS_CHAMBER_ELIGIBILITY=true` disables chamber-membership checks (local/testing only).
 
 ## Post-v1 roadmap (v2+)
 

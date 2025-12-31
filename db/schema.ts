@@ -102,6 +102,25 @@ export const proposals = pgTable("proposals", {
     .defaultNow(),
 });
 
+// Chamber voting eligibility (Phase 17).
+// Membership is granted when a proposal is accepted in a chamber.
+// General chamber membership is granted when any proposal is accepted anywhere.
+export const chamberMemberships = pgTable(
+  "chamber_memberships",
+  {
+    chamberId: text("chamber_id").notNull(),
+    address: text("address").notNull(),
+    grantedByProposalId: text("granted_by_proposal_id"),
+    source: text("source").notNull().default("accepted_proposal"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.chamberId, t.address] }),
+  }),
+);
+
 // Append-only event log backbone (Phase 5).
 export const events = pgTable("events", {
   seq: bigserial("seq", { mode: "number" }).primaryKey(),

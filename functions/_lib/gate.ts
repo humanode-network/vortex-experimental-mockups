@@ -4,7 +4,7 @@ import { eligibilityCache } from "../../db/schema.ts";
 import { envBoolean, envCsv } from "./env.ts";
 import { createDb } from "./db.ts";
 import { isActiveHumanNodeViaRpc } from "./humanodeRpc.ts";
-import { getSimConfigFromOrigin } from "./simConfig.ts";
+import { getSimConfig } from "./simConfig.ts";
 
 type Env = Record<string, string | undefined>;
 
@@ -34,7 +34,7 @@ export async function checkEligibility(
 
   let envWithRpc: Env = env;
   if (!env.HUMANODE_RPC_URL && requestUrl) {
-    const cfg = await getSimConfigFromOrigin(requestUrl);
+    const cfg = await getSimConfig(env, requestUrl);
     const fromCfg = (cfg?.humanodeRpcUrl ?? "").trim();
     if (fromCfg) {
       envWithRpc = { ...env, HUMANODE_RPC_URL: fromCfg };

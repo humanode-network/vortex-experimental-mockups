@@ -13,6 +13,10 @@ import {
 import { clearPoolVotesForTests } from "../functions/_lib/poolVotesStore.ts";
 import { clearChamberVotesForTests } from "../functions/_lib/chamberVotesStore.ts";
 import { clearEraForTests } from "../functions/_lib/eraStore.ts";
+import {
+  clearChamberMembershipsForTests,
+  ensureChamberMembership,
+} from "../functions/_lib/chamberMembershipsStore.ts";
 
 function makeContext({ url, env, params, method = "POST", headers, body }) {
   return {
@@ -69,6 +73,7 @@ test("stage windows: pool votes rejected after pool window ends", async () => {
   clearProposalsForTests();
   clearPoolVotesForTests();
   await clearChamberVotesForTests();
+  clearChamberMembershipsForTests();
   clearEraForTests();
 
   const cookie = await makeSessionCookie(baseEnv, "5TestAddr");
@@ -126,9 +131,15 @@ test("stage windows: chamber votes rejected after voting window ends", async () 
   clearProposalsForTests();
   clearPoolVotesForTests();
   await clearChamberVotesForTests();
+  clearChamberMembershipsForTests();
   clearEraForTests();
 
   const cookie = await makeSessionCookie(baseEnv, "5TestAddr");
+  await ensureChamberMembership(baseEnv, {
+    address: "5TestAddr",
+    chamberId: "engineering",
+    source: "test",
+  });
 
   const saveRes = await commandPost(
     makeContext({
