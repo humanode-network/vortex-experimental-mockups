@@ -93,6 +93,7 @@ import { getSimConfig } from "../_lib/simConfig.ts";
 import {
   createChamberFromAcceptedGeneralProposal,
   dissolveChamberFromAcceptedGeneralProposal,
+  getChamber,
   getChamberMultiplierTimes10 as getCanonicalChamberMultiplierTimes10,
   parseChamberGovernanceFromPayload,
 } from "../_lib/chambersStore.ts";
@@ -442,6 +443,29 @@ export const onRequestPost: PagesFunction = async (context) => {
       .replace(/^-+|-+$/g, "")
       .slice(0, 48);
     const proposalId = `${baseSlug || "proposal"}-${randomHex(2)}`;
+
+    const chamberId = (draft.chamberId ?? "").trim().toLowerCase();
+    if (chamberId && chamberId !== "general") {
+      const chamber = await getChamber(
+        context.env,
+        context.request.url,
+        chamberId,
+      );
+      if (!chamber) {
+        return errorResponse(400, "Unknown chamber", {
+          code: "invalid_chamber",
+          chamberId,
+        });
+      }
+      if (chamber.status !== "active") {
+        return errorResponse(409, "Chamber is dissolved", {
+          code: "chamber_dissolved",
+          chamberId,
+          status: chamber.status,
+          dissolvedAt: chamber.dissolvedAt?.toISOString() ?? null,
+        });
+      }
+    }
 
     await createProposal(context.env, {
       id: proposalId,
@@ -1226,6 +1250,28 @@ export const onRequestPost: PagesFunction = async (context) => {
           return remaining === 0 ? "Ended" : formatTimeLeftDaysHours(remaining);
         })(),
       });
+    }
+  }
+
+  if (proposal) {
+    const chamberId = (proposal.chamberId ?? "general").toLowerCase();
+    if (chamberId !== "general") {
+      const chamber = await getChamber(
+        context.env,
+        context.request.url,
+        chamberId,
+      );
+      if (chamber?.status === "dissolved" && chamber.dissolvedAt) {
+        const proposalCreatedAt = proposal.createdAt.getTime();
+        const dissolvedAt = chamber.dissolvedAt.getTime();
+        if (proposalCreatedAt > dissolvedAt) {
+          return errorResponse(409, "Chamber is dissolved", {
+            code: "chamber_dissolved",
+            chamberId,
+            dissolvedAt: chamber.dissolvedAt.toISOString(),
+          });
+        }
+      }
     }
   }
 

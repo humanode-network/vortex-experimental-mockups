@@ -108,7 +108,8 @@ This is the order we’ll follow from now on, based on what’s already landed.
 20. **Phase 16 — Time windows + automation (DONE)**
 21. **Phase 17 — Chamber voting eligibility + Formation optionality (DONE)**
 22. **Phase 18 — Chambers lifecycle (create/dissolve) (DONE)**
-23. **Phase 19 — Chamber detail projections (IN PROGRESS)**
+23. **Phase 19 — Chamber detail projections (DONE)**
+24. **Phase 20 — Dissolved chamber enforcement (DONE)**
 
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
 
@@ -810,7 +811,7 @@ Current status:
 - Tests:
   - `tests/api-chambers-lifecycle.test.js`
 
-### Phase 19 — Chamber detail projections (IN PROGRESS)
+### Phase 19 — Chamber detail projections (DONE)
 
 Goal: make `GET /api/chambers/:id` a true projection from canonical state (no chamber read-model drift).
 
@@ -828,3 +829,43 @@ Deliverables:
 Tests:
 
 - `GET /api/chambers/:id` returns roster derived from memberships/genesis.
+
+Current status:
+
+- `GET /api/chambers/:id` is projected from canonical stores:
+  - proposals come from canonical `proposals` (pool → upcoming, vote → live, build → ended)
+  - roster comes from canonical `chamber_memberships` plus `genesisChamberMembers`
+  - General roster is the union of all chamber memberships plus all genesis members
+- Tests:
+  - `tests/api-chamber-detail-projection.test.js`
+
+### Phase 20 — Dissolved chamber enforcement (DONE)
+
+Goal: define and enforce what “dissolved chamber” means for writes in v1.
+
+v1 rule:
+
+- dissolved chambers are not selectable for new proposal submissions
+- proposals created before dissolution can finish their lifecycle (votes allowed)
+
+Deliverables:
+
+- `proposal.submitToPool` rejects drafts targeting a dissolved chamber.
+- `chamber.vote` rejects votes only for the (should-not-exist) case where a proposal was created after the chamber was dissolved.
+- Preserve history: dissolved chambers remain in canonical storage and can still be referenced by old proposals.
+
+Tests:
+
+- cannot submit a new proposal into a dissolved chamber
+- voting remains possible on pre-existing proposals created before dissolution
+- voting is rejected for proposals created after dissolution (defensive invariant)
+
+Current status:
+
+- Enforcement is implemented in `functions/api/command.ts`:
+  - `proposal.submitToPool` returns:
+    - `400` `invalid_chamber` when `draft.chamberId` is unknown
+    - `409` `chamber_dissolved` when the chamber exists but is not active
+  - `chamber.vote` returns `409` `chamber_dissolved` when `proposal.createdAt > chamber.dissolvedAt`
+- Tests:
+  - `tests/api-chamber-dissolution.test.js`

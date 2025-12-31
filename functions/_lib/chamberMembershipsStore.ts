@@ -94,6 +94,19 @@ export async function listChamberMembers(
   return rows.map((r) => r.address).sort();
 }
 
+export async function listAllChamberMembers(env: Env): Promise<string[]> {
+  if (!env.DATABASE_URL) {
+    return Array.from(memoryByAddress.keys()).sort();
+  }
+
+  const db = createDb(env);
+  const rows = await db
+    .select({ address: chamberMemberships.address })
+    .from(chamberMemberships)
+    .groupBy(chamberMemberships.address);
+  return rows.map((r) => r.address).sort();
+}
+
 export async function ensureChamberMembership(
   env: Env,
   input: {

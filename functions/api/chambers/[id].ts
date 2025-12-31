@@ -1,7 +1,10 @@
 import { errorResponse, jsonResponse } from "../../_lib/http.ts";
 import { getChamber } from "../../_lib/chambersStore.ts";
 import { listProposals } from "../../_lib/proposalsStore.ts";
-import { listChamberMembers } from "../../_lib/chamberMembershipsStore.ts";
+import {
+  listAllChamberMembers,
+  listChamberMembers,
+} from "../../_lib/chamberMembershipsStore.ts";
 import { getSimConfig } from "../../_lib/simConfig.ts";
 
 export const onRequestGet: PagesFunction = async (context) => {
@@ -92,7 +95,7 @@ export const onRequestGet: PagesFunction = async (context) => {
       }
       // In v1, the roster for General is the set of anyone with any membership.
       // This will be refined once canonical human profiles and era activity are in place.
-      const seeded = await listChamberMembers(context.env, "general");
+      const seeded = await listAllChamberMembers(context.env);
       for (const addr of seeded) memberAddresses.add(addr.toLowerCase());
     } else {
       if (genesisMembers) {

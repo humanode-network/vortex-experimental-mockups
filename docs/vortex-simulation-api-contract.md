@@ -224,6 +224,9 @@ type ProposalSubmitToPoolResponse = {
 Notes:
 
 - Submission validates that required fields are present (same constraints as the UI wizard).
+- The chamber must be valid and active:
+  - if `draft.chamberId` is unknown, the API returns HTTP `400` with `code: "invalid_chamber"`.
+  - if `draft.chamberId` points to a dissolved chamber, the API returns HTTP `409` with `code: "chamber_dissolved"`.
 - On success, the backend:
   - creates a new proposal in the proposal pool by writing `proposals:list` and `proposals:${proposalId}:pool` read models,
   - marks the draft as submitted so it no longer appears under drafts.
@@ -287,6 +290,7 @@ type ChamberVoteResponse = {
 Notes:
 
 - If the proposal is not currently in the vote stage, the API returns HTTP `409`.
+- If the proposal is assigned to a dissolved chamber and was created after the chamber was dissolved, the API returns HTTP `409` with `code: "chamber_dissolved"`.
 - Chamber eligibility is enforced (paper-aligned):
   - voting in a specialization chamber requires an accepted proposal in that chamber
   - voting in General requires an accepted proposal in any chamber

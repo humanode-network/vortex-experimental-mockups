@@ -224,7 +224,11 @@ Genesis exception:
 #### Chamber dissolution (paper-aligned rule)
 
 - Chambers can be dissolved only through a proposal in the **General chamber**.
-- Dissolution should not delete history. It should change chamber status (archived/dissolved/merged) and preserve audit trails.
+- General cannot be dissolved.
+- Dissolution never deletes history. It changes canonical chamber status and preserves audit trails.
+- Dissolved chamber behavior (v1 rule):
+  - No new proposals can be submitted into a dissolved chamber.
+  - Proposals that were created before dissolution can continue their lifecycle (including chamber voting).
 
 #### How chambers are represented in the code today (current state)
 
