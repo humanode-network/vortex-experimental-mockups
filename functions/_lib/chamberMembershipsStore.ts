@@ -73,6 +73,27 @@ export async function listChamberMemberships(
   return rows.map((r) => r.chamberId).sort();
 }
 
+export async function listChamberMembers(
+  env: Env,
+  chamberIdInput: string,
+): Promise<string[]> {
+  const chamberId = normalizeId(chamberIdInput);
+  if (!env.DATABASE_URL) {
+    const members: string[] = [];
+    for (const [address, chambers] of memoryByAddress.entries()) {
+      if (chambers.has(chamberId)) members.push(address);
+    }
+    return members.sort();
+  }
+
+  const db = createDb(env);
+  const rows = await db
+    .select({ address: chamberMemberships.address })
+    .from(chamberMemberships)
+    .where(eq(chamberMemberships.chamberId, chamberId));
+  return rows.map((r) => r.address).sort();
+}
+
 export async function ensureChamberMembership(
   env: Env,
   input: {

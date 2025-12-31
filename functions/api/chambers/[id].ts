@@ -1,8 +1,8 @@
 import { errorResponse, jsonResponse } from "../../_lib/http.ts";
 import { getChamber } from "../../_lib/chambersStore.ts";
-import { createDb } from "../../_lib/db.ts";
-import { proposals } from "../../../db/schema.ts";
-import { eq } from "drizzle-orm";
+import { listProposals } from "../../_lib/proposalsStore.ts";
+import { listChamberMembers } from "../../_lib/chamberMembershipsStore.ts";
+import { getSimConfig } from "../../_lib/simConfig.ts";
 
 export const onRequestGet: PagesFunction = async (context) => {
   try {
@@ -21,7 +21,7 @@ export const onRequestGet: PagesFunction = async (context) => {
       { value: "ended", label: "Ended" },
     ] as const;
 
-    const proposalsList: {
+    const proposalsList: Array<{
       id: string;
       title: string;
       meta: string;
@@ -30,48 +30,94 @@ export const onRequestGet: PagesFunction = async (context) => {
       nextStep: string;
       timing: string;
       stage: "upcoming" | "live" | "ended";
-    }[] = [];
+    }> = [];
 
-    if (context.env.DATABASE_URL) {
-      const db = createDb(context.env);
-      const rows = await db
-        .select({
-          id: proposals.id,
-          stage: proposals.stage,
-          title: proposals.title,
-          summary: proposals.summary,
-          createdAt: proposals.createdAt,
-        })
-        .from(proposals)
-        .where(eq(proposals.chamberId, id.toLowerCase()));
-      for (const row of rows) {
-        const stage =
-          row.stage === "pool"
-            ? "upcoming"
-            : row.stage === "vote"
-              ? "live"
-              : "ended";
-        proposalsList.push({
-          id: row.id,
-          title: row.title,
-          meta: stage === "upcoming" ? "Proposal pool" : "Chamber vote",
-          summary: row.summary,
-          lead: chamber.title,
-          nextStep:
-            stage === "upcoming"
-              ? "Cast attention vote"
-              : stage === "live"
-                ? "Cast chamber vote"
+    const proposalRows = await listProposals(context.env);
+    for (const proposal of proposalRows) {
+      if ((proposal.chamberId ?? "general").toLowerCase() !== id.toLowerCase())
+        continue;
+      const stage =
+        proposal.stage === "pool"
+          ? "upcoming"
+          : proposal.stage === "vote"
+            ? "live"
+            : "ended";
+      const formationEligible = (() => {
+        const payload = proposal.payload as Record<string, unknown> | null;
+        if (!payload || typeof payload !== "object" || Array.isArray(payload))
+          return true;
+        if (typeof payload.formationEligible === "boolean")
+          return payload.formationEligible;
+        if (typeof payload.formation === "boolean") return payload.formation;
+        return true;
+      })();
+
+      const meta =
+        stage === "upcoming"
+          ? "Proposal pool"
+          : stage === "live"
+            ? "Chamber vote"
+            : formationEligible
+              ? "Formation"
+              : "Passed";
+
+      proposalsList.push({
+        id: proposal.id,
+        title: proposal.title,
+        meta,
+        summary: proposal.summary,
+        lead: chamber.title,
+        nextStep:
+          stage === "upcoming"
+            ? "Cast attention vote"
+            : stage === "live"
+              ? "Cast chamber vote"
+              : formationEligible
+                ? "Open Formation"
                 : "Read outcome",
-          timing: row.createdAt.toISOString().slice(0, 10),
-          stage,
-        });
-      }
+        timing: proposal.createdAt.toISOString().slice(0, 10),
+        stage,
+      });
     }
 
+    const cfg = await getSimConfig(context.env, context.request.url);
+    const genesisMembers = cfg?.genesisChamberMembers ?? undefined;
+    const memberAddresses = new Set<string>();
+
+    if (id.toLowerCase() === "general") {
+      if (genesisMembers) {
+        for (const list of Object.values(genesisMembers)) {
+          for (const addr of list) memberAddresses.add(addr.toLowerCase());
+        }
+      }
+      // In v1, the roster for General is the set of anyone with any membership.
+      // This will be refined once canonical human profiles and era activity are in place.
+      const seeded = await listChamberMembers(context.env, "general");
+      for (const addr of seeded) memberAddresses.add(addr.toLowerCase());
+    } else {
+      if (genesisMembers) {
+        for (const addr of genesisMembers[id.toLowerCase()] ?? [])
+          memberAddresses.add(addr.toLowerCase());
+      }
+      const seeded = await listChamberMembers(context.env, id);
+      for (const addr of seeded) memberAddresses.add(addr.toLowerCase());
+    }
+
+    const governors = Array.from(memberAddresses)
+      .sort()
+      .map((address) => ({
+        id: address,
+        name:
+          address.length > 12
+            ? `${address.slice(0, 6)}…${address.slice(-4)}`
+            : address,
+        tier: "Nominee",
+        focus: chamber.title,
+      }));
+
     return jsonResponse({
-      proposals: proposalsList,
-      governors: [],
+      proposals: proposalsList.sort((a, b) => a.title.localeCompare(b.title)),
+      governors,
       threads: [],
       chatLog: [],
       stageOptions,

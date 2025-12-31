@@ -156,4 +156,6 @@ test("accepted General proposal can create and dissolve chambers", async () => {
   assert.equal(detailRes.status, 200);
   const detailJson = await detailRes.json();
   assert.ok(Array.isArray(detailJson.stageOptions));
+  assert.ok(Array.isArray(detailJson.governors));
+  assert.ok(detailJson.governors.length > 0);
 });

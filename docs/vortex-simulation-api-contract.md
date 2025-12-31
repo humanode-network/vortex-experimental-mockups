@@ -684,6 +684,14 @@ type GetChamberResponse = {
 };
 ```
 
+Notes:
+
+- In v1, `governors` is projected from canonical membership (`chamber_memberships`) plus `/sim-config.json` → `genesisChamberMembers`.
+- In v1, `proposals` is projected from canonical proposals:
+  - pool → `upcoming`
+  - vote → `live`
+  - build → `ended` (meta may render as “Formation” or “Passed” depending on `formationEligible`).
+
 ### Factions
 
 #### `GET /api/factions`

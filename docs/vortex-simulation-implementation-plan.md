@@ -108,6 +108,7 @@ This is the order we’ll follow from now on, based on what’s already landed.
 20. **Phase 16 — Time windows + automation (DONE)**
 21. **Phase 17 — Chamber voting eligibility + Formation optionality (DONE)**
 22. **Phase 18 — Chambers lifecycle (create/dissolve) (DONE)**
+23. **Phase 19 — Chamber detail projections (IN PROGRESS)**
 
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
 
@@ -808,3 +809,22 @@ Current status:
   - accepted General proposals with `payload.metaGovernance.action` in `{ "chamber.create", "chamber.dissolve" }` create/dissolve chambers.
 - Tests:
   - `tests/api-chambers-lifecycle.test.js`
+
+### Phase 19 — Chamber detail projections (IN PROGRESS)
+
+Goal: make `GET /api/chambers/:id` a true projection from canonical state (no chamber read-model drift).
+
+Deliverables:
+
+- Project proposal status list from canonical proposals:
+  - pool → upcoming
+  - vote → live
+  - build → ended (meta “Formation” vs “Passed” depends on `formationEligible`)
+- Project chamber roster from canonical chamber memberships + genesis members:
+  - specialization chamber roster = members for that chamber + genesis members for that chamber
+  - General chamber roster = union of all memberships + genesis members
+- Keep threads/chat placeholders as empty arrays (until the forum model exists).
+
+Tests:
+
+- `GET /api/chambers/:id` returns roster derived from memberships/genesis.
