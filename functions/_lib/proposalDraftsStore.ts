@@ -14,6 +14,15 @@ export const proposalDraftFormSchema = z.object({
   what: z.string(),
   why: z.string(),
   how: z.string(),
+  metaGovernance: z
+    .object({
+      action: z.enum(["chamber.create", "chamber.dissolve"]),
+      chamberId: z.string(),
+      title: z.string().optional(),
+      multiplier: z.number().optional(),
+      genesisMembers: z.array(z.string()).optional(),
+    })
+    .optional(),
   timeline: z.array(
     z.object({
       id: z.string(),

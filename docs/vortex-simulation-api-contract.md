@@ -144,6 +144,13 @@ type ProposalDraftFormPayload = {
   what: string;
   why: string;
   how: string;
+  metaGovernance?: {
+    action: "chamber.create" | "chamber.dissolve";
+    chamberId: string;
+    title?: string;
+    multiplier?: number;
+    genesisMembers?: string[];
+  };
   timeline: { id: string; title: string; timeframe: string }[];
   outputs: { id: string; label: string; url: string }[];
   budgetItems: { id: string; description: string; amount: string }[];
@@ -645,6 +652,10 @@ type ChamberDto = {
 
 type GetChambersResponse = { items: ChamberDto[] };
 ```
+
+Query params:
+
+- `includeDissolved=true` (optional): include dissolved chambers in the list (default is active-only).
 
 #### `GET /api/chambers/:id`
 

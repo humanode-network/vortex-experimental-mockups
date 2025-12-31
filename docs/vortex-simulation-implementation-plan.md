@@ -110,6 +110,12 @@ This is the order we’ll follow from now on, based on what’s already landed.
 22. **Phase 18 — Chambers lifecycle (create/dissolve) (DONE)**
 23. **Phase 19 — Chamber detail projections (DONE)**
 24. **Phase 20 — Dissolved chamber enforcement (DONE)**
+25. **Phase 21 — Chambers directory projections (pipeline/stats) (DONE)**
+26. **Phase 22 — Meta-governance chamber.create seeding (backend) (DONE)**
+27. **Phase 23 — Proposal drafts (UI ↔ backend) (DONE)**
+28. **Phase 24 — Meta-governance proposal type (UI) (PLANNED)**
+29. **Phase 25 — Proposal pages projected from canonical state (PLANNED)**
+30. **Phase 26 — Proposal history timeline (PLANNED)**
 
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
 
@@ -869,3 +875,130 @@ Current status:
   - `chamber.vote` returns `409` `chamber_dissolved` when `proposal.createdAt > chamber.dissolvedAt`
 - Tests:
   - `tests/api-chamber-dissolution.test.js`
+
+### Phase 21 — Chambers directory projections (pipeline/stats) (DONE)
+
+Goal: ensure `GET /api/chambers` is a stable projection of canonical state across both DB mode and inline mode.
+
+Deliverables:
+
+- Pipeline counts (`pool/vote/build`) projected from canonical proposals.
+- Chamber stats projected from canonical state:
+  - governors: derived from canonical memberships + genesis members (General = union)
+  - ACM/LCM/MCM: derived from CM awards + multipliers.
+- Support `includeDissolved=true` query param (default remains active-only).
+
+Tests:
+
+- `GET /api/chambers` returns correct pipeline/stats in inline mode with canonical proposals + CM awards.
+- `includeDissolved=true` includes dissolved chambers that are excluded by default.
+
+Current status:
+
+- `functions/api/chambers/index.ts` supports `includeDissolved=true`.
+- Projections are implemented in `functions/_lib/chambersStore.ts` for both DB and inline mode.
+- Tests:
+  - `tests/api-chambers-index-projection.test.js`
+
+### Phase 22 — Meta-governance chamber.create seeding (backend) (DONE)
+
+Goal: allow chamber creation to be driven by a General proposal outcome and immediately become usable (no chicken-and-egg for voting).
+
+Deliverables:
+
+- Drafts can include an optional `metaGovernance` payload describing:
+  - `chamber.create` (id/title/multiplier + optional `genesisMembers`)
+  - `chamber.dissolve` (id)
+- Submission validation:
+  - meta-governance proposals must be in the General chamber
+  - create rejects existing chambers; dissolve rejects unknown/already-dissolved chambers
+- On acceptance of a General `chamber.create` proposal:
+  - create the canonical chamber entry
+  - seed initial membership in `chamber_memberships` for:
+    - proposer address (always)
+    - `metaGovernance.genesisMembers` (optional)
+
+Tests:
+
+- A General `chamber.create` proposal can pass and produces a new chamber visible in `/api/chambers`.
+- Seeded members can vote in the newly created chamber immediately.
+
+Current status:
+
+- Draft schema supports `metaGovernance` in `functions/_lib/proposalDraftsStore.ts`.
+- `proposal.submitToPool` validates meta-governance payloads in `functions/api/command.ts`.
+- On acceptance, the backend seeds `chamber_memberships` for proposer + genesis members.
+- Tests:
+  - `tests/api-command-chamber-create-members.test.js`
+
+### Phase 23 — Proposal drafts (UI ↔ backend) (DONE)
+
+Goal: make the proposal creation wizard use the real backend drafts so “drafts → submit → proposal” is end-to-end through the UI.
+
+Deliverables:
+
+- `src/pages/proposals/ProposalCreation.tsx` calls:
+  - `proposal.draft.save` (create/update draft) instead of only localStorage
+  - stores the server `draftId` locally to continue editing
+- Drafts list and detail become the canonical entry point for submissions:
+  - drafts created in the wizard show up under `/app/proposals/drafts`
+  - “Submit to pool” uses `proposal.submitToPool` and navigates to `/app/proposals/:id/pp`
+
+Tests:
+
+- UI wiring is smoke-tested via API integration tests (draft save + submit already covered) plus a minimal client-side test if needed.
+
+Current status:
+
+- `src/pages/proposals/ProposalCreation.tsx` saves drafts via `proposal.draft.save` when the user is eligible and retains the `draftId` locally for continued edits.
+- The wizard UI is split into `src/pages/proposals/proposalCreation/*` step components + storage/sync helpers (so the page orchestrator stays small).
+- “Submit proposal” now saves (if needed) and submits via `proposal.submitToPool`, then navigates to `/app/proposals/:id/pp`.
+
+### Phase 24 — Meta-governance proposal type (UI) (PLANNED)
+
+Goal: expose meta-governance proposals in the proposal wizard so chambers can be created/dissolved without manual API calls.
+
+Deliverables:
+
+- Add a proposal “kind” selector:
+  - normal proposals (any chamber)
+  - General meta-governance:
+    - create chamber
+    - dissolve chamber
+- Wizard writes `metaGovernance` into the draft payload and enforces the additional fields client-side.
+
+Tests:
+
+- UI submits a chamber.create draft that is accepted and results are visible on chambers pages.
+
+### Phase 25 — Proposal pages projected from canonical state (PLANNED)
+
+Goal: ensure `/api/proposals` and proposal pages are projections from canonical proposals + overlays (not brittle, seed-only read models).
+
+Deliverables:
+
+- `/api/proposals` list is derived from canonical proposals with live overlays for votes, formation, and era context.
+- `/api/proposals/:id/pp|chamber|formation` are derived from canonical proposal payloads and normalized tables (votes/formation).
+- Eliminate “page-only summary/headers drift”: proposal pages should use the same structural sections across stages, populated from the canonical proposal payload.
+
+Tests:
+
+- Proposal list and proposal pages render from canonical state in inline mode and DB mode.
+
+### Phase 26 — Proposal history timeline (PLANNED)
+
+Goal: make proposals auditable and explainable by exposing a single “what happened” timeline.
+
+Deliverables:
+
+- Event-backed proposal history:
+  - submission
+  - pool votes + threshold met
+  - chamber votes + pass/fail
+  - formation joins + milestone actions
+  - court actions referencing the proposal (when applicable)
+- A consistent timeline component in the UI (read-only).
+
+Tests:
+
+- Timeline output is deterministic given the same events.

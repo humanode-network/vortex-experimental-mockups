@@ -8,6 +8,12 @@ import {
 } from "../../db/schema.ts";
 import { createDb } from "./db.ts";
 import { getSimConfig } from "./simConfig.ts";
+import {
+  listAllChamberMembers,
+  listChamberMembers,
+} from "./chamberMembershipsStore.ts";
+import { listCmAwards } from "./cmAwardsStore.ts";
+import { listProposals } from "./proposalsStore.ts";
 
 type Env = Record<string, string | undefined>;
 
@@ -313,7 +319,20 @@ export async function projectChamberPipeline(
 ): Promise<{ pool: number; vote: number; build: number }> {
   const chamberId = normalizeId(input.chamberId);
 
-  if (!env.DATABASE_URL) return { pool: 0, vote: 0, build: 0 };
+  if (!env.DATABASE_URL) {
+    const items = await listProposals(env);
+    let pool = 0;
+    let vote = 0;
+    let build = 0;
+    for (const proposal of items) {
+      const proposalChamberId = normalizeId(proposal.chamberId ?? "general");
+      if (proposalChamberId !== chamberId) continue;
+      if (proposal.stage === "pool") pool += 1;
+      else if (proposal.stage === "vote") vote += 1;
+      else if (proposal.stage === "build") build += 1;
+    }
+    return { pool, vote, build };
+  }
   const db = createDb(env);
 
   const rows = await db
@@ -347,12 +366,53 @@ export async function projectChamberStats(
   const genesisMembers = cfg?.genesisChamberMembers ?? undefined;
 
   if (!env.DATABASE_URL) {
-    const genesisSet = new Set<string>();
-    if (genesisMembers) {
-      for (const addr of genesisMembers[chamberId] ?? []) genesisSet.add(addr);
+    const memberAddresses = new Set<string>();
+    if (chamberId === "general") {
+      if (genesisMembers) {
+        for (const list of Object.values(genesisMembers)) {
+          for (const addr of list) memberAddresses.add(addr.toLowerCase());
+        }
+      }
+      for (const addr of await listAllChamberMembers(env)) {
+        memberAddresses.add(addr.toLowerCase());
+      }
+    } else {
+      if (genesisMembers) {
+        for (const addr of genesisMembers[chamberId] ?? [])
+          memberAddresses.add(addr.toLowerCase());
+      }
+      for (const addr of await listChamberMembers(env, chamberId)) {
+        memberAddresses.add(addr.toLowerCase());
+      }
     }
-    const governors = genesisSet.size;
-    return { governors, acm: 0, lcm: 0, mcm: 0 };
+
+    const members = Array.from(memberAddresses);
+    const governors = members.length;
+    if (governors === 0) return { governors: 0, acm: 0, lcm: 0, mcm: 0 };
+
+    const allAwards = await listCmAwards(env, { proposerIds: members });
+    const acmPoints = allAwards.reduce(
+      (sum, award) => sum + award.mcmPoints,
+      0,
+    );
+
+    const chamberAwards = await listCmAwards(env, {
+      proposerIds: members,
+      chamberId,
+    });
+    const lcmPoints = chamberAwards.reduce(
+      (sum, award) => sum + award.lcmPoints,
+      0,
+    );
+    const mcmPoints = chamberAwards.reduce(
+      (sum, award) => sum + award.mcmPoints,
+      0,
+    );
+
+    const acm = Math.round(acmPoints / 10);
+    const lcm = Math.round(lcmPoints / 10);
+    const mcm = Math.round(mcmPoints / 10);
+    return { governors, acm, lcm, mcm };
   }
 
   const db = createDb(env);

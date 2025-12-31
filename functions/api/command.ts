@@ -65,6 +65,7 @@ import {
   grantVotingEligibilityForAcceptedProposal,
   hasAnyChamberMembership,
   hasChamberMembership,
+  ensureChamberMembership,
 } from "../_lib/chamberMembershipsStore.ts";
 import { randomHex } from "../_lib/random.ts";
 import {
@@ -464,6 +465,103 @@ export const onRequestPost: PagesFunction = async (context) => {
           status: chamber.status,
           dissolvedAt: chamber.dissolvedAt?.toISOString() ?? null,
         });
+      }
+    }
+
+    const meta = (() => {
+      const payload = draft.payload as Record<string, unknown> | null;
+      if (!payload || typeof payload !== "object" || Array.isArray(payload))
+        return null;
+      const mg = payload.metaGovernance;
+      if (!mg || typeof mg !== "object" || Array.isArray(mg)) return null;
+      const record = mg as Record<string, unknown>;
+      const action = typeof record.action === "string" ? record.action : "";
+      if (action !== "chamber.create" && action !== "chamber.dissolve")
+        return { invalid: true as const };
+
+      const id = typeof record.chamberId === "string" ? record.chamberId : "";
+      const title = typeof record.title === "string" ? record.title : "";
+      const multiplier =
+        typeof record.multiplier === "number" ? record.multiplier : null;
+      const genesisMembersRaw = record.genesisMembers;
+      const genesisMembers = Array.isArray(genesisMembersRaw)
+        ? genesisMembersRaw
+            .filter((v): v is string => typeof v === "string")
+            .map((v) => v.trim())
+            .filter(Boolean)
+        : [];
+      return {
+        action,
+        id,
+        title,
+        multiplier,
+        genesisMembers,
+      } as const;
+    })();
+
+    if (meta?.invalid) {
+      return errorResponse(400, "Invalid meta-governance payload", {
+        code: "invalid_meta_governance",
+      });
+    }
+
+    if (meta && meta.action) {
+      if (chamberId !== "general") {
+        return errorResponse(
+          400,
+          "Meta-governance proposals must use General chamber",
+          {
+            code: "meta_governance_requires_general",
+          },
+        );
+      }
+
+      const targetId = meta.id.trim().toLowerCase();
+      if (!targetId || targetId === "general") {
+        return errorResponse(400, "Invalid target chamber", {
+          code: "invalid_meta_chamber",
+        });
+      }
+
+      const existing = await getChamber(
+        context.env,
+        context.request.url,
+        targetId,
+      );
+
+      if (meta.action === "chamber.create") {
+        if (existing) {
+          return errorResponse(409, "Chamber already exists", {
+            code: "chamber_exists",
+            chamberId: targetId,
+            status: existing.status,
+          });
+        }
+        if (!meta.title.trim()) {
+          return errorResponse(400, "Chamber title is required", {
+            code: "invalid_meta_chamber",
+          });
+        }
+        if (meta.multiplier !== null && !(meta.multiplier > 0)) {
+          return errorResponse(400, "Multiplier must be > 0", {
+            code: "invalid_meta_chamber",
+          });
+        }
+      } else {
+        if (!existing) {
+          return errorResponse(400, "Unknown chamber", {
+            code: "invalid_chamber",
+            chamberId: targetId,
+          });
+        }
+        if (existing.status !== "active") {
+          return errorResponse(409, "Chamber is already dissolved", {
+            code: "chamber_dissolved",
+            chamberId: targetId,
+            status: existing.status,
+            dissolvedAt: existing.dissolvedAt?.toISOString() ?? null,
+          });
+        }
       }
     }
 
@@ -1785,6 +1883,32 @@ async function maybeAdvanceVoteProposalToBuildCanonical(
         multiplier: meta.multiplier,
         proposalId: proposal.id,
       });
+
+      const genesisMembers = (() => {
+        if (!proposal.payload || typeof proposal.payload !== "object")
+          return [];
+        const record = proposal.payload as Record<string, unknown>;
+        const mg = record.metaGovernance;
+        if (!mg || typeof mg !== "object" || Array.isArray(mg)) return [];
+        const metaRecord = mg as Record<string, unknown>;
+        const raw = metaRecord.genesisMembers;
+        if (!Array.isArray(raw)) return [];
+        return raw
+          .filter((v): v is string => typeof v === "string")
+          .map((v) => v.trim().toLowerCase())
+          .filter(Boolean);
+      })();
+
+      const memberSet = new Set<string>(genesisMembers);
+      memberSet.add(proposal.authorAddress.toLowerCase());
+      for (const address of memberSet) {
+        await ensureChamberMembership(env, {
+          address,
+          chamberId: meta.id,
+          grantedByProposalId: proposal.id,
+          source: "chamber_genesis",
+        });
+      }
     }
     if (meta?.action === "chamber.dissolve") {
       await dissolveChamberFromAcceptedGeneralProposal(env, requestUrl, {

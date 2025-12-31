@@ -174,7 +174,9 @@ That proposal contains:
 
 - chamber id/name
 - multiplier
-- genesis roles/memberships (addresses + roles), represented in the simulation as `genesisChamberMembers` in `public/sim-config.json`
+- genesis roles/memberships (addresses + roles), represented in the simulation:
+  - v1 bootstrap: `public/sim-config.json` → `genesisChamberMembers`
+  - chamber.create proposals may also include `payload.metaGovernance.genesisMembers` to seed initial memberships for the new chamber
 
 Future (v2+): chamber creation/dissolution becomes fully canonical (not read-model seeded), but the rule stays the same.
 

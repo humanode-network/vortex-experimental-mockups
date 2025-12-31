@@ -20,6 +20,52 @@ export type CmAcmTotals = { acmPoints: number };
 const memoryAwardsByProposal = new Map<string, CmAwardInput>();
 const memoryAcmByProposer = new Map<string, number>();
 
+export async function listCmAwards(
+  env: Env,
+  input?: { chamberId?: string | null; proposerIds?: string[] | null },
+): Promise<CmAwardInput[]> {
+  const chamberId = (input?.chamberId ?? null)?.trim().toLowerCase() ?? null;
+  const proposerIds = input?.proposerIds ?? null;
+  const proposerSet = proposerIds ? new Set(proposerIds) : null;
+
+  if (!env.DATABASE_URL) {
+    return Array.from(memoryAwardsByProposal.values()).filter((award) => {
+      if (chamberId && award.chamberId !== chamberId) return false;
+      if (proposerSet && !proposerSet.has(award.proposerId)) return false;
+      return true;
+    });
+  }
+
+  const db = createDb(env);
+  const rows = await db
+    .select({
+      proposalId: cmAwards.proposalId,
+      proposerId: cmAwards.proposerId,
+      chamberId: cmAwards.chamberId,
+      avgScore: cmAwards.avgScore,
+      lcmPoints: cmAwards.lcmPoints,
+      chamberMultiplierTimes10: cmAwards.chamberMultiplierTimes10,
+      mcmPoints: cmAwards.mcmPoints,
+    })
+    .from(cmAwards);
+
+  return rows
+    .map((row) => ({
+      proposalId: row.proposalId,
+      proposerId: row.proposerId,
+      chamberId: String(row.chamberId).trim().toLowerCase(),
+      avgScore: row.avgScore === null ? null : Number(row.avgScore),
+      lcmPoints: row.lcmPoints,
+      chamberMultiplierTimes10: row.chamberMultiplierTimes10,
+      mcmPoints: row.mcmPoints,
+    }))
+    .filter((award) => {
+      if (chamberId && award.chamberId !== chamberId) return false;
+      if (proposerSet && !proposerSet.has(award.proposerId)) return false;
+      return true;
+    });
+}
+
 export async function awardCmOnce(
   env: Env,
   input: CmAwardInput,

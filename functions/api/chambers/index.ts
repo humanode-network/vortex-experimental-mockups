@@ -10,7 +10,12 @@ export const onRequestGet: PagesFunction = async (context) => {
     if (context.env.READ_MODELS_INLINE_EMPTY === "true") {
       return jsonResponse({ items: [] });
     }
-    const chambers = await listChambers(context.env, context.request.url);
+    const url = new URL(context.request.url);
+    const includeDissolved =
+      url.searchParams.get("includeDissolved") === "true";
+    const chambers = await listChambers(context.env, context.request.url, {
+      includeDissolved,
+    });
     const items = await Promise.all(
       chambers.map(async (chamber) => {
         const pipeline = await projectChamberPipeline(context.env, {
