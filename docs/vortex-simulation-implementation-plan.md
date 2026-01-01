@@ -115,7 +115,7 @@ This is the order we’ll follow from now on, based on what’s already landed.
 27. **Phase 23 — Proposal drafts (UI ↔ backend) (DONE)**
 28. **Phase 24 — Meta-governance proposal type (UI) (DONE)**
 29. **Phase 25 — Proposal pages projected from canonical state (DONE)**
-30. **Phase 26 — Proposal history timeline (PLANNED)**
+30. **Phase 26 — Proposal history timeline (DONE)**
 
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
 
@@ -1005,7 +1005,7 @@ Current status:
 - Tests:
   - `tests/api-proposals-canonical-precedence.test.js` (canonical proposal takes precedence over seeded read models).
 
-### Phase 26 — Proposal history timeline (PLANNED)
+### Phase 26 — Proposal history timeline (DONE)
 
 Goal: make proposals auditable and explainable by exposing a single “what happened” timeline.
 
@@ -1022,3 +1022,18 @@ Deliverables:
 Tests:
 
 - Timeline output is deterministic given the same events.
+
+Current status:
+
+- Timeline events are stored in the append-only `events` table as `proposal.timeline.v1` entries keyed by proposal ID:
+  - `functions/_lib/proposalTimelineStore.ts`
+  - `functions/api/proposals/[id]/timeline.ts`
+- Commands append timeline events for proposal lifecycle actions (submission, votes, stage advancement, formation actions, and chamber create/dissolve side-effects):
+  - `functions/api/command.ts`
+- Proposal pages render the timeline consistently:
+  - `src/components/ProposalSections.tsx` → `ProposalTimelineCard`
+  - `src/pages/proposals/ProposalPP.tsx`
+  - `src/pages/proposals/ProposalChamber.tsx`
+  - `src/pages/proposals/ProposalFormation.tsx`
+- Tests:
+  - `tests/api-proposal-timeline.test.js`

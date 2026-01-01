@@ -981,6 +981,42 @@ type FormationProposalPageDto = {
 };
 ```
 
+#### `GET /api/proposals/:id/timeline`
+
+Returns the event-backed “what happened” timeline for a proposal.
+
+```ts
+type ProposalTimelineEventTypeDto =
+  | "proposal.submitted"
+  | "proposal.stage.advanced"
+  | "pool.vote"
+  | "chamber.vote"
+  | "formation.join"
+  | "formation.milestone.submitted"
+  | "formation.milestone.unlockRequested"
+  | "chamber.created"
+  | "chamber.dissolved";
+
+type ProposalTimelineItemDto = {
+  id: string;
+  type: ProposalTimelineEventTypeDto;
+  title: string;
+  detail?: string;
+  actor?: string;
+  timestamp: string; // ISO
+};
+
+type GetProposalTimelineResponse = { items: ProposalTimelineItemDto[] };
+```
+
+Notes:
+
+- Optional query string: `?limit=...` (default `100`, max `500`).
+- Backed by the append-only `events` table:
+  - `events.type = "proposal.timeline.v1"`
+  - `events.entityType = "proposal"`
+  - `events.entityId = proposalId`
+
 Notes:
 
 - The payload is overlaid with Formation state:

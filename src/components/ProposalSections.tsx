@@ -33,6 +33,14 @@ export type ProposalInvisionInsight = {
   bullets: string[];
 };
 
+export type ProposalTimelineItem = {
+  id: string;
+  timestamp: string;
+  title: string;
+  detail?: string;
+  actor?: string;
+};
+
 type ProposalSummaryCardProps = {
   summary: string;
   stats: ProposalSummaryStat[];
@@ -211,6 +219,52 @@ export function ProposalInvisionInsightCard({
         {insight.bullets.map((item) => (
           <li key={item}>{item}</li>
         ))}
+      </ul>
+    </section>
+  );
+}
+
+type ProposalTimelineCardProps = {
+  items: ProposalTimelineItem[];
+};
+
+export function ProposalTimelineCard({ items }: ProposalTimelineCardProps) {
+  return (
+    <section className="space-y-3 text-sm text-text">
+      <h2 className="text-lg font-semibold text-text">Timeline</h2>
+      <ul className="space-y-2 text-sm text-muted">
+        {items.map((item) => (
+          <Surface
+            key={item.id}
+            as="li"
+            variant="panel"
+            radius="xl"
+            shadow="control"
+            className="space-y-1 px-3 py-2"
+          >
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <p className="font-semibold text-text">{item.title}</p>
+              <p className="text-xs text-muted">{item.timestamp}</p>
+            </div>
+            {item.detail ? (
+              <p className="text-xs text-muted">{item.detail}</p>
+            ) : null}
+            {item.actor ? (
+              <p className="text-xs text-muted">Actor: {item.actor}</p>
+            ) : null}
+          </Surface>
+        ))}
+        {items.length === 0 && (
+          <Surface
+            as="li"
+            variant="panel"
+            radius="xl"
+            borderStyle="dashed"
+            className="px-3 py-3 text-center text-xs text-muted"
+          >
+            No events yet.
+          </Surface>
+        )}
       </ul>
     </section>
   );

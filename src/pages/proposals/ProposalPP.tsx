@@ -11,9 +11,14 @@ import {
   ProposalInvisionInsightCard,
   ProposalSummaryCard,
   ProposalTeamMilestonesCard,
+  ProposalTimelineCard,
 } from "@/components/ProposalSections";
-import { apiPoolVote, apiProposalPoolPage } from "@/lib/apiClient";
-import type { PoolProposalPageDto } from "@/types/api";
+import {
+  apiPoolVote,
+  apiProposalPoolPage,
+  apiProposalTimeline,
+} from "@/lib/apiClient";
+import type { PoolProposalPageDto, ProposalTimelineItemDto } from "@/types/api";
 import { useAuth } from "@/app/auth/AuthContext";
 
 const ProposalPP: React.FC = () => {
@@ -22,6 +27,8 @@ const ProposalPP: React.FC = () => {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [voteError, setVoteError] = useState<string | null>(null);
   const [voteSubmitting, setVoteSubmitting] = useState(false);
+  const [timeline, setTimeline] = useState<ProposalTimelineItemDto[]>([]);
+  const [timelineError, setTimelineError] = useState<string | null>(null);
   const auth = useAuth();
 
   useEffect(() => {
@@ -29,10 +36,27 @@ const ProposalPP: React.FC = () => {
     let active = true;
     (async () => {
       try {
-        const page = await apiProposalPoolPage(id);
+        const [pageResult, timelineResult] = await Promise.allSettled([
+          apiProposalPoolPage(id),
+          apiProposalTimeline(id),
+        ]);
         if (!active) return;
-        setProposal(page);
-        setLoadError(null);
+        if (pageResult.status === "fulfilled") {
+          setProposal(pageResult.value);
+          setLoadError(null);
+        } else {
+          setProposal(null);
+          setLoadError(pageResult.reason?.message ?? "Failed to load proposal");
+        }
+        if (timelineResult.status === "fulfilled") {
+          setTimeline(timelineResult.value.items);
+          setTimelineError(null);
+        } else {
+          setTimeline([]);
+          setTimelineError(
+            timelineResult.reason?.message ?? "Failed to load timeline",
+          );
+        }
       } catch (error) {
         if (!active) return;
         setProposal(null);
@@ -308,6 +332,19 @@ const ProposalPP: React.FC = () => {
       </Modal>
 
       <ProposalInvisionInsightCard insight={proposal.invisionInsight} />
+
+      {timelineError ? (
+        <Surface
+          variant="panelAlt"
+          radius="2xl"
+          shadow="tile"
+          className="px-5 py-4 text-sm text-muted"
+        >
+          Timeline unavailable: {timelineError}
+        </Surface>
+      ) : (
+        <ProposalTimelineCard items={timeline} />
+      )}
     </div>
   );
 };

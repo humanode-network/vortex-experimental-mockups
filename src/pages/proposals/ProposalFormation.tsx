@@ -8,15 +8,20 @@ import {
   ProposalInvisionInsightCard,
   ProposalSummaryCard,
   ProposalTeamMilestonesCard,
+  ProposalTimelineCard,
 } from "@/components/ProposalSections";
 import {
   apiFormationJoin,
   apiFormationMilestoneRequestUnlock,
   apiFormationMilestoneSubmit,
   apiProposalFormationPage,
+  apiProposalTimeline,
 } from "@/lib/apiClient";
 import { useAuth } from "@/app/auth/AuthContext";
-import type { FormationProposalPageDto } from "@/types/api";
+import type {
+  FormationProposalPageDto,
+  ProposalTimelineItemDto,
+} from "@/types/api";
 
 const ProposalFormation: React.FC = () => {
   const { id } = useParams();
@@ -24,6 +29,8 @@ const ProposalFormation: React.FC = () => {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionBusy, setActionBusy] = useState(false);
+  const [timeline, setTimeline] = useState<ProposalTimelineItemDto[]>([]);
+  const [timelineError, setTimelineError] = useState<string | null>(null);
   const auth = useAuth();
 
   useEffect(() => {
@@ -31,10 +38,27 @@ const ProposalFormation: React.FC = () => {
     let active = true;
     (async () => {
       try {
-        const page = await apiProposalFormationPage(id);
+        const [pageResult, timelineResult] = await Promise.allSettled([
+          apiProposalFormationPage(id),
+          apiProposalTimeline(id),
+        ]);
         if (!active) return;
-        setProject(page);
-        setLoadError(null);
+        if (pageResult.status === "fulfilled") {
+          setProject(pageResult.value);
+          setLoadError(null);
+        } else {
+          setProject(null);
+          setLoadError(pageResult.reason?.message ?? "Failed to load proposal");
+        }
+        if (timelineResult.status === "fulfilled") {
+          setTimeline(timelineResult.value.items);
+          setTimelineError(null);
+        } else {
+          setTimeline([]);
+          setTimelineError(
+            timelineResult.reason?.message ?? "Failed to load timeline",
+          );
+        }
       } catch (error) {
         if (!active) return;
         setProject(null);
@@ -233,6 +257,19 @@ const ProposalFormation: React.FC = () => {
       />
 
       <ProposalInvisionInsightCard insight={project.invisionInsight} />
+
+      {timelineError ? (
+        <Surface
+          variant="panelAlt"
+          radius="2xl"
+          shadow="tile"
+          className="px-5 py-4 text-sm text-muted"
+        >
+          Timeline unavailable: {timelineError}
+        </Surface>
+      ) : (
+        <ProposalTimelineCard items={timeline} />
+      )}
     </div>
   );
 };

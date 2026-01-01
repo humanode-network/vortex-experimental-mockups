@@ -9,6 +9,7 @@ import {
 } from "../_lib/idempotencyStore.ts";
 import { castPoolVote } from "../_lib/poolVotesStore.ts";
 import { appendFeedItemEvent } from "../_lib/appendEvents.ts";
+import { appendProposalTimelineItem } from "../_lib/proposalTimelineStore.ts";
 import { createReadModelsStore } from "../_lib/readModelsStore.ts";
 import { evaluatePoolQuorum } from "../_lib/poolQuorum.ts";
 import {
@@ -738,6 +739,20 @@ export const onRequestPost: PagesFunction = async (context) => {
       },
     });
 
+    await appendProposalTimelineItem(context.env, {
+      proposalId,
+      stage: "pool",
+      actorAddress: sessionAddress,
+      item: {
+        id: `timeline:proposal-submitted:${proposalId}:${randomHex(4)}`,
+        type: "proposal.submitted",
+        title: "Proposal submitted",
+        detail: `Submitted to ${chamber}`,
+        actor: sessionAddress,
+        timestamp: new Date().toISOString(),
+      },
+    });
+
     return jsonResponse(response);
   }
 
@@ -834,6 +849,20 @@ export const onRequestPost: PagesFunction = async (context) => {
       },
     });
 
+    await appendProposalTimelineItem(context.env, {
+      proposalId: input.payload.proposalId,
+      stage: "pool",
+      actorAddress: session.address,
+      item: {
+        id: `timeline:pool-vote:${input.payload.proposalId}:${session.address}:${randomHex(4)}`,
+        type: "pool.vote",
+        title: "Pool vote cast",
+        detail: input.payload.direction === "up" ? "Upvote" : "Downvote",
+        actor: session.address,
+        timestamp: new Date().toISOString(),
+      },
+    });
+
     const advanced =
       (readModels &&
         (await maybeAdvancePoolProposalToVote(readModels, {
@@ -869,6 +898,20 @@ export const onRequestPost: PagesFunction = async (context) => {
           ],
           ctaPrimary: "Open proposal",
           href: `/app/proposals/${input.payload.proposalId}/chamber`,
+          timestamp: new Date().toISOString(),
+        },
+      });
+
+      await appendProposalTimelineItem(context.env, {
+        proposalId: input.payload.proposalId,
+        stage: "vote",
+        actorAddress: session.address,
+        item: {
+          id: `timeline:pool-advance:${input.payload.proposalId}:${randomHex(4)}`,
+          type: "proposal.stage.advanced",
+          title: "Advanced to chamber vote",
+          detail: "Attention quorum met",
+          actor: "system",
           timestamp: new Date().toISOString(),
         },
       });
@@ -955,6 +998,22 @@ export const onRequestPost: PagesFunction = async (context) => {
         ],
         ctaPrimary: "Open proposal",
         href: `/app/proposals/${input.payload.proposalId}/formation`,
+        timestamp: new Date().toISOString(),
+      },
+    });
+
+    await appendProposalTimelineItem(context.env, {
+      proposalId: input.payload.proposalId,
+      stage: "build",
+      actorAddress: session.address,
+      item: {
+        id: `timeline:formation-join:${input.payload.proposalId}:${session.address}:${randomHex(4)}`,
+        type: "formation.join",
+        title: "Joined formation project",
+        detail: input.payload.role
+          ? `Role: ${input.payload.role}`
+          : "Joined as contributor",
+        actor: session.address,
         timestamp: new Date().toISOString(),
       },
     });
@@ -1049,6 +1108,20 @@ export const onRequestPost: PagesFunction = async (context) => {
         ],
         ctaPrimary: "Open proposal",
         href: `/app/proposals/${input.payload.proposalId}/formation`,
+        timestamp: new Date().toISOString(),
+      },
+    });
+
+    await appendProposalTimelineItem(context.env, {
+      proposalId: input.payload.proposalId,
+      stage: "build",
+      actorAddress: session.address,
+      item: {
+        id: `timeline:formation-milestone-unlock:${input.payload.proposalId}:${input.payload.milestoneIndex}:${randomHex(4)}`,
+        type: "formation.milestone.unlockRequested",
+        title: `Unlock requested (M${input.payload.milestoneIndex})`,
+        detail: "Requested unlock for milestone payout (mock)",
+        actor: session.address,
         timestamp: new Date().toISOString(),
       },
     });
@@ -1453,6 +1526,25 @@ export const onRequestPost: PagesFunction = async (context) => {
     },
   });
 
+  await appendProposalTimelineItem(context.env, {
+    proposalId: input.payload.proposalId,
+    stage: "vote",
+    actorAddress: session.address,
+    item: {
+      id: `timeline:chamber-vote:${input.payload.proposalId}:${session.address}:${randomHex(4)}`,
+      type: "chamber.vote",
+      title: "Chamber vote cast",
+      detail:
+        input.payload.choice === "yes"
+          ? `Yes${input.payload.score ? ` (score ${input.payload.score})` : ""}`
+          : input.payload.choice === "no"
+            ? "No"
+            : "Abstain",
+      actor: session.address,
+      timestamp: new Date().toISOString(),
+    },
+  });
+
   const advanced =
     (readModels &&
       (await maybeAdvanceVoteProposalToBuild(context.env, readModels, {
@@ -1500,6 +1592,20 @@ export const onRequestPost: PagesFunction = async (context) => {
         ],
         ctaPrimary: "Open proposal",
         href: `/app/proposals/${input.payload.proposalId}/formation`,
+        timestamp: new Date().toISOString(),
+      },
+    });
+
+    await appendProposalTimelineItem(context.env, {
+      proposalId: input.payload.proposalId,
+      stage: "build",
+      actorAddress: session.address,
+      item: {
+        id: `timeline:vote-pass:${input.payload.proposalId}:${randomHex(4)}`,
+        type: "proposal.stage.advanced",
+        title: "Advanced to formation",
+        detail: "Chamber vote passed",
+        actor: "system",
         timestamp: new Date().toISOString(),
       },
     });
@@ -1884,6 +1990,20 @@ async function maybeAdvanceVoteProposalToBuildCanonical(
         proposalId: proposal.id,
       });
 
+      await appendProposalTimelineItem(env, {
+        proposalId: proposal.id,
+        stage: "build",
+        actorAddress: null,
+        item: {
+          id: `timeline:chamber-created:${proposal.id}:${randomHex(4)}`,
+          type: "chamber.created",
+          title: "Chamber created",
+          detail: `${meta.id} (${meta.title})`,
+          actor: "system",
+          timestamp: new Date().toISOString(),
+        },
+      });
+
       const genesisMembers = (() => {
         if (!proposal.payload || typeof proposal.payload !== "object")
           return [];
@@ -1914,6 +2034,20 @@ async function maybeAdvanceVoteProposalToBuildCanonical(
       await dissolveChamberFromAcceptedGeneralProposal(env, requestUrl, {
         id: meta.id,
         proposalId: proposal.id,
+      });
+
+      await appendProposalTimelineItem(env, {
+        proposalId: proposal.id,
+        stage: "build",
+        actorAddress: null,
+        item: {
+          id: `timeline:chamber-dissolved:${proposal.id}:${randomHex(4)}`,
+          type: "chamber.dissolved",
+          title: "Chamber dissolved",
+          detail: meta.id,
+          actor: "system",
+          timestamp: new Date().toISOString(),
+        },
       });
     }
   }

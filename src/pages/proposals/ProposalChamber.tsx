@@ -8,10 +8,18 @@ import {
   ProposalInvisionInsightCard,
   ProposalSummaryCard,
   ProposalTeamMilestonesCard,
+  ProposalTimelineCard,
 } from "@/components/ProposalSections";
 import { Surface } from "@/components/Surface";
-import { apiChamberVote, apiProposalChamberPage } from "@/lib/apiClient";
-import type { ChamberProposalPageDto } from "@/types/api";
+import {
+  apiChamberVote,
+  apiProposalChamberPage,
+  apiProposalTimeline,
+} from "@/lib/apiClient";
+import type {
+  ChamberProposalPageDto,
+  ProposalTimelineItemDto,
+} from "@/types/api";
 
 const ProposalChamber: React.FC = () => {
   const { id } = useParams();
@@ -19,6 +27,8 @@ const ProposalChamber: React.FC = () => {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [timeline, setTimeline] = useState<ProposalTimelineItemDto[]>([]);
+  const [timelineError, setTimelineError] = useState<string | null>(null);
 
   const loadPage = useCallback(async () => {
     if (!id) return;
@@ -32,10 +42,27 @@ const ProposalChamber: React.FC = () => {
     let active = true;
     (async () => {
       try {
-        const page = await apiProposalChamberPage(id);
+        const [pageResult, timelineResult] = await Promise.allSettled([
+          apiProposalChamberPage(id),
+          apiProposalTimeline(id),
+        ]);
         if (!active) return;
-        setProposal(page);
-        setLoadError(null);
+        if (pageResult.status === "fulfilled") {
+          setProposal(pageResult.value);
+          setLoadError(null);
+        } else {
+          setProposal(null);
+          setLoadError(pageResult.reason?.message ?? "Failed to load proposal");
+        }
+        if (timelineResult.status === "fulfilled") {
+          setTimeline(timelineResult.value.items);
+          setTimelineError(null);
+        } else {
+          setTimeline([]);
+          setTimelineError(
+            timelineResult.reason?.message ?? "Failed to load timeline",
+          );
+        }
       } catch (error) {
         if (!active) return;
         setProposal(null);
@@ -240,6 +267,19 @@ const ProposalChamber: React.FC = () => {
       />
 
       <ProposalInvisionInsightCard insight={proposal.invisionInsight} />
+
+      {timelineError ? (
+        <Surface
+          variant="panelAlt"
+          radius="2xl"
+          shadow="tile"
+          className="px-5 py-4 text-sm text-muted"
+        >
+          Timeline unavailable: {timelineError}
+        </Surface>
+      ) : (
+        <ProposalTimelineCard items={timeline} />
+      )}
     </div>
   );
 };

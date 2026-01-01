@@ -15,6 +15,7 @@ import type {
   GetMyGovernanceResponse,
   GetProposalDraftsResponse,
   GetProposalsResponse,
+  GetProposalTimelineResponse,
   HumanNodeProfileDto,
   ProposalDraftDetailDto,
   PoolProposalPageDto,
@@ -126,6 +127,14 @@ export async function apiProposalPoolPage(
   id: string,
 ): Promise<PoolProposalPageDto> {
   return await apiGet<PoolProposalPageDto>(`/api/proposals/${id}/pool`);
+}
+
+export async function apiProposalTimeline(
+  id: string,
+): Promise<GetProposalTimelineResponse> {
+  return await apiGet<GetProposalTimelineResponse>(
+    `/api/proposals/${id}/timeline`,
+  );
 }
 
 export type PoolVoteDirection = "up" | "down";

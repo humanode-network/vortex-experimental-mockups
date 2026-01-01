@@ -219,6 +219,28 @@ export type GetProposalsResponse = { items: ProposalListItemDto[] };
 
 export type InvisionInsightDto = { role: string; bullets: string[] };
 
+export type ProposalTimelineEventTypeDto =
+  | "proposal.submitted"
+  | "proposal.stage.advanced"
+  | "pool.vote"
+  | "chamber.vote"
+  | "formation.join"
+  | "formation.milestone.submitted"
+  | "formation.milestone.unlockRequested"
+  | "chamber.created"
+  | "chamber.dissolved";
+
+export type ProposalTimelineItemDto = {
+  id: string;
+  type: ProposalTimelineEventTypeDto;
+  title: string;
+  detail?: string;
+  actor?: string;
+  timestamp: string;
+};
+
+export type GetProposalTimelineResponse = { items: ProposalTimelineItemDto[] };
+
 export type ProposalDraftListItemDto = {
   id: string;
   title: string;
