@@ -219,6 +219,16 @@ Eligibility to vote in chambers is earned by accepted proposals:
 - **Specialization chamber `X`**: a human can vote in `X` if they have at least one **accepted proposal in chamber `X`**.
 - **General chamber**: a human can vote in General if they have at least one **accepted proposal in any chamber**.
 
+### 1.4 Proposals (two axes)
+
+Proposals are structured “change requests” authored by governors. There are two key axes in v1 that matter to modeling and UI:
+
+1. **Scope axis (system vs project)**
+   - **System-change proposals**: affect the simulation itself (a variable or entity the system enforces automatically). Example: **chamber creation/dissolution** via a General proposal.
+   - **Project proposals**: describe work outside the system (deliver a toolkit, docs, marketing sprint, pallet implementation). The simulation tracks outcomes, but it does not “force-implement” external work beyond its governance lifecycle and accounting.
+2. **Proposition-rights axis (tier/type)**
+   - The _right to propose_ differs by governing tier and by proposal type (e.g. Basic / Administrative / Fee). This axis is modeled separately from the “scope” axis above.
+
 Genesis exception:
 
 - genesis roles/memberships are treated as eligible from day one for their chamber(s) via `public/sim-config.json` → `genesisChamberMembers`.

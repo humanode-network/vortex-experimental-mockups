@@ -113,7 +113,7 @@ This is the order we’ll follow from now on, based on what’s already landed.
 25. **Phase 21 — Chambers directory projections (pipeline/stats) (DONE)**
 26. **Phase 22 — Meta-governance chamber.create seeding (backend) (DONE)**
 27. **Phase 23 — Proposal drafts (UI ↔ backend) (DONE)**
-28. **Phase 24 — Meta-governance proposal type (UI) (PLANNED)**
+28. **Phase 24 — Meta-governance proposal type (UI) (DONE)**
 29. **Phase 25 — Proposal pages projected from canonical state (PLANNED)**
 30. **Phase 26 — Proposal history timeline (PLANNED)**
 
@@ -954,7 +954,7 @@ Current status:
 - The wizard UI is split into `src/pages/proposals/proposalCreation/*` step components + storage/sync helpers (so the page orchestrator stays small).
 - “Submit proposal” now saves (if needed) and submits via `proposal.submitToPool`, then navigates to `/app/proposals/:id/pp`.
 
-### Phase 24 — Meta-governance proposal type (UI) (PLANNED)
+### Phase 24 — Meta-governance proposal type (UI) (DONE)
 
 Goal: expose meta-governance proposals in the proposal wizard so chambers can be created/dissolved without manual API calls.
 
@@ -966,10 +966,18 @@ Deliverables:
     - create chamber
     - dissolve chamber
 - Wizard writes `metaGovernance` into the draft payload and enforces the additional fields client-side.
+- Meta-governance drafts can submit with zero budget items (budget is optional for system-change proposals).
 
 Tests:
 
 - UI submits a chamber.create draft that is accepted and results are visible on chambers pages.
+
+Current status:
+
+- `src/pages/proposals/proposalCreation/steps/EssentialsStep.tsx` exposes the “System change (General)” kind and collects `metaGovernance` fields.
+- `draftIsSubmittable` allows meta-governance drafts to be submitted without budget items (still requires rules confirmations).
+- Tests:
+  - `tests/api-command-meta-governance-no-budget.test.js`
 
 ### Phase 25 — Proposal pages projected from canonical state (PLANNED)
 

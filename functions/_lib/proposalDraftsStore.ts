@@ -104,14 +104,16 @@ export function draftIsSubmittable(form: ProposalDraftForm): boolean {
     form.what.trim().length > 0 &&
     form.why.trim().length > 0;
   const planValid = form.how.trim().length > 0;
-  const budgetValid =
-    form.budgetItems.some(
-      (item) =>
-        item.description.trim().length > 0 &&
-        Number.isFinite(Number(item.amount)) &&
-        Number(item.amount) > 0,
-    ) && budgetTotal > 0;
-  return essentialsValid && planValid && budgetValid && form.agreeRules;
+  const budgetValid = form.metaGovernance
+    ? true
+    : form.budgetItems.some(
+        (item) =>
+          item.description.trim().length > 0 &&
+          Number.isFinite(Number(item.amount)) &&
+          Number(item.amount) > 0,
+      ) && budgetTotal > 0;
+  const rulesValid = form.agreeRules && form.confirmBudget;
+  return essentialsValid && planValid && budgetValid && rulesValid;
 }
 
 export function formatChamberLabel(chamberId: string | null): string {

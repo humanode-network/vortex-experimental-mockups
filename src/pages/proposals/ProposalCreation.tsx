@@ -83,13 +83,15 @@ const ProposalCreation: React.FC = () => {
     draft.what.trim().length > 0 &&
     draft.why.trim().length > 0;
   const planValid = draft.how.trim().length > 0;
-  const budgetValid =
-    draft.budgetItems.some(
-      (item) =>
-        item.description.trim().length > 0 &&
-        Number.isFinite(Number(item.amount)) &&
-        Number(item.amount) > 0,
-    ) && budgetTotal > 0;
+  const isSystemProposal = Boolean(draft.metaGovernance);
+  const budgetValid = isSystemProposal
+    ? true
+    : draft.budgetItems.some(
+        (item) =>
+          item.description.trim().length > 0 &&
+          Number.isFinite(Number(item.amount)) &&
+          Number(item.amount) > 0,
+      ) && budgetTotal > 0;
 
   const step: StepKey = desiredStep;
 
@@ -213,7 +215,14 @@ const ProposalCreation: React.FC = () => {
     planValid &&
     budgetValid &&
     draft.agreeRules &&
-    draft.confirmBudget;
+    draft.confirmBudget &&
+    (draft.metaGovernance
+      ? draft.chamberId.toLowerCase() === "general" &&
+        draft.metaGovernance.chamberId.trim().length > 0 &&
+        (draft.metaGovernance.action === "chamber.dissolve"
+          ? true
+          : (draft.metaGovernance.title ?? "").trim().length > 0)
+      : true);
   const canAct = !SIM_AUTH_ENABLED || (auth.authenticated && auth.eligible);
   const submitDisabled = !canSubmit || !canAct;
 

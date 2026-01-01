@@ -25,6 +25,13 @@ export type ProposalDraftForm = {
   what: string;
   why: string;
   how: string;
+  metaGovernance?: {
+    action: "chamber.create" | "chamber.dissolve";
+    chamberId: string;
+    title?: string;
+    multiplier?: number;
+    genesisMembers?: string[];
+  };
   timeline: TimelineItem[];
   outputs: LinkItem[];
   budgetItems: BudgetItem[];
@@ -41,6 +48,7 @@ export const DEFAULT_DRAFT: ProposalDraftForm = {
   what: "",
   why: "",
   how: "",
+  metaGovernance: undefined,
   timeline: [
     { id: "ms-1", title: "Milestone 1", timeframe: "2 weeks" },
     { id: "ms-2", title: "Milestone 2", timeframe: "1 month" },
