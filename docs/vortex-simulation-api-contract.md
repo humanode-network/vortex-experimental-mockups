@@ -311,6 +311,63 @@ Notes:
   - a CM award record is stored in `cm_awards` (unique per proposal)
   - `/api/humans` and `/api/humans/:id` overlay the derived ACM delta from awards
 
+#### Command: `delegation.set`
+
+Request:
+
+```ts
+type DelegationSetCommand = {
+  type: "delegation.set";
+  payload: { chamberId: string; delegateeAddress: string };
+  idempotencyKey?: string;
+};
+```
+
+Response:
+
+```ts
+type DelegationSetResponse = {
+  ok: true;
+  type: "delegation.set";
+  chamberId: string;
+  delegatorAddress: string;
+  delegateeAddress: string;
+  updatedAt: string;
+};
+```
+
+Notes:
+
+- Delegation is chamber-scoped (v1): a user can set one delegatee per chamber.
+- Cycles and self-delegation are rejected (HTTP `400`).
+- Delegatee eligibility is enforced:
+  - for General: delegatee must be a governor (has an accepted proposal in any chamber)
+  - for a specialization chamber: delegatee must be eligible in that chamber
+
+#### Command: `delegation.clear`
+
+Request:
+
+```ts
+type DelegationClearCommand = {
+  type: "delegation.clear";
+  payload: { chamberId: string };
+  idempotencyKey?: string;
+};
+```
+
+Response:
+
+```ts
+type DelegationClearResponse = {
+  ok: true;
+  type: "delegation.clear";
+  chamberId: string;
+  delegatorAddress: string;
+  cleared: boolean;
+};
+```
+
 #### Command: `formation.join`
 
 Request:

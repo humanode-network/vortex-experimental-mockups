@@ -13,7 +13,7 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 - Proposal pool attention quorum is **paper: 22% engaged + ≥10% upvotes** vs **simulation v1: 20% engaged + ≥10% upvotes**.
 - Chamber vote quorum is **paper: 33%** and **simulation v1: 33%** (aligned).
 - Passing rule is **paper: 66% + 1** vs **simulation v1: ≥ 2/3 (66.6%)** (close/aligned in spirit, slightly different wording).
-- Vote weight via delegation is **paper: yes (governor power = 1 + delegations)** vs **simulation v1: delegation not implemented**.
+- Vote weight via delegation is **paper: yes (governor power = 1 + delegations)** and **simulation v1: implemented for chamber vote weighting** (pool attention remains direct-only).
 - Veto is **paper: yes** vs **simulation v1: not implemented**.
 - Chamber multiplier voting is **paper: yes (1–100, set by outsiders)** vs **simulation v1: multipliers are configured/controlled via canonical chamber records**.
 - Stage windows are **paper: vote stage = 1 week** vs **simulation v1: pool = 7 days, vote = 3 days (defaults; configurable)**.
@@ -55,7 +55,7 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 - Quorum math is implemented in `functions/_lib/poolQuorum.ts`:
   - `V1_POOL_ATTENTION_QUORUM_FRACTION = 0.2` (20%)
   - `V1_POOL_UPVOTE_FLOOR_FRACTION = 0.1` (10%)
-- Delegation is not implemented, so all pool votes are direct.
+- Delegation exists but is not applied to proposal-pool attention (pool votes remain direct-only, paper intent).
 
 **Paper divergence (explicit)**
 
@@ -73,7 +73,9 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 - Quorum math is implemented in `functions/_lib/chamberQuorum.ts`:
   - `V1_CHAMBER_QUORUM_FRACTION = 0.33`
   - `V1_CHAMBER_PASSING_FRACTION = 2/3` (66.6%)
-- Delegation is not implemented, so all chamber votes are direct.
+- Delegation is implemented and affects chamber vote aggregation:
+  - vote weight = `1 + delegatedVoices`
+  - a delegator’s voice only counts if that delegator did **not** cast a chamber vote themselves.
 
 ### Delegation
 
@@ -88,8 +90,10 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 
 **Simulation v1**
 
-- Delegation is not implemented.
-- Courts can reference delegation disputes at the narrative level, but there is no delegation graph/history yet.
+- Delegation graph + history are implemented:
+  - `delegations` + `delegation_events` tables
+  - commands: `delegation.set`, `delegation.clear`
+- Delegation affects chamber vote aggregation only (pool attention remains direct-only).
 
 ### Veto
 

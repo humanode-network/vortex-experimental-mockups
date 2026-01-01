@@ -102,6 +102,55 @@ export const proposals = pgTable("proposals", {
     .defaultNow(),
 });
 
+// Captures the active-governor denominator at proposal stage entry.
+// This prevents quorum math from drifting when eras advance mid-stage.
+export const proposalStageDenominators = pgTable(
+  "proposal_stage_denominators",
+  {
+    proposalId: text("proposal_id").notNull(),
+    stage: text("stage").notNull(), // pool | vote (v1)
+    era: integer("era").notNull(),
+    activeGovernors: integer("active_governors").notNull(),
+    capturedAt: timestamp("captured_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.proposalId, t.stage] }),
+  }),
+);
+
+// Delegation graph (Phase 29).
+// Delegation affects chamber vote weight but not proposal-pool attention.
+export const delegations = pgTable(
+  "delegations",
+  {
+    chamberId: text("chamber_id").notNull(),
+    delegatorAddress: text("delegator_address").notNull(),
+    delegateeAddress: text("delegatee_address").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.chamberId, t.delegatorAddress] }),
+  }),
+);
+
+export const delegationEvents = pgTable("delegation_events", {
+  seq: bigserial("seq", { mode: "number" }).primaryKey(),
+  chamberId: text("chamber_id").notNull(),
+  delegatorAddress: text("delegator_address").notNull(),
+  delegateeAddress: text("delegatee_address"),
+  type: text("type").notNull(), // set | clear
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 // Chamber voting eligibility (Phase 17).
 // Membership is granted when a proposal is accepted in a chamber.
 // General chamber membership is granted when any proposal is accepted anywhere.

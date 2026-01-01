@@ -523,13 +523,14 @@ Where possible we keep “domain logic” in pure helpers under `functions/_lib/
 
 **Simulation status**
 
-- Not implemented in v1.
+Implemented in v1:
 
-Planned deliverables (v2+):
-
-- delegation graph + invariants (no cycles, no self-delegation)
-- delegation history events (auditable, court-referencable)
-- chamber vote weight aggregation (delegation affects chamber voting, but not pool attention mechanics)
+- Delegation graph + invariants (no cycles, no self-delegation), chamber-scoped.
+- Delegation history events (auditable).
+- Chamber vote weight aggregation:
+  - vote weight = `1 + delegatedVoices`
+  - a delegator’s voice only counts if the delegator did **not** cast a chamber vote themselves
+  - delegation affects chamber voting only; pool attention remains direct-only.
 
 ---
 

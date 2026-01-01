@@ -335,7 +335,7 @@ Simulation requirements:
 Paper alignment note:
 
 - The paper describes delegation as aggregating voting power (delegatee power equals `1 + delegations`).
-- v1 does not implement delegation yet.
+- v1 implements delegation for **chamber vote weighting** (pool attention remains direct-only).
 
 ### 1.7 Proposals
 

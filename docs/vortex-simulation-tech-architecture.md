@@ -140,11 +140,12 @@ Implemented in v1:
 - `formation.milestone.requestUnlock`
 - `court.case.report`
 - `court.case.verdict`
+- `delegation.set`
+- `delegation.clear`
 
 Planned (v2+) examples:
 
-- `delegation.set`
-- `delegation.clear`
+-
 
 ## 5) Data model (tables) — minimal set
 
@@ -215,11 +216,11 @@ Implemented:
 - `formation_milestones`: per-proposal milestone status (`todo`/`submitted`/`unlocked`)
 - `formation_milestone_events`: append-only milestone submissions/unlock requests
 - `proposal_drafts`: author-owned proposal drafts (Phase 12)
+- `delegations`: chamber-scoped delegation graph (Phase 29)
+- `delegation_events`: append-only delegation history (Phase 29)
 
 ### Optional future domain tables (v2+)
 
-- `delegations`: delegation graph (if/when implemented)
-- `delegation_events`: append-only delegation history
 - `proposal_stage_transitions`: append-only transition history (v1 transitions exist, but are not stored as a dedicated transitions table)
 - `proposal_attachments`: `proposalId`, `title`, `href`
 - `cm_lcm`: per-chamber LCM materialization (v1 derives ACM deltas from `cm_awards`)
@@ -277,8 +278,18 @@ Planned (later phases):
 
 ### Delegation
 
-- `delegations`: `delegatorUserId`, `delegateeUserId`, `createdAt`, `revokedAt?`
-- `delegation_events`: append-only changes for audit/courts
+Implemented (v1):
+
+- Commands:
+  - `delegation.set`
+  - `delegation.clear`
+- Tables:
+  - `delegations`: `(chamber_id, delegator_address) → delegatee_address`
+  - `delegation_events`: append-only history (`set` / `clear`)
+- Semantics:
+  - delegation affects **chamber vote weighting** only
+  - proposal-pool attention remains direct-only
+  - a delegator’s voice only counts if the delegator did **not** cast a chamber vote themselves
 
 ### Feed / audit trail
 

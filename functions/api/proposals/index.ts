@@ -5,6 +5,7 @@ import { getActiveGovernorsForCurrentEra } from "../../_lib/eraStore.ts";
 import { getPoolVoteCounts } from "../../_lib/poolVotesStore.ts";
 import { getChamberVoteCounts } from "../../_lib/chamberVotesStore.ts";
 import { getFormationSummary } from "../../_lib/formationStore.ts";
+import { getProposalStageDenominatorMap } from "../../_lib/proposalStageDenominatorsStore.ts";
 import {
   parseProposalStageQuery,
   projectProposalListItem,
@@ -49,6 +50,15 @@ export const onRequestGet: PagesFunction = async (context) => {
         ? []
         : await listProposals(context.env, { stage: stageQuery });
 
+    const poolDenominators = await getProposalStageDenominatorMap(context.env, {
+      stage: "pool",
+      proposalIds: proposals.filter((p) => p.stage === "pool").map((p) => p.id),
+    });
+    const voteDenominators = await getProposalStageDenominatorMap(context.env, {
+      stage: "vote",
+      proposalIds: proposals.filter((p) => p.stage === "vote").map((p) => p.id),
+    });
+
     const projected = await Promise.all(
       proposals.map(async (proposal) => {
         const formationEligible = (() => {
@@ -68,7 +78,9 @@ export const onRequestGet: PagesFunction = async (context) => {
             : undefined;
         const chamberCounts =
           proposal.stage === "vote"
-            ? await getChamberVoteCounts(context.env, proposal.id)
+            ? await getChamberVoteCounts(context.env, proposal.id, {
+                chamberId: (proposal.chamberId ?? "general").toLowerCase(),
+              })
             : undefined;
         const formationSummary =
           proposal.stage === "build" && formationEligible
@@ -76,8 +88,14 @@ export const onRequestGet: PagesFunction = async (context) => {
                 () => null,
               )
             : null;
+        const stageDenominator =
+          proposal.stage === "pool"
+            ? poolDenominators.get(proposal.id)?.activeGovernors
+            : proposal.stage === "vote"
+              ? voteDenominators.get(proposal.id)?.activeGovernors
+              : undefined;
         return projectProposalListItem(proposal, {
-          activeGovernors,
+          activeGovernors: stageDenominator ?? activeGovernors,
           now,
           voteWindowSeconds,
           poolCounts,

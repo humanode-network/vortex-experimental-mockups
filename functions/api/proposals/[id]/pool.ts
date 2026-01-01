@@ -4,6 +4,7 @@ import { getPoolVoteCounts } from "../../../_lib/poolVotesStore.ts";
 import { getActiveGovernorsForCurrentEra } from "../../../_lib/eraStore.ts";
 import { getProposal } from "../../../_lib/proposalsStore.ts";
 import { projectPoolProposalPage } from "../../../_lib/proposalProjector.ts";
+import { getProposalStageDenominator } from "../../../_lib/proposalStageDenominatorsStore.ts";
 import { V1_ACTIVE_GOVERNORS_FALLBACK } from "../../../_lib/v1Constants.ts";
 
 export const onRequestGet: PagesFunction = async (context) => {
@@ -12,9 +13,16 @@ export const onRequestGet: PagesFunction = async (context) => {
     if (!id) return errorResponse(400, "Missing proposal id");
 
     const counts = await getPoolVoteCounts(context.env, id);
-    const activeGovernors =
+    const baseline =
       (await getActiveGovernorsForCurrentEra(context.env).catch(() => null)) ??
       V1_ACTIVE_GOVERNORS_FALLBACK;
+    const activeGovernors =
+      (
+        await getProposalStageDenominator(context.env, {
+          proposalId: id,
+          stage: "pool",
+        }).catch(() => null)
+      )?.activeGovernors ?? baseline;
 
     const proposal = await getProposal(context.env, id);
     if (proposal) {

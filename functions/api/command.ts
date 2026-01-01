@@ -63,6 +63,11 @@ import {
   transitionProposalStage,
 } from "../_lib/proposalsStore.ts";
 import {
+  captureProposalStageDenominator,
+  getProposalStageDenominator,
+} from "../_lib/proposalStageDenominatorsStore.ts";
+import { clearDelegation, setDelegation } from "../_lib/delegationsStore.ts";
+import {
   grantVotingEligibilityForAcceptedProposal,
   hasAnyChamberMembership,
   hasChamberMembership,
@@ -189,6 +194,23 @@ const proposalSubmitToPoolSchema = z.object({
   idempotencyKey: z.string().min(8).optional(),
 });
 
+const delegationSetSchema = z.object({
+  type: z.literal("delegation.set"),
+  payload: z.object({
+    chamberId: z.string().min(1),
+    delegateeAddress: z.string().min(1),
+  }),
+  idempotencyKey: z.string().min(8).optional(),
+});
+
+const delegationClearSchema = z.object({
+  type: z.literal("delegation.clear"),
+  payload: z.object({
+    chamberId: z.string().min(1),
+  }),
+  idempotencyKey: z.string().min(8).optional(),
+});
+
 const commandSchema = z.discriminatedUnion("type", [
   poolVoteSchema,
   chamberVoteSchema,
@@ -200,6 +222,8 @@ const commandSchema = z.discriminatedUnion("type", [
   proposalDraftSaveSchema,
   proposalDraftDeleteSchema,
   proposalSubmitToPoolSchema,
+  delegationSetSchema,
+  delegationClearSchema,
 ]);
 
 type CommandInput = z.infer<typeof commandSchema>;
@@ -585,12 +609,12 @@ export const onRequestPost: PagesFunction = async (context) => {
     const budget =
       budgetTotal > 0 ? `${budgetTotal.toLocaleString()} HMND` : "—";
 
-    const activeGovernors =
+    const poolActiveGovernors =
       typeof activeGovernorsBaseline === "number"
         ? activeGovernorsBaseline
         : V1_ACTIVE_GOVERNORS_FALLBACK;
     const attentionQuorum = V1_POOL_ATTENTION_QUORUM_FRACTION;
-    const upvoteFloor = computePoolUpvoteFloor(activeGovernors);
+    const upvoteFloor = computePoolUpvoteFloor(poolActiveGovernors);
 
     const poolPagePayload = {
       title: draft.title,
@@ -607,11 +631,11 @@ export const onRequestPost: PagesFunction = async (context) => {
       upvotes: 0,
       downvotes: 0,
       attentionQuorum,
-      activeGovernors,
+      activeGovernors: poolActiveGovernors,
       upvoteFloor,
       rules: [
         `${Math.round(attentionQuorum * 100)}% attention from active governors required.`,
-        `At least ${Math.round((upvoteFloor / activeGovernors) * 100)}% upvotes to move to chamber vote.`,
+        `At least ${Math.round((upvoteFloor / poolActiveGovernors) * 100)}% upvotes to move to chamber vote.`,
       ],
       attachments: draft.payload.attachments
         .filter((a) => a.label.trim().length > 0)
@@ -698,6 +722,12 @@ export const onRequestPost: PagesFunction = async (context) => {
       await readModels.set(`proposals:${proposalId}:pool`, poolPagePayload);
     }
 
+    await captureProposalStageDenominator(context.env, {
+      proposalId,
+      stage: "pool",
+      activeGovernors: poolActiveGovernors,
+    }).catch(() => {});
+
     await markDraftSubmitted(context.env, {
       authorAddress: sessionAddress,
       draftId: input.payload.draftId,
@@ -752,6 +782,110 @@ export const onRequestPost: PagesFunction = async (context) => {
         timestamp: new Date().toISOString(),
       },
     });
+
+    return jsonResponse(response);
+  }
+
+  if (input.type === "delegation.set") {
+    const chamberId = input.payload.chamberId.trim().toLowerCase();
+    const delegateeAddress = input.payload.delegateeAddress.trim();
+
+    const isDelegateeEligible =
+      chamberId === "general"
+        ? await hasAnyChamberMembership(context.env, delegateeAddress)
+        : await hasChamberMembership(context.env, {
+            address: delegateeAddress,
+            chamberId,
+          });
+    if (!isDelegateeEligible) {
+      return errorResponse(400, "Delegatee is not eligible for delegation", {
+        code: "delegatee_not_eligible",
+        chamberId,
+      });
+    }
+
+    let record;
+    try {
+      record = await setDelegation(context.env, {
+        chamberId,
+        delegatorAddress: sessionAddress,
+        delegateeAddress,
+      });
+    } catch (error) {
+      const code = (error as Error).message;
+      return errorResponse(400, "Unable to set delegation", { code });
+    }
+
+    const response = {
+      ok: true as const,
+      type: input.type,
+      chamberId: record.chamberId,
+      delegatorAddress: record.delegatorAddress,
+      delegateeAddress: record.delegateeAddress,
+      updatedAt: record.updatedAt,
+    };
+
+    if (idempotencyKey) {
+      await storeIdempotencyResponse(context.env, {
+        key: idempotencyKey,
+        address: session.address,
+        request: requestForIdem,
+        response,
+      });
+    }
+
+    await appendFeedItemEvent(context.env, {
+      stage: "vote",
+      actorAddress: session.address,
+      entityType: "delegation",
+      entityId: `${record.chamberId}:${record.delegatorAddress}`,
+      payload: {
+        id: `delegation-set:${record.chamberId}:${record.delegatorAddress}:${Date.now()}`,
+        title: "Delegation set",
+        meta: "Delegation",
+        stage: "vote",
+        summaryPill: "Delegated",
+        summary: `Delegated voting power in ${record.chamberId} chamber.`,
+        stats: [{ label: "Delegatee", value: record.delegateeAddress }],
+        ctaPrimary: "Open My Governance",
+        href: "/app/my-governance",
+        timestamp: new Date().toISOString(),
+      },
+    });
+
+    return jsonResponse(response);
+  }
+
+  if (input.type === "delegation.clear") {
+    const chamberId = input.payload.chamberId.trim().toLowerCase();
+
+    let cleared;
+    try {
+      cleared = await clearDelegation(context.env, {
+        chamberId,
+        delegatorAddress: sessionAddress,
+      });
+    } catch (error) {
+      const code = (error as Error).message;
+      return errorResponse(400, "Unable to clear delegation", { code });
+    }
+
+    const response = {
+      ok: true as const,
+      type: input.type,
+      chamberId,
+      delegatorAddress: sessionAddress,
+      cleared: cleared.cleared,
+    };
+
+    if (idempotencyKey) {
+      await storeIdempotencyResponse(context.env, {
+        key: idempotencyKey,
+        address: session.address,
+        request: requestForIdem,
+        response,
+      });
+    }
 
     return jsonResponse(response);
   }
@@ -863,20 +997,50 @@ export const onRequestPost: PagesFunction = async (context) => {
       },
     });
 
+    const storedPoolDenominator = await getProposalStageDenominator(
+      context.env,
+      {
+        proposalId: input.payload.proposalId,
+        stage: "pool",
+      },
+    ).catch(() => null);
+    const poolDenominator =
+      storedPoolDenominator?.activeGovernors ??
+      (typeof activeGovernorsBaseline === "number"
+        ? activeGovernorsBaseline
+        : V1_ACTIVE_GOVERNORS_FALLBACK);
+    if (!storedPoolDenominator) {
+      await captureProposalStageDenominator(context.env, {
+        proposalId: input.payload.proposalId,
+        stage: "pool",
+        activeGovernors: poolDenominator,
+      }).catch(() => {});
+    }
+
     const advanced =
       (readModels &&
         (await maybeAdvancePoolProposalToVote(readModels, {
           proposalId: input.payload.proposalId,
           counts,
-          activeGovernorsBaseline,
+          activeGovernors: poolDenominator,
         }))) ||
       (await maybeAdvancePoolProposalToVoteCanonical(context.env, {
         proposalId: input.payload.proposalId,
         counts,
-        activeGovernorsBaseline,
+        activeGovernors: poolDenominator,
       }));
 
     if (advanced) {
+      const voteDenominator =
+        typeof activeGovernorsBaseline === "number"
+          ? activeGovernorsBaseline
+          : V1_ACTIVE_GOVERNORS_FALLBACK;
+      await captureProposalStageDenominator(context.env, {
+        proposalId: input.payload.proposalId,
+        stage: "vote",
+        activeGovernors: voteDenominator,
+      }).catch(() => {});
+
       await appendFeedItemEvent(context.env, {
         stage: "vote",
         actorAddress: session.address,
@@ -1471,6 +1635,11 @@ export const onRequestPost: PagesFunction = async (context) => {
   });
   if (quotaError) return quotaError;
 
+  const chamberIdForVote = await getProposalChamberIdForVote(
+    context.env,
+    readModels,
+    { proposalId: input.payload.proposalId },
+  );
   const choice =
     input.payload.choice === "yes" ? 1 : input.payload.choice === "no" ? -1 : 0;
   const { counts, created } = await castChamberVote(context.env, {
@@ -1479,6 +1648,7 @@ export const onRequestPost: PagesFunction = async (context) => {
     choice,
     score:
       input.payload.choice === "yes" ? (input.payload.score ?? null) : null,
+    chamberId: chamberIdForVote,
   });
 
   const response = {
@@ -1545,19 +1715,36 @@ export const onRequestPost: PagesFunction = async (context) => {
     },
   });
 
+  const storedVoteDenominator = await getProposalStageDenominator(context.env, {
+    proposalId: input.payload.proposalId,
+    stage: "vote",
+  }).catch(() => null);
+  const voteDenominator =
+    storedVoteDenominator?.activeGovernors ??
+    (typeof activeGovernorsBaseline === "number"
+      ? activeGovernorsBaseline
+      : V1_ACTIVE_GOVERNORS_FALLBACK);
+  if (!storedVoteDenominator) {
+    await captureProposalStageDenominator(context.env, {
+      proposalId: input.payload.proposalId,
+      stage: "vote",
+      activeGovernors: voteDenominator,
+    }).catch(() => {});
+  }
+
   const advanced =
     (readModels &&
       (await maybeAdvanceVoteProposalToBuild(context.env, readModels, {
         proposalId: input.payload.proposalId,
         counts,
-        activeGovernorsBaseline,
+        activeGovernors: voteDenominator,
       }))) ||
     (await maybeAdvanceVoteProposalToBuildCanonical(
       context.env,
       {
         proposalId: input.payload.proposalId,
         counts,
-        activeGovernorsBaseline,
+        activeGovernors: voteDenominator,
       },
       context.request.url,
     ));
@@ -1645,7 +1832,7 @@ async function maybeAdvancePoolProposalToVote(
   input: {
     proposalId: string;
     counts: { upvotes: number; downvotes: number };
-    activeGovernorsBaseline: number | null;
+    activeGovernors: number;
   },
 ): Promise<boolean> {
   if (!store.set) return false;
@@ -1653,11 +1840,8 @@ async function maybeAdvancePoolProposalToVote(
   const poolPayload = await store.get(`proposals:${input.proposalId}:pool`);
   if (!isRecord(poolPayload)) return false;
   const attentionQuorum = poolPayload.attentionQuorum;
-  const activeGovernors =
-    typeof input.activeGovernorsBaseline === "number"
-      ? input.activeGovernorsBaseline
-      : poolPayload.activeGovernors;
-  const upvoteFloor = poolPayload.upvoteFloor;
+  const activeGovernors = input.activeGovernors;
+  const upvoteFloor = computePoolUpvoteFloor(activeGovernors);
   if (
     typeof attentionQuorum !== "number" ||
     typeof activeGovernors !== "number" ||
@@ -1681,6 +1865,9 @@ async function maybeAdvancePoolProposalToVote(
     store,
     input.proposalId,
     poolPayload,
+    {
+      activeGovernors,
+    },
   );
   const voteStageData = buildVoteStageData(chamberPayload);
 
@@ -1707,20 +1894,15 @@ async function maybeAdvancePoolProposalToVoteCanonical(
   input: {
     proposalId: string;
     counts: { upvotes: number; downvotes: number };
-    activeGovernorsBaseline: number | null;
+    activeGovernors: number;
   },
 ): Promise<boolean> {
   const proposal = await getProposal(env, input.proposalId);
   if (!proposal) return false;
   if (proposal.stage !== "pool") return false;
 
-  const activeGovernors =
-    typeof input.activeGovernorsBaseline === "number"
-      ? input.activeGovernorsBaseline
-      : V1_ACTIVE_GOVERNORS_FALLBACK;
-
   const shouldAdvance = shouldAdvancePoolToVote({
-    activeGovernors,
+    activeGovernors: input.activeGovernors,
     counts: input.counts,
   });
   if (!shouldAdvance) return false;
@@ -1736,12 +1918,15 @@ async function ensureChamberProposalPage(
   store: Awaited<ReturnType<typeof createReadModelsStore>>,
   proposalId: string,
   poolPayload: Record<string, unknown>,
+  input: { activeGovernors: number },
 ): Promise<unknown> {
   const existing = await store.get(`proposals:${proposalId}:chamber`);
   if (existing) return existing;
   if (!store.set) return existing;
 
   const generated = buildChamberProposalPageFromPool(poolPayload);
+  (generated as Record<string, unknown>).activeGovernors =
+    input.activeGovernors;
   await store.set(`proposals:${proposalId}:chamber`, generated);
   return generated;
 }
@@ -1856,7 +2041,7 @@ async function maybeAdvanceVoteProposalToBuild(
   input: {
     proposalId: string;
     counts: { yes: number; no: number; abstain: number };
-    activeGovernorsBaseline: number | null;
+    activeGovernors: number;
   },
 ): Promise<boolean> {
   if (!store.set) return false;
@@ -1867,10 +2052,7 @@ async function maybeAdvanceVoteProposalToBuild(
   if (!isRecord(chamberPayload)) return false;
 
   const attentionQuorum = chamberPayload.attentionQuorum;
-  const activeGovernors =
-    typeof input.activeGovernorsBaseline === "number"
-      ? input.activeGovernorsBaseline
-      : chamberPayload.activeGovernors;
+  const activeGovernors = input.activeGovernors;
   const formationEligible = chamberPayload.formationEligible;
   if (
     typeof attentionQuorum !== "number" ||
@@ -1944,7 +2126,7 @@ async function maybeAdvanceVoteProposalToBuildCanonical(
   input: {
     proposalId: string;
     counts: { yes: number; no: number; abstain: number };
-    activeGovernorsBaseline: number | null;
+    activeGovernors: number;
   },
   requestUrl: string,
 ): Promise<boolean> {
@@ -1952,13 +2134,8 @@ async function maybeAdvanceVoteProposalToBuildCanonical(
   if (!proposal) return false;
   if (proposal.stage !== "vote") return false;
 
-  const activeGovernors =
-    typeof input.activeGovernorsBaseline === "number"
-      ? input.activeGovernorsBaseline
-      : V1_ACTIVE_GOVERNORS_FALLBACK;
-
   const shouldAdvance = shouldAdvanceVoteToBuild({
-    activeGovernors,
+    activeGovernors: input.activeGovernors,
     counts: input.counts,
   });
   if (!shouldAdvance) return false;

@@ -93,6 +93,24 @@ Canonical proposals table (first step away from `read_models` as source of truth
 
 In Phase 14, reads begin preferring this table (with `read_models` as a compatibility fallback for seeded legacy DTOs).
 
+## Proposal stage denominators (Phase 28)
+
+To keep quorum math stable when eras advance mid-stage, proposal quorums use a stage-entry denominator snapshot:
+
+- `proposal_stage_denominators`: one row per `(proposalId, stage)` where `stage` is `pool` or `vote`.
+  - `era`: the era when the proposal entered that stage.
+  - `active_governors`: the active-governor denominator captured at stage entry.
+  - `captured_at`: timestamp for audit/debug.
+
+Reads:
+
+- Proposal list items and proposal pages prefer the stage-entry denominator when present.
+- If no snapshot exists (legacy data), the current era baseline is used as a fallback.
+
+Writes:
+
+- The snapshot is captured exactly once per `(proposalId, stage)` and never overwritten.
+
 ## Chambers (Phase 18–21)
 
 Canonical chambers live in:
@@ -112,6 +130,22 @@ Voting eligibility (paper-aligned, v1-enforced) is stored in:
   - `source` (v1: `accepted_proposal`)
 
 Dissolution never deletes history. It changes chamber status and restricts new writes (e.g., new proposals) while preserving audit trails.
+
+## Delegation (Phase 29)
+
+Delegation is a chamber-scoped liquid graph that affects **chamber vote weights** but never affects proposal-pool attention.
+
+Tables:
+
+- `delegations`: current delegation graph, keyed by `(chamber_id, delegator_address)` → `delegatee_address`.
+- `delegation_events`: append-only history of delegation changes (`set` / `clear`) for audit/debug.
+
+Vote tally semantics (v1):
+
+- Chamber votes are stored per-voter in `chamber_votes` as before.
+- When computing chamber vote counts, the current delegation graph is applied:
+  - each voter contributes weight `1 + delegatedVoices`,
+  - a delegator’s voice only counts if the delegator **did not cast a vote** themselves.
 
 ## Formation
 

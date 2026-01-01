@@ -2,6 +2,7 @@ import { and, eq, sql } from "drizzle-orm";
 
 import { chamberVotes } from "../../db/schema.ts";
 import { createDb } from "./db.ts";
+import { getDelegationWeightsForChamber } from "./delegationsStore.ts";
 
 type Env = Record<string, string | undefined>;
 
@@ -47,6 +48,7 @@ export async function castChamberVote(
     voterAddress: string;
     choice: ChamberVoteChoice;
     score?: number | null;
+    chamberId?: string;
   },
 ): Promise<{ counts: ChamberVoteCounts; created: boolean }> {
   if (!env.DATABASE_URL) {
@@ -59,7 +61,12 @@ export async function castChamberVote(
       score: input.score ?? null,
     });
     memoryVotes.set(input.proposalId, byVoter);
-    return { counts: countMemory(input.proposalId), created };
+    return {
+      counts: await getChamberVoteCounts(env, input.proposalId, {
+        chamberId: input.chamberId,
+      }),
+      created,
+    };
   }
 
   const db = createDb(env);
@@ -91,31 +98,69 @@ export async function castChamberVote(
       set: { choice: input.choice, score: input.score ?? null, updatedAt: now },
     });
 
-  return { counts: await getChamberVoteCounts(env, input.proposalId), created };
+  return {
+    counts: await getChamberVoteCounts(env, input.proposalId, {
+      chamberId: input.chamberId,
+    }),
+    created,
+  };
 }
 
 export async function getChamberVoteCounts(
   env: Env,
   proposalId: string,
+  input?: { chamberId?: string },
 ): Promise<ChamberVoteCounts> {
-  if (!env.DATABASE_URL) return countMemory(proposalId);
+  const chamberId = input?.chamberId?.trim().toLowerCase();
+  if (!env.DATABASE_URL) {
+    return chamberId
+      ? countWeightedFromMemory(env, proposalId, chamberId)
+      : countMemory(proposalId);
+  }
 
   const db = createDb(env);
-  const rows = await db
+  if (!chamberId) {
+    const rows = await db
+      .select({
+        yes: sql<number>`sum(case when ${chamberVotes.choice} = 1 then 1 else 0 end)`,
+        no: sql<number>`sum(case when ${chamberVotes.choice} = -1 then 1 else 0 end)`,
+        abstain: sql<number>`sum(case when ${chamberVotes.choice} = 0 then 1 else 0 end)`,
+      })
+      .from(chamberVotes)
+      .where(eq(chamberVotes.proposalId, proposalId));
+
+    const row = rows[0];
+    return {
+      yes: Number(row?.yes ?? 0),
+      no: Number(row?.no ?? 0),
+      abstain: Number(row?.abstain ?? 0),
+    };
+  }
+
+  const voteRows = await db
     .select({
-      yes: sql<number>`sum(case when ${chamberVotes.choice} = 1 then 1 else 0 end)`,
-      no: sql<number>`sum(case when ${chamberVotes.choice} = -1 then 1 else 0 end)`,
-      abstain: sql<number>`sum(case when ${chamberVotes.choice} = 0 then 1 else 0 end)`,
+      voterAddress: chamberVotes.voterAddress,
+      choice: chamberVotes.choice,
     })
     .from(chamberVotes)
     .where(eq(chamberVotes.proposalId, proposalId));
 
-  const row = rows[0];
-  return {
-    yes: Number(row?.yes ?? 0),
-    no: Number(row?.no ?? 0),
-    abstain: Number(row?.abstain ?? 0),
-  };
+  const voters = new Set(voteRows.map((r) => r.voterAddress));
+  const weights = await getDelegationWeightsForChamber(env, {
+    chamberId,
+    excludedDelegators: voters,
+  });
+
+  let yes = 0;
+  let no = 0;
+  let abstain = 0;
+  for (const row of voteRows) {
+    const w = 1 + (weights.get(row.voterAddress) ?? 0);
+    if (row.choice === 1) yes += w;
+    if (row.choice === -1) no += w;
+    if (row.choice === 0) abstain += w;
+  }
+  return { yes, no, abstain };
 }
 
 export async function clearChamberVotesForTests() {
@@ -132,6 +177,32 @@ function countMemory(proposalId: string): ChamberVoteCounts {
     if (vote.choice === 1) yes += 1;
     if (vote.choice === -1) no += 1;
     if (vote.choice === 0) abstain += 1;
+  }
+  return { yes, no, abstain };
+}
+
+async function countWeightedFromMemory(
+  env: Env,
+  proposalId: string,
+  chamberId: string,
+): Promise<ChamberVoteCounts> {
+  const byVoter = memoryVotes.get(proposalId);
+  if (!byVoter) return { yes: 0, no: 0, abstain: 0 };
+
+  const voters = new Set<string>(byVoter.keys());
+  const weights = await getDelegationWeightsForChamber(env, {
+    chamberId,
+    excludedDelegators: voters,
+  });
+
+  let yes = 0;
+  let no = 0;
+  let abstain = 0;
+  for (const [voter, vote] of byVoter.entries()) {
+    const w = 1 + (weights.get(voter) ?? 0);
+    if (vote.choice === 1) yes += w;
+    if (vote.choice === -1) no += w;
+    if (vote.choice === 0) abstain += w;
   }
   return { yes, no, abstain };
 }

@@ -1131,8 +1131,10 @@ Goal: drive all quorum math from the active-governor denominator computed in Pha
 
 Deliverables:
 
-- Make pool + chamber quorum evaluation use a single explicit denominator source:
-  - the era’s `activeGovernorsBaseline` (and optionally a per-proposal snapshot captured when a proposal enters pool/vote).
+- Make pool + chamber quorum evaluation use a single explicit denominator source per proposal stage:
+  - Stage-entry denominator snapshots stored in `proposal_stage_denominators` (one row per `(proposalId, stage)` for `pool` and `vote`).
+  - When a snapshot exists, quorum math and UI denominators use it (prevents drift when eras advance mid-stage).
+  - If a snapshot is missing (legacy data), fall back to the current era baseline.
 - Decide and document paper-alignment knobs:
   - pool attention quorum: keep v1 `20%` or move to paper `22%`
   - vote window: keep v1 `3 days` or move to paper `7 days`
@@ -1142,8 +1144,16 @@ Tests:
 
 - Unit tests for quorum math against explicit denominators (pool + chamber).
 - API integration tests to ensure:
-  - denominators shown on proposal pages match `GET /api/clock` / era snapshot values
-  - stage transitions evaluate thresholds against the same denominator.
+  - denominators shown on proposal pages are stable across era rollups (no drift)
+  - stage transitions evaluate thresholds against the same denominator they display.
+
+Implemented:
+
+- `db/schema.ts` + migration: `proposal_stage_denominators`
+- `functions/_lib/proposalStageDenominatorsStore.ts` (DB-backed, with memory fallback when `DATABASE_URL` is not set)
+- `functions/api/command.ts` captures denominators at stage entry and uses them for advancement checks
+- `functions/api/proposals/*` reads prefer stage denominators for pool/vote pages and list items
+- Test: `tests/api-quorum-stage-denominators.test.js`
 
 ### Phase 29 — Delegation v1 (graph + history + chamber vote weighting)
 
@@ -1158,15 +1168,31 @@ Deliverables:
 - Invariants:
   - no self-delegation
   - no cycles
-  - at most one delegatee per delegator
+  - at most one delegatee per delegator per chamber
 - Chamber vote weighting:
   - vote weight = `1 + delegatedVoices` (paper intent)
   - delegation affects chamber vote counts/quorum math, but not pool attention mechanics.
+  - a delegator’s voice only counts if the delegator did **not** cast a chamber vote themselves.
 
 Tests:
 
 - Unit tests for cycle detection and vote weight aggregation.
 - API integration tests for set/clear + weighted chamber vote aggregation.
+
+Implemented:
+
+- Tables + migrations:
+  - `db/schema.ts`: `delegations`, `delegation_events`
+  - `db/migrations/0019_delegations.sql`
+- Store:
+  - `functions/_lib/delegationsStore.ts`
+- Commands:
+  - `POST /api/command`: `delegation.set`, `delegation.clear`
+- Weighted chamber vote counts:
+  - `functions/_lib/chamberVotesStore.ts` uses `delegations` to compute weighted `{ yes, no, abstain }` when `chamberId` is known.
+- Tests:
+  - `tests/delegations-cycle.test.js`
+  - `tests/api-delegation-weighted-votes.test.js`
 
 ### Phase 30 — Veto v1 (temporary slow-down + attempt limits)
 
