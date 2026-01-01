@@ -1,6 +1,7 @@
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 
 import {
+  chambers as chambersTable,
   chambers,
   chamberMemberships,
   cmAwards,
@@ -391,10 +392,16 @@ export async function projectChamberStats(
     if (governors === 0) return { governors: 0, acm: 0, lcm: 0, mcm: 0 };
 
     const allAwards = await listCmAwards(env, { proposerIds: members });
-    const acmPoints = allAwards.reduce(
-      (sum, award) => sum + award.mcmPoints,
-      0,
-    );
+    const multiplierByChamberId = new Map<string, number>();
+    for (const chamber of await listChambers(env, requestUrl, {
+      includeDissolved: true,
+    })) {
+      multiplierByChamberId.set(chamber.id, chamber.multiplierTimes10);
+    }
+    const acmPoints = allAwards.reduce((sum, award) => {
+      const times10 = multiplierByChamberId.get(award.chamberId) ?? 10;
+      return sum + Math.round((award.lcmPoints * times10) / 10);
+    }, 0);
 
     const chamberAwards = await listCmAwards(env, {
       proposerIds: members,
@@ -404,8 +411,9 @@ export async function projectChamberStats(
       (sum, award) => sum + award.lcmPoints,
       0,
     );
+    const chamberTimes10 = multiplierByChamberId.get(chamberId) ?? 10;
     const mcmPoints = chamberAwards.reduce(
-      (sum, award) => sum + award.mcmPoints,
+      (sum, award) => sum + Math.round((award.lcmPoints * chamberTimes10) / 10),
       0,
     );
 
@@ -445,15 +453,19 @@ export async function projectChamberStats(
   if (members.length === 0) return { governors: 0, acm: 0, lcm: 0, mcm: 0 };
 
   const acmRows = await db
-    .select({ sum: sql<number>`coalesce(sum(${cmAwards.mcmPoints}), 0)` })
+    .select({
+      sum: sql<number>`coalesce(sum(round(${cmAwards.lcmPoints} * coalesce(${chambersTable.multiplierTimes10}, ${cmAwards.chamberMultiplierTimes10}, 10) / 10.0)), 0)`,
+    })
     .from(cmAwards)
+    .leftJoin(chambersTable, eq(chambersTable.id, cmAwards.chamberId))
     .where(inArray(cmAwards.proposerId, members));
   const chamberRows = await db
     .select({
       lcmSum: sql<number>`coalesce(sum(${cmAwards.lcmPoints}), 0)`,
-      mcmSum: sql<number>`coalesce(sum(${cmAwards.mcmPoints}), 0)`,
+      mcmSum: sql<number>`coalesce(sum(round(${cmAwards.lcmPoints} * coalesce(${chambersTable.multiplierTimes10}, ${cmAwards.chamberMultiplierTimes10}, 10) / 10.0)), 0)`,
     })
     .from(cmAwards)
+    .leftJoin(chambersTable, eq(chambersTable.id, cmAwards.chamberId))
     .where(
       and(
         eq(cmAwards.chamberId, chamberId),
@@ -466,6 +478,57 @@ export async function projectChamberStats(
   const mcm = Math.round(Number(chamberRows[0]?.mcmSum ?? 0) / 10);
 
   return { governors, acm, lcm, mcm };
+}
+
+export async function setChamberMultiplierTimes10(
+  env: Env,
+  requestUrl: string,
+  input: { id: string; multiplierTimes10: number },
+): Promise<{ updated: boolean; prevTimes10: number; nextTimes10: number }> {
+  await ensureGenesisChambers(env, requestUrl);
+  const id = normalizeId(input.id);
+  const nextTimes10 = Math.floor(input.multiplierTimes10);
+  if (!id) return { updated: false, prevTimes10: 10, nextTimes10 };
+
+  if (!env.DATABASE_URL) {
+    const existing = memory.get(id);
+    const prevTimes10 = existing?.multiplierTimes10 ?? 10;
+    if (!existing || existing.status !== "active") {
+      return { updated: false, prevTimes10, nextTimes10 };
+    }
+    if (prevTimes10 === nextTimes10) {
+      return { updated: false, prevTimes10, nextTimes10 };
+    }
+    const now = new Date();
+    memory.set(id, {
+      ...existing,
+      multiplierTimes10: nextTimes10,
+      updatedAt: now,
+    });
+    return { updated: true, prevTimes10, nextTimes10 };
+  }
+
+  const db = createDb(env);
+  const row = await db
+    .select({
+      multiplierTimes10: chambers.multiplierTimes10,
+      status: chambers.status,
+    })
+    .from(chambers)
+    .where(eq(chambers.id, id))
+    .limit(1);
+  const prevTimes10 = row[0]?.multiplierTimes10 ?? 10;
+  const status = row[0]?.status ?? null;
+  if (status !== "active") return { updated: false, prevTimes10, nextTimes10 };
+  if (prevTimes10 === nextTimes10) {
+    return { updated: false, prevTimes10, nextTimes10 };
+  }
+  const now = new Date();
+  await db
+    .update(chambers)
+    .set({ multiplierTimes10: nextTimes10, updatedAt: now })
+    .where(eq(chambers.id, id));
+  return { updated: true, prevTimes10, nextTimes10 };
 }
 
 export function clearChambersForTests(): void {

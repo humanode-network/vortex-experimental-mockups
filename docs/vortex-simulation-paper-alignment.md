@@ -15,7 +15,7 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 - Passing rule is **paper: 66% + 1** vs **simulation v1: ≥ 2/3 (66.6%)** (close/aligned in spirit, slightly different wording).
 - Vote weight via delegation is **paper: yes (governor power = 1 + delegations)** and **simulation v1: implemented for chamber vote weighting** (pool attention remains direct-only).
 - Veto is **paper: yes** vs **simulation v1: implemented** (temporary slow-down with bounded applies).
-- Chamber multiplier voting is **paper: yes (1–100, set by outsiders)** vs **simulation v1: multipliers are configured/controlled via canonical chamber records**.
+- Chamber multiplier voting is **paper: yes (1–100, set by outsiders)** vs **simulation v1: implemented** (outsider submissions + aggregation updates canonical multipliers).
 - Stage windows are **paper: vote stage = 1 week** vs **simulation v1: pool = 7 days, vote = 3 days (defaults; configurable)**.
 
 ## Detailed comparison
@@ -133,7 +133,10 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 - Yes-vote scoring exists, and CM awards are computed on pass:
   - `functions/api/command.ts` computes `avgScore` and awards a CM event once per proposal.
   - `lcmPoints = round(avgScore * 10)`, `mcmPoints = lcmPoints * multiplier`.
-- Multipliers are stored on the canonical chamber record (`multiplierTimes10`) and are not voted on yet.
+- Multipliers are stored on the canonical chamber record (`multiplierTimes10`) and can be updated via outsider submissions:
+  - `chamber_multiplier_submissions` stores one submission per `(chamber, voter)`.
+  - the chamber multiplier is updated to the rounded average of all submissions.
+  - CM award history remains immutable; ACM/MCM views can be recomputed from `lcmPoints` and the current multipliers.
 
 ### Formation
 
@@ -168,5 +171,4 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 ## Action list (what to change next to be more paper-aligned)
 
 1. Confirm delegation scope (paper text is internally inconsistent: same-chamber vs permissionless), then decide whether to keep chamber-scoped delegation (v1) or make delegation global.
-2. Implement chamber multiplier voting (outsider submissions → aggregation → multipliers).
-3. Decide whether to adopt paper’s 22% attention quorum (vs current 20%).
+2. Decide whether to adopt paper’s 22% attention quorum (vs current 20%).

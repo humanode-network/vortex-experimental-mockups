@@ -158,6 +158,25 @@ Vote tally semantics (v1):
   - each voter contributes weight `1 + delegatedVoices`,
   - a delegator’s voice only counts if the delegator **did not cast a vote** themselves.
 
+## Chamber multiplier voting (Phase 31)
+
+Paper intent: chamber multipliers are set by outsiders (those who do not have LCM history in the chamber).
+
+Tables:
+
+- `chamber_multiplier_submissions`: current outsider submissions, keyed by `(chamber_id, voter_address)` with:
+  - `multiplier_times10` (integer 1..100, representing `0.1..10.0`)
+
+Aggregation (v1):
+
+- The multiplier applied to a chamber is the rounded average of all submissions.
+- The canonical chamber record is updated in `chambers.multiplier_times10`.
+
+Display semantics (v1):
+
+- CM award history (`cm_awards`) is immutable.
+- Views that display ACM/MCM compute MCM using the current chamber multiplier (do not rewrite historical award rows).
+
 ## Formation
 
 Formation stores the mutable parts that can’t remain a static mock:

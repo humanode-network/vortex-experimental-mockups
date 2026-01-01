@@ -567,14 +567,16 @@ Implemented in v1:
 
 - Chamber multipliers should be set by cognitocrats outside the chamber (scale 1–100).
 
-**Simulation v1**
+**Simulation status**
 
-- Multipliers are stored on canonical chambers and are not voted on yet.
+Implemented in v1:
 
-Planned deliverables (v2+):
-
-- multiplier submissions + aggregation rules
-- multiplier change history events (do not rewrite CM award history; recompute ACM as a view)
+- Outsider submissions are stored in `chamber_multiplier_submissions` (one per `(chamber_id, voter_address)`).
+- Command: `POST /api/command` → `chamber.multiplier.submit`.
+- Outsider rule enforcement:
+  - an address cannot submit for a chamber where it has LCM history (`cm_awards` as proposer).
+- Aggregation rule (v1): rounded average of submissions is applied to `chambers.multiplier_times10`.
+- CM award history remains immutable; ACM/MCM views are computed using the current chamber multipliers.
 
 ---
 

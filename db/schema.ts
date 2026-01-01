@@ -125,6 +125,24 @@ export const vetoVotes = pgTable(
   }),
 );
 
+export const chamberMultiplierSubmissions = pgTable(
+  "chamber_multiplier_submissions",
+  {
+    chamberId: text("chamber_id").notNull(),
+    voterAddress: text("voter_address").notNull(),
+    multiplierTimes10: integer("multiplier_times10").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.chamberId, t.voterAddress] }),
+  }),
+);
+
 // Captures the active-governor denominator at proposal stage entry.
 // This prevents quorum math from drifting when eras advance mid-stage.
 export const proposalStageDenominators = pgTable(

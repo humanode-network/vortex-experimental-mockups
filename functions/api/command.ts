@@ -18,7 +18,7 @@ import {
   clearChamberVotesForProposal,
 } from "../_lib/chamberVotesStore.ts";
 import { evaluateChamberQuorum } from "../_lib/chamberQuorum.ts";
-import { awardCmOnce } from "../_lib/cmAwardsStore.ts";
+import { awardCmOnce, hasLcmHistoryInChamber } from "../_lib/cmAwardsStore.ts";
 import {
   joinFormationProject,
   ensureFormationSeed,
@@ -104,7 +104,14 @@ import {
 } from "../_lib/stageWindows.ts";
 import { envBoolean } from "../_lib/env.ts";
 import { getSimConfig } from "../_lib/simConfig.ts";
-import { getChamber } from "../_lib/chambersStore.ts";
+import {
+  getChamber,
+  setChamberMultiplierTimes10,
+} from "../_lib/chambersStore.ts";
+import {
+  getChamberMultiplierAggregate,
+  upsertChamberMultiplierSubmission,
+} from "../_lib/chamberMultiplierSubmissionsStore.ts";
 
 const poolVoteSchema = z.object({
   type: z.literal("pool.vote"),
@@ -221,6 +228,15 @@ const vetoVoteSchema = z.object({
   idempotencyKey: z.string().min(8).optional(),
 });
 
+const chamberMultiplierSubmitSchema = z.object({
+  type: z.literal("chamber.multiplier.submit"),
+  payload: z.object({
+    chamberId: z.string().min(1),
+    multiplierTimes10: z.number().int().min(1).max(100),
+  }),
+  idempotencyKey: z.string().min(8).optional(),
+});
+
 const commandSchema = z.discriminatedUnion("type", [
   poolVoteSchema,
   chamberVoteSchema,
@@ -235,6 +251,7 @@ const commandSchema = z.discriminatedUnion("type", [
   delegationSetSchema,
   delegationClearSchema,
   vetoVoteSchema,
+  chamberMultiplierSubmitSchema,
 ]);
 
 type CommandInput = z.infer<typeof commandSchema>;
@@ -897,6 +914,132 @@ export const onRequestPost: PagesFunction = async (context) => {
         response,
       });
     }
+
+    return jsonResponse(response);
+  }
+
+  if (input.type === "chamber.multiplier.submit") {
+    const chamberId = input.payload.chamberId.trim().toLowerCase();
+    const multiplierTimes10 = input.payload.multiplierTimes10;
+
+    const chamber = await getChamber(
+      context.env,
+      context.request.url,
+      chamberId,
+    );
+    if (!chamber) {
+      return errorResponse(400, "Unknown chamber", {
+        code: "invalid_chamber",
+        chamberId,
+      });
+    }
+    if (chamber.status !== "active") {
+      return errorResponse(409, "Chamber is dissolved", {
+        code: "chamber_dissolved",
+        chamberId,
+      });
+    }
+
+    const simConfig = await getSimConfig(context.env, context.request.url);
+    const genesis = simConfig?.genesisChamberMembers ?? null;
+    const hasGenesisMembership = (() => {
+      if (!genesis) return false;
+      for (const list of Object.values(genesis)) {
+        if (list.some((addr) => addr.trim() === sessionAddress)) return true;
+      }
+      return false;
+    })();
+
+    const isGovernor =
+      hasGenesisMembership ||
+      (await hasAnyChamberMembership(context.env, sessionAddress));
+    if (!isGovernor) {
+      return errorResponse(403, "Only governors can set chamber multipliers", {
+        code: "not_governor",
+      });
+    }
+
+    const hasLcmHere = await hasLcmHistoryInChamber(context.env, {
+      proposerId: sessionAddress,
+      chamberId,
+    });
+    if (hasLcmHere) {
+      return errorResponse(400, "Multiplier voting is outsiders-only", {
+        code: "multiplier_outsider_required",
+        chamberId,
+      });
+    }
+
+    const { submission } = await upsertChamberMultiplierSubmission(
+      context.env,
+      {
+        chamberId,
+        voterAddress: sessionAddress,
+        multiplierTimes10,
+      },
+    );
+
+    const aggregate = await getChamberMultiplierAggregate(context.env, {
+      chamberId,
+    });
+
+    const applied =
+      typeof aggregate.avgTimes10 === "number"
+        ? await setChamberMultiplierTimes10(context.env, context.request.url, {
+            id: chamberId,
+            multiplierTimes10: aggregate.avgTimes10,
+          })
+        : null;
+
+    const response = {
+      ok: true as const,
+      type: input.type,
+      chamberId,
+      submission: {
+        multiplierTimes10: submission.multiplierTimes10,
+      },
+      aggregate,
+      applied: applied
+        ? {
+            updated: applied.updated,
+            prevMultiplierTimes10: applied.prevTimes10,
+            nextMultiplierTimes10: applied.nextTimes10,
+          }
+        : null,
+    };
+
+    if (idempotencyKey) {
+      await storeIdempotencyResponse(context.env, {
+        key: idempotencyKey,
+        address: session.address,
+        request: requestForIdem,
+        response,
+      });
+    }
+
+    await appendFeedItemEvent(context.env, {
+      stage: "vote",
+      actorAddress: sessionAddress,
+      entityType: "chamber",
+      entityId: `multiplier:${chamberId}`,
+      payload: {
+        id: `chamber-multiplier-submit:${chamberId}:${sessionAddress}:${Date.now()}`,
+        title: "Multiplier submitted",
+        meta: "Chambers · CM",
+        stage: "vote",
+        summaryPill: "Multiplier",
+        summary: `Submitted a chamber multiplier for ${chamberId}.`,
+        stats: [
+          { label: "Submitted", value: String(submission.multiplierTimes10) },
+          ...(typeof aggregate.avgTimes10 === "number"
+            ? [{ label: "Avg", value: String(aggregate.avgTimes10) }]
+            : []),
+        ],
+        ctaPrimary: "Open chambers",
+        href: "/app/chambers",
+        timestamp: new Date().toISOString(),
+      },
+    });
 
     return jsonResponse(response);
   }

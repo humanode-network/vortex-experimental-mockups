@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 
-import { cmAwards } from "../../db/schema.ts";
+import { chambers, cmAwards } from "../../db/schema.ts";
 import { createDb } from "./db.ts";
 
 type Env = Record<string, string | undefined>;
@@ -94,18 +94,60 @@ export async function awardCmOnce(
     .onConflictDoNothing({ target: cmAwards.proposalId });
 }
 
+export async function hasLcmHistoryInChamber(
+  env: Env,
+  input: { proposerId: string; chamberId: string },
+): Promise<boolean> {
+  const proposerId = input.proposerId.trim();
+  const chamberId = input.chamberId.trim().toLowerCase();
+  if (!proposerId || !chamberId) return false;
+
+  if (!env.DATABASE_URL) {
+    for (const award of memoryAwardsByProposal.values()) {
+      if (award.proposerId !== proposerId) continue;
+      if (award.chamberId !== chamberId) continue;
+      return true;
+    }
+    return false;
+  }
+
+  const db = createDb(env);
+  const rows = await db
+    .select({ proposalId: cmAwards.proposalId })
+    .from(cmAwards)
+    .where(
+      sql`${cmAwards.proposerId} = ${proposerId} and ${cmAwards.chamberId} = ${chamberId}`,
+    )
+    .limit(1);
+  return Boolean(rows[0]);
+}
+
 export async function getAcmDelta(
   env: Env,
   proposerId: string,
 ): Promise<number> {
-  if (!env.DATABASE_URL) return memoryAcmByProposer.get(proposerId) ?? 0;
+  if (!env.DATABASE_URL) {
+    const { getChamberMultiplierTimes10 } = await import("./chambersStore.ts");
+    let sum = 0;
+    for (const award of memoryAwardsByProposal.values()) {
+      if (award.proposerId !== proposerId) continue;
+      const times10 = await getChamberMultiplierTimes10(
+        env,
+        "https://local.test/api/internal",
+        award.chamberId,
+      );
+      sum += Math.round((award.lcmPoints * times10) / 10);
+    }
+    return sum;
+  }
 
   const db = createDb(env);
   const rows = await db
     .select({
-      sum: sql<number>`coalesce(sum(${cmAwards.mcmPoints}), 0)`,
+      sum: sql<number>`coalesce(sum(round(${cmAwards.lcmPoints} * coalesce(${chambers.multiplierTimes10}, ${cmAwards.chamberMultiplierTimes10}, 10) / 10.0)), 0)`,
     })
     .from(cmAwards)
+    .leftJoin(chambers, eq(chambers.id, cmAwards.chamberId))
     .where(eq(cmAwards.proposerId, proposerId));
   return Number(rows[0]?.sum ?? 0);
 }

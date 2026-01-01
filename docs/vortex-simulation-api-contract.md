@@ -351,6 +351,45 @@ Notes:
   - pauses voting for the veto delay window (then the vote stage re-opens automatically)
   - emits feed + timeline events for auditability
 
+#### Command: `chamber.multiplier.submit`
+
+Multiplier voting is used to set chamber multipliers based on outsider submissions.
+
+Request:
+
+```ts
+type ChamberMultiplierSubmitCommand = {
+  type: "chamber.multiplier.submit";
+  payload: { chamberId: string; multiplierTimes10: number }; // 1..100 (represents 0.1..10.0)
+  idempotencyKey?: string;
+};
+```
+
+Response:
+
+```ts
+type ChamberMultiplierSubmitResponse = {
+  ok: true;
+  type: "chamber.multiplier.submit";
+  chamberId: string;
+  submission: { multiplierTimes10: number };
+  aggregate: { submissions: number; avgTimes10: number | null };
+  applied: null | {
+    updated: boolean;
+    prevMultiplierTimes10: number;
+    nextMultiplierTimes10: number;
+  };
+};
+```
+
+Notes:
+
+- Only governors can submit multipliers (HTTP `403` otherwise).
+- Submissions are outsiders-only:
+  - if an address has LCM history in the target chamber, submission is rejected (HTTP `400`).
+- Aggregation (v1): average of all submissions for the chamber, rounded to an integer.
+- The canonical chamber multiplier (`chambers.multiplier_times10`) is updated to the aggregate average.
+
 #### Command: `delegation.set`
 
 Request:

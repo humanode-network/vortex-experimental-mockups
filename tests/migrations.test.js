@@ -25,6 +25,7 @@ test("db migrations: contain core tables", () => {
     "proposal_stage_denominators",
     "proposals",
     "veto_votes",
+    "chamber_multiplier_submissions",
     "delegations",
     "delegation_events",
     "idempotency_keys",

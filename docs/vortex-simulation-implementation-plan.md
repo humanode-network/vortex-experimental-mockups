@@ -1245,6 +1245,22 @@ Tests:
 - Unit tests for outsider eligibility and aggregation.
 - API tests that multipliers affect MCM/ACM views without mutating prior award events.
 
+Implemented:
+
+- DB:
+  - Migration: `db/migrations/0021_chamber_multiplier_submissions.sql`
+  - Table: `chamber_multiplier_submissions` (one submission per `(chamber_id, voter_address)`)
+- Store:
+  - `functions/_lib/chamberMultiplierSubmissionsStore.ts`
+- Command:
+  - `POST /api/command`: `chamber.multiplier.submit`
+  - outsiders-only enforcement (LCM history blocks submissions)
+  - aggregation rule: rounded average applied to `chambers.multiplier_times10`
+- Views:
+  - CM awards remain immutable; ACM/MCM views are recomputed using current multipliers
+- Tests:
+  - `tests/api-chamber-multiplier-voting.test.js`
+
 ### Phase 32 — Paper alignment audit pass (process-by-process)
 
 Goal: run a deliberate paper-vs-simulation audit for every major process and reconcile docs/constants before “production-like” testing.
