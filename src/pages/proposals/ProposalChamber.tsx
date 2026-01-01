@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { ProposalStageBar } from "@/components/ProposalStageBar";
 import { StatTile } from "@/components/StatTile";
 import { PageHint } from "@/components/PageHint";
+import { ProposalPageHeader } from "@/components/ProposalPageHeader";
 import { VoteButton } from "@/components/VoteButton";
 import {
   ProposalInvisionInsightCard,
@@ -90,10 +90,6 @@ const ProposalChamber: React.FC = () => {
     .map((v) => Number(v.trim()));
   const openSlots = Math.max(totalSlots - filledSlots, 0);
 
-  const renderStageBar = (
-    current: "draft" | "pool" | "chamber" | "formation",
-  ) => <ProposalStageBar current={current} />;
-
   const handleVote = async (choice: "yes" | "no" | "abstain") => {
     if (!id || submitting) return;
     setSubmitting(true);
@@ -111,29 +107,12 @@ const ProposalChamber: React.FC = () => {
   return (
     <div className="flex flex-col gap-6">
       <PageHint pageId="proposals" />
-      <section className="space-y-4">
-        <h1 className="text-center text-2xl font-semibold text-text">
-          {proposal.title}
-        </h1>
-        {renderStageBar("chamber")}
-        <div className="grid gap-3 sm:grid-cols-2">
-          <StatTile
-            label="Chamber"
-            value={proposal.chamber}
-            radius="2xl"
-            className="px-4 py-4"
-            labelClassName="text-[0.8rem]"
-            valueClassName="text-2xl"
-          />
-          <StatTile
-            label="Proposer"
-            value={proposal.proposer}
-            radius="2xl"
-            className="px-4 py-4"
-            labelClassName="text-[0.8rem]"
-            valueClassName="text-2xl"
-          />
-        </div>
+      <ProposalPageHeader
+        title={proposal.title}
+        stage="chamber"
+        chamber={proposal.chamber}
+        proposer={proposal.proposer}
+      >
         <div className="flex flex-wrap items-center justify-center gap-3">
           <VoteButton
             tone="accent"
@@ -164,7 +143,9 @@ const ProposalChamber: React.FC = () => {
             {submitError}
           </Surface>
         ) : null}
+      </ProposalPageHeader>
 
+      <section className="space-y-4">
         <h2 className="text-lg font-semibold text-text">Voting quorum</h2>
         <div className="grid gap-3 text-sm text-text sm:grid-cols-2 lg:grid-cols-4">
           <StatTile

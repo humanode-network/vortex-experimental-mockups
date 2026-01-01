@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { ProposalStageBar } from "@/components/ProposalStageBar";
 import { Surface } from "@/components/Surface";
-import { StatTile } from "@/components/StatTile";
 import { PageHint } from "@/components/PageHint";
+import { ProposalPageHeader } from "@/components/ProposalPageHeader";
 import { Button } from "@/components/primitives/button";
 import {
   ProposalInvisionInsightCard,
@@ -65,10 +64,6 @@ const ProposalFormation: React.FC = () => {
     );
   }
 
-  const renderStageBar = (
-    current: "draft" | "pool" | "chamber" | "formation",
-  ) => <ProposalStageBar current={current} />;
-
   const parseRatio = (value: string): { filled: number; total: number } => {
     const parts = value.split("/").map((p) => p.trim());
     if (parts.length !== 2) return { filled: 0, total: 0 };
@@ -103,30 +98,12 @@ const ProposalFormation: React.FC = () => {
   return (
     <div className="flex flex-col gap-6">
       <PageHint pageId="proposals" />
-      <section className="space-y-4">
-        <h1 className="text-center text-2xl font-semibold text-text">
-          {project.title}
-        </h1>
-        {renderStageBar("formation")}
-        <div className="grid gap-3 sm:grid-cols-2">
-          <StatTile
-            label="Chamber"
-            value={project.chamber}
-            radius="2xl"
-            className="px-4 py-4"
-            labelClassName="text-[0.8rem]"
-            valueClassName="text-2xl"
-          />
-          <StatTile
-            label="Proposer"
-            value={project.proposer}
-            radius="2xl"
-            className="px-4 py-4"
-            labelClassName="text-[0.8rem]"
-            valueClassName="text-2xl"
-          />
-        </div>
-      </section>
+      <ProposalPageHeader
+        title={project.title}
+        stage="formation"
+        chamber={project.chamber}
+        proposer={project.proposer}
+      />
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-text">Formation actions</h2>

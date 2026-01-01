@@ -1,15 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
-import {
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/primitives/card";
-import { ProposalStageBar } from "@/components/ProposalStageBar";
 import { Surface } from "@/components/Surface";
 import { StatTile } from "@/components/StatTile";
 import { PageHint } from "@/components/PageHint";
+import { ProposalPageHeader } from "@/components/ProposalPageHeader";
 import { VoteButton } from "@/components/VoteButton";
 import { Modal } from "@/components/Modal";
 import {
@@ -92,37 +87,16 @@ const ProposalPP: React.FC = () => {
     (proposal.upvotes / proposal.activeGovernors) * 100,
   );
 
-  const renderStageBar = (
-    current: "draft" | "pool" | "chamber" | "formation",
-  ) => <ProposalStageBar current={current} />;
-
   return (
     <div className="flex flex-col gap-6">
       <PageHint pageId="proposals" />
       <div className="grid items-start gap-4">
-        <div className="space-y-4">
-          <h1 className="text-center text-2xl font-semibold text-text">
-            {proposal.title}
-          </h1>
-          {renderStageBar("pool")}
-          <div className="grid gap-3 sm:grid-cols-2">
-            <StatTile
-              label="Chamber"
-              value={proposal.chamber}
-              radius="2xl"
-              className="px-4 py-4"
-              labelClassName="text-[0.8rem]"
-              valueClassName="text-2xl"
-            />
-            <StatTile
-              label="Proposer"
-              value={proposal.proposer}
-              radius="2xl"
-              className="px-4 py-4"
-              labelClassName="text-[0.8rem]"
-              valueClassName="text-2xl"
-            />
-          </div>
+        <ProposalPageHeader
+          title={proposal.title}
+          stage="pool"
+          chamber={proposal.chamber}
+          proposer={proposal.proposer}
+        >
           <div className="flex flex-wrap items-center justify-center gap-4">
             <VoteButton
               size="lg"
@@ -172,13 +146,13 @@ const ProposalPP: React.FC = () => {
               {proposal.downvotes} downvotes
             </span>
           </div>
-        </div>
+        </ProposalPageHeader>
 
-        <div className="h-full">
-          <CardHeader className="pb-2">
-            <CardTitle>Quorum of attention</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3 text-sm text-text sm:grid-cols-2 lg:grid-cols-2">
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold text-text">
+            Quorum of attention
+          </h2>
+          <div className="grid gap-3 text-sm text-text sm:grid-cols-2 lg:grid-cols-2">
             <StatTile
               label="Attention quorum (%)"
               value={
@@ -201,8 +175,8 @@ const ProposalPP: React.FC = () => {
               className="flex min-h-24 flex-col items-center justify-center gap-1 py-4"
               valueClassName="text-2xl font-semibold whitespace-nowrap"
             />
-          </CardContent>
-        </div>
+          </div>
+        </section>
       </div>
 
       <ProposalSummaryCard

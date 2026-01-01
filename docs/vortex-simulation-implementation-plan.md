@@ -114,7 +114,7 @@ This is the order we’ll follow from now on, based on what’s already landed.
 26. **Phase 22 — Meta-governance chamber.create seeding (backend) (DONE)**
 27. **Phase 23 — Proposal drafts (UI ↔ backend) (DONE)**
 28. **Phase 24 — Meta-governance proposal type (UI) (DONE)**
-29. **Phase 25 — Proposal pages projected from canonical state (PLANNED)**
+29. **Phase 25 — Proposal pages projected from canonical state (DONE)**
 30. **Phase 26 — Proposal history timeline (PLANNED)**
 
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
@@ -979,7 +979,7 @@ Current status:
 - Tests:
   - `tests/api-command-meta-governance-no-budget.test.js`
 
-### Phase 25 — Proposal pages projected from canonical state (PLANNED)
+### Phase 25 — Proposal pages projected from canonical state (DONE)
 
 Goal: ensure `/api/proposals` and proposal pages are projections from canonical proposals + overlays (not brittle, seed-only read models).
 
@@ -992,6 +992,18 @@ Deliverables:
 Tests:
 
 - Proposal list and proposal pages render from canonical state in inline mode and DB mode.
+
+Current status:
+
+- Read endpoints prefer canonical proposals (`proposals` table / in-memory store) and compute live overlays from normalized tables (pool votes, chamber votes, formation).
+- Proposal stage pages share a consistent header component:
+  - `src/components/ProposalPageHeader.tsx`
+  - wired into:
+    - `src/pages/proposals/ProposalPP.tsx`
+    - `src/pages/proposals/ProposalChamber.tsx`
+    - `src/pages/proposals/ProposalFormation.tsx`
+- Tests:
+  - `tests/api-proposals-canonical-precedence.test.js` (canonical proposal takes precedence over seeded read models).
 
 ### Phase 26 — Proposal history timeline (PLANNED)
 
