@@ -86,24 +86,26 @@ export const onRequestGet: PagesFunction = async (context) => {
     const cfg = await getSimConfig(context.env, context.request.url);
     const genesisMembers = cfg?.genesisChamberMembers ?? undefined;
     const memberAddresses = new Set<string>();
+    const normalizeAddress = (value: string) => value.trim();
+    const chamberId = id.toLowerCase();
 
-    if (id.toLowerCase() === "general") {
+    if (chamberId === "general") {
       if (genesisMembers) {
         for (const list of Object.values(genesisMembers)) {
-          for (const addr of list) memberAddresses.add(addr.toLowerCase());
+          for (const addr of list) memberAddresses.add(normalizeAddress(addr));
         }
       }
       // In v1, the roster for General is the set of anyone with any membership.
       // This will be refined once canonical human profiles and era activity are in place.
       const seeded = await listAllChamberMembers(context.env);
-      for (const addr of seeded) memberAddresses.add(addr.toLowerCase());
+      for (const addr of seeded) memberAddresses.add(normalizeAddress(addr));
     } else {
       if (genesisMembers) {
-        for (const addr of genesisMembers[id.toLowerCase()] ?? [])
-          memberAddresses.add(addr.toLowerCase());
+        for (const addr of genesisMembers[chamberId] ?? [])
+          memberAddresses.add(normalizeAddress(addr));
       }
       const seeded = await listChamberMembers(context.env, id);
-      for (const addr of seeded) memberAddresses.add(addr.toLowerCase());
+      for (const addr of seeded) memberAddresses.add(normalizeAddress(addr));
     }
 
     const governors = Array.from(memberAddresses)

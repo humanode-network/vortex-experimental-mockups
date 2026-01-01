@@ -107,7 +107,7 @@ test("GET /api/chambers/:id projects proposals and roster from canonical stores"
   const engineeringJson = await engineeringRes.json();
 
   const engGovernorIds = engineeringJson.governors.map((g) => g.id).sort();
-  assert.deepEqual(engGovernorIds, ["5genesiseng", "5membereng"]);
+  assert.deepEqual(engGovernorIds, ["5GenesisEng", "5MemberEng"]);
 
   const engProposals = engineeringJson.proposals;
   assert.ok(
@@ -153,9 +153,9 @@ test("GET /api/chambers/:id projects proposals and roster from canonical stores"
 
   const generalGovernorIds = generalJson.governors.map((g) => g.id).sort();
   assert.deepEqual(generalGovernorIds, [
-    "5genesiseng",
-    "5genesismkt",
-    "5membereng",
-    "5memberprod",
+    "5GenesisEng",
+    "5GenesisMkt",
+    "5MemberEng",
+    "5MemberProd",
   ]);
 });

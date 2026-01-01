@@ -1,5 +1,4 @@
 import { assertAdmin, createClockStore } from "../../_lib/clockStore.ts";
-import { envBoolean } from "../../_lib/env.ts";
 import { errorResponse, jsonResponse } from "../../_lib/http.ts";
 import { appendFeedItemEventOnce } from "../../_lib/appendEvents.ts";
 import { rollupEra } from "../../_lib/eraRollupStore.ts";
@@ -56,10 +55,13 @@ export const onRequestPost: PagesFunction = async (context) => {
     const due = forceAdvance || dueByTime;
 
     const rollup = shouldRollup
-      ? await rollupEra(context.env, { era: snapshot.currentEra })
+      ? await rollupEra(context.env, {
+          era: snapshot.currentEra,
+          requestUrl: context.request.url,
+        })
       : null;
 
-    if (rollup && envBoolean(context.env, "SIM_DYNAMIC_ACTIVE_GOVERNORS")) {
+    if (rollup) {
       await setEraSnapshotActiveGovernors(context.env, {
         era: snapshot.currentEra + 1,
         activeGovernors: rollup.activeGovernorsNextEra,

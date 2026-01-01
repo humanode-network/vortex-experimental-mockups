@@ -2,7 +2,13 @@ import { and, eq, sql } from "drizzle-orm";
 
 import { eraRollups, eraUserStatus } from "../../db/schema.ts";
 import { createDb } from "./db.ts";
+import { envBoolean, envCsv } from "./env.ts";
 import { listEraUserActivity } from "./eraStore.ts";
+import {
+  fetchSessionValidatorsViaRpc,
+  isSs58OrHexAddressInSet,
+} from "./humanodeRpc.ts";
+import { getSimConfig } from "./simConfig.ts";
 
 type Env = Record<string, string | undefined>;
 
@@ -51,7 +57,7 @@ const memoryUserStatuses = new Map<
 
 export async function rollupEra(
   env: Env,
-  input: { era: number },
+  input: { era: number; requestUrl?: string },
 ): Promise<EraRollupResult> {
   const existing = await getEraRollup(env, input.era);
   if (existing) {
@@ -72,6 +78,25 @@ export async function rollupEra(
   const requiredTotal = sumRequirements(requirements);
 
   const activityRows = await listEraUserActivity(env, { era: input.era });
+
+  const eligibleAddresses = new Set(
+    envCsv(env, "DEV_ELIGIBLE_ADDRESSES").map((a) => a.trim()),
+  );
+  const bypassGate = envBoolean(env, "DEV_BYPASS_GATE");
+
+  let validatorSet: Set<string> | null = null;
+  if (!bypassGate) {
+    let envWithRpc: Env = env;
+    if (!env.HUMANODE_RPC_URL && input.requestUrl) {
+      const cfg = await getSimConfig(env, input.requestUrl);
+      const fromCfg = (cfg?.humanodeRpcUrl ?? "").trim();
+      if (fromCfg) envWithRpc = { ...env, HUMANODE_RPC_URL: fromCfg };
+    }
+
+    const validators = await fetchSessionValidatorsViaRpc(envWithRpc);
+    validatorSet = new Set(validators);
+  }
+
   const userStatuses = activityRows.map((row) => {
     const completedTotal =
       row.poolVotes +
@@ -79,7 +104,14 @@ export async function rollupEra(
       row.courtActions +
       row.formationActions;
     const status = computeGoverningStatus(completedTotal, requiredTotal);
-    const isActiveNextEra = isActiveByRequirements(row, requirements);
+    const meetsRequirements = isActiveByRequirements(row, requirements);
+    const isActiveHumanNode =
+      bypassGate ||
+      eligibleAddresses.has(row.address.trim()) ||
+      (validatorSet
+        ? isSs58OrHexAddressInSet(row.address, validatorSet)
+        : false);
+    const isActiveNextEra = meetsRequirements && isActiveHumanNode;
     return {
       ...row,
       status,
@@ -160,7 +192,7 @@ export async function getEraUserStatus(
   completedTotal: number;
   isActiveNextEra: boolean;
 }> {
-  const address = input.address.toLowerCase();
+  const address = input.address.trim();
 
   if (!env.DATABASE_URL) {
     const rollup = memoryRollups.get(input.era);
@@ -365,7 +397,7 @@ async function storeEraRollup(
       rolledAt: input.rolledAt,
     });
     for (const u of input.userStatuses) {
-      memoryUserStatuses.set(`${input.era}:${u.address.toLowerCase()}`, {
+      memoryUserStatuses.set(`${input.era}:${u.address.trim()}`, {
         status: u.status,
         requiredTotal: input.requiredTotal,
         completedTotal: u.completedTotal,
@@ -397,7 +429,7 @@ async function storeEraRollup(
     .values(
       input.userStatuses.map((u) => ({
         era: input.era,
-        address: u.address.toLowerCase(),
+        address: u.address.trim(),
         status: u.status,
         requiredTotal: input.requiredTotal,
         completedTotal: u.completedTotal,

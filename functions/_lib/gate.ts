@@ -22,14 +22,14 @@ export async function checkEligibility(
   requestUrl?: string,
 ): Promise<GateResult> {
   const eligibleAddresses = new Set(
-    envCsv(env, "DEV_ELIGIBLE_ADDRESSES").map((a) => a.toLowerCase()),
+    envCsv(env, "DEV_ELIGIBLE_ADDRESSES").map((a) => a.trim()),
   );
 
   const ttlMs = 10 * 60_000;
   const expiresAt = new Date(Date.now() + ttlMs).toISOString();
 
   if (envBoolean(env, "DEV_BYPASS_GATE")) return { eligible: true, expiresAt };
-  if (eligibleAddresses.has(address.toLowerCase()))
+  if (eligibleAddresses.has(address.trim()))
     return { eligible: true, expiresAt };
 
   let envWithRpc: Env = env;

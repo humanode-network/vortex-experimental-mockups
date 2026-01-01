@@ -137,7 +137,7 @@ export async function upsertDraft(
   env: Env,
   input: { authorAddress: string; draftId?: string; form: ProposalDraftForm },
 ): Promise<ProposalDraftRecord> {
-  const address = input.authorAddress.toLowerCase();
+  const address = input.authorAddress.trim();
   const now = new Date();
 
   const id =
@@ -228,7 +228,7 @@ export async function deleteDraft(
   env: Env,
   input: { authorAddress: string; draftId: string },
 ): Promise<boolean> {
-  const address = input.authorAddress.toLowerCase();
+  const address = input.authorAddress.trim();
   const id = input.draftId.trim();
   if (!env.DATABASE_URL) {
     const byId = memoryDraftsByAuthor.get(address);
@@ -249,7 +249,7 @@ export async function listDrafts(
   env: Env,
   input: { authorAddress: string; includeSubmitted?: boolean },
 ): Promise<ProposalDraftRecord[]> {
-  const address = input.authorAddress.toLowerCase();
+  const address = input.authorAddress.trim();
   const includeSubmitted = Boolean(input.includeSubmitted);
 
   if (!env.DATABASE_URL) {
@@ -303,7 +303,7 @@ export async function getDraft(
   env: Env,
   input: { authorAddress: string; draftId: string },
 ): Promise<ProposalDraftRecord | null> {
-  const address = input.authorAddress.toLowerCase();
+  const address = input.authorAddress.trim();
   const id = input.draftId.trim();
   if (!env.DATABASE_URL) {
     const byId = memoryDraftsByAuthor.get(address);
@@ -349,7 +349,7 @@ export async function markDraftSubmitted(
   env: Env,
   input: { authorAddress: string; draftId: string; proposalId: string },
 ): Promise<void> {
-  const address = input.authorAddress.toLowerCase();
+  const address = input.authorAddress.trim();
   const draftId = input.draftId.trim();
   const now = new Date();
 

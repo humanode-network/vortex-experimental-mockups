@@ -2015,12 +2015,12 @@ async function maybeAdvanceVoteProposalToBuildCanonical(
         if (!Array.isArray(raw)) return [];
         return raw
           .filter((v): v is string => typeof v === "string")
-          .map((v) => v.trim().toLowerCase())
+          .map((v) => v.trim())
           .filter(Boolean);
       })();
 
       const memberSet = new Set<string>(genesisMembers);
-      memberSet.add(proposal.authorAddress.toLowerCase());
+      memberSet.add(proposal.authorAddress.trim());
       for (const address of memberSet) {
         await ensureChamberMembership(env, {
           address,
@@ -2190,17 +2190,17 @@ async function enforceChamberVoteEligibility(
   const chamberId = await getProposalChamberIdForVote(env, readModels, {
     proposalId: input.proposalId,
   });
-  const voterAddress = input.voterAddress.toLowerCase();
+  const voterAddress = input.voterAddress.trim();
 
   const hasGenesisMembership = (targetChamberId: string): boolean => {
     if (!genesis) return false;
     const members = genesis[targetChamberId.toLowerCase()] ?? [];
-    return members.includes(voterAddress);
+    return members.some((member) => member.trim() === voterAddress);
   };
   const hasAnyGenesisMembership = (): boolean => {
     if (!genesis) return false;
     for (const members of Object.values(genesis)) {
-      if (members.includes(voterAddress)) return true;
+      if (members.some((member) => member.trim() === voterAddress)) return true;
     }
     return false;
   };

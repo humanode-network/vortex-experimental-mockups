@@ -23,8 +23,7 @@ function asGenesisMembers(
     const list = raw
       .filter((v): v is string => typeof v === "string")
       .map((v) => v.trim())
-      .filter(Boolean)
-      .map((v) => v.toLowerCase());
+      .filter(Boolean);
     if (list.length > 0) out[key.trim().toLowerCase()] = list;
   }
   return Object.keys(out).length > 0 ? out : undefined;

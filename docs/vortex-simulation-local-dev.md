@@ -66,7 +66,7 @@ For convenience, this repo ships with a default `humanodeRpcUrl` pointing to the
 - `SIM_REQUIRED_CHAMBER_VOTES` (optional): per-era required chamber actions (defaults to `1`).
 - `SIM_REQUIRED_COURT_ACTIONS` (optional): per-era required court actions (defaults to `0`).
 - `SIM_REQUIRED_FORMATION_ACTIONS` (optional): per-era required formation actions (defaults to `0`).
-- `SIM_DYNAMIC_ACTIVE_GOVERNORS` (optional): if `true`, `/api/clock/rollup-era` sets the next era’s `activeGovernors` baseline from rollup results.
+- Era baseline updates: `/api/clock/rollup-era` sets the next era’s `activeGovernors` baseline from rollup results (`activeGovernorsNextEra`).
 - `SIM_COMMAND_RATE_LIMIT_PER_MINUTE_IP` (optional): per-minute IP limit for `POST /api/command` (defaults to `180`).
 - `SIM_COMMAND_RATE_LIMIT_PER_MINUTE_ADDRESS` (optional): per-minute address limit for `POST /api/command` (defaults to `60`).
 - `SIM_MAX_POOL_VOTES_PER_ERA` (optional): maximum counted pool actions per era per address (unset/0 = unlimited).

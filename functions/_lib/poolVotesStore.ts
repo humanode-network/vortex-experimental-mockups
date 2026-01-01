@@ -15,7 +15,7 @@ export async function hasPoolVote(
   env: Env,
   input: { proposalId: string; voterAddress: string },
 ): Promise<boolean> {
-  const voterAddress = input.voterAddress.toLowerCase();
+  const voterAddress = input.voterAddress.trim();
   if (!env.DATABASE_URL) {
     const byVoter = memoryVotes.get(input.proposalId);
     if (!byVoter) return false;
@@ -42,7 +42,7 @@ export async function castPoolVote(
   if (!env.DATABASE_URL) {
     const byVoter =
       memoryVotes.get(input.proposalId) ?? new Map<string, Direction>();
-    const key = input.voterAddress.toLowerCase();
+    const key = input.voterAddress.trim();
     const created = !byVoter.has(key);
     byVoter.set(key, input.direction);
     memoryVotes.set(input.proposalId, byVoter);
@@ -50,7 +50,7 @@ export async function castPoolVote(
   }
 
   const db = createDb(env);
-  const voterAddress = input.voterAddress.toLowerCase();
+  const voterAddress = input.voterAddress.trim();
   const existing = await db
     .select({ direction: poolVotes.direction })
     .from(poolVotes)

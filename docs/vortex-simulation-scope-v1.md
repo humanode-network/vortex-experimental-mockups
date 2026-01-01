@@ -64,11 +64,15 @@ v1 is “done” when:
   - `formation.milestone.requestUnlock`
   - `court.case.report`
   - `court.case.verdict`
+  - `proposal.draft.save`
+  - `proposal.draft.delete`
+  - `proposal.submitToPool`
 
 ### Events and history
 
 - Append-only `events` table.
 - Feed can be served from DB events (DB mode).
+- Proposal pages expose a per-proposal timeline (`GET /api/proposals/:id/timeline`) backed by `events` entries of type `proposal.timeline.v1`.
 - Admin actions also emit audit events.
 
 ### Era accounting
@@ -79,6 +83,20 @@ v1 is “done” when:
 - Rollup outputs:
   - per-address status bucket for the era window
   - computed next-era `activeGovernors` size (optionally written as the next baseline)
+
+### Canonical proposals and deterministic transitions
+
+- Canonical proposals exist in `proposals` (with `read_models` as a compatibility fallback).
+- Stage transitions are deterministic and centralized (single transition authority) and enforced by the write path.
+- Optional time windows exist for stage expiry and “time left” UX.
+
+### Canonical chambers and membership
+
+- Chambers are canonical in `chambers` (seeded from `/sim-config.json`).
+- Chamber voting eligibility is enforced via `chamber_memberships`:
+  - specialization chamber: requires at least one accepted proposal in that chamber
+  - general chamber: requires at least one accepted proposal in any chamber
+- Meta-governance proposals in the General chamber can create/dissolve chambers (v1 simulation rule).
 
 ### Ops controls (public demo safety)
 
@@ -91,10 +109,11 @@ v1 is “done” when:
 
 These are intentionally deferred:
 
-- Fully normalized domain tables replacing the `read_models` bridge across all entities.
-- Full event-driven projections (materialized read views) for every page.
-- Time-based windows and scheduled transitions (vote windows, automatic rollovers) beyond manual/admin clock ops.
+- Completing the migration away from the `read_models` bridge for all entities (full projections across every page).
 - Delegation flows (graph rules, UI, disputes beyond court-case text).
+- Veto rights (and any “slow-down” mechanics for repeatedly approved proposals).
+- Chamber multiplier-setting mechanics (including “outside-of-chamber” voting).
+- Meritocratic Measure (MM) as a first-class modeled subsystem (Formation delivery scoring and MM history).
 - A real forum/threads product (threads remain minimal and simulation-only).
 - Bioauth epoch uptime as a first-class modeled subsystem (epochs are defined conceptually but not fully simulated as canonical state).
 - “Real tokenomics”: rewards, balances, staking, slashing correctness.
@@ -103,12 +122,11 @@ These are intentionally deferred:
 
 These are the next build targets after v1 (see `docs/vortex-simulation-implementation-plan.md` for the full phased checklist):
 
-- Proposal drafts + submission as real writes (Phase 12).
-- Eligibility gate based on current validator set (`Session::Validators`) (Phase 13).
-- Canonical proposal tables + projections to replace `read_models` as the source of truth (Phase 14).
-- Centralized, deterministic stage transitions (Phase 15).
-- Scheduled automation: era advancement/rollups and optional vote windows (Phase 16).
-- Delegation v1 (set/clear + history + court references) (Phase 17).
+- Delegation v1 (set/clear + history + court references).
+- Veto v1 (paper-aligned) and a minimal “proposal sent back” lifecycle.
+- Chamber multipliers v1 (paper-aligned “outside-of-chamber” multiplier voting).
+- Meritocratic Measure v1 (Formation delivery ratings → MM history and Invision signals).
+- More event-backed projections (less `read_models`).
 
 ## Sources of truth
 

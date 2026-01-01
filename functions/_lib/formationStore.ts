@@ -42,7 +42,7 @@ export async function isFormationTeamMember(
   env: Env,
   input: { proposalId: string; memberAddress: string },
 ): Promise<boolean> {
-  const address = input.memberAddress.toLowerCase();
+  const address = input.memberAddress.trim();
   if (!env.DATABASE_URL) {
     const team = memoryTeam.get(input.proposalId);
     if (!team) return false;
@@ -351,7 +351,7 @@ export async function joinFormationProject(
   input: { proposalId: string; memberAddress: string; role?: string | null },
 ): Promise<{ summary: FormationSummary; created: boolean }> {
   const seed = await ensureFormationSeed(env, readModels, input.proposalId);
-  const address = input.memberAddress.toLowerCase();
+  const address = input.memberAddress.trim();
 
   if (!env.DATABASE_URL) {
     const team = memoryTeam.get(input.proposalId) ?? new Map();

@@ -59,6 +59,7 @@ test("clock tick: force advance + rollup", async () => {
   const env = {
     READ_MODELS_INLINE: "true",
     DEV_BYPASS_ADMIN: "true",
+    DEV_BYPASS_GATE: "true",
     SIM_ERA_SECONDS: "9999999",
   };
 

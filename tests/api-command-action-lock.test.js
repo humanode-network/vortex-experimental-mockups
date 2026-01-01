@@ -78,7 +78,7 @@ test("admin user lock blocks /api/command until unlocked (memory mode)", async (
   assert.equal(blocked.status, 403);
   const blockedJson = await blocked.json();
   assert.equal(blockedJson.error.code, "action_locked");
-  assert.equal(blockedJson.error.lock.address, address.toLowerCase());
+  assert.equal(blockedJson.error.lock.address, address);
 
   const unlockRes = await adminUnlockPost(
     makeContext({

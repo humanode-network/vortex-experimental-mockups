@@ -44,7 +44,7 @@ export const onRequestGet: PagesFunction<{ address: string }> = async (
   };
 
   return jsonResponse({
-    address: address.toLowerCase(),
+    address,
     era: activity.era,
     counts: activity.counts,
     quotas,

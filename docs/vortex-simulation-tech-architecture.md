@@ -2,6 +2,8 @@
 
 This document maps `docs/vortex-simulation-processes.md` onto a technical architecture that fits this repo (React app + Cloudflare Pages Functions in production, with a Node runner for local dev).
 
+For a paper-aligned “module map” that links product concepts to concrete code, start with `docs/vortex-simulation-modules.md`.
+
 For the DB table inventory, see `docs/vortex-simulation-data-model.md`. For ops controls and admin endpoints, see `docs/vortex-simulation-ops-runbook.md`.
 
 ## 1) Stack (recommended)
@@ -110,10 +112,14 @@ Eligibility source (v1):
 - `GET /api/proposals/:id/pool`
 - `GET /api/proposals/:id/chamber`
 - `GET /api/proposals/:id/formation`
+- `GET /api/proposals/:id/timeline`
+- `GET /api/proposals/drafts`
+- `GET /api/proposals/drafts/:id`
 - `GET /api/courts`
 - `GET /api/courts/:id`
 - `GET /api/humans`
 - `GET /api/humans/:id`
+- `GET /api/clock` (simulation time)
 - `GET /api/me` (profile + eligibility snapshot)
 
 ### Writes (commands)
@@ -193,6 +199,8 @@ Implemented:
 
 - `read_models`: transitional DTO storage for the current UI
 - `proposals`: canonical proposal rows (Phase 14)
+- `chambers`: canonical chambers (Phase 18)
+- `chamber_memberships`: voting eligibility granted by accepted proposals (Phase 17)
 - `events`: append-only feed/audit log
 - `pool_votes`: unique (proposalId, voterAddress) → up/down
 - `chamber_votes`: unique (proposalId, voterAddress) → yes/no/abstain + optional `score` (1–10) on yes votes
@@ -208,14 +216,14 @@ Implemented:
 - `formation_milestone_events`: append-only milestone submissions/unlock requests
 - `proposal_drafts`: author-owned proposal drafts (Phase 12)
 
-### Planned normalized domain tables (not implemented yet)
+### Optional future domain tables (v2+)
 
-- `chambers`: `id`, `name`, `multiplier`
-- `chamber_membership`: `chamberId`, `userId`, `sinceEra`
-- `proposal_stage_transitions`: `proposalId`, `fromStage`, `toStage`, `atEra`, `atTime`
+- `delegations`: delegation graph (if/when implemented)
+- `delegation_events`: append-only delegation history
+- `proposal_stage_transitions`: append-only transition history (v1 transitions exist, but are not stored as a dedicated transitions table)
 - `proposal_attachments`: `proposalId`, `title`, `href`
-- `cm_lcm`: (`userId`, `chamberId`, `lcm`)
-- `tiers`: (`userId`, `tier`, `status`, `streaks`, `updatedAt`)
+- `cm_lcm`: per-chamber LCM materialization (v1 derives ACM deltas from `cm_awards`)
+- `tiers`: materialized tier state (v1 derives statuses via era rollups)
 
 Current repo behavior:
 
@@ -225,7 +233,12 @@ Current repo behavior:
 - Read pages overlay live counts:
   - `GET /api/proposals/:id/pool` overlays upvotes/downvotes from `pool_votes`
   - `GET /api/proposals/:id/chamber` overlays yes/no/abstain from `chamber_votes`
-- Stage transitions are currently applied by updating `read_models` entries (until normalized tables + projections land).
+- Stage transitions are applied deterministically by a single transition authority:
+  - canonical proposals are updated in `proposals`
+  - compatibility DTO payloads in `read_models` may also be updated to keep the UI stable
+- Proposal timeline is event-backed:
+  - `GET /api/proposals/:id/timeline`
+  - `events.type = "proposal.timeline.v1"`
 
 ### Formation
 
@@ -338,12 +351,12 @@ Planned:
 
 ### 2.3 Proposal drafting (wizard)
 
-Planned:
+Current repo:
 
 - **Module:** `proposals.draft`
 - **API:** `POST /api/command` (`proposal.draft.save`, `proposal.submitToPool`)
-- **Tables:** `proposal_drafts`, `proposals`, `proposal_stage_transitions`, `proposal_attachments`
-- **Events:** `proposal.draft_saved`, `proposal.submitted_to_pool`
+- **Tables:** `proposal_drafts`, `proposals`
+- **Events:** timeline entries in `events` (`proposal.timeline.v1`)
 
 ### 2.4 Proposal pool (attention)
 
@@ -383,10 +396,10 @@ Planned:
 
 ### 2.9 Chambers directory + chamber detail
 
-- **Module:** `chambers` (read models bridge)
+- **Module:** `chambers`
 - **API:** `GET /api/chambers`, `GET /api/chambers/:id`
-- **Tables:** `read_models` (v1; normalized `chambers`/`membership` comes later)
-- **Events:** none required (derived), but `chamber.stats_updated` can be emitted on rollup if stats are materialized.
+- **Tables:** `chambers`, `chamber_memberships`, `proposals` (derived counts), optional `read_models` fallback
+- **Events:** chamber create/dissolve side-effects are appended via proposal timeline events (and/or feed events, depending on stage)
 
 ### 2.10 Invision insights
 
@@ -424,4 +437,4 @@ Recommendation:
 
 - The frontend renders from `/api/*` reads; mock data is not part of the runtime anymore.
 - Transitional read-model payloads are maintained as seed fixtures in `db/seed/fixtures/*` (and stored in Postgres `read_models` in DB mode).
-- Next migrations are about moving from `read_models` to normalized tables + event log, then turning on write commands (pool/vote first).
+- Next migrations continue moving from `read_models` to canonical tables + event-backed projections, while keeping DTOs stable.

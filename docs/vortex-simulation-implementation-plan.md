@@ -2,6 +2,8 @@
 
 This plan turns `docs/vortex-simulation-processes.md` + `docs/vortex-simulation-tech-architecture.md` into an executable roadmap that stays aligned with the current UI.
 
+For a paper-aligned module map (paper → docs → code), see `docs/vortex-simulation-modules.md`.
+
 ## Current status (what exists in the repo right now)
 
 Implemented (v1 simulation backend):
@@ -116,6 +118,14 @@ This is the order we’ll follow from now on, based on what’s already landed.
 28. **Phase 24 — Meta-governance proposal type (UI) (DONE)**
 29. **Phase 25 — Proposal pages projected from canonical state (DONE)**
 30. **Phase 26 — Proposal history timeline (DONE)**
+31. **Phase 27 — Active governance v2 (derive and persist active governor set per era)**
+32. **Phase 28 — Quorum engine v2 (era-derived denominators + paper thresholds)**
+33. **Phase 29 — Delegation v1 (graph + history + chamber vote weighting)**
+34. **Phase 30 — Veto v1 (temporary slow-down + attempt limits)**
+35. **Phase 31 — Chamber multiplier voting v1 (outside-of-chamber aggregation)**
+36. **Phase 32 — Paper alignment audit pass (process-by-process)**
+37. **Phase 33 — Testing readiness v3 (scenario harness + end-to-end validation)**
+38. **Phase 34 — Meritocratic Measure (MM) v1 (post-V3, Formation delivery scoring)**
 
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
 
@@ -131,6 +141,38 @@ Deliverable: a short “v1 constants” section committed to docs or config.
 Tests:
 
 - None required (doc-only), but we must record decisions so later tests can assert exact thresholds/constants.
+
+## V3 — Testing readiness (what “ready to test” means)
+
+V3 is the point where the simulation can be tested as a coherent system against the Vortex 1.0 model (and against our updated paper reference copy), not just as disconnected UI pages.
+
+V3 is “ready for testing” when:
+
+- All core governance modules required for chamber/proposal testing are implemented and wired end-to-end:
+  - **active governance**: “active governors next era” is computed at rollup and persisted
+  - **quorum engine**: pool + vote quorums use era-derived denominators and are consistent across endpoints/pages
+  - **proposals**: draft → pool → vote → accepted is testable deterministically (Formation optional)
+  - **chambers**: General + specialization chambers exist; creation/dissolution is proposal-driven (meta-governance)
+  - **delegation**: chamber vote weighting works; pool attention remains direct-only
+  - **veto**: temporary slow-down exists and is auditable/bounded
+  - **multipliers**: outsider aggregation updates chamber multipliers without rewriting CM award history
+- A paper alignment audit has been run process-by-process and deviations are explicitly recorded.
+- A scenario harness exists so the above can be validated deterministically (API-level end-to-end tests; no browser required).
+
+Not required for V3:
+
+- Meritocratic Measure (MM). MM can be built after V3 without blocking proper testing of proposals/chambers/quorums/delegation/veto.
+
+V3 phases (to reach testing readiness):
+
+1. Phase 27 — Active governance v2
+2. Phase 28 — Quorum engine v2
+3. Phase 29 — Delegation v1
+4. Phase 30 — Veto v1
+5. Phase 31 — Chamber multiplier voting v1
+6. Phase 32 — Paper alignment audit pass
+7. Phase 33 — Testing readiness harness (scenario-driven)
+8. Phase 34 — Meritocratic Measure (MM) v1 (post-V3)
 
 ## Phase 1 — Define contracts that mirror the UI (1–2 days)
 
@@ -500,8 +542,8 @@ Current status:
     - `SIM_REQUIRED_CHAMBER_VOTES` (default `1`)
     - `SIM_REQUIRED_COURT_ACTIONS` (default `0`)
     - `SIM_REQUIRED_FORMATION_ACTIONS` (default `0`)
-  - Optional dynamic baseline:
-    - `SIM_DYNAMIC_ACTIVE_GOVERNORS=true` writes next era’s `era_snapshots.active_governors` from rollup results
+  - Era snapshot baseline updates:
+    - rollups write next era’s `era_snapshots.active_governors` from `activeGovernorsNextEra`
 - Tests:
   - `tests/api-era-rollup.test.js`
   - `tests/api-my-governance-rollup.test.js`
@@ -1037,3 +1079,174 @@ Current status:
   - `src/pages/proposals/ProposalFormation.tsx`
 - Tests:
   - `tests/api-proposal-timeline.test.js`
+
+### Phase 27 — Active governance v2 (derive and persist active governor set per era) (DONE)
+
+Goal: define “active governor” precisely, derive it at rollup, and persist it as the canonical basis for quorums and UI denominators.
+
+Deliverables:
+
+- Define “active governor” for era N as a composition of:
+  - eligibility gate (active Human Node / validator address), and
+  - previous-era governing activity (configured per-era requirements), so the system can compute “active for next era”.
+- Persist the active set size and (optionally) membership:
+  - `activeGovernorsBaseline` (count) becomes the era denominator source of truth.
+  - Optional: persist a membership list for audit/debug (not required for v2 quorums, but useful for ops).
+- Ensure `POST /api/clock/rollup-era` is the single place that computes next-era baselines, and all reads consume those baselines (no divergent denominators across endpoints/pages).
+
+Tests:
+
+- Unit tests for “active governor” derivation from:
+  - gate status + era activity counters + requirements.
+- API integration tests to ensure:
+  - `GET /api/clock` returns the same baseline that proposal/courts/pages use for denominators.
+
+Current status:
+
+- Era activity counters are stored per era (in-memory or Postgres):
+  - `functions/_lib/eraStore.ts`
+- `rollupEra` computes per-address status and the next-era active denominator, and persists both:
+  - `functions/_lib/eraRollupStore.ts` writes:
+    - `era_rollups.active_governors_next_era`
+    - `era_user_status.is_active_next_era`
+- “Active next era” is computed as:
+  - meets the configured activity requirements for the rolled-up era, AND
+  - is a Humanode validator (membership in `Session::Validators`) unless explicitly bypassed for local dev.
+- The Humanode validator set is read via RPC:
+  - `functions/_lib/humanodeRpc.ts` (`state_getStorage` for `Session::Validators`)
+- The rollup endpoint also updates the next era’s snapshot baseline so proposal/quorum reads stay consistent:
+  - `functions/api/clock/rollup-era.ts`
+  - `functions/api/clock/tick.ts`
+- Address handling is case-sensitive:
+  - SS58 addresses are not lowercased anywhere; addresses are treated as opaque identifiers and only `trim()` is applied.
+
+Tests:
+
+- `tests/api-era-rollup.test.js` (rollup is idempotent and computes counts)
+- `tests/api-era-rollup-validator-gate.test.js` (active governors are filtered by `Session::Validators`)
+
+### Phase 28 — Quorum engine v2 (era-derived denominators + paper thresholds)
+
+Goal: drive all quorum math from the active-governor denominator computed in Phase 27, and decide paper-alignment thresholds.
+
+Deliverables:
+
+- Make pool + chamber quorum evaluation use a single explicit denominator source:
+  - the era’s `activeGovernorsBaseline` (and optionally a per-proposal snapshot captured when a proposal enters pool/vote).
+- Decide and document paper-alignment knobs:
+  - pool attention quorum: keep v1 `20%` or move to paper `22%`
+  - vote window: keep v1 `3 days` or move to paper `7 days`
+- Ensure UI surfaces that show “X / needed” and “% / threshold%” derive from the same denominator snapshot (no mixed sources).
+
+Tests:
+
+- Unit tests for quorum math against explicit denominators (pool + chamber).
+- API integration tests to ensure:
+  - denominators shown on proposal pages match `GET /api/clock` / era snapshot values
+  - stage transitions evaluate thresholds against the same denominator.
+
+### Phase 29 — Delegation v1 (graph + history + chamber vote weighting)
+
+Goal: implement delegation as a first-class module so chamber votes can aggregate weight, while proposal pool attention remains strictly direct.
+
+Deliverables:
+
+- `delegations` (canonical graph) + `delegation_events` (append-only history).
+- Commands:
+  - `delegation.set`
+  - `delegation.clear`
+- Invariants:
+  - no self-delegation
+  - no cycles
+  - at most one delegatee per delegator
+- Chamber vote weighting:
+  - vote weight = `1 + delegatedVoices` (paper intent)
+  - delegation affects chamber vote counts/quorum math, but not pool attention mechanics.
+
+Tests:
+
+- Unit tests for cycle detection and vote weight aggregation.
+- API integration tests for set/clear + weighted chamber vote aggregation.
+
+### Phase 30 — Veto v1 (temporary slow-down + attempt limits)
+
+Goal: implement a paper-aligned temporary veto slow-down that is auditable and bounded.
+
+Deliverables:
+
+- Command(s) to record veto actions and the required threshold to trigger them.
+- Proposal state machine extension:
+  - veto sends proposal back for a cool-down window
+  - veto attempt count is bounded; after N approvals no veto applies.
+- Timeline + feed events for veto actions.
+
+Tests:
+
+- Unit tests for veto attempt counting and state transitions.
+- API integration tests for veto flows and timeline output.
+
+### Phase 31 — Chamber multiplier voting v1 (outside-of-chamber aggregation)
+
+Goal: implement paper-aligned multiplier setting (outsiders-only aggregation) without rewriting historical CM awards.
+
+Deliverables:
+
+- Multiplier submissions table + aggregation rule (v1: simple average + rounding).
+- Outsider rule enforcement (cannot submit for chambers where the address has LCM history).
+- Multiplier change history events.
+
+Tests:
+
+- Unit tests for outsider eligibility and aggregation.
+- API tests that multipliers affect MCM/ACM views without mutating prior award events.
+
+### Phase 32 — Paper alignment audit pass (process-by-process)
+
+Goal: run a deliberate paper-vs-simulation audit for every major process and reconcile docs/constants before “production-like” testing.
+
+Deliverables:
+
+- Update `docs/vortex-simulation-paper-alignment.md` with the resolved decisions.
+- Update `docs/vortex-simulation-v1-constants.md` if thresholds change.
+- Update UI copy/labels where the paper language is more precise.
+
+Tests:
+
+- None required (doc-only), but any behavior changes required by the audit must ship with tests in the relevant phase.
+
+### Phase 33 — Testing readiness v3 (scenario harness + end-to-end validation)
+
+Goal: add a deterministic, repeatable testing harness that validates the full governance loop across modules without relying on browser-driven manual testing.
+
+Deliverables:
+
+- A small set of “golden flow” scenarios, expressed as API calls:
+  - proposal draft → submit → pool votes → advance → chamber vote → pass/fail → (optional) Formation actions
+  - General meta-governance proposal that creates a specialization chamber (and grants genesis membership as configured)
+  - era rollup produces the next-era active-governor baseline used in quorum denominators
+  - delegation impacts chamber vote weighting (but not pool attention mechanics)
+  - veto sends an accepted proposal back through the bounded slow-down flow
+  - multiplier voting affects MCM/ACM views without rewriting award events
+  - MM updates on Formation delivery scoring and appears in My Governance/Invision
+- Optional: a scriptable seed “scenario pack” for manual UI verification in DB mode (kept separate from production seed).
+
+Tests:
+
+- Add scenario-based integration tests that:
+  - set up a minimal DB state
+  - execute command sequences
+  - assert invariants and derived values at each step (statuses, denominators, stage transitions, event logs).
+
+### Phase 34 — Meritocratic Measure (MM) v1 (post-V3, Formation delivery scoring)
+
+Goal: model delivery merit earned through Formation in a way that can feed into tiers and Invision, without blocking the core governance loop testing.
+
+Deliverables:
+
+- MM events tied to Formation milestone outcomes (review scoring + aggregation).
+- Per-address MM views and Invision signals.
+
+Tests:
+
+- Unit tests for MM aggregation.
+- API tests for MM visibility in `GET /api/my-governance` and `GET /api/invision`.

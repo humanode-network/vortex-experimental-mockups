@@ -370,19 +370,19 @@ export async function projectChamberStats(
     if (chamberId === "general") {
       if (genesisMembers) {
         for (const list of Object.values(genesisMembers)) {
-          for (const addr of list) memberAddresses.add(addr.toLowerCase());
+          for (const addr of list) memberAddresses.add(addr.trim());
         }
       }
       for (const addr of await listAllChamberMembers(env)) {
-        memberAddresses.add(addr.toLowerCase());
+        memberAddresses.add(addr.trim());
       }
     } else {
       if (genesisMembers) {
         for (const addr of genesisMembers[chamberId] ?? [])
-          memberAddresses.add(addr.toLowerCase());
+          memberAddresses.add(addr.trim());
       }
       for (const addr of await listChamberMembers(env, chamberId)) {
-        memberAddresses.add(addr.toLowerCase());
+        memberAddresses.add(addr.trim());
       }
     }
 

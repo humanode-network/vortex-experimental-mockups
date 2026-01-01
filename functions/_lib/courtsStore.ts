@@ -32,7 +32,7 @@ export async function hasCourtReport(
   env: Env,
   input: { caseId: string; reporterAddress: string },
 ): Promise<boolean> {
-  const reporter = input.reporterAddress.toLowerCase();
+  const reporter = input.reporterAddress.trim();
   if (!env.DATABASE_URL) {
     const set = memoryReports.get(input.caseId);
     if (!set) return false;
@@ -56,7 +56,7 @@ export async function hasCourtVerdict(
   env: Env,
   input: { caseId: string; voterAddress: string },
 ): Promise<boolean> {
-  const voter = input.voterAddress.toLowerCase();
+  const voter = input.voterAddress.trim();
   if (!env.DATABASE_URL) {
     const map = memoryVerdicts.get(input.caseId);
     if (!map) return false;
@@ -186,7 +186,7 @@ export async function reportCourtCase(
 ): Promise<{ overlay: CourtOverlay; created: boolean }> {
   await ensureCourtCaseSeed(env, readModels, input.caseId);
 
-  const reporter = input.reporterAddress.toLowerCase();
+  const reporter = input.reporterAddress.trim();
   if (!env.DATABASE_URL) {
     const set = memoryReports.get(input.caseId) ?? new Set<string>();
     const created = !set.has(reporter);
@@ -235,7 +235,7 @@ export async function castCourtVerdict(
   const overlay = await getCourtOverlay(env, readModels, input.caseId);
   if (overlay.status !== "live") throw new Error("case_not_live");
 
-  const voter = input.voterAddress.toLowerCase();
+  const voter = input.voterAddress.trim();
   if (!env.DATABASE_URL) {
     const map =
       memoryVerdicts.get(input.caseId) ?? new Map<string, CourtVerdict>();

@@ -11,7 +11,10 @@ This file records the v1 decisions used by the simulation backend so implementat
 ## Simulation time decisions
 
 - **Era length:** configured off-chain by the simulation (not a chain parameter)
-  - v1 value: **TBD** (the clock is advanced manually via `/api/clock/advance-era`)
+  - v1 default: **7 days** (can still be advanced manually via `/api/clock/advance-era`)
+  - vote/pool stage windows default to:
+    - pool: **7 days**
+    - vote: **3 days**
 - **Per-era activity requirements:** configured off-chain by env vars (v1 defaults)
   - `SIM_REQUIRED_POOL_VOTES=1`
   - `SIM_REQUIRED_CHAMBER_VOTES=1`
@@ -64,7 +67,7 @@ This file records the v1 decisions used by the simulation backend so implementat
   - `POST /api/clock/rollup-era` computes:
     - per-era governing status buckets (Ahead/Stable/Falling behind/At risk/Losing status)
     - `activeGovernorsNextEra` based on configured requirements
-    - optional baseline update when `SIM_DYNAMIC_ACTIVE_GOVERNORS=true` (next era uses `activeGovernorsNextEra`)
+    - next era baseline update (next era uses `activeGovernorsNextEra`)
   - Rollup output is stored in:
     - `era_rollups`, `era_user_status`
 
@@ -80,8 +83,23 @@ This file records the v1 decisions used by the simulation backend so implementat
   - Chambers are canonical in `chambers` (auto-seeded from `public/sim-config.json` → `genesisChambers`).
   - General-chamber proposal outcomes can create/dissolve chambers (simulated via proposal payload `metaGovernance`).
 
+## Paper alignment notes (v1)
+
+- Pool attention quorum:
+  - paper: **22% engaged** + **≥10% upvotes**
+  - simulation v1: **20% engaged** + **≥10% upvotes**
+- Vote quorum (33%) is aligned; passing uses **≥ 2/3 yes** in v1.
+- Delegation, veto, multiplier voting, and Meritocratic Measure (MM) are not implemented yet.
+
 ## Post-v1 roadmap (v2+)
 
-v1 constants are intentionally kept small and testable. Phase 12 (proposal drafts + submission) is now implemented; the next planned phases continue with canonical proposal tables/projections, deterministic transitions, time-window automation, and delegation.
+v1 constants are intentionally kept small and testable. The simulation already includes drafts, canonical proposals/chambers, deterministic transitions, optional time windows, and proposal timelines.
+
+The next paper-aligned expansions (v2+) are:
+
+- Delegation (set/clear + vote-weight impact + full history for courts).
+- Veto rights (temporary veto, limited attempts).
+- Chamber multiplier-setting mechanics (outside-of-chamber submissions → aggregated multipliers).
+- Meritocratic Measure (MM) from Formation delivery/review.
 
 Source of truth: `docs/vortex-simulation-implementation-plan.md`.

@@ -7,16 +7,20 @@ type Env = Record<string, string | undefined>;
 
 const memoryByAddress = new Map<string, Set<string>>();
 
-function normalizeId(value: string): string {
+function normalizeChamberId(value: string): string {
   return value.trim().toLowerCase();
+}
+
+function normalizeAddress(value: string): string {
+  return value.trim();
 }
 
 export async function hasChamberMembership(
   env: Env,
   input: { address: string; chamberId: string },
 ): Promise<boolean> {
-  const address = normalizeId(input.address);
-  const chamberId = normalizeId(input.chamberId);
+  const address = normalizeAddress(input.address);
+  const chamberId = normalizeChamberId(input.chamberId);
   if (!env.DATABASE_URL) {
     const chambers = memoryByAddress.get(address);
     if (!chambers) return false;
@@ -41,7 +45,7 @@ export async function hasAnyChamberMembership(
   env: Env,
   addressInput: string,
 ): Promise<boolean> {
-  const address = normalizeId(addressInput);
+  const address = normalizeAddress(addressInput);
   if (!env.DATABASE_URL) {
     const chambers = memoryByAddress.get(address);
     return Boolean(chambers && chambers.size > 0);
@@ -60,7 +64,7 @@ export async function listChamberMemberships(
   env: Env,
   addressInput: string,
 ): Promise<string[]> {
-  const address = normalizeId(addressInput);
+  const address = normalizeAddress(addressInput);
   if (!env.DATABASE_URL) {
     return Array.from(memoryByAddress.get(address) ?? []).sort();
   }
@@ -77,7 +81,7 @@ export async function listChamberMembers(
   env: Env,
   chamberIdInput: string,
 ): Promise<string[]> {
-  const chamberId = normalizeId(chamberIdInput);
+  const chamberId = normalizeChamberId(chamberIdInput);
   if (!env.DATABASE_URL) {
     const members: string[] = [];
     for (const [address, chambers] of memoryByAddress.entries()) {
@@ -116,8 +120,8 @@ export async function ensureChamberMembership(
     source?: string;
   },
 ): Promise<void> {
-  const address = normalizeId(input.address);
-  const chamberId = normalizeId(input.chamberId);
+  const address = normalizeAddress(input.address);
+  const chamberId = normalizeChamberId(input.chamberId);
   const source =
     (input.source ?? "accepted_proposal").trim() || "accepted_proposal";
 
@@ -154,7 +158,7 @@ export async function grantVotingEligibilityForAcceptedProposal(
     source: "accepted_proposal",
   });
 
-  const chamberId = normalizeId(input.chamberId ?? "");
+  const chamberId = normalizeChamberId(input.chamberId ?? "");
   if (chamberId && chamberId !== "general") {
     await ensureChamberMembership(env, {
       address: input.address,

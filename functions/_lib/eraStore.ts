@@ -128,7 +128,7 @@ export async function incrementEraUserActivity(
 ): Promise<void> {
   const clock = createClockStore(env);
   const { currentEra } = await clock.get();
-  const address = input.address.toLowerCase();
+  const address = input.address.trim();
   await ensureEraSnapshot(env, currentEra);
 
   const delta: UserEraCounts = {
@@ -187,7 +187,7 @@ export async function getUserEraActivity(
   const clock = createClockStore(env);
   const { currentEra } = await clock.get();
   const snap = await ensureEraSnapshot(env, currentEra);
-  const address = input.address.toLowerCase();
+  const address = input.address.trim();
 
   if (!env.DATABASE_URL) {
     const key = `${currentEra}:${address}`;

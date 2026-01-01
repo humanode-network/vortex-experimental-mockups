@@ -20,7 +20,6 @@ import {
 import { createDb } from "../../_lib/db.ts";
 import { getCommandRateLimitConfig } from "../../_lib/apiRateLimitStore.ts";
 import { assertAdmin, createClockStore } from "../../_lib/clockStore.ts";
-import { envBoolean } from "../../_lib/env.ts";
 import { getEraQuotaConfig } from "../../_lib/eraQuotas.ts";
 import { listEraUserActivity } from "../../_lib/eraStore.ts";
 import { errorResponse, jsonResponse } from "../../_lib/http.ts";
@@ -83,10 +82,6 @@ export const onRequestGet: PagesFunction = async (context) => {
       config: {
         rateLimitsPerMinute: rate,
         eraQuotas: quotas,
-        dynamicActiveGovernors: envBoolean(
-          context.env,
-          "SIM_DYNAMIC_ACTIVE_GOVERNORS",
-        ),
       },
       currentEraActivity: {
         rows: rows.length,
@@ -163,10 +158,6 @@ export const onRequestGet: PagesFunction = async (context) => {
     config: {
       rateLimitsPerMinute: rate,
       eraQuotas: quotas,
-      dynamicActiveGovernors: envBoolean(
-        context.env,
-        "SIM_DYNAMIC_ACTIVE_GOVERNORS",
-      ),
     },
     db: {
       users: Number(usersCount[0]?.n ?? 0),

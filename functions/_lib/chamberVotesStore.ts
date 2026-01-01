@@ -20,7 +20,7 @@ export async function hasChamberVote(
   env: Env,
   input: { proposalId: string; voterAddress: string },
 ): Promise<boolean> {
-  const voterAddress = input.voterAddress.toLowerCase();
+  const voterAddress = input.voterAddress.trim();
   if (!env.DATABASE_URL) {
     const byVoter = memoryVotes.get(input.proposalId);
     if (!byVoter) return false;
@@ -52,7 +52,7 @@ export async function castChamberVote(
   if (!env.DATABASE_URL) {
     const byVoter =
       memoryVotes.get(input.proposalId) ?? new Map<string, StoredChamberVote>();
-    const voterKey = input.voterAddress.toLowerCase();
+    const voterKey = input.voterAddress.trim();
     const created = !byVoter.has(voterKey);
     byVoter.set(voterKey, {
       choice: input.choice,
@@ -63,7 +63,7 @@ export async function castChamberVote(
   }
 
   const db = createDb(env);
-  const voterAddress = input.voterAddress.toLowerCase();
+  const voterAddress = input.voterAddress.trim();
   const existing = await db
     .select({ choice: chamberVotes.choice })
     .from(chamberVotes)

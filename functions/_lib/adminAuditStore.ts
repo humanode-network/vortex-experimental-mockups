@@ -25,7 +25,7 @@ type MemoryEntry = AdminAuditItem & { createdAtMs: number };
 const memoryAudit: MemoryEntry[] = [];
 
 function normalizeAddress(address: string): string {
-  return address.trim().toLowerCase();
+  return address.trim();
 }
 
 export async function appendAdminAudit(

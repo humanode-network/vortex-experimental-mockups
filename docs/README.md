@@ -68,15 +68,18 @@ Goal: keep a tight, professional set of docs that answers:
 ## Reading order
 
 1. `docs/vortex-simulation-scope-v1.md` — v1 scope, explicit non-goals, and what “done” means
-2. `docs/vortex-simulation-processes.md` — domain processes to model (product-level)
-3. `docs/vortex-simulation-state-machines.md` — formal state machines, invariants, and derived metrics
-4. `docs/vortex-simulation-tech-architecture.md` — technical mapping onto this repo (Workers/Pages Functions + Postgres)
-5. `docs/vortex-simulation-data-model.md` — DB tables and how reads/writes/events map to them
-6. `docs/vortex-simulation-api-contract.md` — frozen DTO contracts consumed by the UI
-7. `docs/vortex-simulation-local-dev.md` — local dev commands and env vars
-8. `docs/vortex-simulation-ops-runbook.md` — admin endpoints, safety controls, and operational workflows
-9. `docs/vortex-simulation-implementation-plan.md` — phased plan + current status
-10. `docs/vortex-simulation-v1-constants.md` — v1 constants shared by code and tests
+2. `docs/vortex-simulation-modules.md` — module map (paper → docs → code)
+3. `docs/vortex-simulation-processes.md` — domain processes to model (product-level)
+4. `docs/vortex-simulation-state-machines.md` — formal state machines, invariants, and derived metrics
+5. `docs/vortex-simulation-tech-architecture.md` — technical architecture (runtime + DB + API shape)
+6. `docs/vortex-simulation-data-model.md` — DB tables and how reads/writes/events map to them
+7. `docs/vortex-simulation-api-contract.md` — frozen DTO contracts consumed by the UI
+8. `docs/vortex-simulation-local-dev.md` — local dev commands and env vars
+9. `docs/vortex-simulation-ops-runbook.md` — admin endpoints, safety controls, and operational workflows
+10. `docs/vortex-simulation-implementation-plan.md` — phased plan + current status
+11. `docs/vortex-simulation-v1-constants.md` — v1 constants shared by code and tests
+12. `docs/vortex-1.0-paper.md` — working, adapted reference copy of the Vortex 1.0 paper (used for audits)
+13. `docs/vortex-simulation-paper-alignment.md` — paper vs simulation audit notes (what matches, what’s deferred)
 
 ## Doc conventions
 

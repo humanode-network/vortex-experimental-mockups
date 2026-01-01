@@ -44,9 +44,15 @@ Append-only event stream used for:
 
 - feed items
 - admin audit trail
-- future per-entity history pages
+- per-entity history pages (v1: proposal timeline)
 
 In v1, events are emitted both by user commands and by admin endpoints.
+
+In v1, proposal history is stored as `events` entries:
+
+- `events.type = "proposal.timeline.v1"`
+- `events.entityType = "proposal"`
+- `events.entityId = <proposalId>`
 
 ## Votes
 
@@ -86,6 +92,26 @@ Canonical proposals table (first step away from `read_models` as source of truth
   - `created_at`, `updated_at`
 
 In Phase 14, reads begin preferring this table (with `read_models` as a compatibility fallback for seeded legacy DTOs).
+
+## Chambers (Phase 18–21)
+
+Canonical chambers live in:
+
+- `chambers`:
+  - `id`, `title`
+  - `status` (`active | dissolved`)
+  - `multiplierTimes10` (integer; e.g. `15` = `1.5`)
+  - `createdByProposalId`, `dissolvedByProposalId`
+  - `metadata` (jsonb; room for future fields without schema churn)
+
+Voting eligibility (paper-aligned, v1-enforced) is stored in:
+
+- `chamber_memberships`:
+  - primary key `(chamberId, address)`
+  - `grantedByProposalId` (when the membership was granted via an accepted proposal)
+  - `source` (v1: `accepted_proposal`)
+
+Dissolution never deletes history. It changes chamber status and restricts new writes (e.g., new proposals) while preserving audit trails.
 
 ## Formation
 
@@ -137,8 +163,12 @@ Era tracking supports “My Governance” and rollups:
 
 ## What’s expected to change in v2+
 
-- Replace read-model bridge for proposals/chambers/courts with canonical normalized tables + projections:
-  - `proposal_stage_transitions`, `chambers`, memberships, etc.
-- Add event-driven projections as materialized read views instead of mixing read-model payloads and overlays.
-- Add delegation tables and event history:
+- Continue migrating away from the read-model bridge (`read_models`) so all pages are served from canonical tables + projections.
+- Add delegation tables and history:
   - `delegations`
+  - `delegation_events`
+- Add veto and multiplier-setting state (if modeled as first-class tables in v2):
+  - `veto_events` (or `proposal_vetoes`)
+  - `chamber_multiplier_submissions`
+- Add Meritocratic Measure (MM) history (Formation delivery scoring):
+  - `mm_awards` (or equivalent per-milestone ratings + derived totals)

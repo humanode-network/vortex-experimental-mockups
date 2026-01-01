@@ -201,62 +201,48 @@ Rollup invariants:
 
 ## What’s intentionally missing (v1)
 
-Planned (v2+) and in-progress work, mapped to the implementation plan:
+These are intentionally deferred from v1. The state machines above assume they do not exist.
 
-### Phase 12 — Proposal drafts + submission (done)
+### Delegation (v2+)
 
-Commands:
-
-- `proposal.draft.save`
-- `proposal.draft.delete`
-- `proposal.submitToPool`
-
-Core invariants:
-
-- Drafts are author-owned (default: not globally browseable).
-- Submit is only allowed from `draft` stage.
-- Submit enforces the wizard-required fields (exact list is defined in the API contract and validated by the command handler).
-
-### Phase 13 — Eligibility via `Session::Validators`
-
-Planned change:
-
-- Eligibility is based on current validator set membership on mainnet (`Session::Validators`).
-- `ImOnline::*` is not used for gating decisions in the simulation.
-
-### Phase 14 — Canonical proposal tables + projections
-
-Planned shift:
-
-- Canonical proposal state lives in normalized tables (`proposals`, `proposal_drafts`, optional `proposal_stage_transitions`).
-- DTOs remain stable; read endpoints are served from projections (compat mode can keep writing DTO payloads into `read_models` while migrating).
-
-### Phase 15 — Deterministic transitions authority
-
-Planned rule:
-
-- All stage transitions are performed by a single transition authority and are event-backed.
-- Invalid transitions return HTTP `409` and do not partially apply changes.
-
-### Phase 16 — Time windows + automation
-
-Planned additions:
-
-- Scheduled era advancement/rollup (cron) with deterministic, idempotent behavior.
-- Optional per-stage vote windows with a clear expiry policy (close/fail/extend rules are a v2 decision).
-
-### Phase 17 — Delegation v1
-
-Planned commands:
-
-- `delegation.set`
-- `delegation.clear`
+Not implemented in v1.
 
 Planned invariants:
 
 - No self-delegation.
-- No cycles (graph must remain acyclic).
-- Delegation changes are event-backed so courts can reference full history.
+- No cycles (delegation graph must remain acyclic).
+- Delegation changes are event-backed (courts can reference the full history).
+- Delegation affects chamber vote weight, but must not affect pool attention mechanics.
+
+### Veto rights (v2+)
+
+Not implemented in v1.
+
+Planned behavior (paper-aligned intent):
+
+- Veto power is tied to top LCM holders per chamber.
+- Veto is temporary, limited in count, and slows down acceptance rather than blocking it indefinitely.
+- Veto actions are event-backed and auditable.
+
+### Chamber multiplier setting (v2+)
+
+Not implemented in v1.
+
+Planned behavior (paper-aligned intent):
+
+- Multiplier submissions are made by cognitocrats outside the chamber.
+- Chamber multiplier is derived from submissions (aggregation rules are a v2 decision).
+- Changes to multipliers must be event-backed and should not rewrite CM history (ACM is re-derived).
+
+### Meritocratic Measure (MM) (v2+)
+
+Not implemented in v1.
+
+Planned behavior:
+
+- MM is earned through Formation delivery and milestone outcomes.
+- MM does not change voting power.
+- MM contributes to PoD-like tier progression and to Invision insights.
 
 ### Future court hooks (beyond v1)
 

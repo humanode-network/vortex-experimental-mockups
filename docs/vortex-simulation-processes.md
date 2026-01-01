@@ -212,7 +212,9 @@ Voting is not weighted; this is eligibility only (still 1 human = 1 vote).
 Preconditions for any write action:
 
 1. The actor is an **active Human Node** (on-chain eligibility gate).
-2. The actor is counted as an “active governor” for the era where the action is happening (governance actions determine whether they are counted in quorum baselines next era).
+2. The actor has the relevant chamber voting eligibility (where applicable).
+
+Note: v1 currently does not block actions based on “active governor this era” status; “active governor” is used for quorum baselines and rollups.
 
 Eligibility to vote in chambers is earned by accepted proposals:
 
@@ -322,13 +324,18 @@ Simulation requirements:
 
 ### 1.6 Delegation
 
-- Delegator chooses a delegatee for representation (still 1 human = 1 vote conceptually).
+- Delegator chooses a delegatee to cast their voice.
 
 Simulation requirements:
 
 - Delegation graph (one delegator → one delegatee; cycles disallowed).
 - Delegation metadata for courts (events, timing windows, alleged abuse scenarios).
 - Ability to toggle delegation on/off for a simulation era.
+
+Paper alignment note:
+
+- The paper describes delegation as aggregating voting power (delegatee power equals `1 + delegations`).
+- v1 does not implement delegation yet.
 
 ### 1.7 Proposals
 
@@ -354,7 +361,7 @@ Paper-aligned rule for v1 simulation:
 
 Implications:
 
-- Chamber participation (“you can vote here”) is earned by having an accepted proposal.
+- Chamber voting eligibility (“can vote here”) is earned by having an accepted proposal.
 - The General chamber is unlocked by having any accepted proposal in any chamber.
 
 #### Formation optionality (modeling note)

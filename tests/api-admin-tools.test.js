@@ -103,7 +103,7 @@ test("admin endpoints: list locks, inspect user, and audit lock/unlock actions (
   assert.equal(locksRes.status, 200);
   const locksJson = await locksRes.json();
   assert.ok(Array.isArray(locksJson.items));
-  assert.ok(locksJson.items.find((l) => l.address === address.toLowerCase()));
+  assert.ok(locksJson.items.find((l) => l.address === address));
 
   const statusRes = await adminUserGet(
     makeContext({
@@ -116,11 +116,11 @@ test("admin endpoints: list locks, inspect user, and audit lock/unlock actions (
   );
   assert.equal(statusRes.status, 200);
   const statusJson = await statusRes.json();
-  assert.equal(statusJson.address, address.toLowerCase());
+  assert.equal(statusJson.address, address);
   assert.equal(statusJson.counts.poolVotes, 1);
   assert.equal(statusJson.quotas.maxPoolVotes, 2);
   assert.equal(statusJson.remaining.poolVotes, 1);
-  assert.equal(statusJson.lock.address, address.toLowerCase());
+  assert.equal(statusJson.lock.address, address);
 
   const unlockRes = await adminUnlockPost(
     makeContext({

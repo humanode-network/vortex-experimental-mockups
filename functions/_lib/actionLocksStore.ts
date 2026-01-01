@@ -28,7 +28,7 @@ const memoryLocks = new Map<
 >();
 
 function normalizeAddress(address: string): string {
-  return address.trim().toLowerCase();
+  return address.trim();
 }
 
 function nowMs(): number {

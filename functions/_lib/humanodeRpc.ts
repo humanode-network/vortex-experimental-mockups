@@ -1,6 +1,6 @@
 import { xxhashAsHex } from "@polkadot/util-crypto";
 import { cryptoWaitReady, decodeAddress } from "@polkadot/util-crypto";
-import { hexToU8a, u8aEq } from "@polkadot/util";
+import { hexToU8a, u8aToHex } from "@polkadot/util";
 
 type Env = Record<string, string | undefined>;
 
@@ -66,15 +66,22 @@ function decodeVecAccountId32(hex: string | null): Uint8Array[] {
   return accounts;
 }
 
-export async function isActiveHumanNodeViaRpc(
+function publicKeyHexFromAddress(address: string): string | null {
+  try {
+    const subject = decodeAddress(address.trim());
+    return u8aToHex(subject);
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchSessionValidatorsViaRpc(
   env: Env,
-  address: string,
-): Promise<boolean> {
+): Promise<string[]> {
   const rpcUrl = env.HUMANODE_RPC_URL;
   if (!rpcUrl) throw new Error("HUMANODE_RPC_URL is required");
 
   await cryptoWaitReady();
-  const subject = decodeAddress(address);
 
   const validatorsKey = storageKeySessionValidators();
   const validatorsStorage = await rpcCall<string | null>(
@@ -83,5 +90,26 @@ export async function isActiveHumanNodeViaRpc(
     [validatorsKey],
   );
   const validators = decodeVecAccountId32(validatorsStorage);
-  return validators.some((v) => u8aEq(v, subject));
+  return validators.map((pk) => u8aToHex(pk));
+}
+
+export function isSs58OrHexAddressInSet(
+  address: string,
+  validatorPublicKeysHex: Set<string>,
+): boolean {
+  const pk = publicKeyHexFromAddress(address);
+  if (!pk) return false;
+  return validatorPublicKeysHex.has(pk);
+}
+
+export async function isActiveHumanNodeViaRpc(
+  env: Env,
+  address: string,
+): Promise<boolean> {
+  await cryptoWaitReady();
+  const subject = decodeAddress(address.trim());
+
+  const validators = await fetchSessionValidatorsViaRpc(env);
+  const subjectHex = u8aToHex(subject);
+  return validators.some((v) => v === subjectHex);
 }
