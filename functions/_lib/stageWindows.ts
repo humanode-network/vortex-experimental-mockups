@@ -70,7 +70,8 @@ export function isStageOpen(input: {
   windowSeconds: number;
 }): boolean {
   return (
+    input.now.getTime() >= input.stageStartedAt.getTime() &&
     input.now.getTime() <
-    input.stageStartedAt.getTime() + Math.max(0, input.windowSeconds) * 1000
+      input.stageStartedAt.getTime() + Math.max(0, input.windowSeconds) * 1000
   );
 }

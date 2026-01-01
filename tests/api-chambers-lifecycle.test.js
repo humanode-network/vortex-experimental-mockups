@@ -4,6 +4,7 @@ import { test } from "node:test";
 import { onRequestGet as chambersGet } from "../functions/api/chambers/index.ts";
 import { onRequestGet as chamberGet } from "../functions/api/chambers/[id].ts";
 import { onRequestPost as commandPost } from "../functions/api/command.ts";
+import { onRequestPost as tickPost } from "../functions/api/clock/tick.ts";
 import { getSessionCookieName, issueSession } from "../functions/_lib/auth.ts";
 import { clearIdempotencyForTests } from "../functions/_lib/idempotencyStore.ts";
 import {
@@ -15,6 +16,7 @@ import { clearChamberVotesForTests } from "../functions/_lib/chamberVotesStore.t
 import { clearChamberMembershipsForTests } from "../functions/_lib/chamberMembershipsStore.ts";
 import { clearChambersForTests } from "../functions/_lib/chambersStore.ts";
 import { clearInlineReadModelsForTests } from "../functions/_lib/readModelsStore.ts";
+import { clearCmAwardsForTests } from "../functions/_lib/cmAwardsStore.ts";
 
 function makeContext({ url, env, params, method = "GET", headers, body }) {
   return {
@@ -22,6 +24,27 @@ function makeContext({ url, env, params, method = "GET", headers, body }) {
     env,
     params,
   };
+}
+
+async function finalizeIfPendingVeto(env, proposalId) {
+  const proposal = await getProposal(env, proposalId);
+  if (!proposal?.voteFinalizesAt) return;
+  const envAfter = {
+    ...env,
+    SIM_NOW_ISO: new Date(
+      proposal.voteFinalizesAt.getTime() + 1000,
+    ).toISOString(),
+  };
+  const res = await tickPost(
+    makeContext({
+      url: "https://local.test/api/clock/tick",
+      env: envAfter,
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ rollup: false }),
+    }),
+  );
+  assert.equal(res.status, 200);
 }
 
 async function makeSessionCookie(env, address) {
@@ -61,6 +84,7 @@ test("accepted General proposal can create and dissolve chambers", async () => {
   clearChamberMembershipsForTests();
   clearChambersForTests();
   clearInlineReadModelsForTests();
+  await clearCmAwardsForTests();
 
   const env = baseEnv();
   const voterCookie = await makeSessionCookie(env, "5GenesisEng");
@@ -98,6 +122,7 @@ test("accepted General proposal can create and dissolve chambers", async () => {
     }),
   );
   assert.equal(voteCreate.status, 200);
+  await finalizeIfPendingVeto(env, "general-create");
   const afterCreate = await getProposal(env, "general-create");
   assert.ok(afterCreate);
   assert.equal(afterCreate.stage, "build");
@@ -138,6 +163,7 @@ test("accepted General proposal can create and dissolve chambers", async () => {
     }),
   );
   assert.equal(voteDissolve.status, 200);
+  await finalizeIfPendingVeto(env, "general-dissolve");
 
   const listRes2 = await chambersGet(
     makeContext({ url: "https://local.test/api/chambers", env }),

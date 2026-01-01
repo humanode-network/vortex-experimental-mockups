@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import { proposals } from "../../db/schema.ts";
 import { createDb } from "./db.ts";
@@ -14,19 +14,58 @@ export type ProposalRecord = {
   chamberId: string | null;
   summary: string;
   payload: unknown;
+  vetoCount: number;
+  votePassedAt: Date | null;
+  voteFinalizesAt: Date | null;
+  vetoCouncil: string[] | null;
+  vetoThreshold: number | null;
   createdAt: Date;
   updatedAt: Date;
 };
 
 const memory = new Map<string, ProposalRecord>();
 
+function normalizeVetoCouncil(value: unknown): string[] | null {
+  if (value === null || value === undefined) return null;
+  if (!Array.isArray(value)) return null;
+  const members = value
+    .filter((v): v is string => typeof v === "string")
+    .map((v) => v.trim())
+    .filter(Boolean);
+  return members.length > 0 ? members : null;
+}
+
 export async function createProposal(
   env: Env,
-  input: Omit<ProposalRecord, "createdAt" | "updatedAt">,
+  input: {
+    id: string;
+    stage: ProposalStage;
+    authorAddress: string;
+    title: string;
+    chamberId: string | null;
+    summary: string;
+    payload: unknown;
+    vetoCount?: number;
+    votePassedAt?: Date | null;
+    voteFinalizesAt?: Date | null;
+    vetoCouncil?: string[] | null;
+    vetoThreshold?: number | null;
+  },
 ): Promise<ProposalRecord> {
   const now = new Date();
   const record: ProposalRecord = {
-    ...input,
+    id: input.id,
+    stage: input.stage,
+    authorAddress: input.authorAddress,
+    title: input.title,
+    chamberId: input.chamberId ?? null,
+    summary: input.summary,
+    payload: input.payload,
+    vetoCount: input.vetoCount ?? 0,
+    votePassedAt: input.votePassedAt ?? null,
+    voteFinalizesAt: input.voteFinalizesAt ?? null,
+    vetoCouncil: input.vetoCouncil ?? null,
+    vetoThreshold: input.vetoThreshold ?? null,
     createdAt: now,
     updatedAt: now,
   };
@@ -41,6 +80,11 @@ export async function createProposal(
       chamberId: record.chamberId,
       summary: record.summary,
       payload: record.payload,
+      vetoCount: record.vetoCount,
+      votePassedAt: record.votePassedAt,
+      voteFinalizesAt: record.voteFinalizesAt,
+      vetoCouncil: record.vetoCouncil,
+      vetoThreshold: record.vetoThreshold,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
     });
@@ -71,6 +115,103 @@ export async function updateProposalStage(
     ...existing,
     stage: input.stage,
     updatedAt: now,
+  });
+}
+
+export async function setProposalVotePendingVeto(
+  env: Env,
+  input: {
+    proposalId: string;
+    passedAt: Date;
+    finalizesAt: Date;
+    vetoCouncil: string[];
+    vetoThreshold: number;
+  },
+): Promise<void> {
+  if (env.DATABASE_URL) {
+    const db = createDb(env);
+    await db
+      .update(proposals)
+      .set({
+        votePassedAt: input.passedAt,
+        voteFinalizesAt: input.finalizesAt,
+        vetoCouncil: input.vetoCouncil,
+        vetoThreshold: input.vetoThreshold,
+      })
+      .where(eq(proposals.id, input.proposalId));
+    return;
+  }
+
+  const existing = memory.get(input.proposalId);
+  if (!existing) return;
+  memory.set(input.proposalId, {
+    ...existing,
+    votePassedAt: input.passedAt,
+    voteFinalizesAt: input.finalizesAt,
+    vetoCouncil: input.vetoCouncil,
+    vetoThreshold: input.vetoThreshold,
+  });
+}
+
+export async function clearProposalVotePendingVeto(
+  env: Env,
+  input: { proposalId: string },
+): Promise<void> {
+  if (env.DATABASE_URL) {
+    const db = createDb(env);
+    await db
+      .update(proposals)
+      .set({
+        votePassedAt: null,
+        voteFinalizesAt: null,
+        vetoCouncil: null,
+        vetoThreshold: null,
+      })
+      .where(eq(proposals.id, input.proposalId));
+    return;
+  }
+
+  const existing = memory.get(input.proposalId);
+  if (!existing) return;
+  memory.set(input.proposalId, {
+    ...existing,
+    votePassedAt: null,
+    voteFinalizesAt: null,
+    vetoCouncil: null,
+    vetoThreshold: null,
+  });
+}
+
+export async function applyProposalVeto(
+  env: Env,
+  input: { proposalId: string; nextVoteStartsAt: Date },
+): Promise<void> {
+  if (env.DATABASE_URL) {
+    const db = createDb(env);
+    await db
+      .update(proposals)
+      .set({
+        vetoCount: sql<number>`${proposals.vetoCount} + 1`,
+        votePassedAt: null,
+        voteFinalizesAt: null,
+        vetoCouncil: null,
+        vetoThreshold: null,
+        updatedAt: input.nextVoteStartsAt,
+      })
+      .where(eq(proposals.id, input.proposalId));
+    return;
+  }
+
+  const existing = memory.get(input.proposalId);
+  if (!existing) return;
+  memory.set(input.proposalId, {
+    ...existing,
+    vetoCount: existing.vetoCount + 1,
+    votePassedAt: null,
+    voteFinalizesAt: null,
+    vetoCouncil: null,
+    vetoThreshold: null,
+    updatedAt: input.nextVoteStartsAt,
   });
 }
 
@@ -128,6 +269,11 @@ export async function getProposal(
         chamberId: proposals.chamberId,
         summary: proposals.summary,
         payload: proposals.payload,
+        vetoCount: proposals.vetoCount,
+        votePassedAt: proposals.votePassedAt,
+        voteFinalizesAt: proposals.voteFinalizesAt,
+        vetoCouncil: proposals.vetoCouncil,
+        vetoThreshold: proposals.vetoThreshold,
         createdAt: proposals.createdAt,
         updatedAt: proposals.updatedAt,
       })
@@ -144,6 +290,12 @@ export async function getProposal(
       chamberId: row.chamberId ?? null,
       summary: row.summary,
       payload: row.payload,
+      vetoCount: row.vetoCount ?? 0,
+      votePassedAt: row.votePassedAt ?? null,
+      voteFinalizesAt: row.voteFinalizesAt ?? null,
+      vetoCouncil: normalizeVetoCouncil(row.vetoCouncil),
+      vetoThreshold:
+        typeof row.vetoThreshold === "number" ? row.vetoThreshold : null,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     };
@@ -168,6 +320,11 @@ export async function listProposals(
         chamberId: proposals.chamberId,
         summary: proposals.summary,
         payload: proposals.payload,
+        vetoCount: proposals.vetoCount,
+        votePassedAt: proposals.votePassedAt,
+        voteFinalizesAt: proposals.voteFinalizesAt,
+        vetoCouncil: proposals.vetoCouncil,
+        vetoThreshold: proposals.vetoThreshold,
         createdAt: proposals.createdAt,
         updatedAt: proposals.updatedAt,
       })
@@ -184,6 +341,12 @@ export async function listProposals(
         chamberId: row.chamberId ?? null,
         summary: row.summary,
         payload: row.payload,
+        vetoCount: row.vetoCount ?? 0,
+        votePassedAt: row.votePassedAt ?? null,
+        voteFinalizesAt: row.voteFinalizesAt ?? null,
+        vetoCouncil: normalizeVetoCouncil(row.vetoCouncil),
+        vetoThreshold:
+          typeof row.vetoThreshold === "number" ? row.vetoThreshold : null,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
       }))

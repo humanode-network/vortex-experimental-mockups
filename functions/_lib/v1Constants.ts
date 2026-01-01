@@ -12,3 +12,9 @@ export const V1_POOL_UPVOTE_FLOOR_FRACTION = 0.1;
 
 export const V1_CHAMBER_QUORUM_FRACTION = 0.33;
 export const V1_CHAMBER_PASSING_FRACTION = 2 / 3; // 66.6%
+
+// Veto (temporary slow-down) (Phase 30).
+// If the veto threshold is met, the proposal returns to chamber voting after a delay.
+export const V1_VETO_PASSING_FRACTION = 2 / 3; // 66.6% + 1 (rounded per council size)
+export const V1_VETO_DELAY_SECONDS_DEFAULT = 14 * 24 * 60 * 60; // 2 weeks
+export const V1_VETO_MAX_APPLIES = 2;

@@ -222,8 +222,12 @@ export type InvisionInsightDto = { role: string; bullets: string[] };
 export type ProposalTimelineEventTypeDto =
   | "proposal.submitted"
   | "proposal.stage.advanced"
+  | "proposal.vote.passed"
+  | "proposal.vote.finalized"
   | "pool.vote"
   | "chamber.vote"
+  | "veto.vote"
+  | "veto.applied"
   | "formation.join"
   | "formation.milestone.submitted"
   | "formation.milestone.unlockRequested"

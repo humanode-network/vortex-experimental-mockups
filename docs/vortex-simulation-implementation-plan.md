@@ -1211,6 +1211,25 @@ Tests:
 - Unit tests for veto attempt counting and state transitions.
 - API integration tests for veto flows and timeline output.
 
+Implemented:
+
+- DB:
+  - Migration: `db/migrations/0020_veto.sql`
+  - Tables/columns: `db/schema.ts` (`proposals` veto fields + `veto_votes`)
+- Veto council derivation (paper intent: top LCM holders):
+  - `functions/_lib/vetoCouncilStore.ts` computes one holder per chamber (highest accumulated LCM from `cm_awards`).
+  - Threshold is computed as `floor(2/3*n) + 1` and snapshotted onto the proposal.
+- Veto voting:
+  - `functions/_lib/vetoVotesStore.ts` stores votes in `veto_votes` (DB mode) with a safe in-memory fallback.
+  - `POST /api/command`: `veto.vote` records votes, emits timeline events, and applies veto when threshold is reached.
+- Stage behavior:
+  - When chamber vote passes, the proposal can enter a pending-veto window (`vote_passed_at` / `vote_finalizes_at`).
+  - `POST /api/clock/tick` finalizes to `build` once the veto window ends (if no veto was applied).
+  - Veto is bounded per proposal (`veto_count` max applies = 2).
+- Tests:
+  - `tests/api-veto.test.js`
+  - `tests/migrations.test.js` asserts `veto_votes` table exists
+
 ### Phase 31 — Chamber multiplier voting v1 (outside-of-chamber aggregation)
 
 Goal: implement paper-aligned multiplier setting (outsiders-only aggregation) without rewriting historical CM awards.

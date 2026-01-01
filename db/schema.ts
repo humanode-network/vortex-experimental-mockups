@@ -94,6 +94,11 @@ export const proposals = pgTable("proposals", {
   chamberId: text("chamber_id"),
   summary: text("summary").notNull(),
   payload: jsonb("payload").notNull(), // stage-agnostic proposal content (v1: derived from draft)
+  vetoCount: integer("veto_count").notNull().default(0),
+  votePassedAt: timestamp("vote_passed_at", { withTimezone: true }),
+  voteFinalizesAt: timestamp("vote_finalizes_at", { withTimezone: true }),
+  vetoCouncil: jsonb("veto_council"),
+  vetoThreshold: integer("veto_threshold"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -101,6 +106,24 @@ export const proposals = pgTable("proposals", {
     .notNull()
     .defaultNow(),
 });
+
+export const vetoVotes = pgTable(
+  "veto_votes",
+  {
+    proposalId: text("proposal_id").notNull(),
+    voterAddress: text("voter_address").notNull(),
+    choice: text("choice").notNull(), // veto | keep
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.proposalId, t.voterAddress] }),
+  }),
+);
 
 // Captures the active-governor denominator at proposal stage entry.
 // This prevents quorum math from drifting when eras advance mid-stage.

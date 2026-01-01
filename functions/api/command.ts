@@ -15,13 +15,13 @@ import { evaluatePoolQuorum } from "../_lib/poolQuorum.ts";
 import {
   castChamberVote,
   getChamberYesScoreAverage,
+  clearChamberVotesForProposal,
 } from "../_lib/chamberVotesStore.ts";
 import { evaluateChamberQuorum } from "../_lib/chamberQuorum.ts";
 import { awardCmOnce } from "../_lib/cmAwardsStore.ts";
 import {
   joinFormationProject,
   ensureFormationSeed,
-  buildV1FormationSeedFromProposalPayload,
   getFormationMilestoneStatus,
   isFormationTeamMember,
   requestFormationMilestoneUnlock,
@@ -59,8 +59,10 @@ import {
 } from "../_lib/proposalDraftsStore.ts";
 import {
   createProposal,
+  setProposalVotePendingVeto,
   getProposal,
   transitionProposalStage,
+  applyProposalVeto,
 } from "../_lib/proposalsStore.ts";
 import {
   captureProposalStageDenominator,
@@ -68,10 +70,8 @@ import {
 } from "../_lib/proposalStageDenominatorsStore.ts";
 import { clearDelegation, setDelegation } from "../_lib/delegationsStore.ts";
 import {
-  grantVotingEligibilityForAcceptedProposal,
   hasAnyChamberMembership,
   hasChamberMembership,
-  ensureChamberMembership,
 } from "../_lib/chamberMembershipsStore.ts";
 import { randomHex } from "../_lib/random.ts";
 import {
@@ -84,8 +84,15 @@ import {
   V1_CHAMBER_PASSING_FRACTION,
   V1_CHAMBER_QUORUM_FRACTION,
   V1_POOL_ATTENTION_QUORUM_FRACTION,
+  V1_VETO_DELAY_SECONDS_DEFAULT,
+  V1_VETO_MAX_APPLIES,
 } from "../_lib/v1Constants.ts";
-import { ensureFormationSeedFromInput } from "../_lib/formationStore.ts";
+import { computeVetoCouncilSnapshot } from "../_lib/vetoCouncilStore.ts";
+import {
+  castVetoVote,
+  clearVetoVotesForProposal,
+} from "../_lib/vetoVotesStore.ts";
+import { finalizeAcceptedProposalFromVote } from "../_lib/proposalFinalizer.ts";
 import {
   formatTimeLeftDaysHours,
   getSimNow,
@@ -97,13 +104,7 @@ import {
 } from "../_lib/stageWindows.ts";
 import { envBoolean } from "../_lib/env.ts";
 import { getSimConfig } from "../_lib/simConfig.ts";
-import {
-  createChamberFromAcceptedGeneralProposal,
-  dissolveChamberFromAcceptedGeneralProposal,
-  getChamber,
-  getChamberMultiplierTimes10 as getCanonicalChamberMultiplierTimes10,
-  parseChamberGovernanceFromPayload,
-} from "../_lib/chambersStore.ts";
+import { getChamber } from "../_lib/chambersStore.ts";
 
 const poolVoteSchema = z.object({
   type: z.literal("pool.vote"),
@@ -211,6 +212,15 @@ const delegationClearSchema = z.object({
   idempotencyKey: z.string().min(8).optional(),
 });
 
+const vetoVoteSchema = z.object({
+  type: z.literal("veto.vote"),
+  payload: z.object({
+    proposalId: z.string().min(1),
+    choice: z.enum(["veto", "keep"]),
+  }),
+  idempotencyKey: z.string().min(8).optional(),
+});
+
 const commandSchema = z.discriminatedUnion("type", [
   poolVoteSchema,
   chamberVoteSchema,
@@ -224,6 +234,7 @@ const commandSchema = z.discriminatedUnion("type", [
   proposalSubmitToPoolSchema,
   delegationSetSchema,
   delegationClearSchema,
+  vetoVoteSchema,
 ]);
 
 type CommandInput = z.infer<typeof commandSchema>;
@@ -890,6 +901,139 @@ export const onRequestPost: PagesFunction = async (context) => {
     return jsonResponse(response);
   }
 
+  if (input.type === "veto.vote") {
+    const proposalId = input.payload.proposalId;
+    const proposal = await getProposal(context.env, proposalId);
+    if (!proposal) return errorResponse(404, "Unknown proposal");
+    if (proposal.stage !== "vote") {
+      return errorResponse(409, "Proposal is not in chamber vote stage", {
+        code: "stage_invalid",
+        stage: proposal.stage,
+      });
+    }
+
+    const now = getSimNow(context.env);
+    if (!proposal.votePassedAt || !proposal.voteFinalizesAt) {
+      return errorResponse(409, "No veto window is open for this proposal", {
+        code: "veto_not_open",
+      });
+    }
+    if (now.getTime() >= proposal.voteFinalizesAt.getTime()) {
+      return errorResponse(409, "Veto window ended", {
+        code: "veto_window_ended",
+        finalizesAt: proposal.voteFinalizesAt.toISOString(),
+      });
+    }
+
+    const council = proposal.vetoCouncil ?? [];
+    const threshold = proposal.vetoThreshold ?? 0;
+    if (council.length === 0 || threshold <= 0) {
+      return errorResponse(409, "Veto is not enabled for this proposal", {
+        code: "veto_disabled",
+      });
+    }
+    if (!council.includes(sessionAddress)) {
+      return errorResponse(403, "Not eligible to cast a veto vote", {
+        code: "not_veto_holder",
+      });
+    }
+
+    const { counts, created } = await castVetoVote(context.env, {
+      proposalId,
+      voterAddress: sessionAddress,
+      choice: input.payload.choice,
+    });
+
+    const response = {
+      ok: true as const,
+      type: input.type,
+      proposalId,
+      choice: input.payload.choice,
+      counts,
+      threshold,
+    };
+
+    if (idempotencyKey) {
+      await storeIdempotencyResponse(context.env, {
+        key: idempotencyKey,
+        address: session.address,
+        request: requestForIdem,
+        response,
+      });
+    }
+
+    await appendProposalTimelineItem(context.env, {
+      proposalId,
+      stage: "vote",
+      actorAddress: sessionAddress,
+      item: {
+        id: `timeline:veto-vote:${proposalId}:${sessionAddress}:${randomHex(4)}`,
+        type: "veto.vote",
+        title: "Veto vote cast",
+        detail: input.payload.choice === "veto" ? "Veto" : "Keep",
+        actor: sessionAddress,
+        timestamp: now.toISOString(),
+      },
+    });
+
+    if (counts.veto >= threshold) {
+      await clearVetoVotesForProposal(context.env, proposalId).catch(() => {});
+      await clearChamberVotesForProposal(context.env, proposalId).catch(
+        () => {},
+      );
+
+      const nextVoteStartsAt = new Date(
+        now.getTime() + V1_VETO_DELAY_SECONDS_DEFAULT * 1000,
+      );
+      await applyProposalVeto(context.env, { proposalId, nextVoteStartsAt });
+
+      await appendFeedItemEvent(context.env, {
+        stage: "vote",
+        actorAddress: session.address,
+        entityType: "proposal",
+        entityId: proposalId,
+        payload: {
+          id: `veto-applied:${proposalId}:${Date.now()}`,
+          title: "Veto applied",
+          meta: "Veto",
+          stage: "vote",
+          summaryPill: "Vetoed",
+          summary:
+            "Veto threshold met; chamber vote is reset and voting is paused.",
+          stats: [
+            { label: "Veto votes", value: `${counts.veto} / ${threshold}` },
+          ],
+          ctaPrimary: "Open proposal",
+          href: `/app/proposals/${proposalId}/chamber`,
+          timestamp: now.toISOString(),
+        },
+      });
+
+      await appendProposalTimelineItem(context.env, {
+        proposalId,
+        stage: "vote",
+        actorAddress: null,
+        item: {
+          id: `timeline:veto-applied:${proposalId}:${randomHex(4)}`,
+          type: "veto.applied",
+          title: "Veto applied",
+          detail: `Voting resumes at ${nextVoteStartsAt.toISOString()}`,
+          actor: "system",
+          timestamp: now.toISOString(),
+        },
+      });
+    }
+
+    if (created) {
+      await incrementEraUserActivity(context.env, {
+        address: session.address,
+        delta: { chamberVotes: 1 },
+      }).catch(() => {});
+    }
+
+    return jsonResponse(response);
+  }
+
   if (input.type === "pool.vote") {
     const proposal = await getProposal(context.env, input.payload.proposalId);
     if (
@@ -1017,18 +1161,23 @@ export const onRequestPost: PagesFunction = async (context) => {
       }).catch(() => {});
     }
 
-    const advanced =
-      (readModels &&
-        (await maybeAdvancePoolProposalToVote(readModels, {
-          proposalId: input.payload.proposalId,
-          counts,
-          activeGovernors: poolDenominator,
-        }))) ||
-      (await maybeAdvancePoolProposalToVoteCanonical(context.env, {
+    const canonicalAdvanced = await maybeAdvancePoolProposalToVoteCanonical(
+      context.env,
+      {
+        proposalId: input.payload.proposalId,
+        counts,
+        activeGovernors: poolDenominator,
+      },
+    );
+    const readModelAdvanced =
+      !canonicalAdvanced &&
+      readModels &&
+      (await maybeAdvancePoolProposalToVote(readModels, {
         proposalId: input.payload.proposalId,
         counts,
         activeGovernors: poolDenominator,
       }));
+    const advanced = canonicalAdvanced || Boolean(readModelAdvanced);
 
     if (advanced) {
       const voteDenominator =
@@ -1555,6 +1704,31 @@ export const onRequestPost: PagesFunction = async (context) => {
   }
 
   const proposal = await getProposal(context.env, input.payload.proposalId);
+  if (proposal && proposal.stage !== "vote") {
+    return errorResponse(409, "Proposal is not in chamber vote stage", {
+      code: "stage_invalid",
+      stage: proposal.stage,
+    });
+  }
+
+  if (proposal && proposal.stage === "vote") {
+    const now = getSimNow(context.env);
+    if (proposal.votePassedAt && proposal.voteFinalizesAt) {
+      if (now.getTime() < proposal.voteFinalizesAt.getTime()) {
+        return errorResponse(409, "Vote already passed (pending veto)", {
+          code: "vote_pending_veto",
+          finalizesAt: proposal.voteFinalizesAt.toISOString(),
+        });
+      }
+    }
+    if (now.getTime() < proposal.updatedAt.getTime()) {
+      return errorResponse(409, "Voting is paused", {
+        code: "vote_paused",
+        resumesAt: proposal.updatedAt.toISOString(),
+      });
+    }
+  }
+
   if (
     proposal &&
     stageWindowsEnabled(context.env) &&
@@ -1732,29 +1906,87 @@ export const onRequestPost: PagesFunction = async (context) => {
     }).catch(() => {});
   }
 
+  const canonicalOutcome = await maybeAdvanceVoteProposalToBuildCanonical(
+    context.env,
+    {
+      proposalId: input.payload.proposalId,
+      counts,
+      activeGovernors: voteDenominator,
+    },
+    context.request.url,
+  );
+
+  const readModelAdvanced =
+    canonicalOutcome.status === "none" &&
+    readModels &&
+    (await maybeAdvanceVoteProposalToBuild(context.env, readModels, {
+      proposalId: input.payload.proposalId,
+      counts,
+      activeGovernors: voteDenominator,
+    }));
+
   const advanced =
-    (readModels &&
-      (await maybeAdvanceVoteProposalToBuild(context.env, readModels, {
-        proposalId: input.payload.proposalId,
-        counts,
-        activeGovernors: voteDenominator,
-      }))) ||
-    (await maybeAdvanceVoteProposalToBuildCanonical(
-      context.env,
-      {
-        proposalId: input.payload.proposalId,
-        counts,
-        activeGovernors: voteDenominator,
+    canonicalOutcome.status === "advanced" || Boolean(readModelAdvanced);
+
+  if (canonicalOutcome.status === "pending_veto") {
+    await appendFeedItemEvent(context.env, {
+      stage: "vote",
+      actorAddress: session.address,
+      entityType: "proposal",
+      entityId: input.payload.proposalId,
+      payload: {
+        id: `vote-pass-pending-veto:${input.payload.proposalId}:${Date.now()}`,
+        title: "Proposal passed (pending veto)",
+        meta: "Chamber vote",
+        stage: "vote",
+        summaryPill: "Passed",
+        summary:
+          "Chamber vote passed; the proposal is in the veto window before acceptance is finalized.",
+        stats: [
+          { label: "Yes", value: String(counts.yes) },
+          {
+            label: "Engaged",
+            value: String(counts.yes + counts.no + counts.abstain),
+          },
+          {
+            label: "Veto",
+            value: `${canonicalOutcome.vetoCouncilSize} holders · ${canonicalOutcome.vetoThreshold} needed`,
+          },
+        ],
+        ctaPrimary: "Open proposal",
+        href: `/app/proposals/${input.payload.proposalId}/chamber`,
+        timestamp: new Date().toISOString(),
       },
-      context.request.url,
-    ));
+    });
+
+    await appendProposalTimelineItem(context.env, {
+      proposalId: input.payload.proposalId,
+      stage: "vote",
+      actorAddress: session.address,
+      item: {
+        id: `timeline:vote-pass-pending-veto:${input.payload.proposalId}:${randomHex(4)}`,
+        type: "proposal.vote.passed",
+        title: "Chamber vote passed",
+        detail: `Pending veto until ${canonicalOutcome.finalizesAt}`,
+        actor: "system",
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }
 
   if (advanced) {
     const avgScore =
-      (await getChamberYesScoreAverage(
-        context.env,
-        input.payload.proposalId,
-      )) ?? null;
+      canonicalOutcome.status === "advanced"
+        ? canonicalOutcome.avgScore
+        : ((await getChamberYesScoreAverage(
+            context.env,
+            input.payload.proposalId,
+          )) ?? null);
+    const formationEligible =
+      canonicalOutcome.status === "advanced"
+        ? canonicalOutcome.formationEligible
+        : true;
+
     await appendFeedItemEvent(context.env, {
       stage: "build",
       actorAddress: session.address,
@@ -1762,11 +1994,11 @@ export const onRequestPost: PagesFunction = async (context) => {
       entityId: input.payload.proposalId,
       payload: {
         id: `vote-pass:${input.payload.proposalId}:${Date.now()}`,
-        title: "Proposal passed",
-        meta: "Formation",
+        title: "Proposal accepted",
+        meta: "Chamber vote",
         stage: "build",
-        summaryPill: "Passed",
-        summary: "Chamber vote passed; proposal moved to Formation.",
+        summaryPill: "Accepted",
+        summary: "Chamber vote finalized; proposal is now accepted.",
         stats: [
           ...(avgScore !== null
             ? [{ label: "Avg CM", value: avgScore.toFixed(1) }]
@@ -1778,7 +2010,9 @@ export const onRequestPost: PagesFunction = async (context) => {
           },
         ],
         ctaPrimary: "Open proposal",
-        href: `/app/proposals/${input.payload.proposalId}/formation`,
+        href: formationEligible
+          ? `/app/proposals/${input.payload.proposalId}/formation`
+          : `/app/proposals/${input.payload.proposalId}/chamber`,
         timestamp: new Date().toISOString(),
       },
     });
@@ -1790,8 +2024,8 @@ export const onRequestPost: PagesFunction = async (context) => {
       item: {
         id: `timeline:vote-pass:${input.payload.proposalId}:${randomHex(4)}`,
         type: "proposal.stage.advanced",
-        title: "Advanced to formation",
-        detail: "Chamber vote passed",
+        title: "Advanced to accepted",
+        detail: "Chamber vote finalized",
         actor: "system",
         timestamp: new Date().toISOString(),
       },
@@ -2129,136 +2363,68 @@ async function maybeAdvanceVoteProposalToBuildCanonical(
     activeGovernors: number;
   },
   requestUrl: string,
-): Promise<boolean> {
+): Promise<
+  | { status: "none" }
+  | {
+      status: "pending_veto";
+      finalizesAt: string;
+      vetoCouncilSize: number;
+      vetoThreshold: number;
+    }
+  | { status: "advanced"; formationEligible: boolean; avgScore: number | null }
+> {
   const proposal = await getProposal(env, input.proposalId);
-  if (!proposal) return false;
-  if (proposal.stage !== "vote") return false;
+  if (!proposal) return { status: "none" };
+  if (proposal.stage !== "vote") return { status: "none" };
+  if (proposal.votePassedAt && proposal.voteFinalizesAt) {
+    const now = getSimNow(env);
+    if (now.getTime() < proposal.voteFinalizesAt.getTime()) {
+      return { status: "none" };
+    }
+  }
 
   const shouldAdvance = shouldAdvanceVoteToBuild({
     activeGovernors: input.activeGovernors,
     counts: input.counts,
   });
-  if (!shouldAdvance) return false;
+  if (!shouldAdvance) return { status: "none" };
 
-  const formationEligible = getFormationEligibleFromProposalPayload(
-    proposal.payload,
-  );
+  const vetoCount = proposal.vetoCount ?? 0;
+  if (vetoCount < V1_VETO_MAX_APPLIES) {
+    const snapshot = await computeVetoCouncilSnapshot(env, requestUrl);
+    if (snapshot.members.length > 0 && snapshot.threshold > 0) {
+      const now = getSimNow(env);
+      const finalizesAt = new Date(
+        now.getTime() + V1_VETO_DELAY_SECONDS_DEFAULT * 1000,
+      );
+      await clearVetoVotesForProposal(env, proposal.id).catch(() => {});
+      await setProposalVotePendingVeto(env, {
+        proposalId: proposal.id,
+        passedAt: now,
+        finalizesAt,
+        vetoCouncil: snapshot.members,
+        vetoThreshold: snapshot.threshold,
+      });
+      return {
+        status: "pending_veto",
+        finalizesAt: finalizesAt.toISOString(),
+        vetoCouncilSize: snapshot.members.length,
+        vetoThreshold: snapshot.threshold,
+      };
+    }
+  }
 
-  const transitioned = await transitionProposalStage(env, {
-    proposalId: input.proposalId,
-    from: "vote",
-    to: "build",
-  });
-  if (!transitioned) return false;
-
-  await grantVotingEligibilityForAcceptedProposal(env, {
-    address: proposal.authorAddress,
-    chamberId: proposal.chamberId ?? null,
+  const finalized = await finalizeAcceptedProposalFromVote(env, {
     proposalId: proposal.id,
+    requestUrl,
   });
+  if (!finalized.ok) return { status: "none" };
 
-  if ((proposal.chamberId ?? "").toLowerCase() === "general") {
-    const meta = parseChamberGovernanceFromPayload(proposal.payload);
-    if (meta?.action === "chamber.create" && meta.title) {
-      await createChamberFromAcceptedGeneralProposal(env, requestUrl, {
-        id: meta.id,
-        title: meta.title,
-        multiplier: meta.multiplier,
-        proposalId: proposal.id,
-      });
-
-      await appendProposalTimelineItem(env, {
-        proposalId: proposal.id,
-        stage: "build",
-        actorAddress: null,
-        item: {
-          id: `timeline:chamber-created:${proposal.id}:${randomHex(4)}`,
-          type: "chamber.created",
-          title: "Chamber created",
-          detail: `${meta.id} (${meta.title})`,
-          actor: "system",
-          timestamp: new Date().toISOString(),
-        },
-      });
-
-      const genesisMembers = (() => {
-        if (!proposal.payload || typeof proposal.payload !== "object")
-          return [];
-        const record = proposal.payload as Record<string, unknown>;
-        const mg = record.metaGovernance;
-        if (!mg || typeof mg !== "object" || Array.isArray(mg)) return [];
-        const metaRecord = mg as Record<string, unknown>;
-        const raw = metaRecord.genesisMembers;
-        if (!Array.isArray(raw)) return [];
-        return raw
-          .filter((v): v is string => typeof v === "string")
-          .map((v) => v.trim())
-          .filter(Boolean);
-      })();
-
-      const memberSet = new Set<string>(genesisMembers);
-      memberSet.add(proposal.authorAddress.trim());
-      for (const address of memberSet) {
-        await ensureChamberMembership(env, {
-          address,
-          chamberId: meta.id,
-          grantedByProposalId: proposal.id,
-          source: "chamber_genesis",
-        });
-      }
-    }
-    if (meta?.action === "chamber.dissolve") {
-      await dissolveChamberFromAcceptedGeneralProposal(env, requestUrl, {
-        id: meta.id,
-        proposalId: proposal.id,
-      });
-
-      await appendProposalTimelineItem(env, {
-        proposalId: proposal.id,
-        stage: "build",
-        actorAddress: null,
-        item: {
-          id: `timeline:chamber-dissolved:${proposal.id}:${randomHex(4)}`,
-          type: "chamber.dissolved",
-          title: "Chamber dissolved",
-          detail: meta.id,
-          actor: "system",
-          timestamp: new Date().toISOString(),
-        },
-      });
-    }
-  }
-
-  if (formationEligible) {
-    const seed = buildV1FormationSeedFromProposalPayload(proposal.payload);
-    await ensureFormationSeedFromInput(env, {
-      proposalId: input.proposalId,
-      seed,
-    });
-  }
-
-  const avgScore =
-    (await getChamberYesScoreAverage(env, input.proposalId)) ?? null;
-  const chamberId = (proposal.chamberId ?? "general").toLowerCase();
-  const multiplierTimes10 =
-    (await getCanonicalChamberMultiplierTimes10(env, requestUrl, chamberId)) ??
-    10;
-
-  if (avgScore !== null) {
-    const lcmPoints = Math.round(avgScore * 10);
-    const mcmPoints = Math.round((lcmPoints * multiplierTimes10) / 10);
-    await awardCmOnce(env, {
-      proposalId: input.proposalId,
-      proposerId: proposal.authorAddress,
-      chamberId,
-      avgScore,
-      lcmPoints,
-      chamberMultiplierTimes10: multiplierTimes10,
-      mcmPoints,
-    });
-  }
-
-  return true;
+  return {
+    status: "advanced",
+    formationEligible: finalized.formationEligible,
+    avgScore: finalized.avgScore,
+  };
 }
 
 function getFormationEligibleFromProposalPayload(payload: unknown): boolean {

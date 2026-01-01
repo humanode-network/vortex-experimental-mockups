@@ -65,6 +65,13 @@ In v1, proposal history is stored as `events` entries:
 - `chamber_votes`: one row per `(proposalId, voterAddress)` representing the latest yes/no/abstain choice.
 - Optional `score` is stored for yes votes (v1 CM input).
 
+### Veto votes
+
+Veto is a bounded, temporary slow-down window after a proposal passes chamber vote.
+
+- `veto_votes`: one row per `(proposalId, voterAddress)` representing the latest veto council choice:
+  - `choice = "veto" | "keep"`
+
 ### CM awards
 
 - `cm_awards`: one row per proposal that passes chamber vote, derived from the average yes `score`.
@@ -89,6 +96,10 @@ Canonical proposals table (first step away from `read_models` as source of truth
   - `author_address`
   - `title`, `summary`, `chamber_id`
   - `payload` (jsonb; stage-agnostic proposal content in v1, derived from the draft payload)
+  - veto fields (v1):
+    - `veto_count`
+    - `vote_passed_at`, `vote_finalizes_at`
+    - `veto_council`, `veto_threshold`
   - `created_at`, `updated_at`
 
 In Phase 14, reads begin preferring this table (with `read_models` as a compatibility fallback for seeded legacy DTOs).
@@ -198,11 +209,7 @@ Era tracking supports “My Governance” and rollups:
 ## What’s expected to change in v2+
 
 - Continue migrating away from the read-model bridge (`read_models`) so all pages are served from canonical tables + projections.
-- Add delegation tables and history:
-  - `delegations`
-  - `delegation_events`
-- Add veto and multiplier-setting state (if modeled as first-class tables in v2):
-  - `veto_events` (or `proposal_vetoes`)
-  - `chamber_multiplier_submissions`
+- Add chamber multiplier voting state:
+  - `chamber_multiplier_submissions` (or equivalent)
 - Add Meritocratic Measure (MM) history (Formation delivery scoring):
   - `mm_awards` (or equivalent per-milestone ratings + derived totals)

@@ -167,6 +167,19 @@ export async function clearChamberVotesForTests() {
   memoryVotes.clear();
 }
 
+export async function clearChamberVotesForProposal(
+  env: Env,
+  proposalId: string,
+): Promise<void> {
+  if (!env.DATABASE_URL) {
+    memoryVotes.delete(proposalId);
+    return;
+  }
+
+  const db = createDb(env);
+  await db.delete(chamberVotes).where(eq(chamberVotes.proposalId, proposalId));
+}
+
 function countMemory(proposalId: string): ChamberVoteCounts {
   const byVoter = memoryVotes.get(proposalId);
   if (!byVoter) return { yes: 0, no: 0, abstain: 0 };

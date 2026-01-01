@@ -542,13 +542,22 @@ Implemented in v1:
 
 **Simulation status**
 
-- Not implemented in v1.
+Implemented in v1:
 
-Planned deliverables (v2+):
-
-- veto command(s) + event-backed history
-- temporary “sent back” state with bounded attempts
-- UI surfacing in proposal timelines
+- When a chamber vote passes, the proposal can enter a **veto window** (instead of advancing immediately).
+- Veto holders are derived from CM data:
+  - One holder per chamber: the address with the highest accumulated **LCM** in that chamber (from `cm_awards`).
+  - The veto council is snapshotted onto the proposal at vote-pass time (`proposals.veto_council`).
+- Threshold:
+  - `floor(2/3 * councilSize) + 1` veto votes are required.
+- If the threshold is met during the veto window:
+  - chamber votes are cleared
+  - veto votes are cleared
+  - proposal `veto_count` increments
+  - voting is paused for `2 weeks` and then re-opens (proposal `updated_at` is set to the re-open time).
+- If the veto window ends without a veto:
+  - the proposal is finalized and advanced to `build` by `POST /api/clock/tick`.
+- Max veto applies per proposal: `2` (after that, vote-pass finalizes immediately).
 
 ---
 

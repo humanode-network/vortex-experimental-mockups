@@ -16,6 +16,9 @@ import {
   stageWindowsEnabled,
 } from "../../_lib/stageWindows.ts";
 import { V1_ERA_SECONDS_DEFAULT } from "../../_lib/v1Constants.ts";
+import { finalizeAcceptedProposalFromVote } from "../../_lib/proposalFinalizer.ts";
+import { appendProposalTimelineItem } from "../../_lib/proposalTimelineStore.ts";
+import { randomHex } from "../../_lib/random.ts";
 
 type Env = Record<string, string | undefined>;
 
@@ -88,6 +91,7 @@ export const onRequestPost: PagesFunction = async (context) => {
       const proposals = await listProposals(context.env).catch(() => []);
       for (const proposal of proposals) {
         if (proposal.stage !== "pool" && proposal.stage !== "vote") continue;
+        if (proposal.stage === "vote" && proposal.votePassedAt) continue;
         const windowSeconds = getStageWindowSeconds(
           context.env,
           proposal.stage,
@@ -95,6 +99,7 @@ export const onRequestPost: PagesFunction = async (context) => {
         if (windowSeconds <= 0) continue;
 
         const stageStartedAt = proposal.updatedAt;
+        if (now.getTime() < stageStartedAt.getTime()) continue;
         const endedAt = getStageDeadlineIso({ stageStartedAt, windowSeconds });
         const open = isStageOpen({ now, stageStartedAt, windowSeconds });
         if (open) continue;
@@ -142,6 +147,65 @@ export const onRequestPost: PagesFunction = async (context) => {
       }
     }
 
+    const finalized: Array<{ proposalId: string; ok: boolean }> = [];
+    {
+      const proposals = await listProposals(context.env, {
+        stage: "vote",
+      }).catch(() => []);
+      for (const proposal of proposals) {
+        const finalizesAt = proposal.voteFinalizesAt;
+        if (!finalizesAt) continue;
+        if (now.getTime() < finalizesAt.getTime()) continue;
+        if (!proposal.votePassedAt) continue;
+
+        const result = await finalizeAcceptedProposalFromVote(context.env, {
+          proposalId: proposal.id,
+          requestUrl: context.request.url,
+        });
+        finalized.push({ proposalId: proposal.id, ok: result.ok });
+        if (!result.ok) continue;
+
+        await appendFeedItemEventOnce(context.env, {
+          stage: "build",
+          entityType: "proposal",
+          entityId: `vote-finalized:${proposal.id}:${finalizesAt.toISOString()}`,
+          payload: {
+            id: `vote-finalized:${proposal.id}:${finalizesAt.toISOString()}`,
+            title: "Proposal accepted",
+            meta: "Chamber vote",
+            stage: "build",
+            summaryPill: "Accepted",
+            summary:
+              "Veto window ended; chamber vote is finalized and the proposal is now accepted.",
+            stats: [
+              ...(result.avgScore !== null
+                ? [{ label: "Avg CM", value: result.avgScore.toFixed(1) }]
+                : []),
+            ],
+            ctaPrimary: "Open proposal",
+            href: result.formationEligible
+              ? `/app/proposals/${proposal.id}/formation`
+              : `/app/proposals/${proposal.id}/chamber`,
+            timestamp: now.toISOString(),
+          },
+        });
+
+        await appendProposalTimelineItem(context.env, {
+          proposalId: proposal.id,
+          stage: "build",
+          actorAddress: null,
+          item: {
+            id: `timeline:vote-finalized:${proposal.id}:${randomHex(4)}`,
+            type: "proposal.vote.finalized",
+            title: "Proposal accepted",
+            detail: "Veto window ended",
+            actor: "system",
+            timestamp: now.toISOString(),
+          },
+        });
+      }
+    }
+
     return jsonResponse({
       ok: true as const,
       now: now.toISOString(),
@@ -151,6 +215,7 @@ export const onRequestPost: PagesFunction = async (context) => {
       fromEra: snapshot.currentEra,
       toEra: advancedTo,
       ...(endedWindows.length > 0 ? { endedWindows } : {}),
+      ...(finalized.length > 0 ? { finalized } : {}),
       ...(rollup ? { rollup } : {}),
     });
   } catch (error) {

@@ -2,15 +2,18 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { onRequestPost as commandPost } from "../functions/api/command.ts";
+import { onRequestPost as tickPost } from "../functions/api/clock/tick.ts";
 import { getSessionCookieName, issueSession } from "../functions/_lib/auth.ts";
 import { clearChamberVotesForTests } from "../functions/_lib/chamberVotesStore.ts";
 import { clearChamberMembershipsForTests } from "../functions/_lib/chamberMembershipsStore.ts";
 import { clearChambersForTests } from "../functions/_lib/chambersStore.ts";
+import { clearCmAwardsForTests } from "../functions/_lib/cmAwardsStore.ts";
 import { clearIdempotencyForTests } from "../functions/_lib/idempotencyStore.ts";
 import { clearProposalDraftsForTests } from "../functions/_lib/proposalDraftsStore.ts";
 import {
   clearProposalsForTests,
   createProposal,
+  getProposal,
 } from "../functions/_lib/proposalsStore.ts";
 import { clearInlineReadModelsForTests } from "../functions/_lib/readModelsStore.ts";
 import { getChamber } from "../functions/_lib/chambersStore.ts";
@@ -21,6 +24,27 @@ function makeContext({ url, env, params, method = "POST", headers, body }) {
     env,
     params,
   };
+}
+
+async function finalizeIfPendingVeto(env, proposalId) {
+  const proposal = await getProposal(env, proposalId);
+  if (!proposal?.voteFinalizesAt) return;
+  const envAfter = {
+    ...env,
+    SIM_NOW_ISO: new Date(
+      proposal.voteFinalizesAt.getTime() + 1000,
+    ).toISOString(),
+  };
+  const res = await tickPost(
+    makeContext({
+      url: "https://local.test/api/clock/tick",
+      env: envAfter,
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ rollup: false }),
+    }),
+  );
+  assert.equal(res.status, 200);
 }
 
 async function makeSessionCookie(env, address) {
@@ -80,6 +104,7 @@ test("cannot submit new proposals to a dissolved chamber", async () => {
   clearChamberMembershipsForTests();
   clearChambersForTests();
   clearInlineReadModelsForTests();
+  await clearCmAwardsForTests();
 
   const env = baseEnv();
   const voterCookie = await makeSessionCookie(env, "5GenesisEng");
@@ -111,6 +136,7 @@ test("cannot submit new proposals to a dissolved chamber", async () => {
     }),
   );
   assert.equal(dissolveVote.status, 200);
+  await finalizeIfPendingVeto(env, "general-dissolve");
 
   const proposerCookie = await makeSessionCookie(env, "5Proposer");
   const saveRes = await commandPost(
@@ -156,6 +182,7 @@ test("dissolved chambers still allow voting on proposals created before dissolut
   clearChamberMembershipsForTests();
   clearChambersForTests();
   clearInlineReadModelsForTests();
+  await clearCmAwardsForTests();
 
   const env = baseEnv();
   const voterCookie = await makeSessionCookie(env, "5GenesisEng");
@@ -197,6 +224,7 @@ test("dissolved chambers still allow voting on proposals created before dissolut
     }),
   );
   assert.equal(dissolveVote.status, 200);
+  await finalizeIfPendingVeto(env, "general-dissolve");
 
   const chamber = await getChamber(
     env,
@@ -227,6 +255,7 @@ test("dissolved chambers reject voting on proposals created after dissolution", 
   clearChamberMembershipsForTests();
   clearChambersForTests();
   clearInlineReadModelsForTests();
+  await clearCmAwardsForTests();
 
   const env = baseEnv();
   const voterCookie = await makeSessionCookie(env, "5GenesisEng");
@@ -258,6 +287,7 @@ test("dissolved chambers reject voting on proposals created after dissolution", 
     }),
   );
   assert.equal(dissolveVote.status, 200);
+  await finalizeIfPendingVeto(env, "general-dissolve");
 
   const chamber = await getChamber(
     env,

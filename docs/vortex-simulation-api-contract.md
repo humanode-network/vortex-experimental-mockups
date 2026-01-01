@@ -304,12 +304,52 @@ Notes:
   - when ineligible, the API returns HTTP `403` with `code: "chamber_vote_ineligible"` and the target `chamberId`
 - `score` is optional and only allowed when `choice === "yes"` (HTTP `400` otherwise). This is the v1 CM input.
 - The chamber page read endpoint overlays live vote totals from stored votes (so `votes` and `engagedGovernors` update immediately).
-- When quorum + passing are met, the backend auto-advances the proposal from **vote → build**.
-  - Formation is optional: if `formationEligible === true`, the backend also seeds the Formation placeholder/state so the Formation page can render and Formation actions can be used.
+- When quorum + passing are met, the backend either:
+  - advances immediately to **build**, or
+  - opens a bounded **veto window** and marks the proposal as “passed (pending veto)”.
+    - If a veto window is opened, the proposal is finalized to **build** by `POST /api/clock/tick` once the window ends (unless veto is applied).
 - When a proposal passes, CM is awarded off-chain:
   - the average `score` across yes votes is converted into points
   - a CM award record is stored in `cm_awards` (unique per proposal)
   - `/api/humans` and `/api/humans/:id` overlay the derived ACM delta from awards
+
+#### Command: `veto.vote`
+
+Veto exists as a bounded, temporary slow-down window after a proposal passes chamber vote.
+
+Request:
+
+```ts
+type VetoVoteChoice = "veto" | "keep";
+type VetoVoteCommand = {
+  type: "veto.vote";
+  payload: { proposalId: string; choice: VetoVoteChoice };
+  idempotencyKey?: string;
+};
+```
+
+Response:
+
+```ts
+type VetoVoteResponse = {
+  ok: true;
+  type: "veto.vote";
+  proposalId: string;
+  choice: VetoVoteChoice;
+  counts: { veto: number; keep: number };
+  threshold: number;
+};
+```
+
+Notes:
+
+- This command is only valid when a proposal is in `vote` stage and a veto window is open (HTTP `409` otherwise).
+- Only veto holders can cast this vote (HTTP `403` otherwise).
+- If `counts.veto >= threshold`, the backend:
+  - clears chamber votes and veto votes for the proposal
+  - increments `veto_count`
+  - pauses voting for the veto delay window (then the vote stage re-opens automatically)
+  - emits feed + timeline events for auditability
 
 #### Command: `delegation.set`
 
@@ -547,6 +587,7 @@ type PostClockTickResponse = {
 Notes:
 
 - When `SIM_ENABLE_STAGE_WINDOWS=true`, `POST /api/clock/tick` can also emit (deduped) feed events when a proposal’s pool/vote window has ended, and returns those in `endedWindows` for visibility/debugging.
+- When a proposal passes chamber vote and enters a veto window, `POST /api/clock/tick` finalizes it to `build` once the veto window ends (unless veto has been applied).
 
 ### `POST /api/admin/users/lock`
 

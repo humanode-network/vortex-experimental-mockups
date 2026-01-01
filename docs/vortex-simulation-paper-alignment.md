@@ -14,7 +14,7 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 - Chamber vote quorum is **paper: 33%** and **simulation v1: 33%** (aligned).
 - Passing rule is **paper: 66% + 1** vs **simulation v1: ≥ 2/3 (66.6%)** (close/aligned in spirit, slightly different wording).
 - Vote weight via delegation is **paper: yes (governor power = 1 + delegations)** and **simulation v1: implemented for chamber vote weighting** (pool attention remains direct-only).
-- Veto is **paper: yes** vs **simulation v1: not implemented**.
+- Veto is **paper: yes** vs **simulation v1: implemented** (temporary slow-down with bounded applies).
 - Chamber multiplier voting is **paper: yes (1–100, set by outsiders)** vs **simulation v1: multipliers are configured/controlled via canonical chamber records**.
 - Stage windows are **paper: vote stage = 1 week** vs **simulation v1: pool = 7 days, vote = 3 days (defaults; configurable)**.
 
@@ -104,7 +104,21 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 
 **Simulation v1**
 
-- Not implemented.
+- Implemented as a bounded “pending veto” window after a proposal passes chamber vote:
+  - When vote quorum + passing are met, the proposal does not advance immediately.
+  - The backend snapshots:
+    - `vote_passed_at`, `vote_finalizes_at` (veto window end),
+    - `veto_council` (one holder per chamber: top LCM holder),
+    - `veto_threshold` (`floor(2/3*n) + 1`).
+  - Veto votes are recorded during the window (`veto_votes` table).
+  - If veto threshold is reached:
+    - chamber votes are cleared
+    - veto votes are cleared
+    - `veto_count` increments
+    - voting is paused for the veto delay window and then re-opens (via a future `updated_at`).
+  - If the window ends without a veto:
+    - the accepted proposal is finalized and advances to `build` (via `POST /api/clock/tick`).
+  - Veto applies are bounded (`max = 2`); after that, accepted votes finalize immediately.
 
 ### CM and multipliers
 
@@ -153,10 +167,6 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 
 ## Action list (what to change next to be more paper-aligned)
 
-1. Decide delegation interpretation (same-chamber vs global), then implement:
-   - `delegation.set`, `delegation.clear`
-   - delegation history events
-   - chamber vote weighting (1 + delegated voices)
-2. Implement veto v1 (event-backed, temporary, limited attempts).
-3. Implement chamber multiplier voting (outsider submissions → aggregation → multipliers).
-4. Decide whether to adopt paper’s 22% attention quorum (vs current 20%).
+1. Confirm delegation scope (paper text is internally inconsistent: same-chamber vs permissionless), then decide whether to keep chamber-scoped delegation (v1) or make delegation global.
+2. Implement chamber multiplier voting (outsider submissions → aggregation → multipliers).
+3. Decide whether to adopt paper’s 22% attention quorum (vs current 20%).
