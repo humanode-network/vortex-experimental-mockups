@@ -323,6 +323,20 @@ test("canonical proposals: stage gating and pool→vote advance work without rea
   );
   assert.equal(vote2.status, 200);
 
+  const cookieVoter3 = await makeSessionCookie(env, "5VoterC");
+  const vote3 = await commandPost(
+    makeContext({
+      url: "https://local.test/api/command",
+      env,
+      headers: { "content-type": "application/json", cookie: cookieVoter3 },
+      body: JSON.stringify({
+        type: "pool.vote",
+        payload: { proposalId, direction: "down" },
+      }),
+    }),
+  );
+  assert.equal(vote3.status, 200);
+
   const canonical = await getProposal(env, proposalId);
   assert.ok(canonical);
   assert.equal(canonical.stage, "vote");

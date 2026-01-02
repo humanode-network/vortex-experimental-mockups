@@ -10,7 +10,7 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 
 ## Summary (high-signal)
 
-- Proposal pool attention quorum is **paper: 22% engaged + ≥10% upvotes** vs **simulation v1: 20% engaged + ≥10% upvotes**.
+- Proposal pool attention quorum is **paper: 22% engaged + ≥10% upvotes** vs **simulation v1: 22% engaged + ≥10% upvotes**.
 - Chamber vote quorum is **paper: 33%** and **simulation v1: 33%** (aligned).
 - Passing rule is **paper: 66% + 1** vs **simulation v1: ≥ 2/3 (66.6%)** (close/aligned in spirit, slightly different wording).
 - Vote weight via delegation is **paper: yes (governor power = 1 + delegations)** and **simulation v1: implemented for chamber vote weighting** (pool attention remains direct-only).
@@ -53,13 +53,13 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 **Simulation v1**
 
 - Quorum math is implemented in `functions/_lib/poolQuorum.ts`:
-  - `V1_POOL_ATTENTION_QUORUM_FRACTION = 0.2` (20%)
+  - `V1_POOL_ATTENTION_QUORUM_FRACTION = 0.22` (22%)
   - `V1_POOL_UPVOTE_FLOOR_FRACTION = 0.1` (10%)
 - Delegation exists but is not applied to proposal-pool attention (pool votes remain direct-only, paper intent).
 
 **Paper divergence (explicit)**
 
-- Paper uses 22% attention; v1 simulation uses 20% attention.
+- Paper uses 22% attention; v1 simulation uses 22% attention.
 
 ### Chamber vote (quorum of vote + passing)
 
@@ -171,4 +171,4 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 ## Action list (what to change next to be more paper-aligned)
 
 1. Confirm delegation scope (paper text is internally inconsistent: same-chamber vs permissionless), then decide whether to keep chamber-scoped delegation (v1) or make delegation global.
-2. Decide whether to adopt paper’s 22% attention quorum (vs current 20%).
+2. Review whether any other pool quorum details differ from the paper.

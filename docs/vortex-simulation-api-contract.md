@@ -1045,7 +1045,7 @@ type PoolProposalPageDto = {
   milestones: string;
   upvotes: number;
   downvotes: number;
-  attentionQuorum: number; // e.g. 0.2
+  attentionQuorum: number; // e.g. 0.22
   activeGovernors: number; // era baseline
   upvoteFloor: number;
   rules: string[];

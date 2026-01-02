@@ -87,7 +87,7 @@ This file records the v1 decisions used by the simulation backend so implementat
 
 - Pool attention quorum:
   - paper: **22% engaged** + **≥10% upvotes**
-  - simulation v1: **20% engaged** + **≥10% upvotes**
+  - simulation v1: **22% engaged** + **≥10% upvotes**
 - Vote quorum (33%) is aligned; passing uses **≥ 2/3 yes** in v1.
 - Delegation and veto are implemented in v1 (vote-weight aggregation + veto slow-down).
 - Chamber multiplier voting is implemented in v1; Meritocratic Measure (MM) is not implemented yet.

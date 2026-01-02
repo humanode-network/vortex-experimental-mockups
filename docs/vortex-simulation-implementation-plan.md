@@ -1136,7 +1136,7 @@ Deliverables:
   - When a snapshot exists, quorum math and UI denominators use it (prevents drift when eras advance mid-stage).
   - If a snapshot is missing (legacy data), fall back to the current era baseline.
 - Decide and document paper-alignment knobs:
-  - pool attention quorum: keep v1 `20%` or move to paper `22%`
+  - pool attention quorum: aligned to paper `22%` (v1)
   - vote window: keep v1 `3 days` or move to paper `7 days`
 - Ensure UI surfaces that show “X / needed” and “% / threshold%” derive from the same denominator snapshot (no mixed sources).
 
