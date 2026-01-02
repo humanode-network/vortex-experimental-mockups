@@ -674,10 +674,10 @@ export const vortexopediaTerms: VortexopediaTerm[] = [
     name: "Veto rights",
     category: "governance",
     short:
-      "Temporary, breakable veto held by top-LCM cognitocrats per chamber; 66% + 1 veto sends a proposal back for two weeks (max twice).",
+      "Temporary, breakable veto held by top-LCM cognitocrats per chamber; 66.6% + 1 veto sends a proposal back for two weeks (max twice).",
     long: [
       "Veto power is distributed to cognitocrats with highest LCM per chamber.",
-      "If 66% + 1 veto, the proposal returns for 2 weeks; can be vetoed twice; third approval cannot be vetoed.",
+      "If 66.6% + 1 veto, the proposal returns for 2 weeks; can be vetoed twice; third approval cannot be vetoed.",
       "Acts as deterrence against majority mistakes or attacks.",
     ],
     tags: ["veto", "governance", "deterrence", "lcm"],

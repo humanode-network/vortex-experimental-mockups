@@ -419,6 +419,9 @@ Notes:
 
 - Delegation is chamber-scoped (v1): a user can set one delegatee per chamber.
 - Cycles and self-delegation are rejected (HTTP `400`).
+- Delegator eligibility is enforced:
+  - for General: delegator must be a governor (has an accepted proposal in any chamber)
+  - for a specialization chamber: delegator must be eligible in that chamber
 - Delegatee eligibility is enforced:
   - for General: delegatee must be a governor (has an accepted proposal in any chamber)
   - for a specialization chamber: delegatee must be eligible in that chamber

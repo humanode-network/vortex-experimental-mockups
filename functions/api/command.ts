@@ -818,6 +818,20 @@ export const onRequestPost: PagesFunction = async (context) => {
     const chamberId = input.payload.chamberId.trim().toLowerCase();
     const delegateeAddress = input.payload.delegateeAddress.trim();
 
+    const isDelegatorEligible =
+      chamberId === "general"
+        ? await hasAnyChamberMembership(context.env, sessionAddress)
+        : await hasChamberMembership(context.env, {
+            address: sessionAddress,
+            chamberId,
+          });
+    if (!isDelegatorEligible) {
+      return errorResponse(400, "Delegator is not eligible for delegation", {
+        code: "delegator_not_eligible",
+        chamberId,
+      });
+    }
+
     const isDelegateeEligible =
       chamberId === "general"
         ? await hasAnyChamberMembership(context.env, delegateeAddress)

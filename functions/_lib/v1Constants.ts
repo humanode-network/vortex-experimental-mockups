@@ -5,7 +5,8 @@ export const V1_ACTIVE_GOVERNORS_FALLBACK = 150;
 export const V1_ERA_SECONDS_DEFAULT = 7 * 24 * 60 * 60; // 7 days
 
 export const V1_POOL_STAGE_SECONDS_DEFAULT = 7 * 24 * 60 * 60; // 7 days
-export const V1_VOTE_STAGE_SECONDS_DEFAULT = 3 * 24 * 60 * 60; // 3 days
+// Paper: "Any proposal that is pulled out of the proposal pool gets a week to be voted upon".
+export const V1_VOTE_STAGE_SECONDS_DEFAULT = 7 * 24 * 60 * 60; // 7 days
 
 // Paper: 22% of active governors engaged (upvote + downvote) in the proposal pool.
 export const V1_POOL_ATTENTION_QUORUM_FRACTION = 0.22;

@@ -64,6 +64,11 @@ test("delegation increases chamber vote weight (delegators who vote are excluded
     chamberId,
     source: "test",
   });
+  await ensureChamberMembership(env, {
+    address: delegatorNonVoter,
+    chamberId,
+    source: "test",
+  });
 
   const cookieDelegatorVoter = await makeSessionCookie(env, delegatorVoter);
   const cookieDelegatorNonVoter = await makeSessionCookie(

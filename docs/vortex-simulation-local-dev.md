@@ -78,7 +78,7 @@ For convenience, this repo ships with a default `humanodeRpcUrl` pointing to the
   - `SIM_ERA_SECONDS` (optional): tick “due” threshold in seconds (defaults to 7 days).
   - `SIM_ENABLE_STAGE_WINDOWS` (optional): when `true`, enforce per-stage pool/vote windows and compute `timeLeft` from canonical timestamps.
   - `SIM_POOL_WINDOW_SECONDS` (optional): pool stage window in seconds (defaults to 7 days).
-  - `SIM_VOTE_WINDOW_SECONDS` (optional): vote stage window in seconds (defaults to 3 days).
+  - `SIM_VOTE_WINDOW_SECONDS` (optional): vote stage window in seconds (defaults to 7 days).
   - `SIM_NOW_ISO` (optional): override “current time” for test/debug.
 
 ## Frontend build flags

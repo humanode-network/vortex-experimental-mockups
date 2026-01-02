@@ -16,7 +16,7 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 - Vote weight via delegation is **paper: yes (governor power = 1 + delegations)** and **simulation v1: implemented for chamber vote weighting** (pool attention remains direct-only).
 - Veto is **paper: yes** vs **simulation v1: implemented** (temporary slow-down with bounded applies).
 - Chamber multiplier voting is **paper: yes (1–100, set by outsiders)** vs **simulation v1: implemented** (outsider submissions + aggregation updates canonical multipliers).
-- Stage windows are **paper: vote stage = 1 week** vs **simulation v1: pool = 7 days, vote = 3 days (defaults; configurable)**.
+- Stage windows are **paper: vote stage = 1 week** vs **simulation v1: pool = 7 days, vote = 7 days (defaults; configurable)**.
 
 ## Detailed comparison
 
@@ -83,10 +83,7 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 
 - Delegation exists and affects vote power aggregation:
   - governor power equals `1 + number_of_delegations`.
-- Paper contains two claims about delegation scope:
-  - delegation is “specialized” (same chamber), and
-  - delegation is “permissionless” (any human node to any governor).
-    This is internally inconsistent and needs a chosen v1 interpretation.
+- Delegation is chamber-scoped: governors delegate within the same chamber.
 
 **Simulation v1**
 
@@ -170,5 +167,4 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 
 ## Action list (what to change next to be more paper-aligned)
 
-1. Confirm delegation scope (paper text is internally inconsistent: same-chamber vs permissionless), then decide whether to keep chamber-scoped delegation (v1) or make delegation global.
-2. Review whether any other pool quorum details differ from the paper.
+1. Review whether any other pool quorum details differ from the paper.

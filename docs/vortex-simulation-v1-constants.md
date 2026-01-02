@@ -14,7 +14,7 @@ This file records the v1 decisions used by the simulation backend so implementat
   - v1 default: **7 days** (can still be advanced manually via `/api/clock/advance-era`)
   - vote/pool stage windows default to:
     - pool: **7 days**
-    - vote: **3 days**
+    - vote: **7 days**
 - **Per-era activity requirements:** configured off-chain by env vars (v1 defaults)
   - `SIM_REQUIRED_POOL_VOTES=1`
   - `SIM_REQUIRED_CHAMBER_VOTES=1`

@@ -324,11 +324,12 @@ Simulation requirements:
 
 ### 1.6 Delegation
 
-- Delegator chooses a delegatee to cast their voice.
+- Delegator chooses a delegatee to cast their voice (chamber-scoped).
 
 Simulation requirements:
 
 - Delegation graph (one delegator → one delegatee; cycles disallowed).
+- Eligibility: both delegator and delegatee must be eligible governors in the same chamber.
 - Delegation metadata for courts (events, timing windows, alleged abuse scenarios).
 - Ability to toggle delegation on/off for a simulation era.
 
