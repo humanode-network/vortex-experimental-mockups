@@ -12,7 +12,7 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 
 - Proposal pool attention quorum is **paper: 22% engaged + ≥10% upvotes** vs **simulation v1: 22% engaged + ≥10% upvotes**.
 - Chamber vote quorum is **paper: 33%** and **simulation v1: 33%** (aligned).
-- Passing rule is **paper: 66% + 1** vs **simulation v1: ≥ 2/3 (66.6%)** (close/aligned in spirit, slightly different wording).
+- Passing rule is **paper: 66.6% + 1** vs **simulation v1: 66.6% + 1** (aligned; strict supermajority).
 - Vote weight via delegation is **paper: yes (governor power = 1 + delegations)** and **simulation v1: implemented for chamber vote weighting** (pool attention remains direct-only).
 - Veto is **paper: yes** vs **simulation v1: implemented** (temporary slow-down with bounded applies).
 - Chamber multiplier voting is **paper: yes (1–100, set by outsiders)** vs **simulation v1: implemented** (outsider submissions + aggregation updates canonical multipliers).
@@ -66,13 +66,13 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 **Paper**
 
 - Quorum: 33% of active governors vote.
-- Passing: qualified majority “66% + 1” of cast votes (including delegated ones).
+- Passing: qualified majority “66.6% + 1” of cast votes (including delegated ones).
 
 **Simulation v1**
 
 - Quorum math is implemented in `functions/_lib/chamberQuorum.ts`:
   - `V1_CHAMBER_QUORUM_FRACTION = 0.33`
-  - `V1_CHAMBER_PASSING_FRACTION = 2/3` (66.6%)
+  - `V1_CHAMBER_PASSING_FRACTION = 2/3` (66.6%), applied as a strict “66.6% + 1 yes vote” rule
 - Delegation is implemented and affects chamber vote aggregation:
   - vote weight = `1 + delegatedVoices`
   - a delegator’s voice only counts if that delegator did **not** cast a chamber vote themselves.

@@ -32,8 +32,11 @@ export function evaluateChamberQuorum(
   const quorumMet = active > 0 ? engaged >= quorumNeeded : false;
 
   const yesFraction = engaged > 0 ? yes / engaged : 0;
-  const passMet =
-    engaged > 0 ? yesFraction >= passingFraction && yes >= 1 : false;
+  // Passing rule: strict supermajority (e.g. 66.6% + 1 yes vote within quorum).
+  // In discrete votes this means: yes > passingFraction * engaged.
+  const passNeeded =
+    engaged > 0 ? Math.floor(engaged * passingFraction) + 1 : 0;
+  const passMet = engaged > 0 ? yes >= passNeeded : false;
 
   return {
     engaged,

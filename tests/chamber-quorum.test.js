@@ -29,7 +29,7 @@ test("evaluateChamberQuorum requires quorum + passing", () => {
   assert.equal(quorumButNotPassing.shouldAdvance, false);
 
   const quorumAndPassing = evaluateChamberQuorum(inputs, {
-    yes: 34,
+    yes: 35,
     no: 17,
     abstain: 0,
   });

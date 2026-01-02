@@ -97,7 +97,7 @@ The design of the SC suggests that their main purposes are:
 
 This structure in some way might resemble ministries but has three major differences. First, usually ministries are a part of an executive branch while chambers are a legislative one. Second, ministries are formed from the outside, either a parliament or a president or a governing body sets their structure, while branches in  cognitocracy are self-formed and self-regulated. Third, every ministry might have its own unique structure while chambers in cognitocracy maintain a uniform hierarchy structure.&#x20;
 
-The voting thresholds for accepting a proposal will be set at a qualified majority of 66% + 1 vote. Meaning that 66% + 1 casted vote including delegated ones are in favor of a proposal. The quorum will be considered assembled if 33% of active governors of the chamber partake in the voting.&#x20;
+The voting thresholds for accepting a proposal will be set at a qualified majority of 66.6% + 1 vote. Meaning that 66.6% + 1 casted vote including delegated ones are in favor of a proposal. The quorum will be considered assembled if 33% of active governors of the chamber partake in the voting.&#x20;
 
 The voting procedure, various thresholds and quorum mechanics are described in more detail below.&#x20;
 
@@ -145,7 +145,7 @@ This quorum is applied in every proposal pool in the system. Proposals that rece
 
 ### Quorum of vote
 
-This quorum is applied in the chambers. A quorum is reached if at least 33% of the Governors vote on a proposal. If 66% of the Governors, within the quorum, vote to approve a proposal, then Vortex will consider it approved. This means that 22% of the governors in the chamber will be the necessary minimum to approve a proposal. Human nodes that do not participate in governance are not counted in reaching a quorum. The voting power of each governor is equal to 1 + the votes of his Delegators.
+This quorum is applied in the chambers. A quorum is reached if at least 33% of the Governors vote on a proposal. If 66.6% + 1 of the Governors, within the quorum, vote to approve a proposal, then Vortex will consider it approved. This means that 22% of the governors in the chamber will be the necessary minimum to approve a proposal. Human nodes that do not participate in governance are not counted in reaching a quorum. The voting power of each governor is equal to 1 + the votes of his Delegators.
 
 Any proposal that is pulled out of the proposal pool gets a week to be voted upon in the respective chamber.
 

@@ -125,7 +125,7 @@ test("chamber vote passing auto-advances proposal from vote → build and create
       source: "test",
     });
     const cookie = await makeSessionCookie(baseEnv, address);
-    const choice = i < 33 ? "yes" : "no";
+    const choice = i < 34 ? "yes" : "no";
     const res = await commandPost(
       makeContext({
         url: "https://local.test/api/command",
@@ -143,25 +143,6 @@ test("chamber vote passing auto-advances proposal from vote → build and create
     );
     assert.equal(res.status, 200);
   }
-
-  await ensureChamberMembership(baseEnv, {
-    address: "5ChamberAddr50",
-    chamberId: "general",
-    source: "test",
-  });
-  const cookie51 = await makeSessionCookie(baseEnv, "5ChamberAddr50");
-  const res51 = await commandPost(
-    makeContext({
-      url: "https://local.test/api/command",
-      env: baseEnv,
-      headers: { "content-type": "application/json", cookie: cookie51 },
-      body: JSON.stringify({
-        type: "chamber.vote",
-        payload: { proposalId, choice: "yes", score: 8 },
-      }),
-    }),
-  );
-  assert.equal(res51.status, 200);
 
   const proposalsRes = await proposalsGet(
     makeContext({
