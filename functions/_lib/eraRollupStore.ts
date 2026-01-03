@@ -55,6 +55,42 @@ const memoryUserStatuses = new Map<
   }
 >(); // key: `${era}:${address}`
 
+export async function getActiveAddressesForNextEraFromRollup(
+  env: Env,
+  input: { era: number },
+): Promise<Set<string> | null> {
+  if (!env.DATABASE_URL) {
+    if (!memoryRollups.has(input.era)) return null;
+    const out = new Set<string>();
+    for (const [key, status] of memoryUserStatuses.entries()) {
+      if (!key.startsWith(`${input.era}:`)) continue;
+      if (!status.isActiveNextEra) continue;
+      const address = key.split(":").slice(1).join(":").trim();
+      if (address) out.add(address);
+    }
+    return out;
+  }
+
+  const db = createDb(env);
+  const rollupExists = await db
+    .select({ era: eraRollups.era })
+    .from(eraRollups)
+    .where(eq(eraRollups.era, input.era))
+    .limit(1);
+  if (!rollupExists[0]) return null;
+
+  const rows = await db
+    .select({ address: eraUserStatus.address })
+    .from(eraUserStatus)
+    .where(
+      and(
+        eq(eraUserStatus.era, input.era),
+        eq(eraUserStatus.isActiveNextEra, true),
+      ),
+    );
+  return new Set(rows.map((r) => r.address.trim()).filter(Boolean));
+}
+
 export async function rollupEra(
   env: Env,
   input: { era: number; requestUrl?: string },

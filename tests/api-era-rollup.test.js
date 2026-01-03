@@ -78,6 +78,11 @@ test("POST /api/clock/rollup-era is idempotent and computes status + active gove
     chamberId: "general",
     source: "test",
   });
+  await ensureChamberMembership(baseEnv, {
+    address: "5RollupAddr",
+    chamberId: "engineering",
+    source: "test",
+  });
 
   const poolVote = await commandPost(
     makeContext({

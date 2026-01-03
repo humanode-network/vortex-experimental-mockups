@@ -73,6 +73,7 @@ import {
   hasAnyChamberMembership,
   hasChamberMembership,
 } from "../_lib/chamberMembershipsStore.ts";
+import { getActiveGovernorsDenominatorForChamberCurrentEra } from "../_lib/chamberActiveDenominators.ts";
 import { randomHex } from "../_lib/random.ts";
 import {
   computePoolUpvoteFloor,
@@ -112,6 +113,17 @@ import {
   getChamberMultiplierAggregate,
   upsertChamberMultiplierSubmission,
 } from "../_lib/chamberMultiplierSubmissionsStore.ts";
+
+function getGenesisMembersForDenominators(
+  simConfig: Awaited<ReturnType<typeof getSimConfig>> | null,
+  chamberId: string,
+): string[] | null {
+  const genesis = simConfig?.genesisChamberMembers;
+  if (!genesis) return null;
+  const normalized = chamberId.trim().toLowerCase();
+  if (normalized === "general") return Object.values(genesis).flat();
+  return genesis[normalized] ?? null;
+}
 
 const poolVoteSchema = z.object({
   type: z.literal("pool.vote"),
@@ -637,10 +649,24 @@ export const onRequestPost: PagesFunction = async (context) => {
     const budget =
       budgetTotal > 0 ? `${budgetTotal.toLocaleString()} HMND` : "—";
 
+    const poolChamberId = (draft.chamberId ?? "general").trim().toLowerCase();
+    const simConfig = await getSimConfig(
+      context.env,
+      context.request.url,
+    ).catch(() => null);
+    const genesisMembers = getGenesisMembersForDenominators(
+      simConfig,
+      poolChamberId,
+    );
     const poolActiveGovernors =
-      typeof activeGovernorsBaseline === "number"
-        ? activeGovernorsBaseline
-        : V1_ACTIVE_GOVERNORS_FALLBACK;
+      await getActiveGovernorsDenominatorForChamberCurrentEra(context.env, {
+        chamberId: poolChamberId || "general",
+        fallbackActiveGovernors:
+          typeof activeGovernorsBaseline === "number"
+            ? activeGovernorsBaseline
+            : V1_ACTIVE_GOVERNORS_FALLBACK,
+        genesisMembers,
+      });
     const attentionQuorum = V1_POOL_ATTENTION_QUORUM_FRACTION;
     const upvoteFloor = computePoolUpvoteFloor(poolActiveGovernors);
 
@@ -663,7 +689,9 @@ export const onRequestPost: PagesFunction = async (context) => {
       upvoteFloor,
       rules: [
         `${Math.round(attentionQuorum * 100)}% attention from active governors required.`,
-        `At least ${Math.round((upvoteFloor / poolActiveGovernors) * 100)}% upvotes to move to chamber vote.`,
+        poolActiveGovernors > 0
+          ? `At least ${Math.round((upvoteFloor / poolActiveGovernors) * 100)}% upvotes to move to chamber vote.`
+          : "At least 0% upvotes to move to chamber vote.",
       ],
       attachments: draft.payload.attachments
         .filter((a) => a.label.trim().length > 0)
@@ -1316,11 +1344,29 @@ export const onRequestPost: PagesFunction = async (context) => {
         stage: "pool",
       },
     ).catch(() => null);
+    const poolChamberId = await getProposalChamberIdForPool(
+      context.env,
+      readModels,
+      { proposalId: input.payload.proposalId },
+    );
+    const simConfig = await getSimConfig(
+      context.env,
+      context.request.url,
+    ).catch(() => null);
+    const genesisMembers = getGenesisMembersForDenominators(
+      simConfig,
+      poolChamberId,
+    );
     const poolDenominator =
       storedPoolDenominator?.activeGovernors ??
-      (typeof activeGovernorsBaseline === "number"
-        ? activeGovernorsBaseline
-        : V1_ACTIVE_GOVERNORS_FALLBACK);
+      (await getActiveGovernorsDenominatorForChamberCurrentEra(context.env, {
+        chamberId: poolChamberId,
+        fallbackActiveGovernors:
+          typeof activeGovernorsBaseline === "number"
+            ? activeGovernorsBaseline
+            : V1_ACTIVE_GOVERNORS_FALLBACK,
+        genesisMembers,
+      }));
     if (!storedPoolDenominator) {
       await captureProposalStageDenominator(context.env, {
         proposalId: input.payload.proposalId,
@@ -1349,9 +1395,14 @@ export const onRequestPost: PagesFunction = async (context) => {
 
     if (advanced) {
       const voteDenominator =
-        typeof activeGovernorsBaseline === "number"
-          ? activeGovernorsBaseline
-          : V1_ACTIVE_GOVERNORS_FALLBACK;
+        await getActiveGovernorsDenominatorForChamberCurrentEra(context.env, {
+          chamberId: poolChamberId,
+          fallbackActiveGovernors:
+            typeof activeGovernorsBaseline === "number"
+              ? activeGovernorsBaseline
+              : V1_ACTIVE_GOVERNORS_FALLBACK,
+          genesisMembers,
+        });
       await captureProposalStageDenominator(context.env, {
         proposalId: input.payload.proposalId,
         stage: "vote",
@@ -2061,11 +2112,23 @@ export const onRequestPost: PagesFunction = async (context) => {
     proposalId: input.payload.proposalId,
     stage: "vote",
   }).catch(() => null);
+  const simConfig = await getSimConfig(context.env, context.request.url).catch(
+    () => null,
+  );
+  const genesisMembers = getGenesisMembersForDenominators(
+    simConfig,
+    chamberIdForVote,
+  );
   const voteDenominator =
     storedVoteDenominator?.activeGovernors ??
-    (typeof activeGovernorsBaseline === "number"
-      ? activeGovernorsBaseline
-      : V1_ACTIVE_GOVERNORS_FALLBACK);
+    (await getActiveGovernorsDenominatorForChamberCurrentEra(context.env, {
+      chamberId: chamberIdForVote,
+      fallbackActiveGovernors:
+        typeof activeGovernorsBaseline === "number"
+          ? activeGovernorsBaseline
+          : V1_ACTIVE_GOVERNORS_FALLBACK,
+      genesisMembers,
+    }));
   if (!storedVoteDenominator) {
     await captureProposalStageDenominator(context.env, {
       proposalId: input.payload.proposalId,
@@ -2770,13 +2833,31 @@ async function enforcePoolVoteEligibility(
     return false;
   };
 
+  const hasGenesisMembership = (target: string): boolean => {
+    const members = genesis?.[target]?.map((m) => m.trim()) ?? [];
+    return members.includes(voterAddress);
+  };
+
+  if (chamberId === "general") {
+    const eligible =
+      (await hasAnyChamberMembership(env, voterAddress)) ||
+      (await hasChamberMembership(env, {
+        address: voterAddress,
+        chamberId: "general",
+      })) ||
+      hasAnyGenesisMembership();
+    if (!eligible) {
+      return errorResponse(403, "Not eligible to vote in the proposal pool", {
+        code: "pool_vote_ineligible",
+        chamberId,
+      });
+    }
+    return null;
+  }
+
   const eligible =
-    (await hasAnyChamberMembership(env, voterAddress)) ||
-    (await hasChamberMembership(env, {
-      address: voterAddress,
-      chamberId: "general",
-    })) ||
-    hasAnyGenesisMembership();
+    (await hasChamberMembership(env, { address: voterAddress, chamberId })) ||
+    hasGenesisMembership(chamberId);
   if (!eligible) {
     return errorResponse(403, "Not eligible to vote in the proposal pool", {
       code: "pool_vote_ineligible",

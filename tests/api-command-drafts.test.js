@@ -42,6 +42,11 @@ async function makeSessionCookie(env, address) {
     chamberId: "general",
     source: "test",
   });
+  await ensureChamberMembership(env, {
+    address,
+    chamberId: "engineering",
+    source: "test",
+  });
   return `${name}=${value}`;
 }
 
@@ -273,6 +278,14 @@ test("canonical proposals: stage gating and pool→vote advance work without rea
     READ_MODELS_INLINE: "true",
     SIM_ACTIVE_GOVERNORS: "10",
   };
+
+  for (let i = 0; i < 10; i += 1) {
+    await ensureChamberMembership(env, {
+      address: `5EngMember${i}`,
+      chamberId: "engineering",
+      source: "test",
+    });
+  }
 
   const cookieProposer = await makeSessionCookie(env, "5ProposerAddr");
   const saveRes = await commandPost(

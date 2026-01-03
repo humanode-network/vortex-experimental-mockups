@@ -107,6 +107,23 @@ test("rollup: active governors next era are filtered by Session::Validators", as
     chamberId: "general",
     source: "test",
   });
+  await ensureChamberMembership(envActions, {
+    address: validator.address,
+    chamberId: "engineering",
+    source: "test",
+  });
+  await ensureChamberMembership(envActions, {
+    address: nonValidator.address,
+    chamberId: "engineering",
+    source: "test",
+  });
+  for (let i = 0; i < 10; i += 1) {
+    await ensureChamberMembership(envActions, {
+      address: `5EngMember${i}`,
+      chamberId: "engineering",
+      source: "test",
+    });
+  }
 
   const cookieValidator = await makeSessionCookie(
     envActions,

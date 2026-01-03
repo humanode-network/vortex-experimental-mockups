@@ -85,6 +85,19 @@ test("veto vote can reset a passed chamber vote and pause voting", async () => {
     mcmPoints: 80,
   });
 
+  await ensureChamberMembership(envNow, {
+    address: "5VetoHolder",
+    chamberId: "general",
+    source: "test",
+  });
+  for (let i = 0; i < 50; i += 1) {
+    await ensureChamberMembership(envNow, {
+      address: `5Vote${i}`,
+      chamberId: "general",
+      source: "test",
+    });
+  }
+
   for (let i = 0; i < 50; i += 1) {
     const voter = `5Vote${i}`;
     const cookie = await makeSessionCookie(envNow, voter);
@@ -104,6 +117,7 @@ test("veto vote can reset a passed chamber vote and pause voting", async () => {
         }),
       }),
     );
+    if (res.status === 409) break;
     assert.equal(res.status, 200);
   }
 
@@ -191,6 +205,19 @@ test("tick finalizes a passed chamber vote when veto window ends", async () => {
     mcmPoints: 80,
   });
 
+  await ensureChamberMembership(envNow, {
+    address: "5VetoHolder",
+    chamberId: "general",
+    source: "test",
+  });
+  for (let i = 0; i < 50; i += 1) {
+    await ensureChamberMembership(envNow, {
+      address: `5VoteF${i}`,
+      chamberId: "general",
+      source: "test",
+    });
+  }
+
   for (let i = 0; i < 50; i += 1) {
     const voter = `5VoteF${i}`;
     const cookie = await makeSessionCookie(envNow, voter);
@@ -210,6 +237,7 @@ test("tick finalizes a passed chamber vote when veto window ends", async () => {
         }),
       }),
     );
+    if (res.status === 409) break;
     assert.equal(res.status, 200);
   }
 

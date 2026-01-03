@@ -38,6 +38,16 @@ async function makeSessionCookie(env, address) {
     chamberId: "general",
     source: "test",
   });
+  await ensureChamberMembership(env, {
+    address,
+    chamberId: "engineering",
+    source: "test",
+  });
+  await ensureChamberMembership(env, {
+    address,
+    chamberId: "design",
+    source: "test",
+  });
   return `${name}=${value}`;
 }
 
@@ -67,9 +77,29 @@ async function resetAll() {
   clearInlineReadModelsForTests();
 }
 
+async function seedMembers(env, input) {
+  for (let i = 0; i < input.count; i += 1) {
+    await ensureChamberMembership(env, {
+      address: `${input.prefix}${i}`,
+      chamberId: input.chamberId,
+      source: "test",
+    });
+  }
+}
+
 test("era quota: pool votes limit blocks new votes but allows updates", async () => {
   await resetAll();
   const env = baseEnv({ SIM_MAX_POOL_VOTES_PER_ERA: "1" });
+  await seedMembers(env, {
+    prefix: "5EngMember",
+    chamberId: "engineering",
+    count: 10,
+  });
+  await seedMembers(env, {
+    prefix: "5DesignMember",
+    chamberId: "design",
+    count: 10,
+  });
   const cookie = await makeSessionCookie(env, "5QuotaAddr");
 
   const first = await commandPost(
@@ -124,6 +154,16 @@ test("era quota: pool votes limit blocks new votes but allows updates", async ()
 test("era quota: chamber votes limit blocks new votes but allows updates", async () => {
   await resetAll();
   const env = baseEnv({ SIM_MAX_CHAMBER_VOTES_PER_ERA: "1" });
+  await seedMembers(env, {
+    prefix: "5GeneralMember",
+    chamberId: "general",
+    count: 20,
+  });
+  await seedMembers(env, {
+    prefix: "5EconomicsMember",
+    chamberId: "economics",
+    count: 20,
+  });
   const cookie = await makeSessionCookie(env, "5QuotaAddr");
   await ensureChamberMembership(env, {
     address: "5QuotaAddr",

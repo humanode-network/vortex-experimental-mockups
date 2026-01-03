@@ -181,7 +181,7 @@ Where possible we keep “domain logic” in pure helpers under `functions/_lib/
   - `functions/_lib/proposalStateMachine.ts`
   - `functions/_lib/v1Constants.ts`
 - Note:
-  - The quorum engine must be driven by an era-specific “active governors baseline”.
+  - The quorum engine is driven by an era-specific “active governors baseline”, then filtered to the proposal’s chamber eligibility set (General = any governor; specialization = members eligible for that chamber).
 
 **Tests**
 

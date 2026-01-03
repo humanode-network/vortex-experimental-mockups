@@ -189,10 +189,13 @@ Future (v2+): chamber creation/dissolution becomes fully canonical (not read-mod
 1. **Draft**
    - A proposal draft is authored and assigns a `chamberId`.
 2. **Proposal pool (attention)**
-   - Proposal competes for attention globally (in v1, the threshold uses the current era’s active governors baseline).
+   - Proposal competes for attention in the **proposal pool of its target chamber**.
+   - Threshold math uses a **denominator snapshot** captured when the proposal enters the pool:
+     - specialization pool: active governors **eligible for that chamber** in the current era
+     - General pool: active governors **eligible to vote in General** in the current era
 3. **Chamber vote**
    - The chamber is the lead domain for the vote stage.
-   - In v1, quorum rules are **global** (not chamber-specific).
+   - In v1, quorum fractions are **global**, but the **denominator is chamber-scoped** (active governors eligible for that chamber in the era, captured on stage entry).
    - CM scoring is collected here (optional 1–10 input), then awarded on success.
 4. **Formation**
    - Formation is **optional**. A proposal is considered accepted once it passes the chamber vote, but only some proposal types open a Formation project.

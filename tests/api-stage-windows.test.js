@@ -39,6 +39,11 @@ async function makeSessionCookie(env, address) {
     chamberId: "general",
     source: "test",
   });
+  await ensureChamberMembership(env, {
+    address,
+    chamberId: "engineering",
+    source: "test",
+  });
   return `${name}=${value}`;
 }
 

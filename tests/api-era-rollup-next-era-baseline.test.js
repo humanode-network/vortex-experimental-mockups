@@ -83,6 +83,11 @@ test("rollup writes next-era activeGovernors baseline", async () => {
     chamberId: "general",
     source: "test",
   });
+  await ensureChamberMembership(env, {
+    address,
+    chamberId: "engineering",
+    source: "test",
+  });
   const cookie = await makeSessionCookie(env, address);
 
   const poolVote = await commandPost(

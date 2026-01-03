@@ -34,6 +34,11 @@ async function makeSessionCookie(env, address) {
     chamberId: "general",
     source: "test",
   });
+  await ensureChamberMembership(env, {
+    address,
+    chamberId: "engineering",
+    source: "test",
+  });
   return `${name}=${value}`;
 }
 
@@ -44,6 +49,16 @@ const baseEnv = {
   READ_MODELS_INLINE: "true",
   DEV_BYPASS_ADMIN: "true",
 };
+
+async function seedMembers(env, input) {
+  for (let i = 0; i < input.count; i += 1) {
+    await ensureChamberMembership(env, {
+      address: `${input.prefix}${i}`,
+      chamberId: input.chamberId,
+      source: "test",
+    });
+  }
+}
 
 test("POST /api/command rejects when not authenticated", async () => {
   await clearPoolVotesForTests();
@@ -69,6 +84,12 @@ test("POST /api/command pool.vote stores a single vote and supports idempotency"
   clearIdempotencyForTests();
   clearInlineReadModelsForTests();
   clearChamberMembershipsForTests();
+
+  await seedMembers(baseEnv, {
+    prefix: "5EngMember",
+    chamberId: "engineering",
+    count: 10,
+  });
 
   const cookie = await makeSessionCookie(baseEnv, "5FakeAddr");
   const idempotencyKey = "idem-00000001";
@@ -139,6 +160,12 @@ test("GET /api/proposals/:id/pool overlays live vote counts", async () => {
   clearInlineReadModelsForTests();
   clearChamberMembershipsForTests();
 
+  await seedMembers(baseEnv, {
+    prefix: "5EngMember",
+    chamberId: "engineering",
+    count: 10,
+  });
+
   const cookie = await makeSessionCookie(baseEnv, "5FakeAddr");
   const res1 = await commandPost(
     makeContext({
@@ -176,10 +203,10 @@ test("pool quorum auto-advances proposal from pool → vote", async () => {
 
   const proposalId = "biometric-account-recovery";
 
-  for (let i = 0; i < 30; i += 1) {
+  for (let i = 0; i < 200; i += 1) {
     const address = `5FakeAddr${i}`;
     const cookie = await makeSessionCookie(baseEnv, address);
-    const direction = i < 15 ? "up" : "down";
+    const direction = i < 100 ? "up" : "down";
     const res = await commandPost(
       makeContext({
         url: "https://local.test/api/command",
@@ -191,6 +218,8 @@ test("pool quorum auto-advances proposal from pool → vote", async () => {
         }),
       }),
     );
+    if (res.status === 200) continue;
+    if (res.status === 409) break; // proposal advanced to vote
     assert.equal(res.status, 200);
   }
 

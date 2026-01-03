@@ -82,6 +82,24 @@ test("proposal quorum denominators are snapshotted per stage and do not drift ac
     chamberId: "general",
     source: "test",
   });
+  await ensureChamberMembership(env, {
+    address,
+    chamberId: "engineering",
+    source: "test",
+  });
+  for (let i = 0; i < 150; i += 1) {
+    const member = `5DenomMember${i}`;
+    await ensureChamberMembership(env, {
+      address: member,
+      chamberId: "general",
+      source: "test",
+    });
+    await ensureChamberMembership(env, {
+      address: member,
+      chamberId: "engineering",
+      source: "test",
+    });
+  }
   const cookie = await makeSessionCookie(env, address);
 
   const poolVote = await commandPost(

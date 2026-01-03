@@ -33,6 +33,11 @@ async function makeSessionCookie(env, address) {
     chamberId: "general",
     source: "test",
   });
+  await ensureChamberMembership(env, {
+    address,
+    chamberId: "engineering",
+    source: "test",
+  });
   return `${name}=${value}`;
 }
 
@@ -46,12 +51,28 @@ const baseEnv = {
   SIM_COMMAND_RATE_LIMIT_PER_MINUTE_IP: "1000",
 };
 
+async function seedMembers(env, input) {
+  for (let i = 0; i < input.count; i += 1) {
+    await ensureChamberMembership(env, {
+      address: `${input.prefix}${i}`,
+      chamberId: input.chamberId,
+      source: "test",
+    });
+  }
+}
+
 test("POST /api/command is rate limited per address (memory mode)", async () => {
   await clearPoolVotesForTests();
   clearIdempotencyForTests();
   clearInlineReadModelsForTests();
   clearApiRateLimitsForTests();
   clearChamberMembershipsForTests();
+
+  await seedMembers(baseEnv, {
+    prefix: "5EngMember",
+    chamberId: "engineering",
+    count: 10,
+  });
 
   const cookie = await makeSessionCookie(baseEnv, "5FakeAddr");
 

@@ -66,6 +66,11 @@ test("GET /api/my-governance includes rollup status after rollup", async () => {
     chamberId: "general",
     source: "test",
   });
+  await ensureChamberMembership(baseEnv, {
+    address: "5GovRollupAddr",
+    chamberId: "engineering",
+    source: "test",
+  });
 
   // 3 distinct actions so status becomes Ahead (requiredTotal=1).
   const poolVote = await commandPost(

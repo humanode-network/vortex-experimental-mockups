@@ -141,6 +141,7 @@ test("chamber vote passing auto-advances proposal from vote → build and create
         }),
       }),
     );
+    if (res.status === 409) break;
     assert.equal(res.status, 200);
   }
 

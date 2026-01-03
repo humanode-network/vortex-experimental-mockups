@@ -772,7 +772,7 @@ Goal: align chambers with the Vortex 1.0 model:
 
 - specialization chambers are votable only by humans who have an **accepted proposal in that chamber**
 - General chamber is votable only by humans who have an **accepted proposal in any chamber**
-- quorum rules remain **global** (v1 simplification)
+- quorum fractions remain **global**, but denominators are **chamber-scoped** (active governors eligible for that chamber in the era, captured on stage entry)
 - not all accepted proposals require Formation (Formation is optional)
 
 Definitions (v1):

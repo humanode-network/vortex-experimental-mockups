@@ -70,6 +70,18 @@ test("My Governance era activity counts only the first action per entity per era
     chamberId: "general",
     source: "test",
   });
+  await ensureChamberMembership(baseEnv, {
+    address,
+    chamberId: "engineering",
+    source: "test",
+  });
+  for (let i = 0; i < 10; i += 1) {
+    await ensureChamberMembership(baseEnv, {
+      address: `5EngMember${i}`,
+      chamberId: "engineering",
+      source: "test",
+    });
+  }
 
   const poolProposalId = "biometric-account-recovery";
 
