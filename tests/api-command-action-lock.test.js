@@ -10,6 +10,10 @@ import { clearApiRateLimitsForTests } from "../functions/_lib/apiRateLimitStore.
 import { clearIdempotencyForTests } from "../functions/_lib/idempotencyStore.ts";
 import { clearPoolVotesForTests } from "../functions/_lib/poolVotesStore.ts";
 import { clearInlineReadModelsForTests } from "../functions/_lib/readModelsStore.ts";
+import {
+  clearChamberMembershipsForTests,
+  ensureChamberMembership,
+} from "../functions/_lib/chamberMembershipsStore.ts";
 
 function makeContext({ url, env, params, method = "POST", headers, body }) {
   return {
@@ -27,6 +31,11 @@ async function makeSessionCookie(env, address) {
   const tokenPair = setCookie.split(";")[0];
   const [name, value] = tokenPair.split("=");
   assert.equal(name, getSessionCookieName());
+  await ensureChamberMembership(env, {
+    address,
+    chamberId: "general",
+    source: "test",
+  });
   return `${name}=${value}`;
 }
 
@@ -46,6 +55,7 @@ test("admin user lock blocks /api/command until unlocked (memory mode)", async (
   clearInlineReadModelsForTests();
   clearApiRateLimitsForTests();
   clearActionLocksForTests();
+  clearChamberMembershipsForTests();
 
   const address = "5FakeAddr";
   const cookie = await makeSessionCookie(baseEnv, address);

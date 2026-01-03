@@ -10,6 +10,10 @@ import { clearInlineReadModelsForTests } from "../functions/_lib/readModelsStore
 import { clearProposalDraftsForTests } from "../functions/_lib/proposalDraftsStore.ts";
 import { clearProposalsForTests } from "../functions/_lib/proposalsStore.ts";
 import { clearProposalTimelineForTests } from "../functions/_lib/proposalTimelineStore.ts";
+import {
+  clearChamberMembershipsForTests,
+  ensureChamberMembership,
+} from "../functions/_lib/chamberMembershipsStore.ts";
 
 function makeContext({ url, env, params, method = "POST", headers, body }) {
   return {
@@ -27,6 +31,11 @@ async function makeSessionCookie(env, address) {
   const tokenPair = setCookie.split(";")[0];
   const [name, value] = tokenPair.split("=");
   assert.equal(name, getSessionCookieName());
+  await ensureChamberMembership(env, {
+    address,
+    chamberId: "general",
+    source: "test",
+  });
   return `${name}=${value}`;
 }
 
@@ -45,6 +54,7 @@ test("GET /api/proposals/:id/timeline returns proposal events in order", async (
   clearInlineReadModelsForTests();
   clearProposalDraftsForTests();
   clearProposalsForTests();
+  clearChamberMembershipsForTests();
 
   const cookie = await makeSessionCookie(env, "5timeline");
 

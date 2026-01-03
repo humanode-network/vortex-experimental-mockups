@@ -34,6 +34,11 @@ async function makeSessionCookie(env, address) {
   const tokenPair = setCookie.split(";")[0];
   const [name, value] = tokenPair.split("=");
   assert.equal(name, getSessionCookieName());
+  await ensureChamberMembership(env, {
+    address,
+    chamberId: "general",
+    source: "test",
+  });
   return `${name}=${value}`;
 }
 

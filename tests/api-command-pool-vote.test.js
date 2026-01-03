@@ -8,6 +8,10 @@ import { getSessionCookieName, issueSession } from "../functions/_lib/auth.ts";
 import { clearIdempotencyForTests } from "../functions/_lib/idempotencyStore.ts";
 import { clearPoolVotesForTests } from "../functions/_lib/poolVotesStore.ts";
 import { clearInlineReadModelsForTests } from "../functions/_lib/readModelsStore.ts";
+import {
+  clearChamberMembershipsForTests,
+  ensureChamberMembership,
+} from "../functions/_lib/chamberMembershipsStore.ts";
 
 function makeContext({ url, env, params, method = "POST", headers, body }) {
   return {
@@ -25,6 +29,11 @@ async function makeSessionCookie(env, address) {
   const tokenPair = setCookie.split(";")[0];
   const [name, value] = tokenPair.split("=");
   assert.equal(name, getSessionCookieName());
+  await ensureChamberMembership(env, {
+    address,
+    chamberId: "general",
+    source: "test",
+  });
   return `${name}=${value}`;
 }
 
@@ -40,6 +49,7 @@ test("POST /api/command rejects when not authenticated", async () => {
   await clearPoolVotesForTests();
   clearIdempotencyForTests();
   clearInlineReadModelsForTests();
+  clearChamberMembershipsForTests();
   const res = await commandPost(
     makeContext({
       url: "https://local.test/api/command",
@@ -58,6 +68,7 @@ test("POST /api/command pool.vote stores a single vote and supports idempotency"
   await clearPoolVotesForTests();
   clearIdempotencyForTests();
   clearInlineReadModelsForTests();
+  clearChamberMembershipsForTests();
 
   const cookie = await makeSessionCookie(baseEnv, "5FakeAddr");
   const idempotencyKey = "idem-00000001";
@@ -126,6 +137,7 @@ test("GET /api/proposals/:id/pool overlays live vote counts", async () => {
   await clearPoolVotesForTests();
   clearIdempotencyForTests();
   clearInlineReadModelsForTests();
+  clearChamberMembershipsForTests();
 
   const cookie = await makeSessionCookie(baseEnv, "5FakeAddr");
   const res1 = await commandPost(
@@ -160,6 +172,7 @@ test("pool quorum auto-advances proposal from pool → vote", async () => {
   await clearPoolVotesForTests();
   clearIdempotencyForTests();
   clearInlineReadModelsForTests();
+  clearChamberMembershipsForTests();
 
   const proposalId = "biometric-account-recovery";
 

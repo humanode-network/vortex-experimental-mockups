@@ -1192,6 +1192,17 @@ export const onRequestPost: PagesFunction = async (context) => {
   }
 
   if (input.type === "pool.vote") {
+    const poolEligibilityError = await enforcePoolVoteEligibility(
+      context.env,
+      readModels,
+      {
+        proposalId: input.payload.proposalId,
+        voterAddress: sessionAddress,
+      },
+      context.request.url,
+    );
+    if (poolEligibilityError) return poolEligibilityError;
+
     const proposal = await getProposal(context.env, input.payload.proposalId);
     if (
       proposal &&
@@ -2735,6 +2746,46 @@ async function enforceChamberVoteEligibility(
   return null;
 }
 
+async function enforcePoolVoteEligibility(
+  env: Record<string, string | undefined>,
+  readModels: Awaited<ReturnType<typeof createReadModelsStore>> | null,
+  input: { proposalId: string; voterAddress: string },
+  requestUrl: string,
+): Promise<Response | null> {
+  if (envBoolean(env, "DEV_BYPASS_CHAMBER_ELIGIBILITY")) return null;
+
+  const simConfig = await getSimConfig(env, requestUrl);
+  const genesis = simConfig?.genesisChamberMembers;
+
+  const chamberId = await getProposalChamberIdForPool(env, readModels, {
+    proposalId: input.proposalId,
+  });
+  const voterAddress = input.voterAddress.trim();
+
+  const hasAnyGenesisMembership = (): boolean => {
+    if (!genesis) return false;
+    for (const members of Object.values(genesis)) {
+      if (members.some((member) => member.trim() === voterAddress)) return true;
+    }
+    return false;
+  };
+
+  const eligible =
+    (await hasAnyChamberMembership(env, voterAddress)) ||
+    (await hasChamberMembership(env, {
+      address: voterAddress,
+      chamberId: "general",
+    })) ||
+    hasAnyGenesisMembership();
+  if (!eligible) {
+    return errorResponse(403, "Not eligible to vote in the proposal pool", {
+      code: "pool_vote_ineligible",
+      chamberId,
+    });
+  }
+  return null;
+}
+
 async function getProposalChamberIdForVote(
   env: Record<string, string | undefined>,
   readModels: Awaited<ReturnType<typeof createReadModelsStore>> | null,
@@ -2750,6 +2801,40 @@ async function getProposalChamberIdForVote(
   );
   if (isRecord(chamberPayload)) {
     const label = asString(chamberPayload.chamber, "");
+    const normalized = normalizeChamberId(label);
+    return normalized || "general";
+  }
+
+  const listPayload = await readModels.get("proposals:list");
+  if (isRecord(listPayload) && Array.isArray(listPayload.items)) {
+    const entry = listPayload.items.find(
+      (item) => isRecord(item) && item.id === input.proposalId,
+    );
+    if (isRecord(entry)) {
+      const label = asString(entry.chamber, asString(entry.meta, ""));
+      const normalized = normalizeChamberId(label);
+      return normalized || "general";
+    }
+  }
+
+  return "general";
+}
+
+async function getProposalChamberIdForPool(
+  env: Record<string, string | undefined>,
+  readModels: Awaited<ReturnType<typeof createReadModelsStore>> | null,
+  input: { proposalId: string },
+): Promise<string> {
+  const proposal = await getProposal(env, input.proposalId);
+  if (proposal) return (proposal.chamberId ?? "general").toLowerCase();
+
+  if (!readModels) return "general";
+
+  const poolPayload = await readModels.get(
+    `proposals:${input.proposalId}:pool`,
+  );
+  if (isRecord(poolPayload)) {
+    const label = asString(poolPayload.chamber, "");
     const normalized = normalizeChamberId(label);
     return normalized || "general";
   }

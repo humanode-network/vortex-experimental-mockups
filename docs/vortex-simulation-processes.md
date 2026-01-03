@@ -533,6 +533,7 @@ Gates:
 
 - Attention quorum: engaged governors >= threshold (absolute and/or %).
 - Upvote floor: upvotes >= threshold (absolute and/or %).
+- Eligibility: only governors can upvote/downvote in proposal pools (i.e. you must have at least one accepted proposal in any chamber).
 
 Outputs:
 

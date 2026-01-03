@@ -16,6 +16,10 @@ import {
 } from "../functions/_lib/proposalsStore.ts";
 import { clearPoolVotesForTests } from "../functions/_lib/poolVotesStore.ts";
 import { clearEraForTests } from "../functions/_lib/eraStore.ts";
+import {
+  clearChamberMembershipsForTests,
+  ensureChamberMembership,
+} from "../functions/_lib/chamberMembershipsStore.ts";
 
 function makeContext({ url, env, params, method = "POST", headers, body }) {
   return {
@@ -33,6 +37,11 @@ async function makeSessionCookie(env, address) {
   const tokenPair = setCookie.split(";")[0];
   const [name, value] = tokenPair.split("=");
   assert.equal(name, getSessionCookieName());
+  await ensureChamberMembership(env, {
+    address,
+    chamberId: "general",
+    source: "test",
+  });
   return `${name}=${value}`;
 }
 
@@ -69,6 +78,7 @@ test("proposal drafts: save → list/detail → submit to pool", async () => {
   clearInlineReadModelsForTests();
   clearProposalDraftsForTests();
   clearProposalsForTests();
+  clearChamberMembershipsForTests();
 
   const cookie = await makeSessionCookie(baseEnv, "5TestAddr");
 
@@ -184,6 +194,7 @@ test("proposal reads prefer canonical proposals over read models", async () => {
   clearInlineReadModelsForTests();
   clearProposalDraftsForTests();
   clearProposalsForTests();
+  clearChamberMembershipsForTests();
 
   const cookie = await makeSessionCookie(baseEnv, "5TestAddr");
 
@@ -253,6 +264,7 @@ test("canonical proposals: stage gating and pool→vote advance work without rea
   clearInlineReadModelsForTests();
   clearProposalDraftsForTests();
   clearProposalsForTests();
+  clearChamberMembershipsForTests();
   await clearPoolVotesForTests();
   clearEraForTests();
 
@@ -371,6 +383,7 @@ test("proposal drafts: submit requires submittable draft", async () => {
   clearInlineReadModelsForTests();
   clearProposalDraftsForTests();
   clearProposalsForTests();
+  clearChamberMembershipsForTests();
 
   const cookie = await makeSessionCookie(baseEnv, "5TestAddr");
   const badForm = makeDraftForm();
@@ -409,6 +422,7 @@ test("proposal drafts: save is idempotent (Idempotency-Key)", async () => {
   clearInlineReadModelsForTests();
   clearProposalDraftsForTests();
   clearProposalsForTests();
+  clearChamberMembershipsForTests();
 
   const cookie = await makeSessionCookie(baseEnv, "5TestAddr");
 

@@ -266,6 +266,9 @@ type PoolVoteResponse = {
 Notes:
 
 - If the proposal is not currently in the pool stage, the API returns HTTP `409` (the pool phase is closed once the proposal advances).
+- Pool eligibility is enforced (paper-aligned):
+  - only governors can upvote/downvote in proposal pools (i.e. addresses that have at least one accepted proposal in any chamber)
+  - when ineligible, the API returns HTTP `403` with `code: "pool_vote_ineligible"` and the target `chamberId`
 - When pool quorum thresholds are met, the backend auto-advances the proposal from **pool → vote** by updating the `proposals:list` read model.
   - If `proposals:${proposalId}:chamber` does not exist yet, it is created from the pool page payload as a minimal placeholder so the UI can render the chamber vote view.
 

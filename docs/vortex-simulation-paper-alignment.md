@@ -55,6 +55,7 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 - Quorum math is implemented in `functions/_lib/poolQuorum.ts`:
   - `V1_POOL_ATTENTION_QUORUM_FRACTION = 0.22` (22%)
   - `V1_POOL_UPVOTE_FLOOR_FRACTION = 0.1` (10%)
+- Pool voting is restricted to governors (addresses with at least one accepted proposal in any chamber).
 - Delegation exists but is not applied to proposal-pool attention (pool votes remain direct-only, paper intent).
 
 **Paper divergence (explicit)**

@@ -7,6 +7,10 @@ import { clearApiRateLimitsForTests } from "../functions/_lib/apiRateLimitStore.
 import { clearIdempotencyForTests } from "../functions/_lib/idempotencyStore.ts";
 import { clearPoolVotesForTests } from "../functions/_lib/poolVotesStore.ts";
 import { clearInlineReadModelsForTests } from "../functions/_lib/readModelsStore.ts";
+import {
+  clearChamberMembershipsForTests,
+  ensureChamberMembership,
+} from "../functions/_lib/chamberMembershipsStore.ts";
 
 function makeContext({ url, env, params, method = "POST", headers, body }) {
   return {
@@ -24,6 +28,11 @@ async function makeSessionCookie(env, address) {
   const tokenPair = setCookie.split(";")[0];
   const [name, value] = tokenPair.split("=");
   assert.equal(name, getSessionCookieName());
+  await ensureChamberMembership(env, {
+    address,
+    chamberId: "general",
+    source: "test",
+  });
   return `${name}=${value}`;
 }
 
@@ -42,6 +51,7 @@ test("POST /api/command is rate limited per address (memory mode)", async () => 
   clearIdempotencyForTests();
   clearInlineReadModelsForTests();
   clearApiRateLimitsForTests();
+  clearChamberMembershipsForTests();
 
   const cookie = await makeSessionCookie(baseEnv, "5FakeAddr");
 
