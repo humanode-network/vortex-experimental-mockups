@@ -53,6 +53,15 @@ Implemented (v1 simulation backend):
   - Admin tools: action locks, audit/inspection, stats, global write freeze
   - Tests: `tests/api-command-*.test.js`, `tests/api-admin-*.test.js`
 
+Implemented (UI supporting the simulation backend):
+
+- Proposal creation wizard v2 (template-driven):
+  - Template registry: `src/pages/proposals/proposalCreation/templates/registry.ts`
+  - Templates:
+    - `project` (full flow: Essentials → Plan → Budget → Review)
+    - `system` (General chamber only; skips budget: Setup → Rationale → Review)
+  - Tests: `tests/proposal-wizard-template-registry.test.js`
+
 Not implemented (intentional v1 gaps):
 
 - Replacing transitional `read_models` with fully normalized domain tables + event-driven projections
@@ -126,14 +135,24 @@ This is the order we’ll follow from now on, based on what’s already landed.
 36. **Phase 32 — Paper alignment audit pass (process-by-process)**
 37. **Phase 33 — Testing readiness v3 (scenario harness + end-to-end validation)**
 38. **Phase 34 — Meritocratic Measure (MM) v1 (post-V3, Formation delivery scoring)**
+39. **Phase 35 — Proposal wizard v2 W1 (template runner + registry) (DONE)**
+40. **Phase 36 — Proposal wizard v2 W2 (system.chamberCreate flow) (DONE — `system` template v1)**
+41. **Phase 37 — Proposal wizard v2 W3 (backend discriminated drafts)**
+42. **Phase 38 — Proposal wizard v2 W4 (migrate drafts + simplify validation)**
+43. **Phase 39 — Proposal wizard v2 W5 (cleanup + extension points)**
 
-### Proposal wizard v2 track (planned)
+### Proposal wizard v2 phases (planned)
 
 In parallel to the main backend phases, the proposal wizard is moving toward template-driven flows so that system-change proposals (like chamber creation) do not share project-only steps/fields.
 
 Reference:
 
 - `docs/vortex-simulation-proposal-wizard-architecture.md` (Wizard v2 track W1–W5)
+
+Notes:
+
+- These phases are primarily UI/schema refactors and can be executed after Phase 23 (drafts) without blocking the main governance modules.
+- The goal is to avoid “one big form” drift and make system-change proposals (like chamber creation) collect only the fields required to create/render the chamber.
 
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
 
@@ -1042,6 +1061,97 @@ Planned deliverables (high-level):
 - A template runner + registry so proposal types can define their own steps.
 - A dedicated `system.chamberCreate` flow that only collects fields needed to create and render a chamber.
 - A discriminated union draft schema in the backend, with compatibility for legacy drafts during migration.
+
+Phases:
+
+- Phase 35–39 (Proposal wizard v2 W1–W5), as listed in the execution sequence above.
+
+### Phase 35 — Proposal wizard v2 W1 (template runner + registry) (DONE)
+
+Goal: extract the proposal creation flow into a template runner so different proposal kinds can have different step flows without turning `ProposalCreation.tsx` into a branching monolith.
+
+Deliverables:
+
+- A template registry that is safe to import from Node tests (no JSX in the template layer).
+- A template runner in `src/pages/proposals/ProposalCreation.tsx` that delegates:
+  - step order + labels
+  - step-to-step navigation constraints (Next/Back)
+  - submit gating (`canSubmit`)
+- Persist template id in local draft storage.
+
+Current status:
+
+- Template registry:
+  - `src/pages/proposals/proposalCreation/templates/registry.ts`
+  - `src/pages/proposals/proposalCreation/templates/types.ts`
+- Templates implemented:
+  - `src/pages/proposals/proposalCreation/templates/project.ts`
+  - `src/pages/proposals/proposalCreation/templates/system.ts`
+- Runner integration:
+  - `src/pages/proposals/ProposalCreation.tsx`
+  - local storage helpers: `src/pages/proposals/proposalCreation/storage.ts`
+- Tests:
+  - `tests/proposal-wizard-template-registry.test.js`
+
+### Phase 36 — Proposal wizard v2 W2 (system.chamberCreate flow) (DONE — `system` template v1)
+
+Goal: make chamber creation proposals feel like system proposals (not project proposals), while still producing a payload the backend can accept today.
+
+Deliverables:
+
+- A dedicated **system** flow that:
+  - forces `chamberId = "general"`
+  - skips the Budget step
+  - hides project-only optional sections (timeline/outputs) for system proposals
+- Keep `metaGovernance` in the draft payload so existing backend finalizers apply.
+
+Current status:
+
+- UI “Kind” selector switches the template:
+  - `project` (Essentials → Plan → Budget → Review)
+  - `system` (Setup → Rationale → Review)
+- `metaGovernance` fields are still collected in Essentials (action, chamber id, title, multiplier, genesis members).
+
+### Phase 37 — Proposal wizard v2 W3 (backend discriminated drafts) (PLANNED)
+
+Goal: stop requiring project-oriented text fields for system proposals and make backend validation match the template.
+
+Deliverables:
+
+- Add a discriminant to the stored draft payload (e.g., `templateId` or `kind`) and validate as a union.
+- Separate required fields per draft kind:
+  - `project`: requires What/Why/How + budget items (unless explicitly not required)
+  - `system`: requires only the fields needed for the system action (`metaGovernance`), plus rules confirmations
+- Keep a short compatibility path for legacy drafts until they are migrated/cleared.
+
+Tests:
+
+- Unit tests for the draft schema union (parsing + required fields).
+- Integration test: `proposal.draft.save` + `proposal.submitToPool` works for both `project` and `system`.
+
+### Phase 38 — Proposal wizard v2 W4 (migrate drafts + simplify validation) (PLANNED)
+
+Goal: migrate any stored drafts (DB + local) so the UI and backend no longer carry legacy branches.
+
+Deliverables:
+
+- Migration strategy:
+  - Map old drafts to `project` by default.
+  - Map drafts with `metaGovernance` to `system`.
+- Simplify template logic by removing “mixed” validation branches.
+
+Tests:
+
+- Migration tests and a small “legacy draft still loads” UI smoke check.
+
+### Phase 39 — Proposal wizard v2 W5 (cleanup + extension points) (PLANNED)
+
+Goal: keep the wizard extensible without reintroducing branching logic everywhere.
+
+Deliverables:
+
+- Add extension points for additional system actions (e.g., chamber dissolution) without inflating the project flow.
+- Document the template contract and how new templates are added.
 
 ### Phase 25 — Proposal pages projected from canonical state (DONE)
 
