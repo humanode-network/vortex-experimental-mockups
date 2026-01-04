@@ -72,45 +72,106 @@ export function ReviewStep(props: {
               </p>
             ) : null}
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <p className="text-xs font-semibold text-text">What</p>
-              <p className="text-muted">{draft.what}</p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-text">Why</p>
-              <p className="text-muted">{draft.why}</p>
-            </div>
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-text">How</p>
-            <p className="text-muted">{draft.how}</p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <p className="text-xs font-semibold text-text">When</p>
-              <ul className="mt-1 list-disc space-y-1 pl-5 text-muted">
-                {draft.timeline.length === 0 ? (
-                  <li>No milestones added.</li>
-                ) : (
-                  draft.timeline.map((ms) => (
-                    <li key={ms.id}>
-                      {ms.title.trim().length > 0 ? ms.title : "—"} (
-                      {ms.timeframe.trim().length > 0 ? ms.timeframe : "—"})
-                    </li>
-                  ))
-                )}
-              </ul>
-            </div>
-            {mode === "system" ? null : (
-              <div>
-                <p className="text-xs font-semibold text-text">Budget</p>
-                <p className="text-muted">
-                  Total: {budgetTotal.toLocaleString()} HMND
-                </p>
+          {mode === "system" ? (
+            <>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs font-semibold text-text">Action</p>
+                  <p className="text-muted">
+                    {draft.metaGovernance?.action === "chamber.dissolve"
+                      ? "Dissolve chamber"
+                      : "Create chamber"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-text">
+                    Target chamber id
+                  </p>
+                  <p className="text-muted">
+                    {draft.metaGovernance?.chamberId ?? "—"}
+                  </p>
+                </div>
               </div>
-            )}
-          </div>
+              {draft.metaGovernance?.action === "chamber.create" ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <p className="text-xs font-semibold text-text">
+                      Chamber name
+                    </p>
+                    <p className="text-muted">
+                      {draft.metaGovernance?.title ?? "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-text">
+                      Multiplier
+                    </p>
+                    <p className="text-muted">
+                      {draft.metaGovernance?.multiplier ?? "—"}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+              {draft.metaGovernance?.action === "chamber.create" ? (
+                <div>
+                  <p className="text-xs font-semibold text-text">
+                    Genesis members
+                  </p>
+                  <p className="text-muted">
+                    {(draft.metaGovernance?.genesisMembers ?? []).length > 0
+                      ? draft.metaGovernance?.genesisMembers?.join(", ")
+                      : "—"}
+                  </p>
+                </div>
+              ) : null}
+              <div>
+                <p className="text-xs font-semibold text-text">
+                  Implementation notes
+                </p>
+                <p className="text-muted">{draft.how}</p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs font-semibold text-text">What</p>
+                  <p className="text-muted">{draft.what}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-text">Why</p>
+                  <p className="text-muted">{draft.why}</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-text">How</p>
+                <p className="text-muted">{draft.how}</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs font-semibold text-text">When</p>
+                  <ul className="mt-1 list-disc space-y-1 pl-5 text-muted">
+                    {draft.timeline.length === 0 ? (
+                      <li>No milestones added.</li>
+                    ) : (
+                      draft.timeline.map((ms) => (
+                        <li key={ms.id}>
+                          {ms.title.trim().length > 0 ? ms.title : "—"} (
+                          {ms.timeframe.trim().length > 0 ? ms.timeframe : "—"})
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-text">Budget</p>
+                  <p className="text-muted">
+                    Total: {budgetTotal.toLocaleString()} HMND
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

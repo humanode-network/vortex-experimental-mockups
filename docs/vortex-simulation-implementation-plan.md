@@ -1158,14 +1158,26 @@ Current status:
 - Tests:
   - `tests/proposal-draft-migration.test.js`
 
-### Phase 39 — Proposal wizard v2 W5 (cleanup + extension points) (PLANNED)
+### Phase 39 — Proposal wizard v2 W5 (cleanup + extension points) (DONE)
 
 Goal: keep the wizard extensible without reintroducing branching logic everywhere.
 
 Deliverables:
 
-- Add extension points for additional system actions (e.g., chamber dissolution) without inflating the project flow.
-- Document the template contract and how new templates are added.
+- Add extension points for additional system actions without inflating the project flow.
+- Keep system-specific fields out of the project flow.
+
+Tests:
+
+- Wizard system template validation (project fields are no longer required).
+
+Current status:
+
+- System action metadata is centralized in `systemActions.ts`.
+- System proposals no longer require project-only fields (`what/why`).
+- System review summary renders only system-specific fields.
+- Tests:
+  - `tests/proposal-wizard-system-template.test.js`
 
 ### Phase 25 — Proposal pages projected from canonical state (DONE)
 

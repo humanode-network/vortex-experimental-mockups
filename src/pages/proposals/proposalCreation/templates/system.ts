@@ -5,10 +5,7 @@ function computeSystemWizard(
   draft: ProposalDraftForm,
   _input: { budgetTotal: number },
 ): WizardComputed {
-  const essentialsValid =
-    draft.title.trim().length > 0 &&
-    draft.what.trim().length > 0 &&
-    draft.why.trim().length > 0;
+  const essentialsValid = draft.title.trim().length > 0;
 
   const planValid = draft.how.trim().length > 0;
 

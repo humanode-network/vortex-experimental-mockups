@@ -3,6 +3,11 @@ import { Input } from "@/components/primitives/input";
 import { Label } from "@/components/primitives/label";
 import { Select } from "@/components/primitives/select";
 import type { ProposalDraftForm } from "../types";
+import {
+  SYSTEM_ACTIONS,
+  getSystemActionMeta,
+  type SystemActionId,
+} from "../templates/systemActions";
 
 type MetaGovernanceDraft = NonNullable<ProposalDraftForm["metaGovernance"]>;
 
@@ -29,6 +34,10 @@ export function EssentialsStep(props: {
   const hasGeneralOption = chamberOptions.some(
     (opt) => opt.value === "general",
   );
+  const systemAction = draft.metaGovernance?.action as
+    | SystemActionId
+    | undefined;
+  const systemActionMeta = getSystemActionMeta(systemAction);
 
   return (
     <div className="space-y-5">
@@ -146,9 +155,15 @@ export function EssentialsStep(props: {
                   }));
                 }}
               >
-                <option value="chamber.create">Create chamber</option>
-                <option value="chamber.dissolve">Dissolve chamber</option>
+                {Object.entries(SYSTEM_ACTIONS).map(([value, meta]) => (
+                  <option key={value} value={value}>
+                    {meta.label}
+                  </option>
+                ))}
               </Select>
+              <p className="text-xs text-muted">
+                {systemActionMeta.description}
+              </p>
             </div>
             <div className="space-y-1">
               <Label htmlFor="target-chamber-id">Target chamber id *</Label>
@@ -182,55 +197,101 @@ export function EssentialsStep(props: {
             </div>
           </div>
 
-          {draft.metaGovernance?.action === "chamber.create" ? (
+          {systemActionMeta.requiresTitle ||
+          systemActionMeta.showMultiplier ||
+          systemActionMeta.showGenesisMembers ? (
             <div className="space-y-3">
               <div className="grid gap-3 sm:grid-cols-2">
+                {systemActionMeta.requiresTitle ? (
+                  <div className="space-y-1">
+                    <Label htmlFor="target-title">Title *</Label>
+                    <Input
+                      id="target-title"
+                      value={draft.metaGovernance?.title ?? ""}
+                      onChange={(e) => {
+                        const title = e.target.value;
+                        setDraft((prev) => ({
+                          ...prev,
+                          metaGovernance: {
+                            ...(prev.metaGovernance ?? {
+                              action: "chamber.create",
+                              chamberId: "",
+                              title: "",
+                              genesisMembers: [],
+                            }),
+                            title,
+                          },
+                          chamberId: "general",
+                        }));
+                      }}
+                      placeholder="Engineering chamber"
+                    />
+                    {attemptedNext &&
+                    (draft.metaGovernance?.title ?? "").trim().length === 0 ? (
+                      <p className="text-xs text-destructive">
+                        Title is required for chamber creation.
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+                {systemActionMeta.showMultiplier ? (
+                  <div className="space-y-1">
+                    <Label htmlFor="target-multiplier">
+                      Multiplier (optional)
+                    </Label>
+                    <Input
+                      id="target-multiplier"
+                      value={
+                        draft.metaGovernance?.multiplier === undefined ||
+                        draft.metaGovernance?.multiplier === null
+                          ? ""
+                          : String(draft.metaGovernance.multiplier)
+                      }
+                      onChange={(e) => {
+                        const raw = e.target.value.trim();
+                        const multiplier =
+                          raw.length === 0 ? undefined : Number(raw);
+                        setDraft((prev) => ({
+                          ...prev,
+                          metaGovernance: {
+                            ...(prev.metaGovernance ?? {
+                              action: "chamber.create",
+                              chamberId: "",
+                              title: "",
+                              genesisMembers: [],
+                            }),
+                            multiplier:
+                              multiplier === undefined ||
+                              Number.isNaN(multiplier)
+                                ? undefined
+                                : multiplier,
+                          },
+                          chamberId: "general",
+                        }));
+                      }}
+                      placeholder="e.g., 3"
+                      inputMode="decimal"
+                    />
+                  </div>
+                ) : null}
+              </div>
+              {systemActionMeta.showGenesisMembers ? (
                 <div className="space-y-1">
-                  <Label htmlFor="target-title">Title *</Label>
-                  <Input
-                    id="target-title"
-                    value={draft.metaGovernance?.title ?? ""}
-                    onChange={(e) => {
-                      const title = e.target.value;
-                      setDraft((prev) => ({
-                        ...prev,
-                        metaGovernance: {
-                          ...(prev.metaGovernance ?? {
-                            action: "chamber.create",
-                            chamberId: "",
-                            title: "",
-                            genesisMembers: [],
-                          }),
-                          title,
-                        },
-                        chamberId: "general",
-                      }));
-                    }}
-                    placeholder="Engineering chamber"
-                  />
-                  {attemptedNext &&
-                  (draft.metaGovernance?.title ?? "").trim().length === 0 ? (
-                    <p className="text-xs text-destructive">
-                      Title is required for chamber creation.
-                    </p>
-                  ) : null}
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="target-multiplier">
-                    Multiplier (optional)
+                  <Label htmlFor="genesis-members">
+                    Genesis members (optional, one address per line)
                   </Label>
-                  <Input
-                    id="target-multiplier"
-                    value={
-                      draft.metaGovernance?.multiplier === undefined ||
-                      draft.metaGovernance?.multiplier === null
-                        ? ""
-                        : String(draft.metaGovernance.multiplier)
-                    }
+                  <textarea
+                    id="genesis-members"
+                    rows={4}
+                    className={textareaClassName}
+                    value={(draft.metaGovernance?.genesisMembers ?? []).join(
+                      "\n",
+                    )}
                     onChange={(e) => {
-                      const raw = e.target.value.trim();
-                      const multiplier =
-                        raw.length === 0 ? undefined : Number(raw);
+                      const genesisMembers = e.target.value
+                        .split("\n")
+                        .map((v) => v.trim())
+                        .filter(Boolean);
                       setDraft((prev) => ({
                         ...prev,
                         metaGovernance: {
@@ -240,52 +301,15 @@ export function EssentialsStep(props: {
                             title: "",
                             genesisMembers: [],
                           }),
-                          multiplier:
-                            multiplier === undefined || Number.isNaN(multiplier)
-                              ? undefined
-                              : multiplier,
+                          genesisMembers,
                         },
                         chamberId: "general",
                       }));
                     }}
-                    placeholder="e.g., 3"
-                    inputMode="decimal"
+                    placeholder={"5F...Alice\n5F...Bob"}
                   />
                 </div>
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="genesis-members">
-                  Genesis members (optional, one address per line)
-                </Label>
-                <textarea
-                  id="genesis-members"
-                  rows={4}
-                  className={textareaClassName}
-                  value={(draft.metaGovernance?.genesisMembers ?? []).join(
-                    "\n",
-                  )}
-                  onChange={(e) => {
-                    const genesisMembers = e.target.value
-                      .split("\n")
-                      .map((v) => v.trim())
-                      .filter(Boolean);
-                    setDraft((prev) => ({
-                      ...prev,
-                      metaGovernance: {
-                        ...(prev.metaGovernance ?? {
-                          action: "chamber.create",
-                          chamberId: "",
-                          title: "",
-                          genesisMembers: [],
-                        }),
-                        genesisMembers,
-                      },
-                      chamberId: "general",
-                    }));
-                  }}
-                  placeholder={"5F...Alice\n5F...Bob"}
-                />
-              </div>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -303,39 +327,43 @@ export function EssentialsStep(props: {
         />
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="what">What *</Label>
-        <textarea
-          id="what"
-          rows={5}
-          className={textareaClassName}
-          value={draft.what}
-          onChange={(e) =>
-            setDraft((prev) => ({ ...prev, what: e.target.value }))
-          }
-          placeholder="Describe the project/task you want to execute."
-        />
-        {attemptedNext && draft.what.trim().length === 0 ? (
-          <p className="text-xs text-destructive">“What” is required.</p>
-        ) : null}
-      </div>
+      {isSystemProposal ? null : (
+        <>
+          <div className="space-y-1">
+            <Label htmlFor="what">What *</Label>
+            <textarea
+              id="what"
+              rows={5}
+              className={textareaClassName}
+              value={draft.what}
+              onChange={(e) =>
+                setDraft((prev) => ({ ...prev, what: e.target.value }))
+              }
+              placeholder="Describe the project/task you want to execute."
+            />
+            {attemptedNext && draft.what.trim().length === 0 ? (
+              <p className="text-xs text-destructive">“What” is required.</p>
+            ) : null}
+          </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="why">Why *</Label>
-        <textarea
-          id="why"
-          rows={5}
-          className={textareaClassName}
-          value={draft.why}
-          onChange={(e) =>
-            setDraft((prev) => ({ ...prev, why: e.target.value }))
-          }
-          placeholder="Explain the expected contribution to Humanode."
-        />
-        {attemptedNext && draft.why.trim().length === 0 ? (
-          <p className="text-xs text-destructive">“Why” is required.</p>
-        ) : null}
-      </div>
+          <div className="space-y-1">
+            <Label htmlFor="why">Why *</Label>
+            <textarea
+              id="why"
+              rows={5}
+              className={textareaClassName}
+              value={draft.why}
+              onChange={(e) =>
+                setDraft((prev) => ({ ...prev, why: e.target.value }))
+              }
+              placeholder="Explain the expected contribution to Humanode."
+            />
+            {attemptedNext && draft.why.trim().length === 0 ? (
+              <p className="text-xs text-destructive">“Why” is required.</p>
+            ) : null}
+          </div>
+        </>
+      )}
     </div>
   );
 }

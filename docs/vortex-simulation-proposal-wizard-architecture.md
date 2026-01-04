@@ -237,6 +237,14 @@ Tests:
 
 - Coverage stays stable (no feature regression in `proposal.draft.save` / `proposal.submitToPool` / proposal pages).
 
+Current status:
+
+- System action metadata is centralized in `systemActions.ts`.
+- System proposals no longer require project-only fields (`what/why`).
+- System review summary renders only system-specific fields.
+- Tests:
+  - `tests/proposal-wizard-system-template.test.js`
+
 ## Migration Notes (from current shape)
 
 Current state uses a “single big form” with `metaGovernance` optional (see `functions/_lib/proposalDraftsStore.ts`).

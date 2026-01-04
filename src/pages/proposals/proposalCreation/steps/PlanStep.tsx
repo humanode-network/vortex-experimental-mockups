@@ -30,11 +30,17 @@ export function PlanStep(props: {
           onChange={(e) =>
             setDraft((prev) => ({ ...prev, how: e.target.value }))
           }
-          placeholder="Execution plan: steps, responsibilities, risks, checkpoints."
+          placeholder={
+            mode === "system"
+              ? "Explain how the system change should be applied and verified."
+              : "Execution plan: steps, responsibilities, risks, checkpoints."
+          }
         />
         {attemptedNext && draft.how.trim().length === 0 ? (
           <p className="text-xs text-destructive">
-            Execution plan is required.
+            {mode === "system"
+              ? "Implementation notes are required."
+              : "Execution plan is required."}
           </p>
         ) : null}
       </div>
