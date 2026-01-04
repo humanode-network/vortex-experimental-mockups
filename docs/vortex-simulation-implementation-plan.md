@@ -137,7 +137,7 @@ This is the order we’ll follow from now on, based on what’s already landed.
 38. **Phase 34 — Meritocratic Measure (MM) v1 (post-V3, Formation delivery scoring)**
 39. **Phase 35 — Proposal wizard v2 W1 (template runner + registry) (DONE)**
 40. **Phase 36 — Proposal wizard v2 W2 (system.chamberCreate flow) (DONE — `system` template v1)**
-41. **Phase 37 — Proposal wizard v2 W3 (backend discriminated drafts)**
+41. **Phase 37 — Proposal wizard v2 W3 (backend discriminated drafts) (DONE)**
 42. **Phase 38 — Proposal wizard v2 W4 (migrate drafts + simplify validation)**
 43. **Phase 39 — Proposal wizard v2 W5 (cleanup + extension points)**
 
@@ -1112,26 +1112,31 @@ Current status:
   - `system` (Setup → Rationale → Review)
 - `metaGovernance` fields are still collected in Essentials (action, chamber id, title, multiplier, genesis members).
 
-### Phase 37 — Proposal wizard v2 W3 (backend discriminated drafts) (PLANNED)
+### Phase 37 — Proposal wizard v2 W3 (backend discriminated drafts) (DONE)
 
-Goal: stop requiring project-oriented text fields for system proposals and make backend validation match the template.
+Goal: stop requiring project-oriented fields for system proposals and make backend validation match the template.
 
 Deliverables:
 
-- Add a discriminant to the stored draft payload (e.g., `templateId` or `kind`) and validate as a union.
+- Add a discriminant to the stored draft payload (`templateId`) and validate as a union.
 - Separate required fields per draft kind:
-  - `project`: requires What/Why/How + budget items (unless explicitly not required)
-  - `system`: requires only the fields needed for the system action (`metaGovernance`), plus rules confirmations
-- Keep a short compatibility path for legacy drafts until they are migrated/cleared.
+  - `project`: keeps project-required text + budget checks.
+  - `system`: requires system action fields; project-only fields can be omitted.
+- Normalize missing system fields to defaults so payloads remain stable for existing UI readers.
 
-Tests:
+Current status:
 
-- Unit tests for the draft schema union (parsing + required fields).
-- Integration test: `proposal.draft.save` + `proposal.submitToPool` works for both `project` and `system`.
+- `proposalDraftFormSchema` is now a template-aware discriminated union with preprocessing:
+  - `project` vs `system` templates
+  - template inference when `templateId` is missing
+  - defaults applied for optional system fields
+- Draft storage normalizes payloads via the schema so later consumers always see consistent arrays/strings.
+- Tests:
+  - `tests/api-command-system-draft-minimal.test.js`
 
-### Phase 38 — Proposal wizard v2 W4 (migrate drafts + simplify validation) (PLANNED)
+### Phase 38 — Proposal wizard v2 W4 (migrate drafts + simplify validation) (DONE)
 
-Goal: migrate any stored drafts (DB + local) so the UI and backend no longer carry legacy branches.
+Goal: migrate stored drafts (DB + local) so the UI and backend no longer carry legacy branches.
 
 Deliverables:
 
@@ -1142,7 +1147,16 @@ Deliverables:
 
 Tests:
 
-- Migration tests and a small “legacy draft still loads” UI smoke check.
+- Migration tests and a small “legacy draft still loads” smoke check.
+
+Current status:
+
+- Draft payloads are normalized on read:
+  - DB: `listDrafts`/`getDraft` backfill `templateId` when missing.
+  - Memory: legacy payloads are normalized and cached.
+- Project wizard validation no longer handles system proposals.
+- Tests:
+  - `tests/proposal-draft-migration.test.js`
 
 ### Phase 39 — Proposal wizard v2 W5 (cleanup + extension points) (PLANNED)
 

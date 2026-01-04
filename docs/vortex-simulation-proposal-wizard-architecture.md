@@ -46,19 +46,18 @@ The wizard should be driven by a registry of templates (one per proposal flow).
 
 Each template defines:
 
-- `id` — stable template identifier (e.g. `project`, `system.chamberCreate`)
-- `label` and `description` — used in the initial “choose type” screen
-- `steps: StepDef[]` — ordered steps, each with `id`, `title`, and a component to render
-- `validateStep(draft, stepId)` — step-level validation (for inline error display)
-- `isSubmittable(draft)` — final gate for “Submit”
-- `toApiForm(draft)` — maps the template-specific draft into the canonical API payload
+- `id` — stable template identifier (e.g. `project`, `system`)
+- `label` and `description`
+- `stepOrder` + UI labels
+- `compute(draft)` — derived validation and “can submit” gating
+
+In v1 (current code), templates are intentionally **pure TS** so they can be imported by Node tests without JSX transpilation. React step components remain shared and are selected by `StepKey` (`essentials` / `plan` / `budget` / `review`).
 
 Suggested folder layout:
 
 - `src/pages/proposals/proposalCreation/templates/`
   - `project.ts`
-  - `system.chamberCreate.ts`
-  - `system.chamberDissolve.ts` (later)
+  - `system.ts`
 - `src/pages/proposals/proposalCreation/steps/` (shared step components)
 
 The main wizard page (`src/pages/proposals/ProposalCreation.tsx`) should become “template runner” glue:
@@ -74,20 +73,20 @@ Chamber creation is a **system-change** proposal, and in the simulation it is on
 
 ### Template ID
 
-- `system.chamberCreate`
+- `system` (v1)
 
 ### Steps
 
-1. **Chamber details** (defines what will appear in the chamber card + chamber page identity)
+1. **Setup**
    - `metaGovernance.action = "chamber.create"`
    - `metaGovernance.chamberId` (new chamber id/slug)
    - `metaGovernance.title` (display title)
    - `metaGovernance.multiplier` (initial multiplier)
-   - `summary` (short “why this chamber should exist”)
+   - plus the current backend-required rationale fields (`title`, `what`, `why`)
 
-2. **Genesis members (bootstrap)**
-   - `metaGovernance.genesisMembers: string[]` (HMND addresses)
-   - Optional: if omitted, the proposer still becomes a member on acceptance.
+2. **Rationale**
+   - `how` (required by current backend validation for all drafts)
+   - In v1 UI, `timeline` and `outputs` are hidden for system proposals to keep the form focused.
 
 3. **Review & submit**
    - Show exactly what will happen on acceptance:
@@ -96,12 +95,11 @@ Chamber creation is a **system-change** proposal, and in the simulation it is on
 
 ### What is intentionally NOT collected
 
-- Budget
-- Formation eligibility
-- Milestones / timeline
-- Outputs
+- Budget items (system proposals skip the budget step)
+- Project-oriented “Where” links (outputs)
+- Milestone timeline (hidden in v1 for system proposals)
 
-Those are meaningful for projects, not for creating the chamber entity itself.
+Those are meaningful for projects, not for creating the chamber entity itself. Project-only fields are now optional for system drafts (see W3/W4).
 
 ### Backend integration point
 
@@ -184,12 +182,12 @@ Tests:
 
 - Minimal unit test for template registry invariants (unique ids, stable step ordering).
 
-### W2 — System template: `system.chamberCreate`
+### W2 — System template v1 (`system`)
 
-- Implement the dedicated chamber-creation flow:
-  - force `chamberId = "general"`
-  - collect only chamber-defining fields + optional genesis members
-- Map the system template into the existing backend payload (`metaGovernance`) so no backend finalizer changes are required.
+- Implement the dedicated system flow:
+  - forces `chamberId = "general"`
+  - skips the budget step and hides project-only optional sections
+  - keeps `metaGovernance` in the draft payload so existing backend finalizers apply (no backend changes required)
 
 Tests:
 
@@ -206,6 +204,12 @@ Tests:
   - old draft payloads still parse (compat mode)
   - new template payloads parse and enforce the correct required fields
 
+Current status:
+
+- Implemented in `functions/_lib/proposalDraftsStore.ts`:
+  - `templateId` discriminant with preprocessing + defaults
+  - system drafts can omit project-only fields
+
 ### W4 — Migrate stored drafts + simplify project validation
 
 - Migrate persisted drafts (DB + local storage) to the new discriminated shape where feasible.
@@ -214,6 +218,15 @@ Tests:
 Tests:
 
 - Draft submit tests for both `project` and `system.chamberCreate` (required fields + chamber constraints).
+
+Current status:
+
+- Stored draft payloads are normalized on read:
+  - DB: `listDrafts`/`getDraft` backfill `templateId` when missing.
+  - Memory: legacy payloads are normalized and cached.
+- Project wizard validation no longer handles system proposals.
+- Tests:
+  - `tests/proposal-draft-migration.test.js`
 
 ### W5 — Cleanup + extension points
 
@@ -238,7 +251,7 @@ To migrate cleanly:
 
 - The wizard supports at least:
   - `project`
-  - `system.chamberCreate`
-- `system.chamberCreate` does not show project-only steps/fields.
+  - `system`
+- `system` does not show the project-only budget step (and keeps optional project sections out of the way).
 - Backend validation matches the template rules (no fake required fields).
 - Submitting a chamber creation proposal produces a payload that the finalizer can apply without extra UI hacks.

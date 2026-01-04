@@ -11,12 +11,21 @@ export function EssentialsStep(props: {
   chamberOptions: { value: string; label: string }[];
   draft: ProposalDraftForm;
   setDraft: React.Dispatch<React.SetStateAction<ProposalDraftForm>>;
+  templateId: "project" | "system";
+  setTemplateId: (templateId: "project" | "system") => void;
   textareaClassName: string;
 }) {
-  const { attemptedNext, chamberOptions, draft, setDraft, textareaClassName } =
-    props;
+  const {
+    attemptedNext,
+    chamberOptions,
+    draft,
+    setDraft,
+    templateId,
+    setTemplateId,
+    textareaClassName,
+  } = props;
 
-  const isSystemProposal = Boolean(draft.metaGovernance);
+  const isSystemProposal = templateId === "system";
   const hasGeneralOption = chamberOptions.some(
     (opt) => opt.value === "general",
   );
@@ -27,9 +36,10 @@ export function EssentialsStep(props: {
         <Label htmlFor="proposal-kind">Kind</Label>
         <Select
           id="proposal-kind"
-          value={isSystemProposal ? "system" : "project"}
+          value={templateId}
           onChange={(e) => {
-            const next = e.target.value;
+            const next = e.target.value as "project" | "system";
+            setTemplateId(next);
             setDraft((prev) => {
               if (next === "system") {
                 const nextMeta: MetaGovernanceDraft = {

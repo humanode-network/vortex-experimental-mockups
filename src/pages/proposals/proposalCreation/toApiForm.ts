@@ -3,8 +3,10 @@ import type { ProposalDraftForm } from "./types";
 
 export function draftToApiForm(
   draft: ProposalDraftForm,
+  input?: { templateId?: "project" | "system" },
 ): ProposalDraftFormPayload {
   return {
+    ...(input?.templateId ? { templateId: input.templateId } : {}),
     title: draft.title,
     chamberId: draft.chamberId,
     summary: draft.summary,

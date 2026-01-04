@@ -27,9 +27,11 @@ import {
   loadDraft,
   loadServerDraftId,
   loadStep,
+  loadTemplateId,
   persistDraft,
   persistServerDraftId,
   persistStep,
+  persistTemplateId,
 } from "./proposalCreation/storage";
 import { draftToApiForm } from "./proposalCreation/toApiForm";
 import {
@@ -38,12 +40,18 @@ import {
   type ProposalDraftForm,
   type StepKey,
 } from "./proposalCreation/types";
+import { getWizardTemplate } from "./proposalCreation/templates/registry";
 
 const ProposalCreation: React.FC = () => {
   const auth = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [draft, setDraft] = useState<ProposalDraftForm>(() => loadDraft());
+  const [templateId, setTemplateId] = useState<string>(() => {
+    return (
+      loadTemplateId() ?? (loadDraft().metaGovernance ? "system" : "project")
+    );
+  });
   const [attemptedNext, setAttemptedNext] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [serverDraftId, setServerDraftId] = useState<string | null>(() =>
@@ -78,20 +86,21 @@ const ProposalCreation: React.FC = () => {
     }, 0);
   }, [draft.budgetItems]);
 
-  const essentialsValid =
-    draft.title.trim().length > 0 &&
-    draft.what.trim().length > 0 &&
-    draft.why.trim().length > 0;
-  const planValid = draft.how.trim().length > 0;
-  const isSystemProposal = Boolean(draft.metaGovernance);
-  const budgetValid = isSystemProposal
-    ? true
-    : draft.budgetItems.some(
-        (item) =>
-          item.description.trim().length > 0 &&
-          Number.isFinite(Number(item.amount)) &&
-          Number(item.amount) > 0,
-      ) && budgetTotal > 0;
+  const template = useMemo(() => getWizardTemplate(templateId), [templateId]);
+  useEffect(() => {
+    persistTemplateId(template.id);
+  }, [template.id]);
+
+  useEffect(() => {
+    const desired = draft.metaGovernance ? "system" : "project";
+    if (templateId !== desired) {
+      setTemplateId(desired);
+    }
+  }, [draft.metaGovernance, templateId]);
+
+  const computed = useMemo(() => {
+    return template.compute(draft, { budgetTotal });
+  }, [draft, budgetTotal, template]);
 
   const step: StepKey = desiredStep;
 
@@ -124,19 +133,15 @@ const ProposalCreation: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setSearchParams({ step }, { replace: true });
-  }, [step, setSearchParams]);
+    if (searchParams.get("step") === step) return;
+    const next = new URLSearchParams(searchParams);
+    next.set("step", step);
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams, step]);
 
   useEffect(() => {
     persistStep(step);
   }, [step]);
-
-  const stepLabel: Record<StepKey, string> = {
-    essentials: "Essentials",
-    plan: "Plan",
-    budget: "Budget",
-    review: "Review",
-  };
 
   const textareaClassName =
     "w-full rounded-xl border border-border bg-panel-alt px-3 py-2 text-sm text-text shadow-[var(--shadow-control)] transition " +
@@ -144,35 +149,46 @@ const ProposalCreation: React.FC = () => {
 
   const goToStep = (next: StepKey) => {
     setAttemptedNext(false);
-    setSearchParams({ step: next }, { replace: true });
+    const params = new URLSearchParams(searchParams);
+    params.set("step", next);
+    setSearchParams(params, { replace: true });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const onNext = () => {
     setAttemptedNext(true);
-    if (step === "essentials" && essentialsValid) return goToStep("plan");
-    if (step === "plan" && planValid) return goToStep("budget");
-    if (step === "budget" && budgetValid) return goToStep("review");
+    const next = template.getNextStep(step, computed);
+    if (next) return goToStep(next);
   };
 
   const onBack = () => {
     setAttemptedNext(false);
-    if (step === "review") return goToStep("budget");
-    if (step === "budget") return goToStep("plan");
-    if (step === "plan") return goToStep("essentials");
+    const prev = template.getPrevStep(step);
+    if (prev) return goToStep(prev);
     navigate("/app/proposals");
   };
+
+  useEffect(() => {
+    if (template.stepOrder.includes(step)) return;
+    const fallback = template.stepOrder[0] ?? "essentials";
+    const params = new URLSearchParams(searchParams);
+    params.set("step", fallback);
+    setSearchParams(params, { replace: true });
+  }, [searchParams, setSearchParams, step, template.id, template.stepOrder]);
 
   const resetDraft = () => {
     clearDraftStorage();
     setDraft(DEFAULT_DRAFT);
+    setTemplateId("project");
     setAttemptedNext(false);
     setSavedAt(null);
     setSaveError(null);
     setSubmitError(null);
     const idToDelete = serverDraftId;
     setServerDraftId(null);
-    setSearchParams({ step: "essentials" }, { replace: true });
+    const params = new URLSearchParams(searchParams);
+    params.set("step", "essentials");
+    setSearchParams(params, { replace: true });
 
     if (
       idToDelete &&
@@ -198,7 +214,7 @@ const ProposalCreation: React.FC = () => {
     try {
       const res = await apiProposalDraftSave({
         ...(serverDraftId ? { draftId: serverDraftId } : {}),
-        form: draftToApiForm(draft),
+        form: draftToApiForm(draft, { templateId: template.id }),
       });
       setServerDraftId(res.draftId);
       persistServerDraftId(res.draftId);
@@ -210,21 +226,8 @@ const ProposalCreation: React.FC = () => {
     }
   };
 
-  const canSubmit =
-    essentialsValid &&
-    planValid &&
-    budgetValid &&
-    draft.agreeRules &&
-    draft.confirmBudget &&
-    (draft.metaGovernance
-      ? draft.chamberId.toLowerCase() === "general" &&
-        draft.metaGovernance.chamberId.trim().length > 0 &&
-        (draft.metaGovernance.action === "chamber.dissolve"
-          ? true
-          : (draft.metaGovernance.title ?? "").trim().length > 0)
-      : true);
   const canAct = !SIM_AUTH_ENABLED || (auth.authenticated && auth.eligible);
-  const submitDisabled = !canSubmit || !canAct;
+  const submitDisabled = !computed.canSubmit || !canAct;
 
   return (
     <div className="flex flex-col gap-6">
@@ -265,12 +268,10 @@ const ProposalCreation: React.FC = () => {
             if (!isStepKey(value) && value !== "review") return;
             goToStep(value as StepKey);
           }}
-          options={[
-            { value: "essentials", label: "1 · Essentials" },
-            { value: "plan", label: "2 · Plan" },
-            { value: "budget", label: "3 · Budget" },
-            { value: "review", label: "4 · Review" },
-          ]}
+          options={template.stepOrder.map((key) => ({
+            value: key,
+            label: template.stepTabLabels[key],
+          }))}
           className="w-full max-w-xl justify-between"
         />
       </div>
@@ -278,7 +279,7 @@ const ProposalCreation: React.FC = () => {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-2xl font-semibold text-text">
-            Create proposal · {stepLabel[step]}
+            Create proposal · {template.stepTitles[step]}
           </CardTitle>
           <p className="text-sm text-muted">
             Changes autosave locally. Eligible human nodes can save drafts to
@@ -304,6 +305,8 @@ const ProposalCreation: React.FC = () => {
               chamberOptions={chamberOptions}
               draft={draft}
               setDraft={setDraft}
+              templateId={template.id}
+              setTemplateId={setTemplateId}
               textareaClassName={textareaClassName}
             />
           ) : null}
@@ -313,6 +316,7 @@ const ProposalCreation: React.FC = () => {
               attemptedNext={attemptedNext}
               draft={draft}
               setDraft={setDraft}
+              mode={template.id}
               textareaClassName={textareaClassName}
             />
           ) : null}
@@ -321,7 +325,7 @@ const ProposalCreation: React.FC = () => {
             <BudgetStep
               attemptedNext={attemptedNext}
               budgetTotal={budgetTotal}
-              budgetValid={budgetValid}
+              budgetValid={computed.budgetValid}
               draft={draft}
               setDraft={setDraft}
             />
@@ -331,8 +335,9 @@ const ProposalCreation: React.FC = () => {
             <ReviewStep
               budgetTotal={budgetTotal}
               canAct={canAct}
-              canSubmit={canSubmit}
+              canSubmit={computed.canSubmit}
               draft={draft}
+              mode={template.id}
               selectedChamber={selectedChamber}
               setDraft={setDraft}
               textareaClassName={textareaClassName}
@@ -362,7 +367,9 @@ const ProposalCreation: React.FC = () => {
                       let draftId = serverDraftId;
                       if (!draftId) {
                         const saved = await apiProposalDraftSave({
-                          form: draftToApiForm(draft),
+                          form: draftToApiForm(draft, {
+                            templateId: template.id,
+                          }),
                         });
                         draftId = saved.draftId;
                         setServerDraftId(draftId);
@@ -370,7 +377,9 @@ const ProposalCreation: React.FC = () => {
                       } else {
                         await apiProposalDraftSave({
                           draftId,
-                          form: draftToApiForm(draft),
+                          form: draftToApiForm(draft, {
+                            templateId: template.id,
+                          }),
                         });
                       }
                       const res = await apiProposalSubmitToPool({ draftId });

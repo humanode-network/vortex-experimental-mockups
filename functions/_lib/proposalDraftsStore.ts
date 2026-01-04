@@ -7,54 +7,95 @@ import { createDb } from "./db.ts";
 
 type Env = Record<string, string | undefined>;
 
-export const proposalDraftFormSchema = z.object({
+const timelineItemSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  timeframe: z.string(),
+});
+
+const outputItemSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  url: z.string(),
+});
+
+const budgetItemSchema = z.object({
+  id: z.string(),
+  description: z.string(),
+  amount: z.string(),
+});
+
+const attachmentItemSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  url: z.string(),
+});
+
+const metaGovernanceSchema = z.object({
+  action: z.enum(["chamber.create", "chamber.dissolve"]),
+  chamberId: z.string(),
+  title: z.string().optional(),
+  multiplier: z.number().optional(),
+  genesisMembers: z.array(z.string()).optional(),
+});
+
+const optionalString = z.string().optional().default("");
+const optionalTimeline = z.array(timelineItemSchema).optional().default([]);
+const optionalOutputs = z.array(outputItemSchema).optional().default([]);
+const optionalBudgetItems = z.array(budgetItemSchema).optional().default([]);
+const optionalAttachments = z
+  .array(attachmentItemSchema)
+  .optional()
+  .default([]);
+
+const projectDraftSchema = z.object({
+  templateId: z.literal("project"),
   title: z.string(),
   chamberId: z.string(),
   summary: z.string(),
   what: z.string(),
   why: z.string(),
   how: z.string(),
-  metaGovernance: z
-    .object({
-      action: z.enum(["chamber.create", "chamber.dissolve"]),
-      chamberId: z.string(),
-      title: z.string().optional(),
-      multiplier: z.number().optional(),
-      genesisMembers: z.array(z.string()).optional(),
-    })
-    .optional(),
-  timeline: z.array(
-    z.object({
-      id: z.string(),
-      title: z.string(),
-      timeframe: z.string(),
-    }),
-  ),
-  outputs: z.array(
-    z.object({
-      id: z.string(),
-      label: z.string(),
-      url: z.string(),
-    }),
-  ),
-  budgetItems: z.array(
-    z.object({
-      id: z.string(),
-      description: z.string(),
-      amount: z.string(),
-    }),
-  ),
+  metaGovernance: z.undefined().optional(),
+  timeline: z.array(timelineItemSchema),
+  outputs: z.array(outputItemSchema),
+  budgetItems: z.array(budgetItemSchema),
   aboutMe: z.string(),
-  attachments: z.array(
-    z.object({
-      id: z.string(),
-      label: z.string(),
-      url: z.string(),
-    }),
-  ),
+  attachments: z.array(attachmentItemSchema),
   agreeRules: z.boolean(),
   confirmBudget: z.boolean(),
 });
+
+const systemDraftSchema = z.object({
+  templateId: z.literal("system"),
+  title: z.string(),
+  chamberId: z.string(),
+  summary: optionalString,
+  what: optionalString,
+  why: optionalString,
+  how: optionalString,
+  metaGovernance: metaGovernanceSchema,
+  timeline: optionalTimeline,
+  outputs: optionalOutputs,
+  budgetItems: optionalBudgetItems,
+  aboutMe: optionalString,
+  attachments: optionalAttachments,
+  agreeRules: z.boolean(),
+  confirmBudget: z.boolean(),
+});
+
+export const proposalDraftFormSchema = z.preprocess(
+  (input) => {
+    if (!input || typeof input !== "object" || Array.isArray(input))
+      return input;
+    const record = { ...(input as Record<string, unknown>) };
+    if (!("templateId" in record)) {
+      record.templateId = record.metaGovernance ? "system" : "project";
+    }
+    return record;
+  },
+  z.discriminatedUnion("templateId", [projectDraftSchema, systemDraftSchema]),
+);
 
 export type ProposalDraftForm = z.infer<typeof proposalDraftFormSchema>;
 
@@ -80,6 +121,48 @@ export function clearProposalDraftsForTests() {
   memoryDraftsByAuthor.clear();
 }
 
+export function seedLegacyDraftForTests(input: {
+  authorAddress: string;
+  draftId: string;
+  title: string;
+  chamberId?: string | null;
+  summary?: string;
+  payload: unknown;
+  createdAt?: Date;
+  updatedAt?: Date;
+  submittedAt?: Date | null;
+  submittedProposalId?: string | null;
+}) {
+  const address = input.authorAddress.trim();
+  const now = new Date();
+  const byId =
+    memoryDraftsByAuthor.get(address) ?? new Map<string, ProposalDraftRecord>();
+  const record: ProposalDraftRecord = {
+    id: input.draftId,
+    authorAddress: address,
+    title: input.title,
+    chamberId: input.chamberId ?? null,
+    summary: input.summary ?? "",
+    payload: input.payload as ProposalDraftForm,
+    createdAt: input.createdAt ?? now,
+    updatedAt: input.updatedAt ?? now,
+    submittedAt: input.submittedAt ?? null,
+    submittedProposalId: input.submittedProposalId ?? null,
+  };
+  byId.set(record.id, record);
+  memoryDraftsByAuthor.set(address, byId);
+}
+
+function hasTemplateId(payload: unknown): boolean {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload))
+    return false;
+  return typeof (payload as { templateId?: unknown }).templateId === "string";
+}
+
+function normalizeDraftPayload(payload: unknown): ProposalDraftForm {
+  return proposalDraftFormSchema.parse(payload);
+}
+
 function slugify(value: string): string {
   return value
     .trim()
@@ -90,30 +173,52 @@ function slugify(value: string): string {
 }
 
 function computeBudgetTotalHmnd(form: ProposalDraftForm): number {
-  return form.budgetItems.reduce((sum, item) => {
+  return (form.budgetItems ?? []).reduce((sum, item) => {
     const n = Number(item.amount);
     if (!Number.isFinite(n) || n <= 0) return sum;
     return sum + n;
   }, 0);
 }
 
+function resolveTemplateId(form: ProposalDraftForm): "project" | "system" {
+  return form.templateId;
+}
+
 export function draftIsSubmittable(form: ProposalDraftForm): boolean {
+  const templateId = resolveTemplateId(form);
+  const isSystem = templateId === "system";
   const budgetTotal = computeBudgetTotalHmnd(form);
+  const title = (form.title ?? "").trim();
+  const what = (form.what ?? "").trim();
+  const why = (form.why ?? "").trim();
+  const how = (form.how ?? "").trim();
   const essentialsValid =
-    form.title.trim().length > 0 &&
-    form.what.trim().length > 0 &&
-    form.why.trim().length > 0;
-  const planValid = form.how.trim().length > 0;
-  const budgetValid = form.metaGovernance
+    title.length > 0 && (isSystem ? true : what.length > 0 && why.length > 0);
+  const planValid = isSystem ? true : how.length > 0;
+  const budgetItems = form.budgetItems ?? [];
+  const budgetValid = isSystem
     ? true
-    : form.budgetItems.some(
+    : budgetItems.some(
         (item) =>
           item.description.trim().length > 0 &&
           Number.isFinite(Number(item.amount)) &&
           Number(item.amount) > 0,
       ) && budgetTotal > 0;
+  const meta = form.metaGovernance;
+  const systemValid = isSystem
+    ? Boolean(
+        meta &&
+          (form.chamberId ?? "").trim().toLowerCase() === "general" &&
+          meta.chamberId.trim().length > 0 &&
+          (meta.action === "chamber.dissolve"
+            ? true
+            : (meta.title ?? "").trim().length > 0),
+      )
+    : true;
   const rulesValid = form.agreeRules && form.confirmBudget;
-  return essentialsValid && planValid && budgetValid && rulesValid;
+  return (
+    essentialsValid && planValid && budgetValid && systemValid && rulesValid
+  );
 }
 
 export function formatChamberLabel(chamberId: string | null): string {
@@ -139,11 +244,12 @@ export async function upsertDraft(
 ): Promise<ProposalDraftRecord> {
   const address = input.authorAddress.trim();
   const now = new Date();
+  const form = proposalDraftFormSchema.parse(input.form);
 
   const id =
     typeof input.draftId === "string" && input.draftId.trim().length > 0
       ? input.draftId.trim()
-      : formatDraftId({ title: input.form.title });
+      : formatDraftId({ title: form.title });
 
   if (!env.DATABASE_URL) {
     const byId =
@@ -153,10 +259,10 @@ export async function upsertDraft(
     const record: ProposalDraftRecord = {
       id,
       authorAddress: address,
-      title: input.form.title,
-      chamberId: input.form.chamberId || null,
-      summary: input.form.summary,
-      payload: input.form,
+      title: form.title,
+      chamberId: form.chamberId || null,
+      summary: form.summary,
+      payload: form,
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
       submittedAt: existing?.submittedAt ?? null,
@@ -190,10 +296,10 @@ export async function upsertDraft(
     .values({
       id,
       authorAddress: address,
-      title: input.form.title,
-      chamberId: input.form.chamberId || null,
-      summary: input.form.summary,
-      payload: input.form,
+      title: form.title,
+      chamberId: form.chamberId || null,
+      summary: form.summary,
+      payload: form,
       submittedAt,
       submittedProposalId,
       createdAt,
@@ -202,10 +308,10 @@ export async function upsertDraft(
     .onConflictDoUpdate({
       target: proposalDrafts.id,
       set: {
-        title: input.form.title,
-        chamberId: input.form.chamberId || null,
-        summary: input.form.summary,
-        payload: input.form,
+        title: form.title,
+        chamberId: form.chamberId || null,
+        summary: form.summary,
+        payload: form,
         updatedAt: now,
       },
     });
@@ -213,10 +319,10 @@ export async function upsertDraft(
   return {
     id,
     authorAddress: address,
-    title: input.form.title,
-    chamberId: input.form.chamberId || null,
-    summary: input.form.summary,
-    payload: input.form,
+    title: form.title,
+    chamberId: form.chamberId || null,
+    summary: form.summary,
+    payload: form,
     createdAt,
     updatedAt: now,
     submittedAt,
@@ -255,9 +361,19 @@ export async function listDrafts(
   if (!env.DATABASE_URL) {
     const byId = memoryDraftsByAuthor.get(address);
     const list = byId ? Array.from(byId.values()) : [];
-    return list
+    const normalized = list
       .filter((d) => includeSubmitted || !d.submittedAt)
+      .map((draft) => {
+        if (!hasTemplateId(draft.payload)) {
+          const payload = normalizeDraftPayload(draft.payload);
+          const next = { ...draft, payload };
+          byId?.set(draft.id, next);
+          return next;
+        }
+        return draft;
+      })
       .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+    return normalized;
   }
 
   const db = createDb(env);
@@ -285,18 +401,40 @@ export async function listDrafts(
     .where(where)
     .orderBy(desc(proposalDrafts.updatedAt));
 
-  return rows.map((row) => ({
-    id: row.id,
-    authorAddress: row.authorAddress,
-    title: row.title,
-    chamberId: row.chamberId ?? null,
-    summary: row.summary,
-    payload: proposalDraftFormSchema.parse(row.payload),
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-    submittedAt: row.submittedAt ?? null,
-    submittedProposalId: row.submittedProposalId ?? null,
-  }));
+  const migrations: Promise<unknown>[] = [];
+  const result = rows.map((row) => {
+    const needsMigration = !hasTemplateId(row.payload);
+    const payload = normalizeDraftPayload(row.payload);
+    if (needsMigration) {
+      migrations.push(
+        db
+          .update(proposalDrafts)
+          .set({ payload, updatedAt: row.updatedAt })
+          .where(
+            and(
+              eq(proposalDrafts.id, row.id),
+              eq(proposalDrafts.authorAddress, row.authorAddress),
+            ),
+          ),
+      );
+    }
+    return {
+      id: row.id,
+      authorAddress: row.authorAddress,
+      title: row.title,
+      chamberId: row.chamberId ?? null,
+      summary: row.summary,
+      payload,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      submittedAt: row.submittedAt ?? null,
+      submittedProposalId: row.submittedProposalId ?? null,
+    };
+  });
+  if (migrations.length > 0) {
+    await Promise.all(migrations);
+  }
+  return result;
 }
 
 export async function getDraft(
@@ -307,7 +445,15 @@ export async function getDraft(
   const id = input.draftId.trim();
   if (!env.DATABASE_URL) {
     const byId = memoryDraftsByAuthor.get(address);
-    return byId?.get(id) ?? null;
+    const record = byId?.get(id) ?? null;
+    if (!record) return null;
+    if (!hasTemplateId(record.payload)) {
+      const payload = normalizeDraftPayload(record.payload);
+      const next = { ...record, payload };
+      byId?.set(id, next);
+      return next;
+    }
+    return record;
   }
 
   const db = createDb(env);
@@ -331,13 +477,26 @@ export async function getDraft(
     .limit(1);
   const row = rows[0];
   if (!row) return null;
+  const needsMigration = !hasTemplateId(row.payload);
+  const payload = normalizeDraftPayload(row.payload);
+  if (needsMigration) {
+    await db
+      .update(proposalDrafts)
+      .set({ payload, updatedAt: row.updatedAt })
+      .where(
+        and(
+          eq(proposalDrafts.id, row.id),
+          eq(proposalDrafts.authorAddress, row.authorAddress),
+        ),
+      );
+  }
   return {
     id: row.id,
     authorAddress: row.authorAddress,
     title: row.title,
     chamberId: row.chamberId ?? null,
     summary: row.summary,
-    payload: proposalDraftFormSchema.parse(row.payload),
+    payload,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
     submittedAt: row.submittedAt ?? null,

@@ -384,6 +384,7 @@ export async function apiProposalDraft(
 }
 
 export type ProposalDraftFormPayload = {
+  templateId?: "project" | "system";
   title: string;
   chamberId: string;
   summary: string;

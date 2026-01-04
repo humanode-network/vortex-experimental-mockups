@@ -12,6 +12,7 @@ export function ReviewStep(props: {
   canAct: boolean;
   canSubmit: boolean;
   draft: ProposalDraftForm;
+  mode: "project" | "system";
   selectedChamber: ChamberDto | null;
   setDraft: React.Dispatch<React.SetStateAction<ProposalDraftForm>>;
   textareaClassName: string;
@@ -21,6 +22,7 @@ export function ReviewStep(props: {
     canAct,
     canSubmit,
     draft,
+    mode,
     selectedChamber,
     setDraft,
     textareaClassName,
@@ -100,12 +102,14 @@ export function ReviewStep(props: {
                 )}
               </ul>
             </div>
-            <div>
-              <p className="text-xs font-semibold text-text">Budget</p>
-              <p className="text-muted">
-                Total: {budgetTotal.toLocaleString()} HMND
-              </p>
-            </div>
+            {mode === "system" ? null : (
+              <div>
+                <p className="text-xs font-semibold text-text">Budget</p>
+                <p className="text-muted">
+                  Total: {budgetTotal.toLocaleString()} HMND
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -225,7 +229,9 @@ export function ReviewStep(props: {
                 }))
               }
             />
-            I confirm the budget is accurate
+            {mode === "system"
+              ? "I confirm the proposal details are accurate"
+              : "I confirm the budget is accurate"}
           </label>
         </div>
         {!canSubmit ? (
