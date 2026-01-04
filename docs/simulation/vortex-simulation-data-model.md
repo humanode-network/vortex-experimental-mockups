@@ -16,7 +16,7 @@ The schema is implemented in `db/schema.ts` with migrations under `db/migrations
 
 Purpose:
 
-- Store JSON payloads that directly match the DTOs in `docs/vortex-simulation-api-contract.md`.
+- Store JSON payloads that directly match the DTOs in `docs/simulation/vortex-simulation-api-contract.md`.
 
 Modes:
 
@@ -90,7 +90,7 @@ Planned (v2+):
 
 - The draft `payload` will evolve from a single “project-shaped” object with optional `metaGovernance` into a **discriminated union** aligned with proposal wizard templates (project vs system-change flows).
 - The wizard architecture and phased migration strategy are described in:
-  - `docs/vortex-simulation-proposal-wizard-architecture.md`
+  - `docs/simulation/vortex-simulation-proposal-wizard-architecture.md`
 
 ## Proposals (Phase 14)
 

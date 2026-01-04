@@ -41,7 +41,7 @@ export const onRequestGet: PagesFunction = async (context) => {
             tier,
             budget:
               budgetTotal > 0 ? `${budgetTotal.toLocaleString()} HMND` : "—",
-            formationEligible: true,
+            formationEligible: !draft.payload.metaGovernance,
             teamSlots: "1 / 3",
             milestonesPlanned: `${draft.payload.timeline.length} milestones`,
             summary: draft.payload.summary,
@@ -122,7 +122,7 @@ export const onRequestGet: PagesFunction = async (context) => {
         : "General proposal",
       tier,
       budget: budgetTotal > 0 ? `${budgetTotal.toLocaleString()} HMND` : "—",
-      formationEligible: true,
+      formationEligible: !draft.payload.metaGovernance,
       teamSlots: "1 / 3",
       milestonesPlanned: `${draft.payload.timeline.length} milestones`,
       summary: draft.payload.summary,

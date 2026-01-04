@@ -1,10 +1,10 @@
 # Vortex Simulation Backend — Tech Architecture
 
-This document maps `docs/vortex-simulation-processes.md` onto a technical architecture that fits this repo (React app + Cloudflare Pages Functions in production, with a Node runner for local dev).
+This document maps `docs/simulation/vortex-simulation-processes.md` onto a technical architecture that fits this repo (React app + Cloudflare Pages Functions in production, with a Node runner for local dev).
 
-For a paper-aligned “module map” that links product concepts to concrete code, start with `docs/vortex-simulation-modules.md`.
+For a paper-aligned “module map” that links product concepts to concrete code, start with `docs/simulation/vortex-simulation-modules.md`.
 
-For the DB table inventory, see `docs/vortex-simulation-data-model.md`. For ops controls and admin endpoints, see `docs/vortex-simulation-ops-runbook.md`.
+For the DB table inventory, see `docs/simulation/vortex-simulation-data-model.md`. For ops controls and admin endpoints, see `docs/ops/vortex-simulation-ops-runbook.md`.
 
 ## 1) Stack (recommended)
 
@@ -174,7 +174,7 @@ To avoid rewriting the UI while we build normalized tables + an event log, we se
 
 - `read_models`: `{ key, payload (jsonb), updatedAt }`
 
-This allows early `GET /api/...` endpoints to serve the exact DTOs expected by `docs/vortex-simulation-api-contract.md` while we progressively replace `read_models` with real projections.
+This allows early `GET /api/...` endpoints to serve the exact DTOs expected by `docs/simulation/vortex-simulation-api-contract.md` while we progressively replace `read_models` with real projections.
 
 Local dev modes for reads:
 
@@ -300,7 +300,7 @@ In the current repo implementation, `events` exists as an append-only Postgres t
 
 ## 6) Mapping: processes → modules → APIs → tables/events
 
-This section maps each workflow from `docs/vortex-simulation-processes.md` to concrete tech.
+This section maps each workflow from `docs/simulation/vortex-simulation-processes.md` to concrete tech.
 
 ### 2.0 Authentication + gating
 

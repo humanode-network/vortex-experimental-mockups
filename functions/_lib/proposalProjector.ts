@@ -523,6 +523,13 @@ function getFormationEligibleFromPayload(payload: unknown): boolean {
   if (!payload || typeof payload !== "object" || Array.isArray(payload))
     return true;
   const record = payload as Record<string, unknown>;
+  if (record.templateId === "system") return false;
+  if (
+    typeof record.metaGovernance === "object" &&
+    record.metaGovernance !== null &&
+    !Array.isArray(record.metaGovernance)
+  )
+    return false;
   if (typeof record.formationEligible === "boolean")
     return record.formationEligible;
   if (typeof record.formation === "boolean") return record.formation;

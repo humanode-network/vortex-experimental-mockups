@@ -103,4 +103,4 @@ The next paper-aligned expansions (v2+) are:
 
 - Meritocratic Measure (MM) from Formation delivery/review.
 
-Source of truth: `docs/vortex-simulation-implementation-plan.md`.
+Source of truth: `docs/simulation/vortex-simulation-implementation-plan.md`.

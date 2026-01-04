@@ -172,6 +172,10 @@ Implementation helpers:
 
 The wizard refactor is intentionally staged so the UI can stay usable while the draft schema evolves.
 
+Status:
+
+- W1–W5 completed (see `docs/simulation/vortex-simulation-implementation-plan.md`, Phases 35–39).
+
 ### W1 — Template runner + registry (plumbing)
 
 - Introduce a template registry (`templates/*`) and make `ProposalCreation.tsx` a template runner.

@@ -60,7 +60,7 @@ Derived metrics:
 - Upvotes / downvotes are computed from `pool_votes`.
 - Quorum thresholds are parameterized by:
   - active governors baseline (`SIM_ACTIVE_GOVERNORS` or per-era snapshot)
-  - pool quorum constants (see `docs/vortex-simulation-v1-constants.md`)
+  - pool quorum constants (see `docs/simulation/vortex-simulation-v1-constants.md`)
 
 Transition (implemented v1 behavior):
 
@@ -86,7 +86,7 @@ Derived metrics:
 - yes/no/abstain totals are computed from `chamber_votes`.
 - passing/quorum rules are parameterized by:
   - active governors baseline (`SIM_ACTIVE_GOVERNORS` or per-era snapshot)
-  - vote quorum + passing constants (see `docs/vortex-simulation-v1-constants.md`)
+  - vote quorum + passing constants (see `docs/simulation/vortex-simulation-v1-constants.md`)
 
 Transition (implemented v1 behavior):
 

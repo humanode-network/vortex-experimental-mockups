@@ -1,8 +1,8 @@
 # Vortex Simulation Backend — Implementation Plan
 
-This plan turns `docs/vortex-simulation-processes.md` + `docs/vortex-simulation-tech-architecture.md` into an executable roadmap that stays aligned with the current UI.
+This plan turns `docs/simulation/vortex-simulation-processes.md` + `docs/simulation/vortex-simulation-tech-architecture.md` into an executable roadmap that stays aligned with the current UI.
 
-For a paper-aligned module map (paper → docs → code), see `docs/vortex-simulation-modules.md`.
+For a paper-aligned module map (paper → docs → code), see `docs/simulation/vortex-simulation-modules.md`.
 
 ## Current status (what exists in the repo right now)
 
@@ -19,14 +19,14 @@ Implemented (v1 simulation backend):
 - Cookie-signed nonce + session helpers (requires `SESSION_SECRET`)
 - Dev toggles for local progress:
   - `DEV_BYPASS_SIGNATURE`, `DEV_BYPASS_GATE`, `DEV_ELIGIBLE_ADDRESSES`, `DEV_INSECURE_COOKIES`
-- Local dev notes: `docs/vortex-simulation-local-dev.md`
+- Local dev notes: `docs/simulation/vortex-simulation-local-dev.md`
 - Test harness + CI:
   - `yarn test` (Node’s built-in test runner)
   - CI runs `yarn test` via `.github/workflows/code.yml`
   - API tests: `tests/api-*.test.js`
 - v1 decisions + contracts (kept aligned with the UI):
-  - v1 constants: `docs/vortex-simulation-v1-constants.md`
-  - API contract: `docs/vortex-simulation-api-contract.md`
+  - v1 constants: `docs/simulation/vortex-simulation-v1-constants.md`
+  - API contract: `docs/simulation/vortex-simulation-api-contract.md`
   - DTO types: `src/types/api.ts`
 - Postgres (Drizzle) schema + migrations + seed scripts:
   - Drizzle config: `drizzle.config.ts`
@@ -74,7 +74,7 @@ Not implemented (intentional v1 gaps):
 - Keep domain logic **pure and shared** (state machine + events). The API is a thin adapter.
 - Prefer **deterministic**, testable transitions; avoid “magic UI-only numbers”.
 - Enforce gating on **every write**: “browse open, write gated”.
-- Minimize UI churn: keep the frozen DTOs (`docs/vortex-simulation-api-contract.md` + `src/types/api.ts`) stable while the backend transitions from `read_models` to normalized tables + an event log.
+- Minimize UI churn: keep the frozen DTOs (`docs/simulation/vortex-simulation-api-contract.md` + `src/types/api.ts`) stable while the backend transitions from `read_models` to normalized tables + an event log.
 
 ## Testing requirement (applies to every phase)
 
@@ -127,27 +127,27 @@ This is the order we’ll follow from now on, based on what’s already landed.
 28. **Phase 24 — Meta-governance proposal type (UI) (DONE)**
 29. **Phase 25 — Proposal pages projected from canonical state (DONE)**
 30. **Phase 26 — Proposal history timeline (DONE)**
-31. **Phase 27 — Active governance v2 (derive and persist active governor set per era)**
-32. **Phase 28 — Quorum engine v2 (era-derived denominators + paper thresholds)**
-33. **Phase 29 — Delegation v1 (graph + history + chamber vote weighting)**
-34. **Phase 30 — Veto v1 (temporary slow-down + attempt limits)**
-35. **Phase 31 — Chamber multiplier voting v1 (outside-of-chamber aggregation)**
+31. **Phase 27 — Active governance v2 (derive and persist active governor set per era) (DONE)**
+32. **Phase 28 — Quorum engine v2 (era-derived denominators + paper thresholds) (DONE)**
+33. **Phase 29 — Delegation v1 (graph + history + chamber vote weighting) (DONE)**
+34. **Phase 30 — Veto v1 (temporary slow-down + attempt limits) (DONE)**
+35. **Phase 31 — Chamber multiplier voting v1 (outside-of-chamber aggregation) (DONE)**
 36. **Phase 32 — Paper alignment audit pass (process-by-process)**
-37. **Phase 33 — Testing readiness v3 (scenario harness + end-to-end validation)**
+37. **Phase 33 — Testing readiness v3 (scenario harness + end-to-end validation) (IN PROGRESS)**
 38. **Phase 34 — Meritocratic Measure (MM) v1 (post-V3, Formation delivery scoring)**
 39. **Phase 35 — Proposal wizard v2 W1 (template runner + registry) (DONE)**
 40. **Phase 36 — Proposal wizard v2 W2 (system.chamberCreate flow) (DONE — `system` template v1)**
 41. **Phase 37 — Proposal wizard v2 W3 (backend discriminated drafts) (DONE)**
-42. **Phase 38 — Proposal wizard v2 W4 (migrate drafts + simplify validation)**
-43. **Phase 39 — Proposal wizard v2 W5 (cleanup + extension points)**
+42. **Phase 38 — Proposal wizard v2 W4 (migrate drafts + simplify validation) (DONE)**
+43. **Phase 39 — Proposal wizard v2 W5 (cleanup + extension points) (DONE)**
 
-### Proposal wizard v2 phases (planned)
+### Proposal wizard v2 phases (Phases 35–39)
 
 In parallel to the main backend phases, the proposal wizard is moving toward template-driven flows so that system-change proposals (like chamber creation) do not share project-only steps/fields.
 
 Reference:
 
-- `docs/vortex-simulation-proposal-wizard-architecture.md` (Wizard v2 track W1–W5)
+- `docs/simulation/vortex-simulation-proposal-wizard-architecture.md` (Wizard v2 track W1–W5)
 
 Notes:
 
@@ -207,7 +207,7 @@ The UI renders from `/api/*` reads. The contract is frozen so backend and fronte
 
 Contract location:
 
-- `docs/vortex-simulation-api-contract.md` (human-readable source of truth)
+- `docs/simulation/vortex-simulation-api-contract.md` (human-readable source of truth)
 - `src/types/api.ts` (TS source of truth for DTOs)
 
 1. Define response DTOs that match the current UI needs:
@@ -662,7 +662,7 @@ Minimum viable proto-vortex for community:
 
 v1 is a complete, community-playable simulation slice. The next phases focus on replacing transitional components (`read_models`-driven state) with canonical domain tables and a fuller write model, while keeping the current UI DTOs stable.
 
-### Phase 12 — Proposal drafts + submission (DONE)
+## Phase 12 — Proposal drafts + submission (DONE)
 
 Goal: make the ProposalCreation wizard a real write path (drafts stored in DB, submitted into the pool), without requiring a backend redesign.
 
@@ -694,7 +694,7 @@ Current status:
 - ProposalCreation UI saves drafts via the backend and submits drafts into the proposal pool.
 - Tests added: `tests/api-command-drafts.test.js`.
 
-### Phase 13 — Eligibility via `Session::Validators` (DONE)
+## Phase 13 — Eligibility via `Session::Validators` (DONE)
 
 Goal: gate writes based on the **current validator set** on Humanode mainnet (instead of attempting to infer “activeness” via `ImOnline::*`).
 
@@ -714,7 +714,7 @@ Tests:
 - Caching works (second call does not re-hit RPC in memory mode).
 - Non-validator address returns `eligible: false` with the expected reason code.
 
-### Phase 14 — Canonical domain tables + projections (DONE)
+## Phase 14 — Canonical domain tables + projections (DONE)
 
 Goal: start migrating away from `read_models` as the “source of truth” by introducing canonical tables for entities that are actively mutated (starting with proposals).
 
@@ -740,7 +740,7 @@ Current status:
 - Proposal page reads prefer canonical proposals (pool/chamber/formation), falling back to `read_models` only for seeded legacy proposals.
 - Pool → vote and vote → build auto-advance update the canonical proposal stage via compare-and-set transitions.
 
-### Phase 15 — Deterministic state transitions (DONE)
+## Phase 15 — Deterministic state transitions (DONE)
 
 Goal: centralize all proposal stage logic in a single, testable state machine (rather than scattered “read model patching”).
 
@@ -765,7 +765,7 @@ Current status:
 - `pool.vote` and `chamber.vote` can auto-advance proposals even when `read_models` are missing, by using canonical proposal state as the source of truth.
 - Canonical stage transitions are enforced via `transitionProposalStage(...)` (compare-and-set + transition validation), with coverage in tests.
 
-### Phase 16 — Time windows + automation (DONE)
+## Phase 16 — Time windows + automation (DONE)
 
 Goal: move from “admin-driven clock ops only” to scheduled simulation behavior.
 
@@ -793,7 +793,7 @@ Current status:
   - `GET /api/proposals` and `GET /api/proposals/:id/chamber` compute `timeLeft` from the canonical proposal stage timestamp when enabled (`"Ended"` once the window is over).
   - `POST /api/clock/tick` emits a deduped feed event when a proposal’s `pool` or `vote` window has ended (and returns those in the `endedWindows` response field for visibility).
 
-### Phase 17 — Chamber voting eligibility + Formation optionality (DONE)
+## Phase 17 — Chamber voting eligibility + Formation optionality (DONE)
 
 Goal: align chambers with the Vortex 1.0 model:
 
@@ -855,7 +855,7 @@ Current status:
 - Tests:
   - `tests/api-chamber-eligibility.test.js`
 
-### Phase 18 — Chambers lifecycle (create/dissolve) (DONE)
+## Phase 18 — Chambers lifecycle (create/dissolve) (DONE)
 
 Goal: model chamber creation and dissolution per Vortex 1.0 as **General chamber** proposals.
 
@@ -886,7 +886,7 @@ Current status:
 - Tests:
   - `tests/api-chambers-lifecycle.test.js`
 
-### Phase 19 — Chamber detail projections (DONE)
+## Phase 19 — Chamber detail projections (DONE)
 
 Goal: make `GET /api/chambers/:id` a true projection from canonical state (no chamber read-model drift).
 
@@ -914,7 +914,7 @@ Current status:
 - Tests:
   - `tests/api-chamber-detail-projection.test.js`
 
-### Phase 20 — Dissolved chamber enforcement (DONE)
+## Phase 20 — Dissolved chamber enforcement (DONE)
 
 Goal: define and enforce what “dissolved chamber” means for writes in v1.
 
@@ -945,7 +945,7 @@ Current status:
 - Tests:
   - `tests/api-chamber-dissolution.test.js`
 
-### Phase 21 — Chambers directory projections (pipeline/stats) (DONE)
+## Phase 21 — Chambers directory projections (pipeline/stats) (DONE)
 
 Goal: ensure `GET /api/chambers` is a stable projection of canonical state across both DB mode and inline mode.
 
@@ -969,7 +969,7 @@ Current status:
 - Tests:
   - `tests/api-chambers-index-projection.test.js`
 
-### Phase 22 — Meta-governance chamber.create seeding (backend) (DONE)
+## Phase 22 — Meta-governance chamber.create seeding (backend) (DONE)
 
 Goal: allow chamber creation to be driven by a General proposal outcome and immediately become usable (no chicken-and-egg for voting).
 
@@ -1000,7 +1000,7 @@ Current status:
 - Tests:
   - `tests/api-command-chamber-create-members.test.js`
 
-### Phase 23 — Proposal drafts (UI ↔ backend) (DONE)
+## Phase 23 — Proposal drafts (UI ↔ backend) (DONE)
 
 Goal: make the proposal creation wizard use the real backend drafts so “drafts → submit → proposal” is end-to-end through the UI.
 
@@ -1023,7 +1023,7 @@ Current status:
 - The wizard UI is split into `src/pages/proposals/proposalCreation/*` step components + storage/sync helpers (so the page orchestrator stays small).
 - “Submit proposal” now saves (if needed) and submits via `proposal.submitToPool`, then navigates to `/app/proposals/:id/pp`.
 
-### Phase 24 — Meta-governance proposal type (UI) (DONE)
+## Phase 24 — Meta-governance proposal type (UI) (DONE)
 
 Goal: expose meta-governance proposals in the proposal wizard so chambers can be created/dissolved without manual API calls.
 
@@ -1048,138 +1048,7 @@ Current status:
 - Tests:
   - `tests/api-command-meta-governance-no-budget.test.js`
 
-Follow-up (planned): Proposal wizard templates v2 (Wizard v2 track)
-
-The current UI implementation supports meta-governance, but it still uses a largely “single big form” shape that mixes project fields with system-change fields. For long-term maintainability (and a cleaner chamber-creation UX), the wizard is moving to a template-driven design where proposal types have distinct step flows and payload shapes.
-
-Reference:
-
-- `docs/vortex-simulation-proposal-wizard-architecture.md` (Wizard v2 track W1–W5)
-
-Planned deliverables (high-level):
-
-- A template runner + registry so proposal types can define their own steps.
-- A dedicated `system.chamberCreate` flow that only collects fields needed to create and render a chamber.
-- A discriminated union draft schema in the backend, with compatibility for legacy drafts during migration.
-
-Phases:
-
-- Phase 35–39 (Proposal wizard v2 W1–W5), as listed in the execution sequence above.
-
-### Phase 35 — Proposal wizard v2 W1 (template runner + registry) (DONE)
-
-Goal: extract the proposal creation flow into a template runner so different proposal kinds can have different step flows without turning `ProposalCreation.tsx` into a branching monolith.
-
-Deliverables:
-
-- A template registry that is safe to import from Node tests (no JSX in the template layer).
-- A template runner in `src/pages/proposals/ProposalCreation.tsx` that delegates:
-  - step order + labels
-  - step-to-step navigation constraints (Next/Back)
-  - submit gating (`canSubmit`)
-- Persist template id in local draft storage.
-
-Current status:
-
-- Template registry:
-  - `src/pages/proposals/proposalCreation/templates/registry.ts`
-  - `src/pages/proposals/proposalCreation/templates/types.ts`
-- Templates implemented:
-  - `src/pages/proposals/proposalCreation/templates/project.ts`
-  - `src/pages/proposals/proposalCreation/templates/system.ts`
-- Runner integration:
-  - `src/pages/proposals/ProposalCreation.tsx`
-  - local storage helpers: `src/pages/proposals/proposalCreation/storage.ts`
-- Tests:
-  - `tests/proposal-wizard-template-registry.test.js`
-
-### Phase 36 — Proposal wizard v2 W2 (system.chamberCreate flow) (DONE — `system` template v1)
-
-Goal: make chamber creation proposals feel like system proposals (not project proposals), while still producing a payload the backend can accept today.
-
-Deliverables:
-
-- A dedicated **system** flow that:
-  - forces `chamberId = "general"`
-  - skips the Budget step
-  - hides project-only optional sections (timeline/outputs) for system proposals
-- Keep `metaGovernance` in the draft payload so existing backend finalizers apply.
-
-Current status:
-
-- UI “Kind” selector switches the template:
-  - `project` (Essentials → Plan → Budget → Review)
-  - `system` (Setup → Rationale → Review)
-- `metaGovernance` fields are still collected in Essentials (action, chamber id, title, multiplier, genesis members).
-
-### Phase 37 — Proposal wizard v2 W3 (backend discriminated drafts) (DONE)
-
-Goal: stop requiring project-oriented fields for system proposals and make backend validation match the template.
-
-Deliverables:
-
-- Add a discriminant to the stored draft payload (`templateId`) and validate as a union.
-- Separate required fields per draft kind:
-  - `project`: keeps project-required text + budget checks.
-  - `system`: requires system action fields; project-only fields can be omitted.
-- Normalize missing system fields to defaults so payloads remain stable for existing UI readers.
-
-Current status:
-
-- `proposalDraftFormSchema` is now a template-aware discriminated union with preprocessing:
-  - `project` vs `system` templates
-  - template inference when `templateId` is missing
-  - defaults applied for optional system fields
-- Draft storage normalizes payloads via the schema so later consumers always see consistent arrays/strings.
-- Tests:
-  - `tests/api-command-system-draft-minimal.test.js`
-
-### Phase 38 — Proposal wizard v2 W4 (migrate drafts + simplify validation) (DONE)
-
-Goal: migrate stored drafts (DB + local) so the UI and backend no longer carry legacy branches.
-
-Deliverables:
-
-- Migration strategy:
-  - Map old drafts to `project` by default.
-  - Map drafts with `metaGovernance` to `system`.
-- Simplify template logic by removing “mixed” validation branches.
-
-Tests:
-
-- Migration tests and a small “legacy draft still loads” smoke check.
-
-Current status:
-
-- Draft payloads are normalized on read:
-  - DB: `listDrafts`/`getDraft` backfill `templateId` when missing.
-  - Memory: legacy payloads are normalized and cached.
-- Project wizard validation no longer handles system proposals.
-- Tests:
-  - `tests/proposal-draft-migration.test.js`
-
-### Phase 39 — Proposal wizard v2 W5 (cleanup + extension points) (DONE)
-
-Goal: keep the wizard extensible without reintroducing branching logic everywhere.
-
-Deliverables:
-
-- Add extension points for additional system actions without inflating the project flow.
-- Keep system-specific fields out of the project flow.
-
-Tests:
-
-- Wizard system template validation (project fields are no longer required).
-
-Current status:
-
-- System action metadata is centralized in `systemActions.ts`.
-- System proposals no longer require project-only fields (`what/why`).
-- System review summary renders only system-specific fields.
-- Tests:
-  - `tests/proposal-wizard-system-template.test.js`
-
-### Phase 25 — Proposal pages projected from canonical state (DONE)
+## Phase 25 — Proposal pages projected from canonical state (DONE)
 
 Goal: ensure `/api/proposals` and proposal pages are projections from canonical proposals + overlays (not brittle, seed-only read models).
 
@@ -1205,7 +1074,7 @@ Current status:
 - Tests:
   - `tests/api-proposals-canonical-precedence.test.js` (canonical proposal takes precedence over seeded read models).
 
-### Phase 26 — Proposal history timeline (DONE)
+## Phase 26 — Proposal history timeline (DONE)
 
 Goal: make proposals auditable and explainable by exposing a single “what happened” timeline.
 
@@ -1238,7 +1107,7 @@ Current status:
 - Tests:
   - `tests/api-proposal-timeline.test.js`
 
-### Phase 27 — Active governance v2 (derive and persist active governor set per era) (DONE)
+## Phase 27 — Active governance v2 (derive and persist active governor set per era) (DONE)
 
 Goal: define “active governor” precisely, derive it at rollup, and persist it as the canonical basis for quorums and UI denominators.
 
@@ -1283,7 +1152,7 @@ Tests:
 - `tests/api-era-rollup.test.js` (rollup is idempotent and computes counts)
 - `tests/api-era-rollup-validator-gate.test.js` (active governors are filtered by `Session::Validators`)
 
-### Phase 28 — Quorum engine v2 (era-derived denominators + paper thresholds)
+## Phase 28 — Quorum engine v2 (era-derived denominators + paper thresholds) (DONE)
 
 Goal: drive all quorum math from the active-governor denominator computed in Phase 27, and decide paper-alignment thresholds.
 
@@ -1313,7 +1182,7 @@ Implemented:
 - `functions/api/proposals/*` reads prefer stage denominators for pool/vote pages and list items
 - Test: `tests/api-quorum-stage-denominators.test.js`
 
-### Phase 29 — Delegation v1 (graph + history + chamber vote weighting)
+## Phase 29 — Delegation v1 (graph + history + chamber vote weighting) (DONE)
 
 Goal: implement delegation as a first-class module so chamber votes can aggregate weight, while proposal pool attention remains strictly direct.
 
@@ -1352,7 +1221,7 @@ Implemented:
   - `tests/delegations-cycle.test.js`
   - `tests/api-delegation-weighted-votes.test.js`
 
-### Phase 30 — Veto v1 (temporary slow-down + attempt limits)
+## Phase 30 — Veto v1 (temporary slow-down + attempt limits) (DONE)
 
 Goal: implement a paper-aligned temporary veto slow-down that is auditable and bounded.
 
@@ -1388,7 +1257,7 @@ Implemented:
   - `tests/api-veto.test.js`
   - `tests/migrations.test.js` asserts `veto_votes` table exists
 
-### Phase 31 — Chamber multiplier voting v1 (outside-of-chamber aggregation)
+## Phase 31 — Chamber multiplier voting v1 (outside-of-chamber aggregation) (DONE)
 
 Goal: implement paper-aligned multiplier setting (outsiders-only aggregation) without rewriting historical CM awards.
 
@@ -1419,21 +1288,21 @@ Implemented:
 - Tests:
   - `tests/api-chamber-multiplier-voting.test.js`
 
-### Phase 32 — Paper alignment audit pass (process-by-process)
+## Phase 32 — Paper alignment audit pass (process-by-process)
 
 Goal: run a deliberate paper-vs-simulation audit for every major process and reconcile docs/constants before “production-like” testing.
 
 Deliverables:
 
-- Update `docs/vortex-simulation-paper-alignment.md` with the resolved decisions.
-- Update `docs/vortex-simulation-v1-constants.md` if thresholds change.
+- Update `docs/simulation/vortex-simulation-paper-alignment.md` with the resolved decisions.
+- Update `docs/simulation/vortex-simulation-v1-constants.md` if thresholds change.
 - Update UI copy/labels where the paper language is more precise.
 
 Tests:
 
 - None required (doc-only), but any behavior changes required by the audit must ship with tests in the relevant phase.
 
-### Phase 33 — Testing readiness v3 (scenario harness + end-to-end validation)
+## Phase 33 — Testing readiness v3 (scenario harness + end-to-end validation) (IN PROGRESS)
 
 Goal: add a deterministic, repeatable testing harness that validates the full governance loop across modules without relying on browser-driven manual testing.
 
@@ -1456,7 +1325,12 @@ Tests:
   - execute command sequences
   - assert invariants and derived values at each step (statuses, denominators, stage transitions, event logs).
 
-### Phase 34 — Meritocratic Measure (MM) v1 (post-V3, Formation delivery scoring)
+Current status:
+
+- Added a baseline scenario test for project proposals:
+  - `tests/scenario-governance-loop.test.js`
+
+## Phase 34 — Meritocratic Measure (MM) v1 (post-V3, Formation delivery scoring)
 
 Goal: model delivery merit earned through Formation in a way that can feed into tiers and Invision, without blocking the core governance loop testing.
 
@@ -1469,3 +1343,135 @@ Tests:
 
 - Unit tests for MM aggregation.
 - API tests for MM visibility in `GET /api/my-governance` and `GET /api/invision`.
+
+
+Proposal wizard v2 track (Phases 35–39)
+
+The current UI implementation supports meta-governance, but it still uses a largely “single big form” shape that mixes project fields with system-change fields. For long-term maintainability (and a cleaner chamber-creation UX), the wizard is moving to a template-driven design where proposal types have distinct step flows and payload shapes.
+
+Reference:
+
+- `docs/simulation/vortex-simulation-proposal-wizard-architecture.md` (Wizard v2 track W1–W5)
+
+Track summary (high-level):
+
+- A template runner + registry so proposal types can define their own steps.
+- A dedicated `system.chamberCreate` flow that only collects fields needed to create and render a chamber.
+- A discriminated union draft schema in the backend, with compatibility for legacy drafts during migration.
+
+Phases:
+
+- Phase 35–39 (Proposal wizard v2 W1–W5), as listed in the execution sequence above.
+
+## Phase 35 — Proposal wizard v2 W1 (template runner + registry) (DONE)
+
+Goal: extract the proposal creation flow into a template runner so different proposal kinds can have different step flows without turning `ProposalCreation.tsx` into a branching monolith.
+
+Deliverables:
+
+- A template registry that is safe to import from Node tests (no JSX in the template layer).
+- A template runner in `src/pages/proposals/ProposalCreation.tsx` that delegates:
+  - step order + labels
+  - step-to-step navigation constraints (Next/Back)
+  - submit gating (`canSubmit`)
+- Persist template id in local draft storage.
+
+Current status:
+
+- Template registry:
+  - `src/pages/proposals/proposalCreation/templates/registry.ts`
+  - `src/pages/proposals/proposalCreation/templates/types.ts`
+- Templates implemented:
+  - `src/pages/proposals/proposalCreation/templates/project.ts`
+  - `src/pages/proposals/proposalCreation/templates/system.ts`
+- Runner integration:
+  - `src/pages/proposals/ProposalCreation.tsx`
+  - local storage helpers: `src/pages/proposals/proposalCreation/storage.ts`
+- Tests:
+  - `tests/proposal-wizard-template-registry.test.js`
+
+## Phase 36 — Proposal wizard v2 W2 (system.chamberCreate flow) (DONE — `system` template v1)
+
+Goal: make chamber creation proposals feel like system proposals (not project proposals), while still producing a payload the backend can accept today.
+
+Deliverables:
+
+- A dedicated **system** flow that:
+  - forces `chamberId = "general"`
+  - skips the Budget step
+  - hides project-only optional sections (timeline/outputs) for system proposals
+- Keep `metaGovernance` in the draft payload so existing backend finalizers apply.
+
+Current status:
+
+- UI “Kind” selector switches the template:
+  - `project` (Essentials → Plan → Budget → Review)
+  - `system` (Setup → Rationale → Review)
+- `metaGovernance` fields are still collected in Essentials (action, chamber id, title, multiplier, genesis members).
+
+## Phase 37 — Proposal wizard v2 W3 (backend discriminated drafts) (DONE)
+
+Goal: stop requiring project-oriented fields for system proposals and make backend validation match the template.
+
+Deliverables:
+
+- Add a discriminant to the stored draft payload (`templateId`) and validate as a union.
+- Separate required fields per draft kind:
+  - `project`: keeps project-required text + budget checks.
+  - `system`: requires system action fields; project-only fields can be omitted.
+- Normalize missing system fields to defaults so payloads remain stable for existing UI readers.
+
+Current status:
+
+- `proposalDraftFormSchema` is now a template-aware discriminated union with preprocessing:
+  - `project` vs `system` templates
+  - template inference when `templateId` is missing
+  - defaults applied for optional system fields
+- Draft storage normalizes payloads via the schema so later consumers always see consistent arrays/strings.
+- Tests:
+  - `tests/api-command-system-draft-minimal.test.js`
+
+## Phase 38 — Proposal wizard v2 W4 (migrate drafts + simplify validation) (DONE)
+
+Goal: migrate stored drafts (DB + local) so the UI and backend no longer carry legacy branches.
+
+Deliverables:
+
+- Migration strategy:
+  - Map old drafts to `project` by default.
+  - Map drafts with `metaGovernance` to `system`.
+- Simplify template logic by removing “mixed” validation branches.
+
+Tests:
+
+- Migration tests and a small “legacy draft still loads” smoke check.
+
+Current status:
+
+- Draft payloads are normalized on read:
+  - DB: `listDrafts`/`getDraft` backfill `templateId` when missing.
+  - Memory: legacy payloads are normalized and cached.
+- Project wizard validation no longer handles system proposals.
+- Tests:
+  - `tests/proposal-draft-migration.test.js`
+
+## Phase 39 — Proposal wizard v2 W5 (cleanup + extension points) (DONE)
+
+Goal: keep the wizard extensible without reintroducing branching logic everywhere.
+
+Deliverables:
+
+- Add extension points for additional system actions without inflating the project flow.
+- Keep system-specific fields out of the project flow.
+
+Tests:
+
+- Wizard system template validation (project fields are no longer required).
+
+Current status:
+
+- System action metadata is centralized in `systemActions.ts`.
+- System proposals no longer require project-only fields (`what/why`).
+- System review summary renders only system-specific fields.
+- Tests:
+  - `tests/proposal-wizard-system-template.test.js`

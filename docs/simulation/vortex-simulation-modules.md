@@ -2,8 +2,8 @@
 
 This document defines the major modules we are building, based on:
 
-- the Vortex 1.0 paper reference (`docs/vortex-1.0-paper.md`)
-- the simulation domain docs (`docs/vortex-simulation-processes.md`, `docs/vortex-simulation-state-machines.md`)
+- the Vortex 1.0 paper reference (`docs/paper/vortex-1.0-paper.md`)
+- the simulation domain docs (`docs/simulation/vortex-simulation-processes.md`, `docs/simulation/vortex-simulation-state-machines.md`)
 - the current repo implementation (frontend under `src/`, backend under `functions/`, DB in `db/`).
 
 Goal: keep a stable long-term architecture where each module has:
@@ -244,7 +244,7 @@ Where possible we keep “domain logic” in pure helpers under `functions/_lib/
 
 - v1 uses a “single big form” draft payload with optional `metaGovernance`.
 - Planned (v2+): migrate to a template-driven wizard (project vs system flows) with a discriminated draft schema:
-  - `docs/vortex-simulation-proposal-wizard-architecture.md`
+  - `docs/simulation/vortex-simulation-proposal-wizard-architecture.md`
 
 **Tests**
 
@@ -360,7 +360,7 @@ Where possible we keep “domain logic” in pure helpers under `functions/_lib/
 
 **Paper reference**
 
-- Courts and disputes are described in `docs/vortex-1.0-paper.md` (working reference copy, with an added section).
+- Courts and disputes are described in `docs/paper/vortex-1.0-paper.md` (working reference copy, with an added section).
 
 **Backend**
 
@@ -420,7 +420,7 @@ Where possible we keep “domain logic” in pure helpers under `functions/_lib/
 
 **Paper reference**
 
-- The paper motivates transparency/deterrence; “Invision” is our name for the insights surface in the UI and is described in `docs/vortex-1.0-paper.md` (working reference copy, with an added section).
+- The paper motivates transparency/deterrence; “Invision” is our name for the insights surface in the UI and is described in `docs/paper/vortex-1.0-paper.md` (working reference copy, with an added section).
 
 **Backend**
 

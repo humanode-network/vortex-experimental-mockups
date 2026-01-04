@@ -2666,6 +2666,13 @@ async function maybeAdvanceVoteProposalToBuildCanonical(
 
 function getFormationEligibleFromProposalPayload(payload: unknown): boolean {
   if (!isRecord(payload)) return true;
+  if (payload.templateId === "system") return false;
+  if (
+    typeof payload.metaGovernance === "object" &&
+    payload.metaGovernance !== null &&
+    !Array.isArray(payload.metaGovernance)
+  )
+    return false;
   if (typeof payload.formationEligible === "boolean")
     return payload.formationEligible;
   if (typeof payload.formation === "boolean") return payload.formation;

@@ -1,5 +1,5 @@
 // API DTO types for the off-chain Vortex simulation backend.
-// These are JSON-safe (no ReactNode), and are frozen by docs/vortex-simulation-api-contract.md.
+// These are JSON-safe (no ReactNode), and are frozen by docs/simulation/vortex-simulation-api-contract.md.
 
 import type { FeedStage } from "./stages";
 

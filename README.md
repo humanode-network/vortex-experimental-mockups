@@ -42,12 +42,13 @@ If only `yarn dev` runs, `/api/*` is not available and auth/gating/read pages wi
 ### Backend docs
 
 - Start here: `docs/README.md`
-- Module map (paper → docs → code): `docs/vortex-simulation-modules.md`
-- API contract: `docs/vortex-simulation-api-contract.md`
-- Proposal wizard architecture: `docs/vortex-simulation-proposal-wizard-architecture.md`
-- Local dev: `docs/vortex-simulation-local-dev.md`
-- Scope and rules: `docs/vortex-simulation-scope-v1.md`, `docs/vortex-simulation-state-machines.md`
-- Vortex 1.0 reference (working copy): `docs/vortex-1.0-paper.md`
+- Docs are grouped in: `docs/simulation/`, `docs/ops/`, `docs/paper/`
+- Module map (paper → docs → code): `docs/simulation/vortex-simulation-modules.md`
+- API contract: `docs/simulation/vortex-simulation-api-contract.md`
+- Proposal wizard architecture: `docs/simulation/vortex-simulation-proposal-wizard-architecture.md`
+- Local dev: `docs/simulation/vortex-simulation-local-dev.md`
+- Scope and rules: `docs/simulation/vortex-simulation-scope-v1.md`, `docs/simulation/vortex-simulation-state-machines.md`
+- Vortex 1.0 reference (working copy): `docs/paper/vortex-1.0-paper.md`
 
 ## Scripts
 
@@ -86,4 +87,4 @@ If only `yarn dev` runs, `/api/*` is not available and auth/gating/read pages wi
 
 - `dist/` is generated build output.
 - Keep glossary entries in sync between `src/data/vortexopedia.ts` and `prolog/vortexopedia.pl` if you edit definitions.
-- DB-backed dev requires `DATABASE_URL` + `yarn db:migrate && yarn db:seed` (see `docs/vortex-simulation-local-dev.md`).
+- DB-backed dev requires `DATABASE_URL` + `yarn db:migrate && yarn db:seed` (see `docs/simulation/vortex-simulation-local-dev.md`).

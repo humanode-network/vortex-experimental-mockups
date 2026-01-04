@@ -2,7 +2,7 @@
 
 This document defines the domain processes the Vortex simulation backend models to match the UI mockups in this repo. This is not an on-chain implementation; it emulates “how Vortex would work” off-chain with deterministic rules + simulated time.
 
-For formal rules and invariants, see `docs/vortex-simulation-state-machines.md`.
+For formal rules and invariants, see `docs/simulation/vortex-simulation-state-machines.md`.
 
 ## 0.1) On-chain vs off-chain boundary (proto-vortex architecture)
 
@@ -18,8 +18,8 @@ This implies an architecture with:
 
 Implementation mapping:
 
-- v1 scope and what is already implemented: `docs/vortex-simulation-scope-v1.md`
-- the phased build roadmap (including planned v2+): `docs/vortex-simulation-implementation-plan.md`
+- v1 scope and what is already implemented: `docs/simulation/vortex-simulation-scope-v1.md`
+- the phased build roadmap (including planned v2+): `docs/simulation/vortex-simulation-implementation-plan.md`
 
 ## 0) Goals and non-goals
 
@@ -241,7 +241,7 @@ Genesis exception:
 Wizard note:
 
 - The proposal wizard is evolving toward template-driven flows (project vs system-change), so chamber creation proposals collect only chamber-defining fields while project proposals retain the multi-step “Who/What/Why/How/How much” flow:
-  - `docs/vortex-simulation-proposal-wizard-architecture.md`
+  - `docs/simulation/vortex-simulation-proposal-wizard-architecture.md`
 
 #### Chamber dissolution (paper-aligned rule)
 

@@ -72,7 +72,7 @@ Note on proposal wizard UX:
 
 - v1 includes a working proposal wizard and supports meta-governance payloads for chamber creation/dissolution.
 - Planned (v2+): restructure the wizard into template-driven flows so system-change proposals (like chamber creation) do not share project-only steps/fields:
-  - `docs/vortex-simulation-proposal-wizard-architecture.md`
+  - `docs/simulation/vortex-simulation-proposal-wizard-architecture.md`
 
 ### Events and history
 
@@ -126,7 +126,7 @@ These are intentionally deferred:
 
 ## Planned after v1 (v2+)
 
-These are the next build targets after v1 (see `docs/vortex-simulation-implementation-plan.md` for the full phased checklist):
+These are the next build targets after v1 (see `docs/simulation/vortex-simulation-implementation-plan.md` for the full phased checklist):
 
 - Delegation v1 (set/clear + history + court references).
 - Veto v1 (paper-aligned) and a minimal “proposal sent back” lifecycle.
@@ -136,7 +136,7 @@ These are the next build targets after v1 (see `docs/vortex-simulation-implement
 
 ## Sources of truth
 
-- v1 constants: `docs/vortex-simulation-v1-constants.md`
-- API contract: `docs/vortex-simulation-api-contract.md`
-- State machines + invariants: `docs/vortex-simulation-state-machines.md`
-- Implementation status: `docs/vortex-simulation-implementation-plan.md`
+- v1 constants: `docs/simulation/vortex-simulation-v1-constants.md`
+- API contract: `docs/simulation/vortex-simulation-api-contract.md`
+- State machines + invariants: `docs/simulation/vortex-simulation-state-machines.md`
+- Implementation status: `docs/simulation/vortex-simulation-implementation-plan.md`

@@ -50,6 +50,13 @@ export const onRequestGet: PagesFunction = async (context) => {
         const payload = proposal.payload as Record<string, unknown> | null;
         if (!payload || typeof payload !== "object" || Array.isArray(payload))
           return true;
+        if (payload.templateId === "system") return false;
+        if (
+          typeof payload.metaGovernance === "object" &&
+          payload.metaGovernance !== null &&
+          !Array.isArray(payload.metaGovernance)
+        )
+          return false;
         if (typeof payload.formationEligible === "boolean")
           return payload.formationEligible;
         if (typeof payload.formation === "boolean") return payload.formation;

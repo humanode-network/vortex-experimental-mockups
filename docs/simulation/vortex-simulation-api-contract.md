@@ -167,7 +167,7 @@ Notes:
 - `templateId` is optional; if omitted the backend infers `"system"` when `metaGovernance` is present, otherwise `"project"`.
 - The backend now validates drafts using a template-aware discriminant (project vs system) so system proposals can omit project-only fields; missing fields are normalized to defaults for storage.
 - Planned (v2+): drafts will continue to evolve into a template-driven discriminated union (project vs system-change flows), with full backend/schema separation. The target architecture and rollout phases are documented in:
-  - `docs/vortex-simulation-proposal-wizard-architecture.md`
+  - `docs/simulation/vortex-simulation-proposal-wizard-architecture.md`
 
 type ProposalDraftSaveCommand = {
   type: "proposal.draft.save";

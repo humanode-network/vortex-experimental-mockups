@@ -2,8 +2,8 @@
 
 This document compares:
 
-- `docs/vortex-1.0-paper.md` (working reference copy) and
-- the simulation docs (`docs/vortex-simulation-*.md`) and
+- `docs/paper/vortex-1.0-paper.md` (working reference copy) and
+- the simulation docs (`docs/simulation/vortex-simulation-*.md`) and
 - the current implementation (`functions/`, `db/schema.ts`, `src/`).
 
 Goal: make it explicit what is **paper-aligned**, what is **deliberately simplified in v1**, and what is **not implemented yet**.
@@ -150,7 +150,7 @@ Goal: make it explicit what is **paper-aligned**, what is **deliberately simplif
 
 **Paper**
 
-- Courts and disputes are described in `docs/vortex-1.0-paper.md` (working reference copy, with an added section).
+- Courts and disputes are described in `docs/paper/vortex-1.0-paper.md` (working reference copy, with an added section).
 
 **Simulation v1**
 

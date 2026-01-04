@@ -2,6 +2,12 @@
 
 This folder documents the **Vortex simulation backend** that powers the UI in this repo.
 
+Docs are grouped by intent:
+
+- `docs/simulation/` — core simulation specs, architecture, and implementation plan
+- `docs/ops/` — operational runbook for the backend
+- `docs/paper/` — working reference copy of the Vortex 1.0 paper
+
 ## Overview
 
 This repo ships two pieces together:
@@ -20,7 +26,7 @@ The simulation is **not** an on-chain implementation. Humanode mainnet is used o
 
 The UI reads from `/api/*`. The contract is kept stable so the backend can evolve without forcing UI churn:
 
-- Contract source of truth: `docs/vortex-simulation-api-contract.md`
+- Contract source of truth: `docs/simulation/vortex-simulation-api-contract.md`
 - TS DTO types used by the UI: `src/types/api.ts`
 
 In v1, reads are backed by a transitional `read_models` table (and optional overlays from normalized tables), so pages can render without requiring the full normalized domain schema on day one.
@@ -67,20 +73,20 @@ Goal: keep a tight, professional set of docs that answers:
 
 ## Reading order
 
-1. `docs/vortex-simulation-scope-v1.md` — v1 scope, explicit non-goals, and what “done” means
-2. `docs/vortex-simulation-modules.md` — module map (paper → docs → code)
-3. `docs/vortex-simulation-processes.md` — domain processes to model (product-level)
-4. `docs/vortex-simulation-proposal-wizard-architecture.md` — proposal wizard template architecture (project vs system flows)
-5. `docs/vortex-simulation-state-machines.md` — formal state machines, invariants, and derived metrics
-6. `docs/vortex-simulation-tech-architecture.md` — technical architecture (runtime + DB + API shape)
-7. `docs/vortex-simulation-data-model.md` — DB tables and how reads/writes/events map to them
-8. `docs/vortex-simulation-api-contract.md` — frozen DTO contracts consumed by the UI
-9. `docs/vortex-simulation-local-dev.md` — local dev commands and env vars
-10. `docs/vortex-simulation-ops-runbook.md` — admin endpoints, safety controls, and operational workflows
-11. `docs/vortex-simulation-implementation-plan.md` — phased plan + current status
-12. `docs/vortex-simulation-v1-constants.md` — v1 constants shared by code and tests
-13. `docs/vortex-1.0-paper.md` — working, adapted reference copy of the Vortex 1.0 paper (used for audits)
-14. `docs/vortex-simulation-paper-alignment.md` — paper vs simulation audit notes (what matches, what’s deferred)
+1. `docs/simulation/vortex-simulation-scope-v1.md` — v1 scope, explicit non-goals, and what “done” means
+2. `docs/simulation/vortex-simulation-modules.md` — module map (paper → docs → code)
+3. `docs/simulation/vortex-simulation-processes.md` — domain processes to model (product-level)
+4. `docs/simulation/vortex-simulation-proposal-wizard-architecture.md` — proposal wizard template architecture (project vs system flows)
+5. `docs/simulation/vortex-simulation-state-machines.md` — formal state machines, invariants, and derived metrics
+6. `docs/simulation/vortex-simulation-tech-architecture.md` — technical architecture (runtime + DB + API shape)
+7. `docs/simulation/vortex-simulation-data-model.md` — DB tables and how reads/writes/events map to them
+8. `docs/simulation/vortex-simulation-api-contract.md` — frozen DTO contracts consumed by the UI
+9. `docs/simulation/vortex-simulation-local-dev.md` — local dev commands and env vars
+10. `docs/ops/vortex-simulation-ops-runbook.md` — admin endpoints, safety controls, and operational workflows
+11. `docs/simulation/vortex-simulation-implementation-plan.md` — phased plan + current status
+12. `docs/simulation/vortex-simulation-v1-constants.md` — v1 constants shared by code and tests
+13. `docs/paper/vortex-1.0-paper.md` — working, adapted reference copy of the Vortex 1.0 paper (used for audits)
+14. `docs/simulation/vortex-simulation-paper-alignment.md` — paper vs simulation audit notes (what matches, what’s deferred)
 
 ## Doc conventions
 
@@ -92,10 +98,10 @@ Goal: keep a tight, professional set of docs that answers:
 
 ### Truth hierarchy
 
-- **API truth:** `docs/vortex-simulation-api-contract.md` + `src/types/api.ts`
-- **Scope truth:** `docs/vortex-simulation-scope-v1.md`
-- **Behavior truth:** `docs/vortex-simulation-state-machines.md` (rules + invariants)
-- **Operational truth:** `docs/vortex-simulation-ops-runbook.md`
+- **API truth:** `docs/simulation/vortex-simulation-api-contract.md` + `src/types/api.ts`
+- **Scope truth:** `docs/simulation/vortex-simulation-scope-v1.md`
+- **Behavior truth:** `docs/simulation/vortex-simulation-state-machines.md` (rules + invariants)
+- **Operational truth:** `docs/ops/vortex-simulation-ops-runbook.md`
 
 ### Status tags
 

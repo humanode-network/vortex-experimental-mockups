@@ -7,7 +7,7 @@ This document is the operational reference for running the simulation backend as
 - Production: Cloudflare Pages Functions (`functions/`)
 - Local: Node runner (`yarn dev:api`) with the UI proxy (`yarn dev` / `yarn dev:full`)
 
-Local dev details: `docs/vortex-simulation-local-dev.md`.
+Local dev details: `docs/simulation/vortex-simulation-local-dev.md`.
 
 ## Admin auth
 
@@ -42,7 +42,7 @@ Write commands run through `POST /api/command`. The system supports four layers 
 - `GET /api/admin/users/:address`
 - `GET /api/admin/audit`
 
-Details of request/response DTOs: `docs/vortex-simulation-api-contract.md`.
+Details of request/response DTOs: `docs/simulation/vortex-simulation-api-contract.md`.
 
 ## Incident playbooks
 
