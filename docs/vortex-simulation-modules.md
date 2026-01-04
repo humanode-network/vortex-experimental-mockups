@@ -240,6 +240,12 @@ Where possible we keep “domain logic” in pure helpers under `functions/_lib/
   - `src/components/ProposalSections.tsx`
   - `src/lib/apiClient.ts`
 
+**Wizard architecture**
+
+- v1 uses a “single big form” draft payload with optional `metaGovernance`.
+- Planned (v2+): migrate to a template-driven wizard (project vs system flows) with a discriminated draft schema:
+  - `docs/vortex-simulation-proposal-wizard-architecture.md`
+
 **Tests**
 
 - `tests/api-command-drafts.test.js`

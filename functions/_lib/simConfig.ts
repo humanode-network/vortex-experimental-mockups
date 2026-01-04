@@ -2,6 +2,10 @@ type SimConfig = {
   humanodeRpcUrl?: string;
   genesisChamberMembers?: Record<string, string[]>;
   genesisChambers?: { id: string; title: string; multiplier: number }[];
+  genesisUserTiers?: Record<
+    string,
+    "Nominee" | "Ecclesiast" | "Legate" | "Consul" | "Citizen"
+  >;
 };
 
 let cached:
@@ -10,6 +14,30 @@ let cached:
       expiresAtMs: number;
     }
   | undefined;
+
+function asUserTiers(
+  value: unknown,
+): SimConfig["genesisUserTiers"] | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const record = value as Record<string, unknown>;
+  const out: NonNullable<SimConfig["genesisUserTiers"]> = {};
+  for (const [rawKey, rawValue] of Object.entries(record)) {
+    const address = rawKey.trim();
+    if (!address) continue;
+    if (typeof rawValue !== "string") continue;
+    const tier = rawValue.trim();
+    if (
+      tier !== "Nominee" &&
+      tier !== "Ecclesiast" &&
+      tier !== "Legate" &&
+      tier !== "Consul" &&
+      tier !== "Citizen"
+    )
+      continue;
+    out[address] = tier;
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
 
 function asGenesisMembers(
   value: unknown,
@@ -61,6 +89,7 @@ function parseSimConfig(json: unknown): SimConfig | null {
         ? value.humanodeRpcUrl
         : undefined,
     genesisChamberMembers: asGenesisMembers(value.genesisChamberMembers),
+    genesisUserTiers: asUserTiers(value.genesisUserTiers),
     genesisChambers:
       genesisChambers && genesisChambers.length > 0
         ? genesisChambers

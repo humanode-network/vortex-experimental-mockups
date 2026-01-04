@@ -9,11 +9,14 @@
     { "id": "product", "title": "Product", "multiplier": 1.2 }
   ],
   "genesisChamberMembers": {
-    "general": [],
+    "general": ["hmpt3fxBvpWrkZxq5H5uWjZ2BgHRMJs2hKHiWJDoqD7am1xPs"],
     "design": [],
     "engineering": [],
     "economics": [],
     "marketing": [],
     "product": []
+  },
+  "genesisUserTiers": {
+    "hmpt3fxBvpWrkZxq5H5uWjZ2BgHRMJs2hKHiWJDoqD7am1xPs": "Citizen"
   }
 }

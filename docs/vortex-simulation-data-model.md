@@ -86,6 +86,12 @@ Proposal creation is stored as author-owned drafts:
   - `payload` (the wizard form, JSON)
   - `submitted_at` / `submitted_proposal_id` once submitted into the pool
 
+Planned (v2+):
+
+- The draft `payload` will evolve from a single “project-shaped” object with optional `metaGovernance` into a **discriminated union** aligned with proposal wizard templates (project vs system-change flows).
+- The wizard architecture and phased migration strategy are described in:
+  - `docs/vortex-simulation-proposal-wizard-architecture.md`
+
 ## Proposals (Phase 14)
 
 Canonical proposals table (first step away from `read_models` as source of truth):

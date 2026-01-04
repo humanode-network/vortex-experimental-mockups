@@ -5,6 +5,7 @@ import { onRequestGet as meGet } from "../functions/api/me.ts";
 import { onRequestPost as noncePost } from "../functions/api/auth/nonce.ts";
 import { onRequestPost as logoutPost } from "../functions/api/auth/logout.ts";
 import { onRequestPost as verifyPost } from "../functions/api/auth/verify.ts";
+import { canonicalizeHmndAddress } from "../functions/_lib/address.ts";
 
 function getSetCookies(response) {
   // Node fetch supports getSetCookie(), but Cloudflare-style headers may not.
@@ -73,7 +74,7 @@ test("auth flow: nonce -> verify (bypass) -> me -> logout", async () => {
   assert.equal(meRes.status, 200);
   const meJson = await meRes.json();
   assert.equal(meJson.authenticated, true);
-  assert.equal(meJson.address, address);
+  assert.equal(meJson.address, await canonicalizeHmndAddress(address));
   assert.equal(meJson.gate.eligible, true);
 
   const logoutCtx = makeContext({

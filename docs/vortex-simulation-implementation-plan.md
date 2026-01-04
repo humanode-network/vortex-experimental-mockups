@@ -127,6 +127,14 @@ This is the order we’ll follow from now on, based on what’s already landed.
 37. **Phase 33 — Testing readiness v3 (scenario harness + end-to-end validation)**
 38. **Phase 34 — Meritocratic Measure (MM) v1 (post-V3, Formation delivery scoring)**
 
+### Proposal wizard v2 track (planned)
+
+In parallel to the main backend phases, the proposal wizard is moving toward template-driven flows so that system-change proposals (like chamber creation) do not share project-only steps/fields.
+
+Reference:
+
+- `docs/vortex-simulation-proposal-wizard-architecture.md` (Wizard v2 track W1–W5)
+
 ## Phase 0 — Lock v1 decisions (required before DB + real gate)
 
 Locked for v1 (based on current decisions):
@@ -1020,6 +1028,20 @@ Current status:
 - `draftIsSubmittable` allows meta-governance drafts to be submitted without budget items (still requires rules confirmations).
 - Tests:
   - `tests/api-command-meta-governance-no-budget.test.js`
+
+Follow-up (planned): Proposal wizard templates v2 (Wizard v2 track)
+
+The current UI implementation supports meta-governance, but it still uses a largely “single big form” shape that mixes project fields with system-change fields. For long-term maintainability (and a cleaner chamber-creation UX), the wizard is moving to a template-driven design where proposal types have distinct step flows and payload shapes.
+
+Reference:
+
+- `docs/vortex-simulation-proposal-wizard-architecture.md` (Wizard v2 track W1–W5)
+
+Planned deliverables (high-level):
+
+- A template runner + registry so proposal types can define their own steps.
+- A dedicated `system.chamberCreate` flow that only collects fields needed to create and render a chamber.
+- A discriminated union draft schema in the backend, with compatibility for legacy drafts during migration.
 
 ### Phase 25 — Proposal pages projected from canonical state (DONE)
 

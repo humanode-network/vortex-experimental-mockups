@@ -6,6 +6,7 @@ import {
   listChamberMembers,
 } from "../../_lib/chamberMembershipsStore.ts";
 import { getSimConfig } from "../../_lib/simConfig.ts";
+import { resolveUserTierFromSimConfig } from "../../_lib/userTier.ts";
 
 export const onRequestGet: PagesFunction = async (context) => {
   try {
@@ -108,17 +109,19 @@ export const onRequestGet: PagesFunction = async (context) => {
       for (const addr of seeded) memberAddresses.add(normalizeAddress(addr));
     }
 
-    const governors = Array.from(memberAddresses)
-      .sort()
-      .map((address) => ({
-        id: address,
-        name:
-          address.length > 12
-            ? `${address.slice(0, 6)}…${address.slice(-4)}`
-            : address,
-        tier: "Nominee",
-        focus: chamber.title,
-      }));
+    const governors = await Promise.all(
+      Array.from(memberAddresses)
+        .sort()
+        .map(async (address) => ({
+          id: address,
+          name:
+            address.length > 12
+              ? `${address.slice(0, 6)}…${address.slice(-4)}`
+              : address,
+          tier: await resolveUserTierFromSimConfig(cfg, address),
+          focus: chamber.title,
+        })),
+    );
 
     return jsonResponse({
       proposals: proposalsList.sort((a, b) => a.title.localeCompare(b.title)),

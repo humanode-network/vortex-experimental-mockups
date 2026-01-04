@@ -1,4 +1,7 @@
 import http from "node:http";
+import { readFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
 import { URL } from "node:url";
 
 function setDefaultEnv() {
@@ -6,6 +9,18 @@ function setDefaultEnv() {
   process.env.DEV_BYPASS_SIGNATURE ??= "false";
   process.env.DEV_BYPASS_GATE ??= "false";
   process.env.DEV_INSECURE_COOKIES ??= "true";
+
+  // Ensure the backend always has access to sim config (RPC URL, genesis members)
+  // even when requests come through a proxy and `request.url` origin isn't the API server.
+  // `functions/_lib/simConfig.ts` prefers `SIM_CONFIG_JSON` over fetching `/sim-config.json`.
+  if (!process.env.SIM_CONFIG_JSON) {
+    try {
+      const filepath = resolve(process.cwd(), "public", "sim-config.json");
+      process.env.SIM_CONFIG_JSON = readFileSync(filepath, "utf8");
+    } catch {
+      // ignore
+    }
+  }
 
   const hasDb = Boolean(process.env.DATABASE_URL);
 
@@ -175,9 +190,33 @@ function getSetCookieHeaders(headers) {
   return v ? [v] : [];
 }
 
+async function handleSimConfig(_nodeReq, nodeRes) {
+  try {
+    const filepath = resolve(process.cwd(), "public", "sim-config.json");
+    const raw = await readFile(filepath, "utf8");
+    nodeRes.statusCode = 200;
+    nodeRes.setHeader("content-type", "application/json; charset=utf-8");
+    nodeRes.setHeader("cache-control", "no-store");
+    nodeRes.end(raw);
+  } catch {
+    nodeRes.statusCode = 404;
+    nodeRes.setHeader("content-type", "application/json; charset=utf-8");
+    nodeRes.end(
+      JSON.stringify({
+        error: { message: "Missing public/sim-config.json for local dev" },
+      }),
+    );
+  }
+}
+
 async function handleRequest(nodeReq, nodeRes) {
   const origin = `http://${nodeReq.headers.host ?? "127.0.0.1"}`;
   const url = new URL(nodeReq.url ?? "/", origin);
+
+  if (nodeReq.method === "GET" && url.pathname === "/sim-config.json") {
+    await handleSimConfig(nodeReq, nodeRes);
+    return;
+  }
 
   const route = resolveRoute(url.pathname);
   if (!route) {

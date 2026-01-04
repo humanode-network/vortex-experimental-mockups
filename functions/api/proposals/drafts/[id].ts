@@ -5,6 +5,7 @@ import {
   getDraft,
   formatChamberLabel,
 } from "../../../_lib/proposalDraftsStore.ts";
+import { getUserTier } from "../../../_lib/userTier.ts";
 
 export const onRequestGet: PagesFunction = async (context) => {
   try {
@@ -14,6 +15,11 @@ export const onRequestGet: PagesFunction = async (context) => {
 
     if (!context.env.DATABASE_URL) {
       if (session) {
+        const tier = await getUserTier(
+          context.env,
+          context.request.url,
+          session.address,
+        );
         const draft = await getDraft(context.env, {
           authorAddress: session.address,
           draftId: id,
@@ -32,7 +38,7 @@ export const onRequestGet: PagesFunction = async (context) => {
             focus: draft.payload.chamberId
               ? "Chamber-scoped proposal"
               : "General proposal",
-            tier: "Nominee",
+            tier,
             budget:
               budgetTotal > 0 ? `${budgetTotal.toLocaleString()} HMND` : "—",
             formationEligible: true,
@@ -90,6 +96,11 @@ export const onRequestGet: PagesFunction = async (context) => {
     }
 
     if (!session) return errorResponse(404, "Draft not found");
+    const tier = await getUserTier(
+      context.env,
+      context.request.url,
+      session.address,
+    );
     const draft = await getDraft(context.env, {
       authorAddress: session.address,
       draftId: id,
@@ -109,7 +120,7 @@ export const onRequestGet: PagesFunction = async (context) => {
       focus: draft.payload.chamberId
         ? "Chamber-scoped proposal"
         : "General proposal",
-      tier: "Nominee",
+      tier,
       budget: budgetTotal > 0 ? `${budgetTotal.toLocaleString()} HMND` : "—",
       formationEligible: true,
       teamSlots: "1 / 3",

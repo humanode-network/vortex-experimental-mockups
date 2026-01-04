@@ -2,6 +2,7 @@ import { issueNonce } from "../../_lib/auth.ts";
 import { createNonceStore } from "../../_lib/nonceStore.ts";
 import { errorResponse, jsonResponse, readJson } from "../../_lib/http.ts";
 import { getRequestIp } from "../../_lib/requestIp.ts";
+import { canonicalizeHmndAddress } from "../../_lib/address.ts";
 
 type Body = { address?: string };
 
@@ -15,12 +16,13 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   const address = (body.address ?? "").trim();
   if (!address) return errorResponse(400, "Missing address");
+  const canonical = (await canonicalizeHmndAddress(address)) ?? address;
 
   const headers = new Headers();
   try {
     const nonceStore = createNonceStore(context.env);
     const requestIp = getRequestIp(context.request);
-    const rate = await nonceStore.canIssue({ address, requestIp });
+    const rate = await nonceStore.canIssue({ address: canonical, requestIp });
     if (!rate.ok)
       return errorResponse(429, "Rate limited", {
         retryAfterSeconds: rate.retryAfterSeconds,
@@ -30,11 +32,11 @@ export const onRequestPost: PagesFunction = async (context) => {
       headers,
       context.env,
       context.request.url,
-      address,
+      canonical,
     );
 
     await nonceStore.create({
-      address,
+      address: canonical,
       nonce,
       requestIp,
       expiresAt: new Date(expiresAt),

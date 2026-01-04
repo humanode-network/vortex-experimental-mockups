@@ -21,11 +21,13 @@ import {
   V1_POOL_ATTENTION_QUORUM_FRACTION,
   V1_POOL_UPVOTE_FLOOR_FRACTION,
 } from "./v1Constants.ts";
+import type { HumanTier } from "./userTier.ts";
 
 export function projectProposalListItem(
   proposal: ProposalRecord,
   input: {
     activeGovernors: number;
+    tier?: HumanTier;
     now?: Date;
     voteWindowSeconds?: number;
     poolCounts?: { upvotes: number; downvotes: number };
@@ -42,6 +44,7 @@ export function projectProposalListItem(
   const date = proposal.createdAt.toISOString().slice(0, 10);
   const now = input.now ?? new Date();
   const formationEligible = getFormationEligibleFromPayload(proposal.payload);
+  const tier: HumanTier = input.tier ?? "Nominee";
 
   const stageData =
     proposal.stage === "pool"
@@ -109,7 +112,7 @@ export function projectProposalListItem(
   return {
     id: proposal.id,
     title: proposal.title,
-    meta: `${chamber} · Nominee tier`,
+    meta: `${chamber} · ${tier} tier`,
     stage: proposal.stage,
     summaryPill,
     summary: proposal.summary,
@@ -121,7 +124,7 @@ export function projectProposalListItem(
     proposer: proposal.authorAddress,
     proposerId: proposal.authorAddress,
     chamber,
-    tier: "Nominee",
+    tier,
     proofFocus: "pot",
     tags: [],
     keywords: [],
@@ -145,12 +148,14 @@ export function projectPoolProposalPage(
   input: {
     counts: { upvotes: number; downvotes: number };
     activeGovernors: number;
+    tier?: HumanTier;
   },
 ): PoolProposalPageDto {
   const form = getDraftForm(proposal.payload);
   const chamber = formatChamberLabel(proposal.chamberId);
   const budget = formatBudget(form);
   const formationEligible = getFormationEligibleFromPayload(proposal.payload);
+  const tier: HumanTier = input.tier ?? "Nominee";
 
   const activeGovernors = Math.max(
     0,
@@ -173,7 +178,7 @@ export function projectPoolProposalPage(
     proposerId: proposal.authorAddress,
     chamber,
     focus: "—",
-    tier: "Nominee",
+    tier,
     budget,
     cooldown: "Withdraw cooldown: 12h",
     formationEligible,

@@ -5,6 +5,7 @@ import {
   listDrafts,
   formatChamberLabel,
 } from "../../../_lib/proposalDraftsStore.ts";
+import { getUserTier } from "../../../_lib/userTier.ts";
 
 export const onRequestGet: PagesFunction = async (context) => {
   try {
@@ -12,6 +13,11 @@ export const onRequestGet: PagesFunction = async (context) => {
 
     if (!context.env.DATABASE_URL) {
       if (session) {
+        const tier = await getUserTier(
+          context.env,
+          context.request.url,
+          session.address,
+        );
         const drafts = await listDrafts(context.env, {
           authorAddress: session.address,
         });
@@ -20,7 +26,7 @@ export const onRequestGet: PagesFunction = async (context) => {
             id: d.id,
             title: d.title,
             chamber: formatChamberLabel(d.chamberId),
-            tier: "Nominee",
+            tier,
             summary: d.summary,
             updated: d.updatedAt.toISOString().slice(0, 10),
           })),
@@ -33,6 +39,11 @@ export const onRequestGet: PagesFunction = async (context) => {
     }
 
     if (!session) return jsonResponse({ items: [] });
+    const tier = await getUserTier(
+      context.env,
+      context.request.url,
+      session.address,
+    );
     const drafts = await listDrafts(context.env, {
       authorAddress: session.address,
     });
@@ -41,7 +52,7 @@ export const onRequestGet: PagesFunction = async (context) => {
         id: d.id,
         title: d.title,
         chamber: formatChamberLabel(d.chamberId),
-        tier: "Nominee",
+        tier,
         summary: d.summary,
         updated: d.updatedAt.toISOString().slice(0, 10),
       })),

@@ -11,6 +11,8 @@ import {
   projectProposalListItem,
 } from "../../_lib/proposalProjector.ts";
 import { V1_ACTIVE_GOVERNORS_FALLBACK } from "../../_lib/v1Constants.ts";
+import { getSimConfig } from "../../_lib/simConfig.ts";
+import { resolveUserTierFromSimConfig } from "../../_lib/userTier.ts";
 import {
   getSimNow,
   getStageWindowSeconds,
@@ -49,6 +51,10 @@ export const onRequestGet: PagesFunction = async (context) => {
       stage === "draft"
         ? []
         : await listProposals(context.env, { stage: stageQuery });
+    const simConfig = await getSimConfig(
+      context.env,
+      context.request.url,
+    ).catch(() => null);
 
     const poolDenominators = await getProposalStageDenominatorMap(context.env, {
       stage: "pool",
@@ -96,6 +102,10 @@ export const onRequestGet: PagesFunction = async (context) => {
               : undefined;
         return projectProposalListItem(proposal, {
           activeGovernors: stageDenominator ?? activeGovernors,
+          tier: await resolveUserTierFromSimConfig(
+            simConfig,
+            proposal.authorAddress,
+          ),
           now,
           voteWindowSeconds,
           poolCounts,

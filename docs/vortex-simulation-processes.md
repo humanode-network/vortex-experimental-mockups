@@ -238,6 +238,11 @@ Genesis exception:
 
 - genesis roles/memberships are treated as eligible from day one for their chamber(s) via `public/sim-config.json` → `genesisChamberMembers`.
 
+Wizard note:
+
+- The proposal wizard is evolving toward template-driven flows (project vs system-change), so chamber creation proposals collect only chamber-defining fields while project proposals retain the multi-step “Who/What/Why/How/How much” flow:
+  - `docs/vortex-simulation-proposal-wizard-architecture.md`
+
 #### Chamber dissolution (paper-aligned rule)
 
 - Chambers can be dissolved only through a proposal in the **General chamber**.

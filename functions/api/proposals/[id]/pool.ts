@@ -6,6 +6,8 @@ import { getProposal } from "../../../_lib/proposalsStore.ts";
 import { projectPoolProposalPage } from "../../../_lib/proposalProjector.ts";
 import { getProposalStageDenominator } from "../../../_lib/proposalStageDenominatorsStore.ts";
 import { V1_ACTIVE_GOVERNORS_FALLBACK } from "../../../_lib/v1Constants.ts";
+import { getSimConfig } from "../../../_lib/simConfig.ts";
+import { resolveUserTierFromSimConfig } from "../../../_lib/userTier.ts";
 
 export const onRequestGet: PagesFunction = async (context) => {
   try {
@@ -26,10 +28,18 @@ export const onRequestGet: PagesFunction = async (context) => {
 
     const proposal = await getProposal(context.env, id);
     if (proposal) {
+      const simConfig = await getSimConfig(
+        context.env,
+        context.request.url,
+      ).catch(() => null);
       return jsonResponse(
         projectPoolProposalPage(proposal, {
           counts,
           activeGovernors,
+          tier: await resolveUserTierFromSimConfig(
+            simConfig,
+            proposal.authorAddress,
+          ),
         }),
       );
     }

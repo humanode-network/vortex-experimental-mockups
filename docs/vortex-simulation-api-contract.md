@@ -160,6 +160,12 @@ type ProposalDraftFormPayload = {
   confirmBudget: boolean;
 };
 
+Notes:
+
+- This is the v1 “single big form” draft payload used by the current wizard implementation.
+- Planned (v2+): drafts will become a template-driven discriminated union (project vs system-change flows), so that system proposals (like chamber creation) do not carry project-only fields. The target architecture and rollout phases are documented in:
+  - `docs/vortex-simulation-proposal-wizard-architecture.md`
+
 type ProposalDraftSaveCommand = {
   type: "proposal.draft.save";
   payload: { draftId?: string; form: ProposalDraftFormPayload };

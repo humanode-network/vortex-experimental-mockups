@@ -27,6 +27,11 @@ const ProposalPP: React.FC = () => {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [voteError, setVoteError] = useState<string | null>(null);
   const [voteSubmitting, setVoteSubmitting] = useState(false);
+  const [showRules, setShowRules] = useState(false);
+  const [rulesChecked, setRulesChecked] = useState(false);
+  const [pendingAction, setPendingAction] = useState<
+    "upvote" | "downvote" | null
+  >(null);
   const [timeline, setTimeline] = useState<ProposalTimelineItemDto[]>([]);
   const [timelineError, setTimelineError] = useState<string | null>(null);
   const auth = useAuth();
@@ -90,25 +95,19 @@ const ProposalPP: React.FC = () => {
     .split("/")
     .map((v) => Number(v.trim()));
   const openSlots = Math.max(totalSlots - filledSlots, 0);
-  const [showRules, setShowRules] = useState(false);
-  const [rulesChecked, setRulesChecked] = useState(false);
-  const [pendingAction, setPendingAction] = useState<
-    "upvote" | "downvote" | null
-  >(null);
 
   const votingAllowed =
     !auth.enabled || (auth.authenticated && auth.eligible && !auth.loading);
 
+  const activeGovernors = Math.max(1, proposal.activeGovernors);
   const engaged = proposal.upvotes + proposal.downvotes;
-  const attentionPercent = Math.round(
-    (engaged / proposal.activeGovernors) * 100,
-  );
+  const attentionPercent = Math.round((engaged / activeGovernors) * 100);
   const attentionNeededPercent = Math.round(proposal.attentionQuorum * 100);
   const upvoteFloorPercent = Math.round(
-    (proposal.upvoteFloor / proposal.activeGovernors) * 100,
+    (proposal.upvoteFloor / activeGovernors) * 100,
   );
   const upvoteCurrentPercent = Math.round(
-    (proposal.upvotes / proposal.activeGovernors) * 100,
+    (proposal.upvotes / activeGovernors) * 100,
   );
 
   return (

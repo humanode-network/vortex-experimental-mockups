@@ -44,6 +44,7 @@ If only `yarn dev` runs, `/api/*` is not available and auth/gating/read pages wi
 - Start here: `docs/README.md`
 - Module map (paper → docs → code): `docs/vortex-simulation-modules.md`
 - API contract: `docs/vortex-simulation-api-contract.md`
+- Proposal wizard architecture: `docs/vortex-simulation-proposal-wizard-architecture.md`
 - Local dev: `docs/vortex-simulation-local-dev.md`
 - Scope and rules: `docs/vortex-simulation-scope-v1.md`, `docs/vortex-simulation-state-machines.md`
 - Vortex 1.0 reference (working copy): `docs/vortex-1.0-paper.md`

@@ -68,6 +68,12 @@ v1 is “done” when:
   - `proposal.draft.delete`
   - `proposal.submitToPool`
 
+Note on proposal wizard UX:
+
+- v1 includes a working proposal wizard and supports meta-governance payloads for chamber creation/dissolution.
+- Planned (v2+): restructure the wizard into template-driven flows so system-change proposals (like chamber creation) do not share project-only steps/fields:
+  - `docs/vortex-simulation-proposal-wizard-architecture.md`
+
 ### Events and history
 
 - Append-only `events` table.

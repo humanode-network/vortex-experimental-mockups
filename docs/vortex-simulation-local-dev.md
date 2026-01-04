@@ -53,6 +53,10 @@ These env vars are read by the API runtime (Pages Functions in production, Node 
 
 For convenience, this repo ships with a default `humanodeRpcUrl` pointing to the public Humanode mainnet explorer RPC.
 
+Local dev note:
+
+- When using the Node API runner (`yarn dev:api` / `yarn dev:full`), the API server exposes `GET /sim-config.json` by reading `public/sim-config.json`, so real gating works without setting `HUMANODE_RPC_URL`.
+
 - Chamber voting bootstrap (optional):
   - `public/sim-config.json` → `genesisChamberMembers` can list initial eligible voters per `chamberId` (including `general`).
   - This is needed to allow the first specialization chamber votes before anyone has an accepted proposal.
@@ -85,7 +89,7 @@ For convenience, this repo ships with a default `humanodeRpcUrl` pointing to the
 
 - `VITE_SIM_AUTH` controls the sidebar wallet panel + client-side gating UI.
   - Default: enabled (set `VITE_SIM_AUTH=false` to disable).
-  - Requires a Polkadot browser extension (polkadot{.js}) for message signing.
+  - Requires a Substrate wallet browser extension (polkadot{.js}) for message signing with Humanode (HMND) SS58 addresses.
 
 ## Dev-only toggles
 

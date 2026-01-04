@@ -105,6 +105,8 @@ import {
 } from "../_lib/stageWindows.ts";
 import { envBoolean } from "../_lib/env.ts";
 import { getSimConfig } from "../_lib/simConfig.ts";
+import { resolveUserTierFromSimConfig } from "../_lib/userTier.ts";
+import { addressesReferToSameKey } from "../_lib/address.ts";
 import {
   getChamber,
   setChamberMultiplierTimes10,
@@ -654,6 +656,10 @@ export const onRequestPost: PagesFunction = async (context) => {
       context.env,
       context.request.url,
     ).catch(() => null);
+    const authorTier = await resolveUserTierFromSimConfig(
+      simConfig,
+      sessionAddress,
+    );
     const genesisMembers = getGenesisMembersForDenominators(
       simConfig,
       poolChamberId,
@@ -676,7 +682,7 @@ export const onRequestPost: PagesFunction = async (context) => {
       proposerId: sessionAddress,
       chamber,
       focus: "—",
-      tier: "Nominee",
+      tier: authorTier,
       budget,
       cooldown: "Withdraw cooldown: 12h",
       formationEligible: true,
@@ -734,7 +740,7 @@ export const onRequestPost: PagesFunction = async (context) => {
     const listItem = {
       id: proposalId,
       title: draft.title,
-      meta: `${chamber} · Nominee tier`,
+      meta: `${chamber} · ${authorTier} tier`,
       stage: "pool",
       summaryPill: `${draft.payload.timeline.length} milestones`,
       summary: draft.payload.summary,
@@ -759,7 +765,7 @@ export const onRequestPost: PagesFunction = async (context) => {
       proposer: sessionAddress,
       proposerId: sessionAddress,
       chamber,
-      tier: "Nominee",
+      tier: authorTier,
       proofFocus: "pot",
       tags: [],
       keywords: [],
@@ -2766,27 +2772,38 @@ async function enforceChamberVoteEligibility(
   });
   const voterAddress = input.voterAddress.trim();
 
-  const hasGenesisMembership = (targetChamberId: string): boolean => {
+  const hasGenesisMembership = async (
+    targetChamberId: string,
+  ): Promise<boolean> => {
     if (!genesis) return false;
     const members = genesis[targetChamberId.toLowerCase()] ?? [];
-    return members.some((member) => member.trim() === voterAddress);
+    for (const member of members) {
+      if (await addressesReferToSameKey(member, voterAddress)) return true;
+    }
+    return false;
   };
-  const hasAnyGenesisMembership = (): boolean => {
+  const hasAnyGenesisMembership = async (): Promise<boolean> => {
     if (!genesis) return false;
     for (const members of Object.values(genesis)) {
-      if (members.some((member) => member.trim() === voterAddress)) return true;
+      for (const member of members) {
+        if (await addressesReferToSameKey(member, voterAddress)) return true;
+      }
     }
     return false;
   };
 
   if (chamberId === "general") {
+    // Bootstrap: if the user is explicitly configured with a tier, treat them as eligible in General.
+    const tier = await resolveUserTierFromSimConfig(simConfig, voterAddress);
+    if (tier !== "Nominee") return null;
+
     const eligible =
       (await hasChamberMembership(env, {
         address: voterAddress,
         chamberId: "general",
       })) ||
       (await hasAnyChamberMembership(env, voterAddress)) ||
-      hasAnyGenesisMembership();
+      (await hasAnyGenesisMembership());
     if (!eligible) {
       return errorResponse(403, "Not eligible to vote in General chamber", {
         code: "chamber_vote_ineligible",
@@ -2800,7 +2817,7 @@ async function enforceChamberVoteEligibility(
     address: voterAddress,
     chamberId,
   });
-  if (!eligible && !hasGenesisMembership(chamberId)) {
+  if (!eligible && !(await hasGenesisMembership(chamberId))) {
     return errorResponse(403, "Not eligible to vote in this chamber", {
       code: "chamber_vote_ineligible",
       chamberId,
@@ -2825,27 +2842,36 @@ async function enforcePoolVoteEligibility(
   });
   const voterAddress = input.voterAddress.trim();
 
-  const hasAnyGenesisMembership = (): boolean => {
+  const hasAnyGenesisMembership = async (): Promise<boolean> => {
     if (!genesis) return false;
     for (const members of Object.values(genesis)) {
-      if (members.some((member) => member.trim() === voterAddress)) return true;
+      for (const member of members) {
+        if (await addressesReferToSameKey(member, voterAddress)) return true;
+      }
     }
     return false;
   };
 
-  const hasGenesisMembership = (target: string): boolean => {
+  const hasGenesisMembership = async (target: string): Promise<boolean> => {
     const members = genesis?.[target]?.map((m) => m.trim()) ?? [];
-    return members.includes(voterAddress);
+    for (const member of members) {
+      if (await addressesReferToSameKey(member, voterAddress)) return true;
+    }
+    return false;
   };
 
   if (chamberId === "general") {
+    // Bootstrap: if the user is explicitly configured with a tier, treat them as eligible in General.
+    const tier = await resolveUserTierFromSimConfig(simConfig, voterAddress);
+    if (tier !== "Nominee") return null;
+
     const eligible =
       (await hasAnyChamberMembership(env, voterAddress)) ||
       (await hasChamberMembership(env, {
         address: voterAddress,
         chamberId: "general",
       })) ||
-      hasAnyGenesisMembership();
+      (await hasAnyGenesisMembership());
     if (!eligible) {
       return errorResponse(403, "Not eligible to vote in the proposal pool", {
         code: "pool_vote_ineligible",
@@ -2857,7 +2883,7 @@ async function enforcePoolVoteEligibility(
 
   const eligible =
     (await hasChamberMembership(env, { address: voterAddress, chamberId })) ||
-    hasGenesisMembership(chamberId);
+    (await hasGenesisMembership(chamberId));
   if (!eligible) {
     return errorResponse(403, "Not eligible to vote in the proposal pool", {
       code: "pool_vote_ineligible",

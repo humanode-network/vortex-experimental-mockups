@@ -4,6 +4,10 @@ import { createNonceStore } from "../../_lib/nonceStore.ts";
 import { verifySubstrateSignature } from "../../_lib/signatures.ts";
 import { errorResponse, jsonResponse, readJson } from "../../_lib/http.ts";
 import { upsertUser } from "../../_lib/userStore.ts";
+import {
+  canonicalizeHmndAddress,
+  addressesReferToSameKey,
+} from "../../_lib/address.ts";
 
 type Body = {
   address?: string;
@@ -25,6 +29,7 @@ export const onRequestPost: PagesFunction = async (context) => {
   if (!address) return errorResponse(400, "Missing address");
   if (!nonce) return errorResponse(400, "Missing nonce");
   if (!signature) return errorResponse(400, "Missing signature");
+  const canonical = (await canonicalizeHmndAddress(address)) ?? address;
 
   const nonceToken = await verifyNonceCookie(context.request, context.env);
   if (!nonceToken)
@@ -32,12 +37,12 @@ export const onRequestPost: PagesFunction = async (context) => {
       401,
       "Nonce expired or missing; call /api/auth/nonce again",
     );
-  if (nonceToken.address !== address)
+  if (!(await addressesReferToSameKey(nonceToken.address, canonical)))
     return errorResponse(401, "Nonce was issued for a different address");
   if (nonceToken.nonce !== nonce) return errorResponse(401, "Nonce mismatch");
 
   const nonceStore = createNonceStore(context.env);
-  const consume = await nonceStore.consume({ address, nonce });
+  const consume = await nonceStore.consume({ address: canonical, nonce });
   if (!consume.ok) {
     const message =
       consume.reason === "expired"
@@ -50,7 +55,7 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   if (!envBoolean(context.env, "DEV_BYPASS_SIGNATURE")) {
     const ok = await verifySubstrateSignature({
-      address,
+      address: canonical,
       message: nonce,
       signature,
     });
@@ -58,7 +63,7 @@ export const onRequestPost: PagesFunction = async (context) => {
   }
 
   const headers = new Headers();
-  await issueSession(headers, context.env, context.request.url, address);
-  await upsertUser(context.env, { address });
-  return jsonResponse({ ok: true, address }, { headers });
+  await issueSession(headers, context.env, context.request.url, canonical);
+  await upsertUser(context.env, { address: canonical });
+  return jsonResponse({ ok: true, address: canonical }, { headers });
 };
