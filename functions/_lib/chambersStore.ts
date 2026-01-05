@@ -9,6 +9,7 @@ import {
 } from "../../db/schema.ts";
 import { createDb } from "./db.ts";
 import { getSimConfig } from "./simConfig.ts";
+import { createReadModelsStore } from "./readModelsStore.ts";
 import {
   listAllChamberMembers,
   listChamberMembers,
@@ -47,6 +48,76 @@ const DEFAULT_GENESIS_CHAMBERS: {
 
 function normalizeId(value: string): string {
   return value.trim().toLowerCase();
+}
+
+async function upsertChambersReadModel(
+  env: Env,
+  input: {
+    action: "create" | "dissolve";
+    id: string;
+    title?: string;
+    multiplier?: number;
+  },
+): Promise<void> {
+  if (
+    env.READ_MODELS_INLINE !== "true" &&
+    env.READ_MODELS_INLINE_EMPTY !== "true"
+  ) {
+    return;
+  }
+  const store = await createReadModelsStore(env).catch(() => null);
+  if (!store?.set) return;
+
+  const payload = await store.get("chambers:list");
+  const existing =
+    payload &&
+    typeof payload === "object" &&
+    !Array.isArray(payload) &&
+    Array.isArray((payload as { items?: unknown[] }).items)
+      ? (payload as { items: unknown[] }).items
+      : [];
+
+  const normalizedId = normalizeId(input.id);
+  const nextItems = existing.filter((item) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return true;
+    return (
+      String((item as { id?: string }).id ?? "").toLowerCase() !== normalizedId
+    );
+  });
+
+  if (input.action === "create") {
+    const multiplier =
+      typeof input.multiplier === "number" && Number.isFinite(input.multiplier)
+        ? input.multiplier
+        : 1;
+    nextItems.push({
+      id: normalizedId,
+      name: input.title?.trim() || normalizedId,
+      multiplier,
+      stats: { governors: "0", acm: "0", mcm: "0", lcm: "0" },
+      pipeline: { pool: 0, vote: 0, build: 0 },
+      status: "active",
+    });
+
+    await store.set(`chambers:${normalizedId}`, {
+      proposals: [],
+      governors: [],
+      threads: [],
+      chatLog: [],
+      stageOptions: [
+        { value: "upcoming", label: "Upcoming" },
+        { value: "live", label: "Live" },
+        { value: "ended", label: "Ended" },
+      ],
+    });
+  }
+
+  await store.set("chambers:list", {
+    ...(payload && typeof payload === "object" && !Array.isArray(payload)
+      ? payload
+      : {}),
+    items: nextItems,
+  });
 }
 
 function getGenesisChambersFromConfig(
@@ -217,6 +288,12 @@ export async function createChamberFromAcceptedGeneralProposal(
       updatedAt: now,
       dissolvedAt: null,
     });
+    await upsertChambersReadModel(env, {
+      action: "create",
+      id,
+      title: input.title,
+      multiplier: input.multiplier,
+    });
     return;
   }
 
@@ -236,6 +313,13 @@ export async function createChamberFromAcceptedGeneralProposal(
       dissolvedAt: null,
     })
     .onConflictDoNothing({ target: chambers.id });
+
+  await upsertChambersReadModel(env, {
+    action: "create",
+    id,
+    title: input.title,
+    multiplier: input.multiplier,
+  });
 }
 
 export async function dissolveChamberFromAcceptedGeneralProposal(
@@ -258,6 +342,7 @@ export async function dissolveChamberFromAcceptedGeneralProposal(
       dissolvedAt: now,
       updatedAt: now,
     });
+    await upsertChambersReadModel(env, { action: "dissolve", id });
     return;
   }
 
@@ -271,6 +356,8 @@ export async function dissolveChamberFromAcceptedGeneralProposal(
       updatedAt: now,
     })
     .where(and(eq(chambers.id, id), isNull(chambers.dissolvedAt)));
+
+  await upsertChambersReadModel(env, { action: "dissolve", id });
 }
 
 export function parseChamberGovernanceFromPayload(payload: unknown): {

@@ -70,6 +70,7 @@ import {
 } from "../_lib/proposalStageDenominatorsStore.ts";
 import { clearDelegation, setDelegation } from "../_lib/delegationsStore.ts";
 import {
+  ensureChamberMembership,
   hasAnyChamberMembership,
   hasChamberMembership,
 } from "../_lib/chamberMembershipsStore.ts";
@@ -108,7 +109,10 @@ import { getSimConfig } from "../_lib/simConfig.ts";
 import { resolveUserTierFromSimConfig } from "../_lib/userTier.ts";
 import { addressesReferToSameKey } from "../_lib/address.ts";
 import {
+  createChamberFromAcceptedGeneralProposal,
+  dissolveChamberFromAcceptedGeneralProposal,
   getChamber,
+  parseChamberGovernanceFromPayload,
   setChamberMultiplierTimes10,
 } from "../_lib/chambersStore.ts";
 import {
@@ -632,17 +636,19 @@ export const onRequestPost: PagesFunction = async (context) => {
       }
     }
 
+    const normalizedChamberId = meta ? "general" : draft.chamberId;
+
     await createProposal(context.env, {
       id: proposalId,
       stage: "pool",
       authorAddress: sessionAddress,
       title: draft.title,
-      chamberId: draft.chamberId ?? null,
+      chamberId: normalizedChamberId ?? null,
       summary: draft.summary,
       payload: draft.payload,
     });
 
-    const chamber = formatChamberLabel(draft.chamberId);
+    const chamber = formatChamberLabel(normalizedChamberId ?? null);
     const budgetTotal = draft.payload.budgetItems.reduce((sum, item) => {
       const n = Number(item.amount);
       if (!Number.isFinite(n) || n <= 0) return sum;
@@ -651,7 +657,9 @@ export const onRequestPost: PagesFunction = async (context) => {
     const budget =
       budgetTotal > 0 ? `${budgetTotal.toLocaleString()} HMND` : "—";
 
-    const poolChamberId = (draft.chamberId ?? "general").trim().toLowerCase();
+    const poolChamberId = (normalizedChamberId ?? "general")
+      .trim()
+      .toLowerCase();
     const simConfig = await getSimConfig(
       context.env,
       context.request.url,
@@ -676,6 +684,10 @@ export const onRequestPost: PagesFunction = async (context) => {
     const attentionQuorum = V1_POOL_ATTENTION_QUORUM_FRACTION;
     const upvoteFloor = computePoolUpvoteFloor(poolActiveGovernors);
 
+    const formationEligible = getFormationEligibleFromProposalPayload(
+      draft.payload,
+    );
+
     const poolPagePayload = {
       title: draft.title,
       proposer: sessionAddress,
@@ -685,7 +697,11 @@ export const onRequestPost: PagesFunction = async (context) => {
       tier: authorTier,
       budget,
       cooldown: "Withdraw cooldown: 12h",
-      formationEligible: true,
+      formationEligible,
+      templateId: isRecord(draft.payload) ? draft.payload.templateId : undefined,
+      metaGovernance: isRecord(draft.payload)
+        ? draft.payload.metaGovernance
+        : undefined,
       teamSlots: "1 / 3",
       milestones: String(draft.payload.timeline.length),
       upvotes: 0,
@@ -760,7 +776,7 @@ export const onRequestPost: PagesFunction = async (context) => {
       ],
       stats: [
         { label: "Budget ask", value: budget },
-        { label: "Formation", value: "Yes" },
+        { label: "Formation", value: formationEligible ? "Yes" : "No" },
       ],
       proposer: sessionAddress,
       proposerId: sessionAddress,
@@ -2160,6 +2176,7 @@ export const onRequestPost: PagesFunction = async (context) => {
       proposalId: input.payload.proposalId,
       counts,
       activeGovernors: voteDenominator,
+      requestUrl: context.request.url,
     }));
 
   const advanced =
@@ -2222,7 +2239,30 @@ export const onRequestPost: PagesFunction = async (context) => {
     const formationEligible =
       canonicalOutcome.status === "advanced"
         ? canonicalOutcome.formationEligible
-        : true;
+        : await (async () => {
+            if (!readModels) return true;
+            const chamberPayload = await readModels.get(
+              `proposals:${input.payload.proposalId}:chamber`,
+            );
+            if (isRecord(chamberPayload)) {
+              const meta = parseChamberGovernanceFromPayload(chamberPayload);
+              if (meta) return false;
+              if (typeof chamberPayload.formationEligible === "boolean") {
+                return chamberPayload.formationEligible;
+              }
+            }
+            const poolPayload = await readModels.get(
+              `proposals:${input.payload.proposalId}:pool`,
+            );
+            if (isRecord(poolPayload)) {
+              const meta = parseChamberGovernanceFromPayload(poolPayload);
+              if (meta) return false;
+              if (typeof poolPayload.formationEligible === "boolean") {
+                return poolPayload.formationEligible;
+              }
+            }
+            return true;
+          })();
 
     await appendFeedItemEvent(context.env, {
       stage: "build",
@@ -2430,6 +2470,8 @@ function buildChamberProposalPageFromPool(
     chamber: asString(poolPayload.chamber, "General chamber"),
     budget: asString(poolPayload.budget, "—"),
     formationEligible: asBoolean(poolPayload.formationEligible, false),
+    templateId: poolPayload.templateId,
+    metaGovernance: poolPayload.metaGovernance,
     teamSlots: asString(poolPayload.teamSlots, "—"),
     milestones: asString(poolPayload.milestones, "—"),
     timeLeft: "3d 00h",
@@ -2506,6 +2548,60 @@ function buildVoteStageData(payload: unknown): Array<{
   ];
 }
 
+async function upsertChamberReadModel(
+  store: Awaited<ReturnType<typeof createReadModelsStore>>,
+  input: {
+    action: "create" | "dissolve";
+    id: string;
+    title?: string;
+    multiplier?: number;
+  },
+): Promise<void> {
+  if (!store.set) return;
+  const listPayload = await store.get("chambers:list");
+  const existing =
+    isRecord(listPayload) && Array.isArray(listPayload.items)
+      ? listPayload.items
+      : [];
+
+  const normalizedId = input.id.trim().toLowerCase();
+  const nextItems = existing.filter(
+    (item) => !isRecord(item) || String(item.id).toLowerCase() !== normalizedId,
+  );
+
+  if (input.action === "create") {
+    const multiplier =
+      typeof input.multiplier === "number" && Number.isFinite(input.multiplier)
+        ? input.multiplier
+        : 1;
+    nextItems.push({
+      id: normalizedId,
+      name: input.title?.trim() || normalizedId,
+      multiplier,
+      stats: { governors: "0", acm: "0", mcm: "0", lcm: "0" },
+      pipeline: { pool: 0, vote: 0, build: 0 },
+      status: "active",
+    });
+
+    await store.set(`chambers:${normalizedId}`, {
+      proposals: [],
+      governors: [],
+      threads: [],
+      chatLog: [],
+      stageOptions: [
+        { value: "upcoming", label: "Upcoming" },
+        { value: "live", label: "Live" },
+        { value: "ended", label: "Ended" },
+      ],
+    });
+  }
+
+  await store.set("chambers:list", {
+    ...(isRecord(listPayload) ? listPayload : {}),
+    items: nextItems,
+  });
+}
+
 async function maybeAdvanceVoteProposalToBuild(
   env: Record<string, string | undefined>,
   store: Awaited<ReturnType<typeof createReadModelsStore>>,
@@ -2513,6 +2609,7 @@ async function maybeAdvanceVoteProposalToBuild(
     proposalId: string;
     counts: { yes: number; no: number; abstain: number };
     activeGovernors: number;
+    requestUrl: string;
   },
 ): Promise<boolean> {
   if (!store.set) return false;
@@ -2524,7 +2621,22 @@ async function maybeAdvanceVoteProposalToBuild(
 
   const attentionQuorum = chamberPayload.attentionQuorum;
   const activeGovernors = input.activeGovernors;
-  const formationEligible = chamberPayload.formationEligible;
+  let meta = parseChamberGovernanceFromPayload(chamberPayload);
+  let poolPayload: Record<string, unknown> | null = null;
+  if (!meta) {
+    const candidate = await store.get(`proposals:${input.proposalId}:pool`);
+    if (isRecord(candidate)) {
+      poolPayload = candidate;
+      meta = parseChamberGovernanceFromPayload(candidate);
+    }
+  }
+  const formationEligible = meta
+    ? false
+    : typeof chamberPayload.formationEligible === "boolean"
+      ? chamberPayload.formationEligible
+      : poolPayload && typeof poolPayload.formationEligible === "boolean"
+        ? poolPayload.formationEligible
+        : true;
   if (
     typeof attentionQuorum !== "number" ||
     typeof activeGovernors !== "number" ||
@@ -2547,6 +2659,58 @@ async function maybeAdvanceVoteProposalToBuild(
   if (!isRecord(listPayload)) return false;
   const items = listPayload.items;
   if (!Array.isArray(items)) return false;
+
+  if (meta?.action === "chamber.create" && meta.title && meta.id) {
+    await createChamberFromAcceptedGeneralProposal(env, input.requestUrl, {
+      id: meta.id,
+      title: meta.title,
+      multiplier: meta.multiplier,
+      proposalId: input.proposalId,
+    });
+
+    await upsertChamberReadModel(store, {
+      action: "create",
+      id: meta.id,
+      title: meta.title,
+      multiplier: meta.multiplier,
+    });
+
+    const genesisMembers = (() => {
+      const source =
+        (chamberPayload.metaGovernance as { genesisMembers?: unknown }) ??
+        (poolPayload?.metaGovernance as { genesisMembers?: unknown });
+      const raw = source?.genesisMembers;
+      if (!Array.isArray(raw)) return [];
+      return raw
+        .filter((v): v is string => typeof v === "string")
+        .map((v) => v.trim())
+        .filter(Boolean);
+    })();
+
+    const proposerId = asString(chamberPayload.proposerId, "").trim();
+    const memberSet = new Set<string>(genesisMembers);
+    if (proposerId) memberSet.add(proposerId);
+    for (const address of memberSet) {
+      await ensureChamberMembership(env, {
+        address,
+        chamberId: meta.id,
+        grantedByProposalId: input.proposalId,
+        source: "chamber_genesis",
+      });
+    }
+  }
+
+  if (meta?.action === "chamber.dissolve" && meta.id) {
+    await dissolveChamberFromAcceptedGeneralProposal(env, input.requestUrl, {
+      id: meta.id,
+      proposalId: input.proposalId,
+    });
+
+    await upsertChamberReadModel(store, {
+      action: "dissolve",
+      id: meta.id,
+    });
+  }
 
   if (formationEligible) {
     await ensureFormationProposalPage(store, input.proposalId, chamberPayload);
@@ -2804,19 +2968,6 @@ async function enforceChamberVoteEligibility(
     const tier = await resolveUserTierFromSimConfig(simConfig, voterAddress);
     if (tier !== "Nominee") return null;
 
-    const eligible =
-      (await hasChamberMembership(env, {
-        address: voterAddress,
-        chamberId: "general",
-      })) ||
-      (await hasAnyChamberMembership(env, voterAddress)) ||
-      (await hasAnyGenesisMembership());
-    if (!eligible) {
-      return errorResponse(403, "Not eligible to vote in General chamber", {
-        code: "chamber_vote_ineligible",
-        chamberId,
-      });
-    }
     return null;
   }
 

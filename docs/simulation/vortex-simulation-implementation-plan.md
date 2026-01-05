@@ -1344,7 +1344,6 @@ Tests:
 - Unit tests for MM aggregation.
 - API tests for MM visibility in `GET /api/my-governance` and `GET /api/invision`.
 
-
 Proposal wizard v2 track (Phases 35–39)
 
 The current UI implementation supports meta-governance, but it still uses a largely “single big form” shape that mixes project fields with system-change fields. For long-term maintainability (and a cleaner chamber-creation UX), the wizard is moving to a template-driven design where proposal types have distinct step flows and payload shapes.

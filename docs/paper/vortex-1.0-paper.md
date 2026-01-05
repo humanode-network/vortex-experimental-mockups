@@ -20,7 +20,7 @@ Vortex is based on five major principles through which the main organizational b
 4. **Constant deterrence**
 5. **Power detachment resilience**
 
-**Cognitocracy** (from Latin verb *cognoscere* ‘to know’ and from Ancient Greek *kratos* 'rule') - a legislative model based on granting the voting rights only to those who are able to bring constructive and deployable innovation (Cognitocrats). It is a system that tries to concentrate decision-making capabilities in the hands of those who have proven to be professional and creative enough to receive the rights to vote on matters of a certain specialization. Throughout this paper words “Cognitocrat” and “Governor” are used interchangeably, as one can’t become a governor without being a cognitocrat.&#x20;
+**Cognitocracy** (from Latin verb _cognoscere_ ‘to know’ and from Ancient Greek _kratos_ 'rule') - a legislative model based on granting the voting rights only to those who are able to bring constructive and deployable innovation (Cognitocrats). It is a system that tries to concentrate decision-making capabilities in the hands of those who have proven to be professional and creative enough to receive the rights to vote on matters of a certain specialization. Throughout this paper words “Cognitocrat” and “Governor” are used interchangeably, as one can’t become a governor without being a cognitocrat.&#x20;
 
 Vortex aims to be a cognitocratric meritocracy where merit of innovation and optimization is separately evaluated from the merit of functional work. Both cognitocracy and meritocracy aim to concentrate power in the hands of those who have proof of proficiency in a specialization. Vortex aims to take into account the quantitative and qualitative data of contribution of governors to the Humanode network, through various forms of Proof-of-Time and Proof-of-Devotion that will act as cornerstones of a governor's emancipation from the Nominee to the Citizen status.
 
@@ -64,7 +64,7 @@ Delving into the philosophical base we can outline five major principles that mo
 4. Hybrid of direct and representative democracies&#x20;
 5. Liquid democracy&#x20;
 
-Undeniably technological development is one of the most influential processes that affects human species. Arguably, the most pivotal moments in our history were determined by our technological evolution. Technocracy implies that the decision-makers are selected based on their technological knowledge and technology-oriented methods of solving issues. It is often criticized for being elitist in nature as technocracy is closely associated with technological oligarchs that concentrate capital and emerging tech to get a grasp on the future development of their systems and thus have an undisputed rule over critical governing instruments or bodies. Cognitocracy inherits the principles of technological innovation and concentration of power in the hands of those who strive for innovation and technological development but puts aside the plutocratic  trait of a common technocracy.&#x20;
+Undeniably technological development is one of the most influential processes that affects human species. Arguably, the most pivotal moments in our history were determined by our technological evolution. Technocracy implies that the decision-makers are selected based on their technological knowledge and technology-oriented methods of solving issues. It is often criticized for being elitist in nature as technocracy is closely associated with technological oligarchs that concentrate capital and emerging tech to get a grasp on the future development of their systems and thus have an undisputed rule over critical governing instruments or bodies. Cognitocracy inherits the principles of technological innovation and concentration of power in the hands of those who strive for innovation and technological development but puts aside the plutocratic trait of a common technocracy.&#x20;
 
 Meritocracy has always been described as an ultimate form of governance. From Aristotle and Plato to Oliver Cromwell and Tomas Jefferson, hundreds of philosophers and key historical figures throughout history have claimed that merit must be the decisive factor in determining who is fit to rule. Unfortunately, as with any other idealistic philosophy, the world has never seen a real meritocracy in action. Favoritism, nepotism, blood-based capital inheritance and some other factors have been obstructing meritocracy from being enacted for a prolonged period of time. Cognitocracy cannot function without meritocracy. Cognitocracy derives from the very principle of merit but with a strong inclination towards creativity and innovation rather than functionality and working experience. The relationship between the two models isof the utmost importance for Humanode governance and will shape how the future governing apparatus is formed and is regulated.&#x20;
 
@@ -84,28 +84,28 @@ Cognitocracy functions through Specialization Chambers (SC) each representing a 
 
 An egalitarian cognitocracy that follows the original postulates of Humanode would have a strict invariant of 1 governor-cognitocract = 1 vote so that scales of power remain balanced and so that the voting power is distributed and decentralized as much as possible. 1 human = 1 node = 1 cognitocrat = 1 vote.&#x20;
 
-Let’s go over an example. Consider, for instance, the Programming chamber. While various subdivisions exist such as protocol, front-end, cryptobiometrics, etc., their consideration is presently omitted. To attain the status of a legitimate governor in the Programming chamber, one must present a proposal characterized by innovativeness, practicality, and realistic achievability for approval by the governors. The governors involved in the voting procedure have previously demonstrated their intellectual capabilities and field expertise through the approval of their own proposals and thus are cognitocrats.  Consequently, only engineers with established specialization are granted the privilege to vote, thereby notably mitigating the probability of endorsing flawed or non-professional proposals.
+Let’s go over an example. Consider, for instance, the Programming chamber. While various subdivisions exist such as protocol, front-end, cryptobiometrics, etc., their consideration is presently omitted. To attain the status of a legitimate governor in the Programming chamber, one must present a proposal characterized by innovativeness, practicality, and realistic achievability for approval by the governors. The governors involved in the voting procedure have previously demonstrated their intellectual capabilities and field expertise through the approval of their own proposals and thus are cognitocrats. Consequently, only engineers with established specialization are granted the privilege to vote, thereby notably mitigating the probability of endorsing flawed or non-professional proposals.
 
 This approach sets a system where only those Humanode validators who can pass the intellectual barrier get the right to vote and become governors, but at the same time all governors are always equal in terms of voting power.&#x20;
 
 The design of the SC suggests that their main purposes are:
 
-* Parallelisation of consensus without losing the quality of decision-making
-* Egalitarian distribution of decision-making power among the cognitocrats
-* Maintenance of an intellectual barrier for emancipation of voters&#x20;
-* Dynamic distribution of vote delegation
+- Parallelisation of consensus without losing the quality of decision-making
+- Egalitarian distribution of decision-making power among the cognitocrats
+- Maintenance of an intellectual barrier for emancipation of voters&#x20;
+- Dynamic distribution of vote delegation
 
-This structure in some way might resemble ministries but has three major differences. First, usually ministries are a part of an executive branch while chambers are a legislative one. Second, ministries are formed from the outside, either a parliament or a president or a governing body sets their structure, while branches in  cognitocracy are self-formed and self-regulated. Third, every ministry might have its own unique structure while chambers in cognitocracy maintain a uniform hierarchy structure.&#x20;
+This structure in some way might resemble ministries but has three major differences. First, usually ministries are a part of an executive branch while chambers are a legislative one. Second, ministries are formed from the outside, either a parliament or a president or a governing body sets their structure, while branches in cognitocracy are self-formed and self-regulated. Third, every ministry might have its own unique structure while chambers in cognitocracy maintain a uniform hierarchy structure.&#x20;
 
 The voting thresholds for accepting a proposal will be set at a qualified majority of 66.6% + 1 vote. Meaning that 66.6% + 1 casted vote including delegated ones are in favor of a proposal. The quorum will be considered assembled if 33% of active governors of the chamber partake in the voting.&#x20;
 
 The voting procedure, various thresholds and quorum mechanics are described in more detail below.&#x20;
 
-Cognitocracy strives to be a dynamic system. With chambers arising only as a necessity to address a rising throughput of challenges and proposals from the same field.   &#x20;
+Cognitocracy strives to be a dynamic system. With chambers arising only as a necessity to address a rising throughput of challenges and proposals from the same field. &#x20;
 
 ### General Chamber
 
-Besides SCs there exists a General Chamber (GC)  that incorporates all cognitocrat-governors that reside in a system regardless of their field of expertise. A GC acts as a venue for proposal submissions that affect a system as a whole. Any ruling of a GC is absolute and must surpass SCs in its legislative power as it would represent a democratic consensus of the whole system.
+Besides SCs there exists a General Chamber (GC) that incorporates all cognitocrat-governors that reside in a system regardless of their field of expertise. A GC acts as a venue for proposal submissions that affect a system as a whole. Any ruling of a GC is absolute and must surpass SCs in its legislative power as it would represent a democratic consensus of the whole system.
 
 In rare cases, a GC can also be used as a method for forced admittance of a proposal to a SC. For example, if a SC proposal was locally declined several times then a proposer could submit it to a GC and if the cognitocrats vote to accept it then it will be enforced upon the SC and this proposer would still become a cognitocrat. The difficulty in this is that getting the quorum in a GC is much harder than in a SC and cognitocrats will be reluctant to contradict the opinion of experts in the respective SCs to enforce a proposal that was declined by the experts locally.&#x20;
 
@@ -163,7 +163,7 @@ The most interesting case, and the one Humanode is going to utilize, is counting
 
 There should be a Veto system in place to prevent cases where the majority is wrong. This Veto should be temporary or still breakable with several attempts. It should be done so that there is no mechanism to stop the accepted democratic consensus, but slow one down to reconsider.
 
-In Vortex the veto power is distributed among the cognitocrats with the highest Local Cognitocractic Measure (LCM) in their respective chambers. The LCM is described in more detail below.  For example, if there are 12 specialized chambers the veto power would be distributed among 12 individuals who have obtained the highest LCM. If 66.6% + 1 person decides that some proposal should be vetoed, then the proposal will be sent back to vortex for two weeks. The temporary veto can be set twice. If the proposal gets approved for the third time then no veto can be implemented on it anymore.&#x20;
+In Vortex the veto power is distributed among the cognitocrats with the highest Local Cognitocractic Measure (LCM) in their respective chambers. The LCM is described in more detail below. For example, if there are 12 specialized chambers the veto power would be distributed among 12 individuals who have obtained the highest LCM. If 66.6% + 1 person decides that some proposal should be vetoed, then the proposal will be sent back to vortex for two weeks. The temporary veto can be set twice. If the proposal gets approved for the third time then no veto can be implemented on it anymore.&#x20;
 
 This Veto mechanism is a necessary tool of deterrence not only in the cases of minority vs majority, but also from direct attacks on a governing system from various vectors.&#x20;
 
@@ -223,20 +223,20 @@ As can be seen on this Figure every cognitocrat sets a multiplier to every other
 
 During an inception there are three outcomes that might be put in place by a proposer upon an approval of creation of a new SC :&#x20;
 
-* A proposer (and nominees) receives  ACM in a GC and both the proposer and nominees become cognitocrats in a created chamber. As in the case of any other proposition in a GC an average number submitted by approving cognitocrats becomes a CM received by the proposer.&#x20;
-* A proposer (and nominees) receives LCM in the created SC with the difference that the number is aggregated from a GC vote.
-* A proposer doesn’t receive any CM but still becomes a cognitocrat in a newly created SC.
+- A proposer (and nominees) receives ACM in a GC and both the proposer and nominees become cognitocrats in a created chamber. As in the case of any other proposition in a GC an average number submitted by approving cognitocrats becomes a CM received by the proposer.&#x20;
+- A proposer (and nominees) receives LCM in the created SC with the difference that the number is aggregated from a GC vote.
+- A proposer doesn’t receive any CM but still becomes a cognitocrat in a newly created SC.
 
 Dissolution comes with a separate set of outcomes that are also very contextual. There are two major cases:
 
-* Cognitocrats from a dissolved chamber retain their LCMs. Even if the SC doesn’t exist anymore the CM retains some legacy value that is either adjustable as others or frozen.&#x20;
-* Cognitocrats from a dissolved chamber lose all of their CM associated with that certain SC. This case is highly associated with a vote of censure.
+- Cognitocrats from a dissolved chamber retain their LCMs. Even if the SC doesn’t exist anymore the CM retains some legacy value that is either adjustable as others or frozen.&#x20;
+- Cognitocrats from a dissolved chamber lose all of their CM associated with that certain SC. This case is highly associated with a vote of censure.
 
 <br>
 
 # Formation
 
-Vortex governs the Humanode by deciding on key parameters through the voting power of human nodes. Formation is a part of the Humanode. It is a special grant-based development system providing grants, investments, service agreements, and projects to build. It is dedicated to supporting the Humanode network and all related technologies.  It will be available for interaction through the Vortex DAO app.&#x20;
+Vortex governs the Humanode by deciding on key parameters through the voting power of human nodes. Formation is a part of the Humanode. It is a special grant-based development system providing grants, investments, service agreements, and projects to build. It is dedicated to supporting the Humanode network and all related technologies. It will be available for interaction through the Vortex DAO app.&#x20;
 
 Any human node can join Formation to make a grant proposal or apply to become a part of a team that already develops an approved proposal. Proposals by non-human nodes can only reach Formation if one of the governing human nodes decides to nominate them. Such limitations allow us to protect devoted followers and contributors to the Humanode network.
 
@@ -248,9 +248,9 @@ The Humanode network’s DAO supports a number of different proposal directions.
 
 Generally, Formation funds:
 
-* **Research:** Advancing basic and applied research in cryptobiometrics, cryptographic primitives, distributed systems, consensus mechanisms, smart-contract layers, biometric modalities, liveness detection, encrypted search, and matching operations.<br>
-* **Development and Product:** Development turns research into software, while Product turns it into user experiences. Formation is primarily interested in technologies that expand the Humanode network, its potential, capabilities, and security, as well as the ecosystem, from decentralized finance and non-fungible tokens to decentralized courts.
-* **Social Good & Community:** Formation supports community members to bring awareness to open-source, decentralized networks, and biometric technologies, and scale community outreach for the Humanode network. The Formation funds are mainly used to maintain the network.
+- **Research:** Advancing basic and applied research in cryptobiometrics, cryptographic primitives, distributed systems, consensus mechanisms, smart-contract layers, biometric modalities, liveness detection, encrypted search, and matching operations.<br>
+- **Development and Product:** Development turns research into software, while Product turns it into user experiences. Formation is primarily interested in technologies that expand the Humanode network, its potential, capabilities, and security, as well as the ecosystem, from decentralized finance and non-fungible tokens to decentralized courts.
+- **Social Good & Community:** Formation supports community members to bring awareness to open-source, decentralized networks, and biometric technologies, and scale community outreach for the Humanode network. The Formation funds are mainly used to maintain the network.
 
 ### Assembling a team
 
@@ -262,9 +262,9 @@ procedure in the Vortex DAO app that will allow those whose proposals were appro
 
 There can be:
 
-* **Full team projects**, with predetermined participants;
-* **The team is partially assembled**, with spots that can be filled later from the community;
-* **No one in the team yet**, with all the slots available for the community.&#x20;
+- **Full team projects**, with predetermined participants;
+- **The team is partially assembled**, with spots that can be filled later from the community;
+- **No one in the team yet**, with all the slots available for the community.&#x20;
 
 It is worth noting that there is no need for participation in governance to partake in Formation. Any bioauthorized human node is allowed to join any project.
 
@@ -293,7 +293,7 @@ Obviously, the Humanode network will rely heavily on the activity of its Governo
 “Who says organization, says oligarchy.”\
 “Historical evolution mocks all the prophylactic measures that have been adopted for the prevention of oligarchy.”\
 \
-\&#xNAN;***- Robert Michels***&#x20;
+\&#xNAN;**_- Robert Michels_**&#x20;
 
 This hypothesis was developed by the German sociologist Robert Michels in his 1911 book, ’Political Parties.’ It states that any organizational form inevitably leads to oligarchy as an ’iron law’. Michels researched the fact that large and complex organizations cannot function efficiently if they are governed through direct democracy. Because of this, power within such organizations is always delegated to a group of individuals.&#x20;
 
@@ -324,8 +324,8 @@ The digital revolution has paved the way for technologies that allow us to creat
 
 It is commonly acknowledged that any voting system faces the problem of too much populism. Hypothetically there are two major approaches to how populism is perceived:&#x20;
 
-* Populism poses a threat to democratic stability. According to recent studies, conducted by Jordan Kyle and Yascha Mounk of the Tony Blair Institute for Global Change, one of the key findings they have had is that populists are far more likely to damage democracy. Overall, 23 percent of populists cause significant democratic backsliding, compared with 6 percent of nonpopulist democratically elected leaders (J. Kyle & Y. Mounk, 2018). In other words, populist governments are about four times more likely than non-populist ones to harm democratic institutions.
-* Populism is a necessary corrective mechanism that addresses popular problems and limits the power of elites.&#x20;
+- Populism poses a threat to democratic stability. According to recent studies, conducted by Jordan Kyle and Yascha Mounk of the Tony Blair Institute for Global Change, one of the key findings they have had is that populists are far more likely to damage democracy. Overall, 23 percent of populists cause significant democratic backsliding, compared with 6 percent of nonpopulist democratically elected leaders (J. Kyle & Y. Mounk, 2018). In other words, populist governments are about four times more likely than non-populist ones to harm democratic institutions.
+- Populism is a necessary corrective mechanism that addresses popular problems and limits the power of elites.&#x20;
 
 Regardless of which view is more accurate, populism is acknowledged to be a very powerful tool to gather the support of the masses in democratic systems. The main danger perceived by the Humanode core is the rise of populists. Individuals that know how to be popular do not necessarily have the intelligence, professional qualities, experience, or profound knowledge on the subjects they have to make decisions upon on a regular basis.&#x20;
 
@@ -345,9 +345,9 @@ Plutocracy is not rooted in any established political philosophy because every s
 
 Cognitocracy is also vulnerable to plutocracy like any other system, but compared to other models it has some benefits that help to keep the plutocrats at bay and deter their influence.
 
-* There are no elections in a cognitocracy. No position that is elected through a popularity contest. All Cognitocracts have the same voting power so there is no point of direct exchange of electoral support for lobbying.&#x20;
-* If plutocrats want to help out a cognitocrat for him to lobby their interest in the future they have to divert resources to foster an actual creative innovation so that it is accepted by specialists. So instead of just spending capital on marketing.
-* &#x20;Media campaign doesn’t play such a crucial role in voting in a cognitocracy. As a proposer is addressing a professional minority, it is more crucial to prepare and deliver a good paper than to have a massive public image. This is achievable without any external help, thus lowering the influence of plutocrats.&#x20;
+- There are no elections in a cognitocracy. No position that is elected through a popularity contest. All Cognitocracts have the same voting power so there is no point of direct exchange of electoral support for lobbying.&#x20;
+- If plutocrats want to help out a cognitocrat for him to lobby their interest in the future they have to divert resources to foster an actual creative innovation so that it is accepted by specialists. So instead of just spending capital on marketing.
+- &#x20;Media campaign doesn’t play such a crucial role in voting in a cognitocracy. As a proposer is addressing a professional minority, it is more crucial to prepare and deliver a good paper than to have a massive public image. This is achievable without any external help, thus lowering the influence of plutocrats.&#x20;
 
 #### Cognitocractic populism
 
@@ -371,7 +371,7 @@ It can lead to:
 
 If such tendencies arise in a SC it might be viable to either dissolve this chamber or merge it with another. This problem represents the very root of how cognitocracy functions. As mentioned above cognitocracy aims to be a dynamic system that creates and dissolves chambers according to the prevalent needs and throughput of proposals of a certain specialization. If the size of a chamber becomes disproportionately larger than the actual decision-making needs and potential innovation that this chamber might bring then it will inevitably fall into the state of cognitocratic drain which will certainly lead to above-mentioned consequences and pose a threat to a cognitocratic system as a whole.
 
-[*That's all for now. If you read everything till the end then you are now my personal hero! Thank you so much!*](#user-content-fn-1)[^1]
+[_That's all for now. If you read everything till the end then you are now my personal hero! Thank you so much!_](#user-content-fn-1)[^1]
 
 [^1]:
 
@@ -385,9 +385,9 @@ MM is a numerical score that is received by a contributor after completing a For
 
 MM does not grant extra voting power. It acts as a reputation and merit signal that helps:
 
-* Demonstrate execution ability and reliability over time.
-* Inform proposition rights emancipation (Proof-of-Devotion) alongside Proof-of-Time and Proof-of-Governance.
-* Provide context in Invision insights when evaluating proposers and teams.
+- Demonstrate execution ability and reliability over time.
+- Inform proposition rights emancipation (Proof-of-Devotion) alongside Proof-of-Time and Proof-of-Governance.
+- Provide context in Invision insights when evaluating proposers and teams.
 
 <br>
 
@@ -397,10 +397,10 @@ Any governance system operating in an adversarial environment needs a structured
 
 Courts handle disputes such as:
 
-* Delegation disputes and alleged delegation abuse.
-* Milestone disputes in Formation (e.g., “delivered but not usable”, “unlock contested”).
-* Identity integrity disputes (e.g., PoBU anomalies and suspected coordinated enrolment attempts).
-* Governance process disputes (e.g., procedural issues, ambiguous rules, repeated abuse patterns).
+- Delegation disputes and alleged delegation abuse.
+- Milestone disputes in Formation (e.g., “delivered but not usable”, “unlock contested”).
+- Identity integrity disputes (e.g., PoBU anomalies and suspected coordinated enrolment attempts).
+- Governance process disputes (e.g., procedural issues, ambiguous rules, repeated abuse patterns).
 
 Courts operate through cases with a clear lifecycle:
 
@@ -419,9 +419,9 @@ Invision is the reputation and system-state lens of Vortex. Its goal is to suppo
 
 Invision provides an “Insight” layer that aggregates signals such as:
 
-* Proposal history (submitted, accepted, rejected, abandoned).
-* Delivery history (milestones completed, delays, contested milestones, returned budget).
-* Governance participation (vote participation over time, comments and review activity).
-* Delegation signals (delegations held, delegation changes, concentration indicators).
+- Proposal history (submitted, accepted, rejected, abandoned).
+- Delivery history (milestones completed, delays, contested milestones, returned budget).
+- Governance participation (vote participation over time, comments and review activity).
+- Delegation signals (delegations held, delegation changes, concentration indicators).
 
 Invision is informational: it does not change the 1 human = 1 vote invariant. It exists to improve decision-making quality, reduce uncertainty, and help governors reason about trust, risk, and centralization pressure with concrete data rather than narratives alone.

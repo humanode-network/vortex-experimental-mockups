@@ -1,6 +1,7 @@
 import { errorResponse, jsonResponse } from "../../_lib/http.ts";
 import { getChamber } from "../../_lib/chambersStore.ts";
 import { listProposals } from "../../_lib/proposalsStore.ts";
+import { createReadModelsStore } from "../../_lib/readModelsStore.ts";
 import {
   listAllChamberMembers,
   listChamberMembers,
@@ -13,10 +14,53 @@ export const onRequestGet: PagesFunction = async (context) => {
     const id = context.params?.id;
     if (!id) return errorResponse(400, "Missing chamber id");
     if (context.env.READ_MODELS_INLINE_EMPTY === "true") {
-      return errorResponse(404, "Chamber not found");
+      const store = await createReadModelsStore(context.env).catch(() => null);
+      const fallback = store ? await store.get(`chambers:${id}`) : null;
+      if (!fallback) return errorResponse(404, "Chamber not found");
     }
 
-    const chamber = await getChamber(context.env, context.request.url, id);
+    let chamber = await getChamber(context.env, context.request.url, id);
+    if (!chamber) {
+      const store = await createReadModelsStore(context.env).catch(() => null);
+      const listPayload = store ? await store.get("chambers:list") : null;
+      const items =
+        listPayload &&
+        typeof listPayload === "object" &&
+        !Array.isArray(listPayload) &&
+        Array.isArray((listPayload as { items?: unknown[] }).items)
+          ? (listPayload as { items: unknown[] }).items
+          : [];
+      const entry = items.find(
+        (item) =>
+          item &&
+          typeof item === "object" &&
+          !Array.isArray(item) &&
+          String((item as { id?: string }).id ?? "").toLowerCase() ===
+            id.toLowerCase(),
+      ) as
+        | {
+            id?: string;
+            name?: string;
+            multiplier?: number;
+            status?: string;
+          }
+        | undefined;
+      if (entry) {
+        const multiplier =
+          typeof entry.multiplier === "number" ? entry.multiplier : 1;
+        const now = new Date();
+        chamber = {
+          id: String(entry.id ?? id).toLowerCase(),
+          title: entry.name ?? entry.id ?? id,
+          status:
+            entry.status === "dissolved" ? "dissolved" : ("active" as const),
+          multiplierTimes10: Math.round(multiplier * 10),
+          createdAt: now,
+          updatedAt: now,
+          dissolvedAt: null,
+        };
+      }
+    }
     if (!chamber) return errorResponse(404, "Chamber not found");
 
     const stageOptions = [

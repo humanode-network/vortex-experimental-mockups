@@ -74,11 +74,15 @@ export async function finalizeAcceptedProposalFromVote(
     proposalId: proposal.id,
   });
 
-  const proposalChamberId = (proposal.chamberId ?? "general").toLowerCase();
+  const proposalChamberId = (() => {
+    const raw = (proposal.chamberId ?? "general").trim();
+    return raw ? raw.toLowerCase() : "general";
+  })();
+  const meta = parseChamberGovernanceFromPayload(proposal.payload);
+  const effectiveChamberId = meta ? "general" : proposalChamberId;
 
-  if (proposalChamberId === "general") {
-    const meta = parseChamberGovernanceFromPayload(proposal.payload);
-    if (meta?.action === "chamber.create" && meta.title) {
+  if (effectiveChamberId === "general" && meta) {
+    if (meta.action === "chamber.create" && meta.title) {
       await createChamberFromAcceptedGeneralProposal(env, input.requestUrl, {
         id: meta.id,
         title: meta.title,
@@ -126,7 +130,7 @@ export async function finalizeAcceptedProposalFromVote(
         });
       }
     }
-    if (meta?.action === "chamber.dissolve") {
+    if (meta.action === "chamber.dissolve") {
       await dissolveChamberFromAcceptedGeneralProposal(env, input.requestUrl, {
         id: meta.id,
         proposalId: proposal.id,

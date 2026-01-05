@@ -412,7 +412,15 @@ const Proposals: React.FC = () => {
                 title={proposal.title}
                 right={
                   <>
-                    <StageChip stage={proposal.stage} />
+                    <StageChip
+                      stage={proposal.stage}
+                      label={
+                        proposal.stage === "build" &&
+                        proposal.summaryPill === "Passed"
+                          ? "Passed"
+                          : undefined
+                      }
+                    />
                     <Badge
                       variant="muted"
                       size="sm"
@@ -739,7 +747,9 @@ const Proposals: React.FC = () => {
                         : proposal.stage === "vote"
                           ? `/app/proposals/${proposal.id}/chamber`
                           : proposal.stage === "build"
-                            ? `/app/proposals/${proposal.id}/formation`
+                            ? proposal.summaryPill === "Passed"
+                              ? `/app/proposals/${proposal.id}/chamber`
+                              : `/app/proposals/${proposal.id}/formation`
                             : `/app/proposals/${proposal.id}/pp`
                     }
                     primaryLabel={proposal.ctaPrimary}

@@ -1,4 +1,5 @@
 import { errorResponse, jsonResponse } from "../../_lib/http.ts";
+import { createReadModelsStore } from "../../_lib/readModelsStore.ts";
 import {
   listChambers,
   projectChamberPipeline,
@@ -8,7 +9,29 @@ import {
 export const onRequestGet: PagesFunction = async (context) => {
   try {
     if (context.env.READ_MODELS_INLINE_EMPTY === "true") {
+      const store = await createReadModelsStore(context.env).catch(() => null);
+      const payload = store ? await store.get("chambers:list") : null;
+      if (
+        payload &&
+        typeof payload === "object" &&
+        !Array.isArray(payload) &&
+        Array.isArray((payload as { items?: unknown[] }).items)
+      ) {
+        return jsonResponse(payload);
+      }
       return jsonResponse({ items: [] });
+    }
+    if (!context.env.DATABASE_URL) {
+      const store = await createReadModelsStore(context.env).catch(() => null);
+      const payload = store ? await store.get("chambers:list") : null;
+      if (
+        payload &&
+        typeof payload === "object" &&
+        !Array.isArray(payload) &&
+        Array.isArray((payload as { items?: unknown[] }).items)
+      ) {
+        return jsonResponse(payload);
+      }
     }
     const url = new URL(context.request.url);
     const includeDissolved =
