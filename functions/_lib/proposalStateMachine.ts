@@ -49,12 +49,14 @@ export function shouldAdvancePoolToVote(input: {
 export function shouldAdvanceVoteToBuild(input: {
   activeGovernors: number;
   counts: { yes: number; no: number; abstain: number };
+  minQuorum?: number;
 }): boolean {
   const result = evaluateChamberQuorum(
     {
       quorumFraction: V1_CHAMBER_QUORUM_FRACTION,
       activeGovernors: input.activeGovernors,
       passingFraction: V1_CHAMBER_PASSING_FRACTION,
+      minQuorum: input.minQuorum,
     },
     input.counts,
   );

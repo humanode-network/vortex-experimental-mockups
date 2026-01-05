@@ -698,7 +698,9 @@ export const onRequestPost: PagesFunction = async (context) => {
       budget,
       cooldown: "Withdraw cooldown: 12h",
       formationEligible,
-      templateId: isRecord(draft.payload) ? draft.payload.templateId : undefined,
+      templateId: isRecord(draft.payload)
+        ? draft.payload.templateId
+        : undefined,
       metaGovernance: isRecord(draft.payload)
         ? draft.payload.metaGovernance
         : undefined,
@@ -2645,11 +2647,19 @@ async function maybeAdvanceVoteProposalToBuild(
     return false;
   }
 
+  const minQuorum =
+    env.SIM_ACTIVE_GOVERNORS || env.VORTEX_ACTIVE_GOVERNORS
+      ? undefined
+      : activeGovernors > 1
+        ? 2
+        : undefined;
+
   const quorum = evaluateChamberQuorum(
     {
       quorumFraction: attentionQuorum,
       activeGovernors,
       passingFraction: V1_CHAMBER_PASSING_FRACTION,
+      minQuorum,
     },
     input.counts,
   );
@@ -2784,9 +2794,17 @@ async function maybeAdvanceVoteProposalToBuildCanonical(
     }
   }
 
+  const minQuorum =
+    env.SIM_ACTIVE_GOVERNORS || env.VORTEX_ACTIVE_GOVERNORS
+      ? undefined
+      : input.activeGovernors > 1
+        ? 2
+        : undefined;
+
   const shouldAdvance = shouldAdvanceVoteToBuild({
     activeGovernors: input.activeGovernors,
     counts: input.counts,
+    minQuorum,
   });
   if (!shouldAdvance) return { status: "none" };
 

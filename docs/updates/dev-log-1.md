@@ -2,44 +2,113 @@
 
 **Date:** 2025-12-24
 
-## Release scope
+## TL;DR
 
-This release merges the entire `dev` branch into `master` as **Vortex Simulator v0.1**. It covers every simulator domain that has evolved since the last published release: the proposal wizard, chamber lifecycle, gating/quorum logic, canonical read models, admin tooling, docs/tests, and the blog-ready narrative. It now serves as the single source of truth for what changed between the previous shipping baseline (`origin/master` prior to this merge) and the current simulator.
+This update turns Vortex from a **UI-only mock** into a **stateful governance simulator** with a real backend:
 
-## Key differences vs. previous master
+- Wallet auth (signature-based) + **real Humanode mainnet gating**
+- Proposal drafts + multi-step wizard (project vs system/meta-governance flows)
+- Proposal pools → chamber voting → acceptance (with real quorums/thresholds)
+- Chamber lifecycle automation (create/dissolve via General chamber proposals)
+- Formation execution for project proposals (team slots + milestones)
+- Courts/disputes + a canonical event timeline/feed
+- Admin tools for moderation/ops (freeze, user locks, audit trail)
 
-- **Proposal & chamber flows** — New metadata, canonical read models, and stage transitions mean system proposals skip Formation, automatically spawn chambers (with genesis membership), and show up in `/chambers` immediately.
-- **Chambers & quorums** — Passed proposals chart a path through the new quorum engine (active-governor denominators, strict 66.6%+1 passing rule), while veto slots, CM awards, and formation seeds consistently rely on the canonical vote state.
-- **Docs & storytelling** — Everything now resides under `docs/updates`, and this Dev Log is the single source of truth for release notes, blog drafts, and the phase-aligned implementation plan.
+## What changed (as features)
 
-## What end users will notice
+### 1) A real backend exists now
 
-- A **streamlined chamber wizard**: when you select “system change,” the form dynamically surfaces only the fields needed for a chamber create/dissolve proposal, enforces the new validation rules, and persists the meta-governance payload so the back end knows it’s a chamber action.
-- A **faster proposal lifecycle**: attention votes, chamber votes, and passing tracking now operate with real-time denominators, so the UI always shows accurate quorum percentages. When a chamber-related proposal passes, the next CTA lands you inside the new chamber instead of Formation.
-- **Chamber discoverability**: `/app/chambers` now reflects newly created or dissolved chambers immediately, even in the local read-model mode, because we patch the read-model store as part of the vote acceptance flow.
-- **Better release transparency**: this document (Dev Log #1) is the canonical release note and blog-ready summary — every notable change is covered here so the blog post can simply refer to it for the fine-grained details.
+Previous master was mostly front-end mock data. This release adds a working simulation backend (Pages Functions) that the UI talks to via `/api/*`, including:
 
-## Technical changes (for reference)
+- Command API for actions (`pool.vote`, `chamber.vote`, `formation.join`, court actions, admin actions)
+- Read endpoints for every page model (proposals, chambers, courts, humans, factions, formation, invision, my-governance)
+- A canonical event stream (feed + per-proposal timeline) so the UI reflects what actually happened, in order
 
-- **Formation gating** now derives `formationEligible` from the payload/read model so meta-governance proposals bypass Formation and instead create/dissolve chambers directly from the read model store (both inline and real DB). The canonical `finalizeAcceptedProposalFromVote` path seeds chambers + memberships for metaproposals.
-- **Read-model resilience** — chamber and proposal endpoints fall back to the in-memory read models, and new chamber creations update `chambers:list` plus per-chamber entries so the UI sees new chambers before persistence exists.
-- **Chamber lifecycle automation** — `maybeAdvanceVoteProposalToBuild` inspects `metaGovernance`, calls `createChamberFromAcceptedGeneralProposal`/`dissolveChamberFromAcceptedGeneralProposal`, and updates the read models; genesis members plus proposers automatically join newly created chambers.
-- **Proposal creation cleanup** — normalized chamber IDs, meta-governance validation, and stored payloads ensure the new flows work offline. The stage transition feed/timeline now references the correct chamber action.
-- **Admin & docs** — new `docs/updates/dev-log-1.md` now records the entire release; the README links have been refreshed to point at this summary, and the old extra dev log drafts were removed per the new single-doc rule.
+### 2) Real Humanode mainnet gating (validator-only actions)
 
-## Commit appendix
+The simulator now supports a “real gate” mode: anyone can browse, but actions are blocked unless the connected wallet is an **active validator** on Humanode mainnet.
 
-Major commits included (hash + title):
+Under the hood, gating reads the mainnet validator set (via RPC) and caches results so the UI can show:
 
-1. `57b4d64` — Doc grouping and updates (read-model docs reorganized).
-2. `6f607a0` & `c0c32a5` — Proposal wizard refactors (meta payloads + drafts).
-3. `e99dbb7`/`1f7a04f` — HMND canonicalization + wizard plans.
-4. `dad0a22` … `3ac134a` — Quorum engine overhauls, governor eligibility, doc alignment.
-5. `f152962`/`3a740e1`/`69b4057` — Thresholds, attention quorum, chamber-multiplier voting.
-6. `e48962c`/`9589ccc` — Veto implementation and CM/quorum snapshot stability.
-7. `1c7d90b` … `10843a1` — Phase 26–27 moves (event-driven timeline, canonical read models, stage windows).
-8. `52deba7` … `26534b0` — Proposal UI unification, system wizard, draft-based creation.
-9. `414f85a` … `e1b3377` — Chamber detail modeling, membership seeding, plan-phase doc alignments.
-10. earlier phases (phase 11–24) — foundational era snapshots, courts, formation, events, gating, admin tooling.
+- Wallet status (connected / disconnected)
+- Gate status (active / not active)
 
-Each of those commits either added new simulator behavior, rewired an API surface, or refreshed the docs so the release note matches the current state.
+### 3) Proposal creation is now “drafts + templates”
+
+The proposal wizard is no longer a single hardcoded form. It supports:
+
+- **Drafts**: save anytime, resume later, submit when ready
+- **Project proposals**: “execute something” (may go into Formation after acceptance)
+- **System/meta-governance proposals**: “change the system” (e.g. create/dissolve a chamber)
+
+This matters because system proposals should be realized immediately by the simulator (they change the system state), while project proposals represent broader execution work.
+
+### 4) Proposal Pools work (quorum of attention)
+
+Each proposal enters the appropriate pool first. Governors can upvote/downvote.
+
+- Proposals advance from pool → chamber vote when they meet the attention threshold.
+- Vote updates are idempotent and counted toward per-era action quotas.
+
+### 5) Chamber voting works (quorum + 66.6% + 1)
+
+Once a proposal reaches chamber vote, governors vote **yes/no/abstain**.
+
+- Quorum is derived from the active-governor denominator for that chamber/era.
+- Passing is the strict rule: **66.6% + 1 vote** among those voting.
+- Optional vote scoring on “yes” is used for cognitocratic measure (CM) flows.
+
+### 6) System proposals can create/dissolve chambers (and they appear in the UI)
+
+The biggest “it feels real” change: a General-chamber system proposal can be:
+
+Draft → Proposal Pool → Chamber Vote → **Passed** → chamber is created/dissolved
+
+When a chamber is created, the simulator seeds initial membership (genesis members + proposer), and the new chamber appears on `/app/chambers` immediately.
+
+### 7) Formation is now an execution module (for project proposals)
+
+For proposals that require Formation:
+
+- Formation pages exist and derive from the accepted proposal
+- Team slots can be filled (join)
+- Milestones can be submitted and unlocks requested (mock execution loop)
+
+System proposals bypass Formation by design.
+
+### 8) Courts/disputes are stateful
+
+Courts now support a real “case lifecycle” in the simulator:
+
+- Reports increment and can move cases through statuses
+- Verdicts are restricted by case status (e.g. only when live)
+- Case events show up in feed/timelines
+
+### 9) My Governance is backed by era logic
+
+There’s a real concept of “era activity” in the backend now:
+
+- Actions count toward an era (with quotas)
+- Rollups produce per-user status for the next era
+- Denominators for quorums are snapshotted per stage so they don’t drift mid-vote
+
+### 10) Admin tooling exists (so the demo can be run safely)
+
+Basic moderation/ops endpoints were added for the simulator:
+
+- Freeze writes (temporary global pause)
+- Lock/unlock users (block actions)
+- Audit log for admin actions
+
+## How to try it (quick)
+
+- Local full-stack (UI + Functions): run `yarn dev:full`.
+- If `/api/*` is missing: use the Pages Functions flow described in `docs/vortex-simulation-local-dev.md`.
+
+## What’s next
+
+This v0.1 milestone is “the simulator exists”. Next work should focus on deepening correctness and closing the remaining “paper vs simulator” gaps:
+
+- Active governance rules and quorums fully derived from era rollups
+- Completing the module set for end-to-end realism (delegation, veto UX, more proposal types)
+- Hardening persistence mode (Postgres) and deployment configuration
