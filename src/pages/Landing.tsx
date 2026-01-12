@@ -6,38 +6,14 @@ import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingPage } from "@/components/marketing/MarketingPage";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 
+const posterSrc = "/landing/poster.png";
+const videoSrc = "/landing/loop.mp4";
+
 const Landing: React.FC = () => {
   const prefersReducedMotion = usePrefersReducedMotion();
   const [videoFailed, setVideoFailed] = React.useState(false);
   const [videoReady, setVideoReady] = React.useState(false);
-  const [posterSrc, setPosterSrc] = React.useState("/landing/poster.png");
-  const [videoSrc, setVideoSrc] = React.useState("/landing/Loop.mp4");
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
-
-  React.useEffect(() => {
-    const loadConfig = async () => {
-      try {
-        const endpoints = [
-          "/landing/config.local.json",
-          "/landing/config.json",
-        ];
-        for (const endpoint of endpoints) {
-          const res = await fetch(endpoint, { cache: "no-store" });
-          if (!res.ok) continue;
-          const json = (await res.json()) as Partial<{
-            posterSrc: string;
-            videoSrc: string;
-          }>;
-          if (json.posterSrc) setPosterSrc(json.posterSrc);
-          if (json.videoSrc) setVideoSrc(json.videoSrc);
-          break;
-        }
-      } catch {
-        // Optional config; ignore failures.
-      }
-    };
-    void loadConfig();
-  }, []);
 
   React.useEffect(() => {
     if (prefersReducedMotion) return;
@@ -85,7 +61,6 @@ const Landing: React.FC = () => {
         >
           <source src={videoSrc} />
           <source src="/landing/loop.mp4" />
-          <source src="/landing/Loop.mp4" />
         </video>
       )}
 
