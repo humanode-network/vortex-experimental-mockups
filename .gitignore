@@ -29,7 +29,6 @@ storybook-static
 .env
 
 # landing assets (keep large videos out of git history)
-public/landing/*.mp4
 public/landing/*.webm
 public/landing/*.mov
 public/landing/config.local.json
